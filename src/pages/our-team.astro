@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, TEAM, breadcrumbSchema } from '../lib/site';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Our Team', url: `${SITE.domain}/our-team` },
+  ]),
+];
+---
+<Base
+  title="Meet The ProtectHealth Team | Las Vegas Insurance Brokers"
+  description="Meet the ProtectHealth brokers — Robert Morgen, Brian Douglas, Brenda Morgen, and Jason Vasquez — the team behind Las Vegas's strategy-first insurance brokerage."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Our Team</div>
+      <h1>Insurance nerds, at your service</h1>
+      <p class="lead">A team of dedicated professionals who would rather ask the right questions than make the fast sale.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="grid cols-3">
+        {TEAM.map((m) => (
+          <div class="card">
+            <h3>{m.name}</h3>
+            <p>{m.role} · ProtectHealth</p>
+            <a class="more" href={`/team-members/${m.slug}`}>View Profile →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

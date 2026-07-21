@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE, breadcrumbSchema } from '../../lib/site';
+import { getCollection } from 'astro:content';
+
+const qas = (await getCollection('qa')).sort((a, b) => a.data.question.localeCompare(b.data.question));
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Q&A', url: `${SITE.domain}/qa` },
+  ]),
+];
+---
+<Base
+  title="Insurance Questions Answered | ProtectHealth Q&A"
+  description="Direct answers to real insurance questions from Nevadans — self-employed coverage, ICHRA, employer benefits, payroll, HR, and more."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Q&amp;A</div>
+      <h1>Real questions. Direct answers.</h1>
+      <p class="lead">One question per page, answered the way an advisor would answer it — clearly, and with the follow-ups you'd actually ask next.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="grid cols-2">
+        {qas.map((q) => (
+          <div class="card">
+            <h3>{q.data.question}</h3>
+            <p>{q.data.quickAnswer}</p>
+            <a class="more" href={`/qa/${q.id}`}>Full Answer →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

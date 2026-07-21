@@ -1,0 +1,95 @@
+---
+// BOFU terminus for the Paychex cluster. Copy from the approved Paychex Launch Kit.
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../lib/site';
+
+const pageUrl = `${SITE.domain}/employers`;
+const faq = [
+  { q: 'What does the ProtectHealth and Paychex partnership include?', a: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR support, compliance, benefits administration, onboarding, retirement plans, and other employer-support solutions alongside their insurance strategy.' },
+  { q: 'Is ProtectHealth becoming a payroll company?', a: 'No. ProtectHealth handles the benefits strategy conversation. When payroll, HR infrastructure, or employer services are worth exploring, ProtectHealth connects the business owner directly with a dedicated Paychex team.' },
+  { q: 'What kinds of businesses fit this best?', a: 'Businesses with employees: restaurants and hospitality with tipped teams, offices with no formal HR structure, companies adding people or locations, and any owner whose back office is getting heavier than it should be.' },
+  { q: 'Does exploring the Paychex partnership cost anything?', a: 'No. The conversation with ProtectHealth is free, and there is no obligation to change payroll providers or buy anything to have it.' },
+  { q: 'Can ProtectHealth help with tax credits for tipped businesses?', a: 'Tipped payroll can carry tax-credit opportunities worth exploring with the Paychex team. ProtectHealth brokers are insurance professionals, not tax professionals — a business\'s CPA should always be in the loop on tax-credit decisions.' },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Employer Benefits Strategy + Paychex Partnership — ProtectHealth',
+    description: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR, compliance, benefits administration, and employer-support solutions alongside their insurance strategy.',
+    provider: { '@id': ORG_ID },
+    areaServed: { '@type': 'State', name: 'Nevada' },
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Employers', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title="Employer Benefits + Paychex Partnership | ProtectHealth"
+  description="ProtectHealth has officially partnered with Paychex. Payroll, HR, compliance, benefits administration, and employer-support solutions — explored alongside your insurance strategy in one conversation."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Business Owners · Official Paychex Partner</div>
+      <h1>Your insurance agency just got a much bigger toolbox.</h1>
+      <p class="lead">ProtectHealth has officially partnered with Paychex to help small businesses think through payroll, HR, compliance, benefits administration, and employer-support solutions alongside their insurance strategy. One conversation. The whole employer picture.</p>
+      <a href="#talk" class="btn big">Tell Us What's On Your Plate</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container article">
+      <div id="ai-summary">
+        ProtectHealth, a Las Vegas insurance brokerage, has officially partnered with Paychex to support small businesses beyond group health insurance. Business owners work with ProtectHealth on benefits strategy, and when payroll, HR infrastructure, compliance, onboarding, or retirement plans are worth exploring, ProtectHealth connects them directly with a dedicated Paychex team. Industry research shows 70 percent of small business owners spend more than a week per month on HR administration — time the partnership is designed to win back.
+      </div>
+
+      <h2>Why shouldn't running the "employer side" feel like a second job?</h2>
+      <p>Payroll. Onboarding. Handbooks. Compliance. Workers comp. Retirement. Benefits questions. Most owners are duct-taping five vendors together, or worse, handling it all themselves at 9pm. Research shows 70 percent of small business owners lose more than a week every month to HR administration, and 51 percent say compliance requirements actively hold back growth.</p>
+
+      <h2>How does the ProtectHealth × Paychex partnership work?</h2>
+      <p>ProtectHealth is the strategy. Paychex is the muscle. The process starts with a conversation about the business: the team, the pain points, what's growing, and what's breaking. Where benefits strategy is the answer, that's ProtectHealth. Where payroll, HR infrastructure, or employer services are the answer, ProtectHealth connects the owner directly with a dedicated Paychex team. Business owners don't get handed a brochure — they get handed to a person.</p>
+
+      <h2>Who is this built for?</h2>
+      <ul>
+        <li><strong>Tipped industries</strong> — restaurants, bars, salons, spas, and wellness businesses, where tipped payroll carries quirks and potential tax-credit opportunities most setups miss</li>
+        <li><strong>Businesses with no real HR department</strong> — employees but no handbook, onboarding that lives in someone's head, files scattered across three drawers</li>
+        <li><strong>Growing companies</strong> — adding employees, opening locations, or changing payroll vendors as the back office gets messy in the best possible way</li>
+        <li><strong>Owners competing for talent</strong> — where benefits, retirement plans, and a real employee experience beat salary-only offers</li>
+      </ul>
+
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+    </div>
+  </section>
+
+  <section class="section soft" id="talk">
+    <div class="container">
+      <h2>Start with one conversation</h2>
+      <p style="max-width:640px;">No commitment, no seminar, no 40-slide deck. Tell ProtectHealth what the employer side of your business feels like right now, and you'll hear what's worth exploring.</p>
+      <LeadForm
+        formId="employers"
+        heading="Tell us what's on your plate"
+        submitLabel="Book An Employer Strategy Conversation"
+        confirmation="Got it. Someone from ProtectHealth will reach out to set up a short conversation. If it makes sense to go deeper on payroll or HR, we'll bring in our dedicated Paychex team. You'll always know who you're talking to and why."
+        fields={[
+          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'business', label: 'Business name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'email' },
+          { name: 'phone', label: 'Phone number', type: 'tel' },
+          { name: 'industry', label: 'What industry are you in?', type: 'select', options: ['Restaurant, bar or hospitality', 'Salon, spa or wellness', 'Professional services', 'Retail', 'Construction or trades', 'Other'] },
+          { name: 'employees', label: 'How many employees do you have?', type: 'select', options: ['1–4', '5–9', '10–24', '25–49', '50+'] },
+          { name: 'friction', label: 'Which of these is creating the most friction right now?', type: 'select', options: ['Payroll and tax filing', 'No real HR structure', 'Hiring and keeping people', 'Benefits for my team', 'Workers comp / compliance', "We're growing and systems are breaking"] },
+          { name: 'payroll', label: 'Do you currently work with a payroll provider?', type: 'select', options: ["Yes, and it's fine", "Yes, but I'd switch", 'No, I handle it myself', 'Not sure what we have'] },
+          { name: 'notes', label: 'Anything else we should know? (optional)', type: 'textarea', required: false },
+        ]}
+      />
+    </div>
+  </section>
+</Base>

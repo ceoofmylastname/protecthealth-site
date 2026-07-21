@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+
+const pageUrl = `${SITE.domain}/about-us`;
+const schemas = [
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'About Us', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title="About ProtectHealth | Strategy-First Insurance In Las Vegas"
+  description="ProtectHealth is a Las Vegas insurance brokerage built on one idea: the product should serve the strategy, not become the strategy. Meet the approach behind the agency."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">About Us</div>
+      <h1>The product should serve the strategy — not become the strategy.</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container article">
+      <div id="ai-summary">
+        ProtectHealth is a Las Vegas, Nevada insurance brokerage founded on a strategy-first approach. Instead of leading with a product, ProtectHealth brokers start with how a person or business is structured, what coverage needs actually exist, and what options are accessible — then match the right coverage. ProtectHealth serves individuals, families, Realtors, 1099 contractors, self-employed professionals, and small businesses across Nevada.
+      </div>
+      <h2>Why does ProtectHealth work differently?</h2>
+      <p>Much of the insurance industry is still focused on selling a particular product. ProtectHealth's approach is different: start with the person, understand how they're structured and what they actually need, and then build the appropriate strategy around them. Age, household income, tax-credit eligibility, provider networks, prescriptions, expected healthcare usage, and total financial exposure can completely change what "good coverage" looks like from one person to the next.</p>
+      <h2>What does "insurance nerds, not tax professionals" mean?</h2>
+      <p>ProtectHealth brokers are insurance professionals. When business or tax structure becomes part of a coverage discussion — as it often does for self-employed clients exploring tax-advantaged health-benefit structures — ProtectHealth recommends a brief conversation with the client's tax professional as a make-sense next step. Good strategy comes from the insurance advisor and the tax professional working from the same page.</p>
+      <h2>Who does ProtectHealth serve?</h2>
+      <ul>
+        <li>Individuals and families comparing health, life, dental, and vision coverage</li>
+        <li>Realtors, 1099 contractors, and self-employed professionals — see the <a href="/self-employed">self-employed strategy page</a></li>
+        <li>Medicare-eligible Nevadans navigating Parts A through D and Medigap</li>
+        <li>Business owners with employees — including payroll, HR, and benefits administration support through the official <a href="/employers">ProtectHealth × Paychex partnership</a></li>
+      </ul>
+      <div class="cta-band">
+        <h2>Meet the team behind the strategy</h2>
+        <p>Real brokers, real conversations, zero pressure.</p>
+        <a href="/our-team" class="btn big" style="background:#fff;color:var(--navy);">View Our Team</a>
+      </div>
+    </div>
+  </section>
+</Base>

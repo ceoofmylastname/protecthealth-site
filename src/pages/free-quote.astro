@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { SITE, breadcrumbSchema } from '../lib/site';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Get Started', url: `${SITE.domain}/free-quote` },
+  ]),
+];
+---
+<Base
+  title="Get Started With ProtectHealth | Free Consultation"
+  description="Start with a free ProtectHealth consultation. Real numbers built on your actual situation — age, income, tax-credit eligibility, and structure — instead of a teaser rate."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Get Started</div>
+      <h1>Real numbers beat teaser rates</h1>
+      <p class="lead">Any quote produced without your age, income, tax-credit eligibility, and household details is a guess. A short consultation gets you real numbers built on your actual situation.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <LeadForm
+        formId="quote"
+        heading="Start your consultation"
+        submitLabel="Make An Appointment"
+        confirmation="Thank you! Your submission has been received. A ProtectHealth broker will reach out shortly."
+        fields={[
+          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'email' },
+          { name: 'phone', label: 'Phone number', type: 'tel' },
+          { name: 'interest', label: 'Interested in...', type: 'select', options: ['Health Insurance Consultation', 'Life & Gap Coverage Options', 'Dental and Vision Plans', 'Medicare Solutions', 'Self-Employed Health Strategy', 'Employer Benefits'] },
+        ]}
+      />
+    </div>
+  </section>
+</Base>

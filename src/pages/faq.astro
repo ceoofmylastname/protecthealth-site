@@ -1,0 +1,53 @@
+---
+// Site-wide FAQ page. Single source of truth: one array drives both the
+// FAQPage JSON-LD and the visible accordion (wiki: faq-single-source-architecture).
+import Base from '../layouts/Base.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+
+const pageUrl = `${SITE.domain}/faq`;
+const faq = [
+  { q: 'Does ProtectHealth charge for consultations?', a: 'No. ProtectHealth consultations are free. Brokers are compensated by insurance carriers, and plan prices are identical whether a person enrolls through a broker or directly.' },
+  { q: 'What areas does ProtectHealth serve?', a: 'ProtectHealth is based in Las Vegas and serves individuals, families, self-employed professionals, and small businesses across Nevada.' },
+  { q: 'What types of insurance does ProtectHealth offer?', a: 'ProtectHealth builds strategies across health, life, GAP, Medicare, dental, and vision coverage, plus employer benefits for businesses with employees.' },
+  { q: 'What does "strategy first" actually mean?', a: 'ProtectHealth starts with how a person or business is structured, what coverage needs exist, and what options are accessible — then matches coverage. The product should serve the strategy, not become the strategy.' },
+  { q: 'What is the ProtectHealth and Paychex partnership?', a: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR, compliance, benefits administration, and employer-support solutions alongside their insurance strategy.' },
+  { q: 'Can ProtectHealth help self-employed people and 1099 contractors?', a: 'Yes. Realtors, 1099 contractors, and self-employed professionals are a core focus. Depending on business structure, options may include marketplace plans, PPO access, small-group opportunities, and tax-advantaged structures.' },
+  { q: 'Why does ProtectHealth recommend talking to a tax professional?', a: 'ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure enters the conversation, a brief chat with a licensed tax professional is a make-sense next step.' },
+  { q: 'How do I get started with ProtectHealth?', a: 'Book a free strategy conversation through the contact page. Twenty minutes maps which options fit a specific situation, which do not, and what questions to ask next.' },
+];
+
+const schemas = [
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'FAQ', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title="Frequently Asked Questions | ProtectHealth"
+  description="Answers to the most common questions about ProtectHealth: consultations, coverage types, the Paychex partnership, self-employed strategy, and how to get started."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">FAQ</div>
+      <h1>Frequently asked questions</h1>
+      <p class="lead">The questions Nevadans actually ask, answered directly. For single-topic deep dives, the <a href="/qa" style="color:#9fc4ff;">Q&amp;A library</a> goes further.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container article">
+      <div id="ai-summary">
+        ProtectHealth is a Las Vegas insurance brokerage offering free, strategy-first consultations across health, life, GAP, Medicare, dental, vision, and employer benefits. ProtectHealth serves all of Nevada, works extensively with self-employed professionals and small businesses, and has officially partnered with Paychex for payroll and HR support solutions.
+      </div>
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+      <div class="cta-band">
+        <h2>Question not answered here?</h2>
+        <p>Ask a human. A ProtectHealth broker will give a straight answer, even when the answer is "what you have is already right."</p>
+        <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
+      </div>
+    </div>
+  </section>
+</Base>

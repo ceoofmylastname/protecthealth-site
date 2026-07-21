@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import FAQSection from '../../components/FAQSection.astro';
+import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SERVICES } from '../../lib/services';
+
+export function getStaticPaths() {
+  return SERVICES.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
+}
+const { service } = Astro.props;
+const pageUrl = `${SITE.domain}/services/${service.slug}`;
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `${service.name} — ProtectHealth`,
+    description: service.description,
+    provider: { '@id': ORG_ID },
+    areaServed: { '@type': 'State', name: 'Nevada' },
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Services', url: `${SITE.domain}/services` },
+    { name: service.name, url: pageUrl },
+  ]),
+];
+---
+<Base title={`${service.name} In Nevada | ProtectHealth`} description={service.description} schemas={schemas}>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">{service.name}</div>
+      <h1>{service.headline}</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <a href="/services">Services</a> › <span>{service.name}</span>
+      </nav>
+      <div id="ai-summary">{service.intro}</div>
+      {service.body.map((b) => (
+        <>
+          <h2>{b.h2}</h2>
+          <p>{b.text}</p>
+        </>
+      ))}
+      <FAQSection faq={service.faq} pageUrl={pageUrl} />
+      <div class="cta-band">
+        <h2>Talk through your situation</h2>
+        <p>A 20-minute conversation with a ProtectHealth broker maps which options fit and which don't. Free, no pressure, no obligation.</p>
+        <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
+      </div>
+      <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure becomes part of the discussion, a brief conversation with a licensed tax professional is a make-sense next step.</p>
+    </div>
+  </section>
+</Base>

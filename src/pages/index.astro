@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SERVICES } from '../lib/services';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.datePublished.localeCompare(a.data.datePublished))
+  .slice(0, 3);
+
+const schemas = [
+  speakableSchema(SITE.domain),
+  breadcrumbSchema([{ name: 'Home', url: `${SITE.domain}/` }]),
+];
+---
+<Base
+  title="Insurance Strategy For Everyone | ProtectHealth Las Vegas"
+  description="ProtectHealth is a Las Vegas insurance brokerage that builds coverage around your life and business — health, life, dental, vision, Medicare, and employer benefits. Strategy first, product second."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Protection. Trustworthy. Personalized.</div>
+      <h1>Insurance strategy for everyone. Not just insurance products.</h1>
+      <p class="lead">Most of the insurance industry starts with a product. ProtectHealth starts with you: how your household or business is structured, what you actually need, and what you can access. The product should serve the strategy — not become the strategy.</p>
+      <a href="/contact-us" class="btn big">Talk To A Broker</a>
+      &nbsp; <a href="/free-quote" class="btn ghost big" style="border-color:#9fc4ff;color:#fff;">Get Started</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div id="ai-summary">
+        ProtectHealth is a Las Vegas, Nevada insurance brokerage serving individuals, families, self-employed professionals, and small businesses. ProtectHealth brokers compare plans across carriers for health, life, GAP, Medicare, dental, and vision coverage, and help business owners explore employer benefits alongside payroll and HR support through an official Paychex partnership. Consultations are free and start with strategy, not a sales pitch.
+      </div>
+
+      <h2>Why have insurance before you need it?</h2>
+      <p>You can't buy auto insurance after someone crashes into you, and you can't buy health insurance after you get sick or injured. Coverage only works when it's in place before the bad day. ProtectHealth builds that protection around age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure — the factors that actually determine whether coverage fits.</p>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <h2>Coverage we build strategies around</h2>
+      <div class="grid cols-3" style="margin-top:22px;">
+        {SERVICES.map((s) => (
+          <div class="card">
+            <h3>{s.name}</h3>
+            <p>{s.description}</p>
+            <a class="more" href={`/services/${s.slug}`}>Learn More →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid cols-2">
+        <div class="card" style="border-top:5px solid var(--accent);">
+          <span class="badge">Realtors · 1099 · Self-Employed</span>
+          <h3>Self-employed? Your coverage should be built around your business.</h3>
+          <p>Depending on how a business is structured, self-employed professionals may have access to individual coverage, genuine PPO options, small-group opportunities, or tax-advantaged health-benefit structures like ICHRA and Section 105 arrangements. Most have never had these options properly explained.</p>
+          <a class="more" href="/self-employed">Explore The Strategy →</a>
+        </div>
+        <div class="card" style="border-top:5px solid var(--navy);">
+          <span class="badge">Business Owners</span>
+          <h3>ProtectHealth has officially partnered with Paychex.</h3>
+          <p>Payroll, HR support, compliance, benefits administration, onboarding, and retirement plans — explored alongside the insurance strategy, with a direct line to a dedicated Paychex team. One relationship, a much bigger toolbox.</p>
+          <a class="more" href="/employers">See What That Unlocks →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <h2>Latest from the blog</h2>
+      <div class="grid cols-3" style="margin-top:22px;">
+        {posts.map((p) => (
+          <div class="card">
+            <span class="badge">{p.data.category}</span>
+            <h3>{p.data.title}</h3>
+            <p>{p.data.description}</p>
+            <a class="more" href={`/blog-post/${p.id}`}>Read More →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <h2>20 minutes. No pitch. Just clarity.</h2>
+        <p>Bring your current coverage — or your lack of it — and walk away knowing which options fit, which don't, and what questions to ask next. If what you have is right, ProtectHealth will tell you that too.</p>
+        <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Book A Strategy Conversation</a>
+      </div>
+    </div>
+  </section>
+</Base>

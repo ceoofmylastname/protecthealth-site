@@ -1,0 +1,100 @@
+---
+// Q&A page template (wiki: qa-page-architecture).
+// One top-level QAPage schema with FAQPage nested via hasPart — avoids the
+// "Duplicate field mainEntity" conflict (wiki: qapage-faqpage-mainentity-conflict).
+// quickAnswer (acceptedAnswer) and speakableText (#ai-summary) are different
+// fields with different content (wiki: speakable-vs-accepted-answer).
+import Base from '../../layouts/Base.astro';
+import FAQSection from '../../components/FAQSection.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const qas = await getCollection('qa');
+  return qas.map((qa) => ({ params: { slug: qa.id }, props: { qa } }));
+}
+const { qa } = Astro.props;
+const { Content } = await render(qa);
+const d = qa.data;
+const pageUrl = `${SITE.domain}/qa/${qa.id}`;
+
+const allQa = await getCollection('qa');
+const siblings = allQa.filter((s) => d.siblings.includes(s.id));
+const allPosts = await getCollection('blog');
+const parent = allPosts.find((p) => p.id === d.parentPost);
+
+const qaPageSchema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'QAPage',
+  url: pageUrl,
+  inLanguage: 'en-US',
+  mainEntity: {
+    '@type': 'Question',
+    name: d.question,
+    answerCount: 1,
+    acceptedAnswer: { '@type': 'Answer', text: d.quickAnswer },
+  },
+  // FAQPage nested via hasPart — single root mainEntity.
+  hasPart: {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    mainEntity: d.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+  datePublished: d.datePublished,
+};
+if (d.dateModified) qaPageSchema.dateModified = d.dateModified;
+
+const schemas = [
+  qaPageSchema,
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Q&A', url: `${SITE.domain}/qa` },
+    { name: d.question, url: pageUrl },
+  ]),
+];
+
+const ctaUrl = d.cluster === 'employers' ? '/employers' : d.cluster === 'ichra' ? '/self-employed' : '/contact-us';
+---
+<Base title={`${d.question} | ProtectHealth Q&A`} description={d.description} schemas={schemas}>
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <a href="/qa">Q&amp;A</a> › <span>{d.question}</span>
+      </nav>
+      <h1>{d.question}</h1>
+
+      <div class="quick-answer">
+        <h2>Quick Answer</h2>
+        <p>{d.quickAnswer}</p>
+      </div>
+
+      <div id="ai-summary">{d.speakableText}</div>
+
+      <Content />
+
+      <FAQSection faq={d.faq} pageUrl={pageUrl} emitSchema={false} />
+
+      <section aria-label="Related">
+        <h2>Keep Exploring</h2>
+        <ul>
+          {siblings.map((s) => (
+            <li><a href={`/qa/${s.id}`}>{s.data.question}</a></li>
+          ))}
+          {parent && <li><a href={`/blog-post/${parent.id}`}>Full guide: {parent.data.title}</a></li>}
+        </ul>
+      </section>
+
+      <div class="cta-band">
+        <h2>Want an answer specific to your situation?</h2>
+        <p>General answers only go so far. A free 20-minute ProtectHealth strategy conversation maps what actually fits.</p>
+        <a href={ctaUrl} class="btn big" style="background:#fff;color:var(--navy);">Book A Conversation</a>
+      </div>
+      <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. Eligibility for any coverage or tax-advantaged structure depends on business structure, income, and household situation.</p>
+    </div>
+  </section>
+</Base>

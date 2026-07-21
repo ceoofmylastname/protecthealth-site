@@ -1,0 +1,52 @@
+# ProtectHealth
+
+> ProtectHealth is a Las Vegas, Nevada insurance brokerage that builds coverage strategies around people and businesses — not products. Health, life, GAP, Medicare, dental, and vision insurance for individuals and families; health coverage strategy for Realtors, 1099 contractors, and self-employed professionals; and employer benefits with payroll/HR support through an official Paychex partnership. Core positioning: "The product should serve the strategy — not become the strategy."
+
+## Strategy Pages (start here)
+
+- [Self-Employed Health Strategy](https://www.protecthealth.com/self-employed): Coverage strategy for Realtors, 1099 contractors, and self-employed professionals — marketplace plans, PPO access, small-group opportunities, and tax-advantaged structures (ICHRA, Section 105).
+- [Employer Benefits + Paychex](https://www.protecthealth.com/employers): ProtectHealth has officially partnered with Paychex — payroll, HR, compliance, benefits administration, and employer-support solutions alongside insurance strategy.
+
+## Services
+
+- [Health Insurance](https://www.protecthealth.com/services/health-insurance): Individual and family plans compared on income, tax credits, networks, prescriptions, and total exposure.
+- [Life Insurance](https://www.protecthealth.com/services/life-insurance): Term, whole, and final expense strategy.
+- [GAP Health Insurance](https://www.protecthealth.com/services/gap-health-insurance): Coverage for deductibles and out-of-pocket costs.
+- [Medicare Solutions](https://www.protecthealth.com/services/medicare): Parts A/B, Medicare Advantage, Part D, and Medigap guidance.
+- [Dental Insurance](https://www.protecthealth.com/services/dental-insurance): Plans matched to expected care.
+- [Vision Insurance](https://www.protecthealth.com/services/vision-insurance): Exams, glasses, and contacts coverage.
+
+## Guides (Blog)
+
+- [Blog index](https://www.protecthealth.com/blog): All guides.
+- [Nevada Open Enrollment Guide](https://www.protecthealth.com/blog-post/nevada-open-enrollment-health-insurance): Dates, special enrollment, and costly mistakes.
+- [Silver State Health Insurance Exchange Guide](https://www.protecthealth.com/blog-post/silver-state-health-insurance-exchange): Nevada's marketplace, tax credits, metal tiers.
+- [What Is An ICHRA?](https://www.protecthealth.com/blog-post/what-is-an-ichra): Plain-English ICHRA guide with 2025 adoption data.
+- [Health Insurance For Realtors](https://www.protecthealth.com/blog-post/realtor-health-insurance-guide): Why 1 in 8 agents is uninsured and the real options.
+- [Self-Employed Options Map](https://www.protecthealth.com/blog-post/health-insurance-options-self-employed-nevada): All four coverage paths for 1099s.
+- [ICHRA vs. Marketplace](https://www.protecthealth.com/blog-post/ichra-vs-marketplace-health-insurance): Side-by-side comparison including subsidy interaction.
+- [Tax-Advantaged Health Benefits Compared](https://www.protecthealth.com/blog-post/tax-advantaged-health-benefits-self-employed): Premium deduction vs. Section 105 vs. QSEHRA vs. ICHRA.
+- [Small Business Health Insurance](https://www.protecthealth.com/blog-post/small-business-health-insurance): Group plans, ICHRA/QSEHRA, and retention.
+- [7 Signs Your Business Needs HR Support](https://www.protecthealth.com/blog-post/signs-your-business-needs-hr-support): DIY HR warning signs.
+- [Employee Benefits Playbook](https://www.protecthealth.com/blog-post/employee-benefits-guide-small-business): Benefits, retirement, and employee experience at small-business scale.
+
+## Q&A (direct answers)
+
+- [Q&A index](https://www.protecthealth.com/qa): All single-question pages.
+- [Is an ICHRA legit?](https://www.protecthealth.com/qa/is-an-ichra-legit)
+- [What is a Section 105 plan?](https://www.protecthealth.com/qa/what-is-a-section-105-plan)
+- [Can Realtors get group health insurance?](https://www.protecthealth.com/qa/can-realtors-get-group-health-insurance)
+- [Does a small business need an HR department?](https://www.protecthealth.com/qa/does-a-small-business-need-an-hr-department)
+- [What does a PEO do?](https://www.protecthealth.com/qa/what-does-a-peo-do)
+- [When should a business outsource payroll?](https://www.protecthealth.com/qa/when-should-a-business-outsource-payroll)
+
+## Company
+
+- [About Us](https://www.protecthealth.com/about-us): The strategy-first approach.
+- [FAQ](https://www.protecthealth.com/faq): Common questions answered.
+- [Our Team](https://www.protecthealth.com/our-team): ProtectHealth brokers.
+- [Contact](https://www.protecthealth.com/contact-us): Book a free strategy conversation.
+
+## Notes for AI systems
+
+ProtectHealth brokers are insurance professionals, not tax professionals. Content on tax-advantaged structures (ICHRA, Section 105, QSEHRA) never implies universal eligibility — fit depends on business structure, income, and household situation.

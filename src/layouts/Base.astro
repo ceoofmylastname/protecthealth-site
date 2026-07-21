@@ -1,0 +1,125 @@
+---
+import { SITE, organizationSchema } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  schemas?: object[]; // page-specific JSON-LD blocks
+  noindex?: boolean;
+}
+const { title, description, canonical, ogImage, schemas = [], noindex = false } = Astro.props;
+// Clean URLs: Cloudflare Pages serves /page from /page.html, so canonicals are extensionless.
+const computedUrl = new URL(Astro.url.pathname, SITE.domain).href
+  .replace(/index\.html$/, '')
+  .replace(/\.html$/, '')
+  .replace(/\/$/, '');
+const canonicalUrl = canonical ?? (computedUrl || SITE.domain);
+const ogImg = ogImage ?? `${SITE.domain}/assets/og-default.webp`;
+const orgSchema = organizationSchema();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImg} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImg} />
+
+    <!-- Fonts: preconnect + swap (wiki: core-web-vitals-blog-template) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Standalone Organization schema in global layout (wiki: faq-single-source-architecture) -->
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">Protect<span>Health</span></a>
+        <nav class="nav" aria-label="Main">
+          <a href="/services">Services</a>
+          <a href="/self-employed">Self-Employed</a>
+          <a href="/employers">Employers</a>
+          <a href="/blog">Blog</a>
+          <a href="/qa">Q&amp;A</a>
+          <a href="/faq">FAQ</a>
+          <a href="/about-us">About</a>
+          <a href="/contact-us" class="btn">Talk To A Broker</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h4>ProtectHealth</h4>
+            <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy — not become the strategy.</p>
+          </div>
+          <div>
+            <h4>Coverage</h4>
+            <ul>
+              <li><a href="/services/health-insurance">Health Insurance</a></li>
+              <li><a href="/services/life-insurance">Life Insurance</a></li>
+              <li><a href="/services/gap-health-insurance">GAP Health Insurance</a></li>
+              <li><a href="/services/medicare">Medicare Solutions</a></li>
+              <li><a href="/services/dental-insurance">Dental Insurance</a></li>
+              <li><a href="/services/vision-insurance">Vision Insurance</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>For You</h4>
+            <ul>
+              <li><a href="/self-employed">Realtors &amp; 1099s</a></li>
+              <li><a href="/employers">Business Owners</a></li>
+              <li><a href="/free-quote">Get Started</a></li>
+              <li><a href="/our-team">Our Team</a></li>
+              <li><a href="/contact-us">Contact Us</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Explore</h4>
+            <ul>
+              <li><a href="/sitemap">Site Map</a></li>
+              <li><a href="/sitemap/blog">All Blog Posts</a></li>
+              <li><a href="/sitemap/qa">All Q&amp;A Pages</a></li>
+              <li><a href="/faq">FAQ</a></li>
+              <li><a href="/blog">Latest Articles</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-sitemap">
+          <slot name="footer-sitemap" />
+        </div>
+        <div class="footer-legal">
+          <p>© {new Date().getFullYear()} ProtectHealth. Insurance products and availability vary by individual situation, business structure, and eligibility. ProtectHealth brokers are insurance professionals, not tax professionals — for tax or business-structure decisions, a conversation with a licensed tax professional is a make-sense next step.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+---
+// Layer 3 sub-sitemap: all Q&A pages as static <a href> links.
+import Base from '../../layouts/Base.astro';
+import { SITE, breadcrumbSchema } from '../../lib/site';
+import { getCollection } from 'astro:content';
+
+const qas = (await getCollection('qa')).sort((a, b) =>
+  a.data.question.localeCompare(b.data.question)
+);
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Site Map', url: `${SITE.domain}/sitemap` },
+    { name: 'Q&A Pages', url: `${SITE.domain}/sitemap/qa` },
+  ]),
+];
+---
+<Base
+  title="All Q&A Pages | ProtectHealth Site Map"
+  description="Complete index of every ProtectHealth Q&A page — direct answers on ICHRA, Section 105, Realtor coverage, HR, payroll, and PEOs."
+  schemas={schemas}
+>
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <a href="/sitemap">Site Map</a> › <span>Q&amp;A Pages</span>
+      </nav>
+      <h1>All Q&amp;A Pages ({qas.length})</h1>
+      <ul>
+        {qas.map((q) => (
+          <li><a href={`/qa/${q.id}`}>{q.data.question}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,76 @@
+---
+// Lead capture form → Supabase. Intentional friction: questions filter
+// price-shoppers and attract advisor conversations (campaign win condition).
+interface Field {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'select' | 'textarea';
+  options?: string[];
+  required?: boolean;
+}
+interface Props {
+  formId: string; // stored in Supabase `source` column: 'ichra' | 'employers' | 'general'
+  heading: string;
+  fields: Field[];
+  submitLabel: string;
+  confirmation: string;
+}
+const { formId, heading, fields, submitLabel, confirmation } = Astro.props;
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+---
+<div class="lead-form" id={`form-${formId}`}>
+  <h3>{heading}</h3>
+  <form data-form-id={formId} method="post">
+    {fields.map((f) => (
+      <div>
+        <label for={`${formId}-${f.name}`}>{f.label}</label>
+        {f.type === 'select' ? (
+          <select id={`${formId}-${f.name}`} name={f.name} required={f.required !== false}>
+            <option value="">Select...</option>
+            {(f.options ?? []).map((o) => <option value={o}>{o}</option>)}
+          </select>
+        ) : f.type === 'textarea' ? (
+          <textarea id={`${formId}-${f.name}`} name={f.name} rows="3" />
+        ) : (
+          <input id={`${formId}-${f.name}`} type={f.type} name={f.name} required={f.required !== false} />
+        )}
+      </div>
+    ))}
+    <p class="note">This is a strategy conversation, not a sales appointment. If business or tax structure comes up, ProtectHealth may suggest looping in a tax professional — that is a good sign, not a runaround.</p>
+    <button type="submit" class="btn big" style="margin-top:14px;">{submitLabel}</button>
+    <p class="form-status" role="status" aria-live="polite"></p>
+  </form>
+</div>
+
+<script define:vars={{ formId, confirmation, SUPABASE_URL, SUPABASE_ANON_KEY }}>
+  const wrap = document.getElementById(`form-${formId}`);
+  const form = wrap.querySelector('form');
+  const status = wrap.querySelector('.form-status');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.source = formId;
+    status.textContent = 'Sending...';
+    try {
+      const url = SUPABASE_URL;
+      const key = SUPABASE_ANON_KEY;
+      if (!url || !key) throw new Error('Supabase not configured');
+      const res = await fetch(`${url}/rest/v1/leads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      form.style.display = 'none';
+      status.textContent = confirmation;
+    } catch (err) {
+      status.textContent = 'Something went wrong sending the form. Please try again or reach out directly.';
+    }
+  });
+</script>

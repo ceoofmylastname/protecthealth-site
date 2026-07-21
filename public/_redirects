@@ -1,0 +1,9 @@
+# Cloudflare Pages redirects — preserve equity from old Webflow URLs
+/projects/healthinsuranceph   /services/health-insurance      301
+/projects/life-insurance      /services/life-insurance        301
+/projects/gaphealthinsurance  /services/gap-health-insurance  301
+/projects/medicaresolutions   /services/medicare              301
+/projects/dentalinsurance     /services/dental-insurance      301
+/projects/visioninsurance     /services/vision-insurance      301
+/team-members/jason           /team-members/jason-vasquez     301
+/blog-posts-categories/guide  /blog                           301

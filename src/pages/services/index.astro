@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE, breadcrumbSchema } from '../../lib/site';
+import { SERVICES } from '../../lib/services';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Services', url: `${SITE.domain}/services` },
+  ]),
+];
+---
+<Base
+  title="Insurance Services In Las Vegas, Nevada | ProtectHealth"
+  description="Health, life, GAP, Medicare, dental, and vision insurance in Nevada — plus employer-benefits strategy for businesses. Every ProtectHealth service starts with strategy, not a product."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Services</div>
+      <h1>Every coverage line. One strategy-first approach.</h1>
+      <p class="lead">Whether the need is individual health coverage, Medicare, or a full employer-benefits package, the process is the same: understand the person or business first, then match the coverage.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="grid cols-3">
+        {SERVICES.map((s) => (
+          <div class="card">
+            <h3>{s.name}</h3>
+            <p>{s.description}</p>
+            <a class="more" href={`/services/${s.slug}`}>Learn More →</a>
+          </div>
+        ))}
+      </div>
+      <div class="grid cols-2" style="margin-top:22px;">
+        <div class="card" style="border-top:5px solid var(--accent);">
+          <h3>Self-Employed Health Strategy</h3>
+          <p>Realtors, 1099 contractors, and self-employed professionals: individual coverage, genuine PPO options, small-group opportunities, and tax-advantaged structures worth exploring.</p>
+          <a class="more" href="/self-employed">Explore →</a>
+        </div>
+        <div class="card" style="border-top:5px solid var(--navy);">
+          <h3>Employer Benefits + Paychex</h3>
+          <p>For businesses with employees: benefits strategy plus payroll, HR, and compliance support through the official ProtectHealth × Paychex partnership.</p>
+          <a class="more" href="/employers">Explore →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

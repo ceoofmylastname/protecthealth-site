@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { SITE, breadcrumbSchema } from '../lib/site';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Contact Us', url: `${SITE.domain}/contact-us` },
+  ]),
+];
+---
+<Base
+  title="Talk To A Broker | ProtectHealth Las Vegas"
+  description="Book a free strategy conversation with a ProtectHealth broker in Las Vegas. 20 minutes, no pitch, just clarity on your coverage options."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Contact Us</div>
+      <h1>20 minutes. No pitch. Just clarity.</h1>
+      <p class="lead">Tell ProtectHealth what's going on, and a broker will reach out to set up a strategy conversation. If what you have is right for you, you'll hear that too.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <LeadForm
+        formId="general"
+        heading="Book a strategy conversation"
+        submitLabel="Book My Conversation"
+        confirmation="You're in. A ProtectHealth broker will reach out shortly to set up your strategy conversation."
+        fields={[
+          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'email' },
+          { name: 'phone', label: 'Phone number', type: 'tel' },
+          { name: 'interest', label: 'What can ProtectHealth help with?', type: 'select', options: ['Health Insurance', 'Life Insurance', 'GAP Coverage', 'Medicare', 'Dental & Vision', 'Self-Employed Health Strategy', 'Employer Benefits / Paychex', 'Not sure — let\'s talk'] },
+          { name: 'notes', label: 'Anything you want us to know before we talk? (optional)', type: 'textarea', required: false },
+        ]}
+      />
+    </div>
+  </section>
+</Base>

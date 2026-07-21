@@ -1,0 +1,34 @@
+---
+// Single source of truth (wiki: faq-single-source-architecture).
+// One `faq` array produces BOTH the FAQPage JSON-LD and the visible accordion.
+// When `emitSchema` is false, only the accordion renders — used on Q&A pages
+// where FAQPage is nested inside QAPage via hasPart to avoid the duplicate
+// root mainEntity conflict (wiki: qapage-faqpage-mainentity-conflict).
+interface Props {
+  faq: { q: string; a: string }[];
+  pageUrl: string;
+  emitSchema?: boolean;
+}
+const { faq, pageUrl, emitSchema = true } = Astro.props;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': `${pageUrl}#faq`,
+  mainEntity: faq.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+{emitSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+<section class="faq-section" aria-label="FAQ">
+  <h2>Frequently Asked Questions</h2>
+  {faq.map((item) => (
+    <details class="faq-item">
+      <summary>{item.q}</summary>
+      <p>{item.a}</p>
+    </details>
+  ))}
+</section>

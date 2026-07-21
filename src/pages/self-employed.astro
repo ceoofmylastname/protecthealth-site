@@ -1,0 +1,93 @@
+---
+// BOFU terminus for the ICHRA cluster. Copy from the approved ICHRA Launch Kit.
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../lib/site';
+
+const pageUrl = `${SITE.domain}/self-employed`;
+const faq = [
+  { q: 'Does every self-employed person qualify for an ICHRA or Section 105 arrangement?', a: 'No. Eligibility for tax-advantaged health-benefit structures depends on business structure, income, and household situation. A ProtectHealth strategy conversation maps which options actually fit a specific situation.' },
+  { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation walks through business structure, household needs, and available options — individual coverage, PPO access, small-group opportunities, or tax-advantaged structures. If existing coverage is already right, ProtectHealth says so.' },
+  { q: 'Why does ProtectHealth recommend talking to a tax professional?', a: 'ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure becomes part of the discussion, a brief conversation with a licensed tax professional is the responsible next step.' },
+  { q: 'What should a Realtor bring to a strategy conversation?', a: 'A rough idea of household income, current plan details if coverage exists, and how the business is structured — sole proprietor, LLC, or S-corp. Not sure about structure is a fine answer; that is part of the conversation.' },
+  { q: 'Does ProtectHealth only work with Realtors?', a: 'No. ProtectHealth works with Realtors, 1099 contractors, freelancers, and self-employed professionals across Nevada, plus small businesses building employee benefits.' },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Self-Employed Health Coverage Strategy — ProtectHealth',
+    description: 'Health coverage strategy for Realtors, 1099 contractors, and self-employed professionals in Nevada: individual coverage, genuine PPO options, small-group opportunities, and tax-advantaged health-benefit structures.',
+    provider: { '@id': ORG_ID },
+    areaServed: { '@type': 'State', name: 'Nevada' },
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Self-Employed Strategy', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title="Health Coverage Strategy For Realtors & 1099s | ProtectHealth"
+  description="Self-employed? Your health coverage should be built around your business — not somebody's product. Realtors, 1099 contractors, and self-employed professionals may have options nobody ever explained."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Realtors · 1099 Contractors · Self-Employed</div>
+      <h1>Your health coverage should be built around your business. Not somebody's product.</h1>
+      <p class="lead">Realtors, 1099 contractors, and self-employed professionals may have access to individual coverage, genuine PPO options, small-group opportunities, and tax-advantaged health-benefit structures. Most have never had them properly explained. That's what ProtectHealth does.</p>
+      <a href="#talk" class="btn big">Let's Talk Through Your Situation</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container article">
+      <div id="ai-summary">
+        ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how their business is structured. Depending on structure, options may include individual marketplace coverage, genuine PPO access, small-group plans, or tax-advantaged health-benefit structures such as ICHRA and Section 105 arrangements. National Association of Realtors data shows 10 to 15 percent of Realtors remain uninsured — usually because nobody ever explained the options, not because options don't exist.
+      </div>
+
+      <h2>Why don't premiums and deductibles tell the whole story?</h2>
+      <p>Premiums and deductibles are the beginning of the conversation, not the end of it. Age, household income, tax-credit eligibility, provider networks, prescriptions, expected healthcare usage, and total financial exposure determine what "good coverage" looks like — and those factors are different for every person reading this page. Two Realtors at the same brokerage with the same premium can have completely different coverage quality.</p>
+
+      <h2>What options might a self-employed person actually have?</h2>
+      <p>Depending on how the business is structured, the conversation may point to individual coverage, a genuine PPO, a small-group opportunity, or a tax-advantaged structure like an ICHRA (Individual Coverage Health Reimbursement Arrangement) or Section 105 arrangement. Adoption of these structures grew for the fifth consecutive year in 2025, with small-employer ICHRA adoption up 52 percent — yet most self-employed professionals have never had a single conversation about them.</p>
+      <p>Not every option fits every person. That's the point of having a strategy.</p>
+
+      <h2>What does "the product should serve the strategy" mean?</h2>
+      <p>Much of the insurance industry starts with a product and works backward to the sale. ProtectHealth starts with the person: how the business is structured, what the household actually needs, what's accessible. Then — and only then — does a product enter the picture. The product should serve the strategy, not become the strategy.</p>
+
+      <h2>We're insurance nerds, not tax professionals</h2>
+      <p>When business or tax structure becomes part of the discussion, ProtectHealth recommends a brief conversation with a licensed tax professional as a make-sense next step. The right answer usually comes from the insurance advisor and the tax professional working from the same page. ProtectHealth is happy to have that conversation three-way.</p>
+
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+    </div>
+  </section>
+
+  <section class="section soft" id="talk">
+    <div class="container">
+      <h2>Book a strategy conversation</h2>
+      <p style="max-width:640px;">20 minutes. Walk away knowing which options fit your structure, which don't, and what questions to ask next. No quote-blasting, no pressure.</p>
+      <LeadForm
+        formId="ichra"
+        heading="Tell us about your situation"
+        submitLabel="Book A Strategy Conversation"
+        confirmation="You're booked. Quick heads-up on how we work: this is a strategy conversation, not a sales appointment. Have a rough idea of your household income and current plan details handy if you can."
+        fields={[
+          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'email' },
+          { name: 'phone', label: 'Phone number', type: 'tel' },
+          { name: 'profile', label: 'Which best describes you?', type: 'select', options: ['Realtor', '1099 contractor', 'Self-employed', 'Small business owner with a team', 'Other'] },
+          { name: 'structure', label: 'How is your business currently structured?', type: 'select', options: ['Sole proprietor', 'LLC', 'S-corp', 'Not sure', 'Prefer to discuss'] },
+          { name: 'coverage', label: "What's your current coverage situation?", type: 'select', options: ['Marketplace plan', "Spouse's plan", 'Group plan', 'No coverage right now', 'Not sure what I have'] },
+          { name: 'priority', label: 'What matters most to you in this conversation?', type: 'select', options: ['Keeping my doctors', 'Lowering total cost', 'Understanding my options', 'Covering my family', 'Exploring options for my team'] },
+          { name: 'notes', label: 'Anything you want us to know before we talk? (optional)', type: 'textarea', required: false },
+        ]}
+      />
+    </div>
+  </section>
+</Base>

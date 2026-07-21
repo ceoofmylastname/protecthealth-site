@@ -1,0 +1,109 @@
+---
+import Base from '../../layouts/Base.astro';
+import FAQSection from '../../components/FAQSection.astro';
+import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const pageUrl = `${SITE.domain}/blog-post/${post.id}`;
+
+// Funnel CTA target: MOFU/TOFU posts route toward the cluster's BOFU terminus.
+const CLUSTER_BOFU: Record<string, { url: string; label: string; line: string }> = {
+  ichra: {
+    url: '/self-employed',
+    label: 'Book A Strategy Conversation',
+    line: 'Self-employed and wondering which of these options fit how your business is structured? That is exactly what a 20-minute ProtectHealth strategy conversation figures out.',
+  },
+  employers: {
+    url: '/employers',
+    label: 'Book An Employer Strategy Conversation',
+    line: 'Running a business with employees? ProtectHealth has officially partnered with Paychex — one conversation covers benefits, payroll, HR, and the whole employer picture.',
+  },
+  'nevada-core': {
+    url: '/contact-us',
+    label: 'Talk To A Broker',
+    line: 'Coverage questions are personal. A free 20-minute conversation with a ProtectHealth broker gets you real answers built on your actual situation.',
+  },
+};
+const cta = CLUSTER_BOFU[d.cluster];
+
+// Related Q&A pages in this post's cluster
+const allQa = await getCollection('qa');
+const childQa = allQa.filter((q) => q.data.parentPost === post.id);
+
+const articleSchema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description,
+  url: pageUrl,
+  mainEntityOfPage: pageUrl,
+  inLanguage: 'en-US',
+  datePublished: d.datePublished,
+  author: { '@type': 'Organization', name: d.author, url: SITE.domain },
+  publisher: { '@id': ORG_ID },
+  image: { '@type': 'ImageObject', url: `${SITE.domain}/assets/og-default.webp` },
+};
+// dateModified only when content genuinely changed (wiki: date-modified-schema)
+if (d.dateModified) articleSchema.dateModified = d.dateModified;
+
+const schemas = [
+  articleSchema,
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Blog', url: `${SITE.domain}/blog` },
+    { name: d.title, url: pageUrl },
+  ]),
+];
+---
+<Base title={`${d.title} | ProtectHealth`} description={d.description} schemas={schemas}>
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <a href="/blog">Blog</a> › <span>{d.title}</span>
+      </nav>
+      <span class="badge">{d.category}</span>
+      <h1>{d.title}</h1>
+      <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
+
+      <div id="ai-summary">{d.speakableText}</div>
+
+      <div class="quick-answer">
+        <h2>Quick Answer</h2>
+        <ul>
+          {d.quickAnswer.map((qa: string) => <li>{qa}</li>)}
+        </ul>
+      </div>
+
+      <Content />
+
+      <FAQSection faq={d.faq} pageUrl={pageUrl} />
+
+      {childQa.length > 0 && (
+        <section aria-label="Related questions">
+          <h2>Related Questions</h2>
+          <ul>
+            {childQa.map((q) => (
+              <li><a href={`/qa/${q.id}`}>{q.data.question}</a></li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div class="cta-band">
+        <h2>What's the next step?</h2>
+        <p>{cta.line}</p>
+        <a href={cta.url} class="btn big" style="background:#fff;color:var(--navy);">{cta.label}</a>
+      </div>
+
+      <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. Nothing on this page implies every self-employed person or business automatically qualifies for any specific structure — eligibility depends on business structure, income, and household situation. When tax or business structure enters the conversation, a brief chat with a licensed tax professional is a make-sense next step.</p>
+    </div>
+  </section>
+</Base>

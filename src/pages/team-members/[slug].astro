@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE, ORG_ID, TEAM, breadcrumbSchema } from '../../lib/site';
+
+export function getStaticPaths() {
+  return TEAM.map((m) => ({ params: { slug: m.slug }, props: { member: m } }));
+}
+const { member } = Astro.props;
+const pageUrl = `${SITE.domain}/team-members/${member.slug}`;
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: member.name,
+    jobTitle: member.role,
+    worksFor: { '@id': ORG_ID },
+    url: pageUrl,
+  },
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Our Team', url: `${SITE.domain}/our-team` },
+    { name: member.name, url: pageUrl },
+  ]),
+];
+---
+<Base
+  title={`${member.name} | ProtectHealth ${member.role}`}
+  description={`${member.name} is a ${member.role.toLowerCase()} at ProtectHealth, the strategy-first insurance brokerage in Las Vegas, Nevada.`}
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Our Team</div>
+      <h1>{member.name}</h1>
+      <p class="lead">{member.role} · ProtectHealth, Las Vegas</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container article">
+      <p>{member.name} helps Nevadans build coverage strategies across health, life, dental, vision, Medicare, and employer benefits — starting with the person, not the product. <em>[Bio, credentials, and photo to be added — see CLAUDE.md content roadmap.]</em></p>
+      <a href="/contact-us" class="btn">Book A Conversation With {member.name.split(' ')[0]}</a>
+    </div>
+  </section>
+</Base>

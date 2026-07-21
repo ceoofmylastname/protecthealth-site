@@ -1,0 +1,36 @@
+---
+// Layer 3 sub-sitemap: all blog posts as static <a href> links.
+import Base from '../../layouts/Base.astro';
+import { SITE, breadcrumbSchema } from '../../lib/site';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title)
+);
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Site Map', url: `${SITE.domain}/sitemap` },
+    { name: 'Blog Posts', url: `${SITE.domain}/sitemap/blog` },
+  ]),
+];
+---
+<Base
+  title="All Blog Posts | ProtectHealth Site Map"
+  description="Complete index of every ProtectHealth blog post — Nevada health insurance guides, self-employed strategy, ICHRA, and employer benefits."
+  schemas={schemas}
+>
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <a href="/sitemap">Site Map</a> › <span>Blog Posts</span>
+      </nav>
+      <h1>All Blog Posts ({posts.length})</h1>
+      <ul>
+        {posts.map((p) => (
+          <li><a href={`/blog-post/${p.id}`}>{p.data.title}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>

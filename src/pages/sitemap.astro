@@ -1,0 +1,51 @@
+---
+// Layer 2 sitemap hub (wiki: sitemap-architecture). Static <a href> links only.
+import Base from '../layouts/Base.astro';
+import { SITE, breadcrumbSchema } from '../lib/site';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Site Map', url: `${SITE.domain}/sitemap` },
+  ]),
+];
+---
+<Base
+  title="Site Map | ProtectHealth"
+  description="Every page on the ProtectHealth site, organized by content type: services, strategy pages, blog posts, Q&A pages, and company pages."
+  schemas={schemas}
+>
+  <section class="section">
+    <div class="container article">
+      <h1>Site Map</h1>
+      <h2>Content Libraries</h2>
+      <ul>
+        <li><a href="/sitemap/blog">All Blog Posts</a></li>
+        <li><a href="/sitemap/qa">All Q&amp;A Pages</a></li>
+      </ul>
+      <h2>Strategy Pages</h2>
+      <ul>
+        <li><a href="/self-employed">Self-Employed Health Strategy (Realtors &amp; 1099s)</a></li>
+        <li><a href="/employers">Employer Benefits + Paychex Partnership</a></li>
+      </ul>
+      <h2>Services</h2>
+      <ul>
+        <li><a href="/services">All Services</a></li>
+        <li><a href="/services/health-insurance">Health Insurance</a></li>
+        <li><a href="/services/life-insurance">Life Insurance</a></li>
+        <li><a href="/services/gap-health-insurance">GAP Health Insurance</a></li>
+        <li><a href="/services/medicare">Medicare Solutions</a></li>
+        <li><a href="/services/dental-insurance">Dental Insurance</a></li>
+        <li><a href="/services/vision-insurance">Vision Insurance</a></li>
+      </ul>
+      <h2>Company</h2>
+      <ul>
+        <li><a href="/about-us">About Us</a></li>
+        <li><a href="/our-team">Our Team</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/contact-us">Contact Us</a></li>
+        <li><a href="/free-quote">Get Started</a></li>
+      </ul>
+    </div>
+  </section>
+</Base>
