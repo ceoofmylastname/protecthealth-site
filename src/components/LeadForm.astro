@@ -1,8 +1,7 @@
 ---
-// Lead capture form → GoHighLevel via Netlify function (/api/lead).
-// Intentional friction: questions filter price-shoppers and attract advisor
-// conversations (campaign win condition). On success the form swaps to a
-// confirmation + embedded GHL booking calendar so the lead books immediately.
+// Typeform-style lead capture → GoHighLevel via /api/lead (Netlify function).
+// One question per screen, animated transitions, keyboard navigation,
+// side-cannon confetti on submit, then confirmation + booking calendar.
 interface Field {
   name: string;
   label: string;
@@ -16,36 +15,65 @@ interface Props {
   fields: Field[];
   submitLabel: string;
   confirmation: string;
-  showBooking?: boolean; // embed the booking calendar after submit (default true)
+  showBooking?: boolean;
 }
 import ReviewBadge from './ReviewBadge.astro';
 const { formId, heading, fields, submitLabel, confirmation, showBooking = true } = Astro.props;
-// GHL "ProtectHealth Consultation" calendar
 const BOOKING_URL = 'https://api.leadconnectorhq.com/widget/booking/naoB13PMLUxH7fAcVXg0';
+const total = fields.length;
 ---
-<div class="lead-form" id={`form-${formId}`}>
-  <h3>{heading}</h3>
-  <ReviewBadge variant="inline" />
-  <form data-form-id={formId} method="post">
-    {fields.map((f) => (
-      <div>
-        <label for={`${formId}-${f.name}`}>{f.label}</label>
-        {f.type === 'select' ? (
-          <select id={`${formId}-${f.name}`} name={f.name} required={f.required !== false}>
-            <option value="">Select...</option>
-            {(f.options ?? []).map((o) => <option value={o}>{o}</option>)}
-          </select>
-        ) : f.type === 'textarea' ? (
-          <textarea id={`${formId}-${f.name}`} name={f.name} rows="3" />
-        ) : (
-          <input id={`${formId}-${f.name}`} type={f.type} name={f.name} required={f.required !== false} />
-        )}
-      </div>
-    ))}
-    <p class="note">This is a strategy conversation, not a sales appointment. If business or tax structure comes up, ProtectHealth may suggest looping in a tax professional — that is a good sign, not a runaround.</p>
-    <button type="submit" class="btn big" style="margin-top:14px;">{submitLabel}</button>
+<div class="lead-form tf" id={`form-${formId}`} data-total={total}>
+  <div class="tf-head">
+    <h3>{heading}</h3>
+    <ReviewBadge variant="inline" />
+  </div>
+
+  <div class="tf-progress"><i class="tf-fill"></i></div>
+  <div class="tf-count"><b class="tf-cur">1</b> / {total}</div>
+
+  <form data-form-id={formId} method="post" novalidate>
+    <div class="tf-viewport">
+      {fields.map((f, i) => (
+        <fieldset class={`tf-step ${i === 0 ? 'act' : ''}`} data-idx={i} data-name={f.name} data-required={f.required !== false ? '1' : '0'} data-type={f.type}>
+          <legend>
+            <span class="tf-qnum">{i + 1} <i>→</i></span>
+            <span class="tf-q">{f.label}</span>
+            {f.required === false && <span class="tf-opt">optional</span>}
+          </legend>
+          {f.type === 'select' ? (
+            <div class="tf-options" role="radiogroup" aria-label={f.label}>
+              {(f.options ?? []).map((o, oi) => (
+                <button type="button" class="tf-option" data-value={o}>
+                  <span class="tf-key">{String.fromCharCode(65 + oi)}</span>
+                  <span>{o}</span>
+                  <span class="tf-check">✓</span>
+                </button>
+              ))}
+            </div>
+          ) : f.type === 'textarea' ? (
+            <textarea class="tf-input" rows="3" placeholder="Type your answer here..." aria-label={f.label} />
+          ) : (
+            <input class="tf-input" type={f.type} placeholder="Type your answer here..." aria-label={f.label}
+              autocomplete={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : f.name.includes('first') ? 'given-name' : f.name.includes('last') ? 'family-name' : 'on'} />
+          )}
+          <p class="tf-err" role="alert"></p>
+          <div class="tf-actions">
+            <button type="button" class="tf-ok">{i === total - 1 ? submitLabel : 'OK'} <i>✓</i></button>
+            <span class="tf-hint">press <b>Enter ↵</b></span>
+          </div>
+        </fieldset>
+      ))}
+    </div>
+
+    <div class="tf-nav">
+      <button type="button" class="tf-arrow tf-prev" aria-label="Previous question" disabled>↑</button>
+      <button type="button" class="tf-arrow tf-next" aria-label="Next question">↓</button>
+    </div>
+
+    <p class="note">This is a strategy conversation, not a sales appointment. If business or tax structure comes up, ProtectHealth may suggest looping in a tax professional. That is a good sign, not a runaround.</p>
     <p class="form-status" role="status" aria-live="polite"></p>
   </form>
+
   <div class="form-success" hidden>
     <p class="form-confirmation">{confirmation}</p>
     {showBooking && (
@@ -65,28 +93,185 @@ const BOOKING_URL = 'https://api.leadconnectorhq.com/widget/booking/naoB13PMLUxH
       </div>
     )}
   </div>
+
+  <canvas class="tf-confetti" aria-hidden="true"></canvas>
 </div>
 
 <style>
+  .lead-form.tf { position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3); border: 1.5px solid rgba(25, 123, 255, 0.18); }
+  .tf-head h3 { margin-bottom: 6px; }
+
+  .tf-progress { height: 5px; border-radius: 99px; background: rgba(15, 53, 103, 0.08); margin: 18px 0 6px; overflow: hidden; }
+  .tf-fill { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), #19c8ff); transition: width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .tf-count { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .tf-count b { color: var(--blue); }
+
+  .tf-viewport { position: relative; min-height: 300px; }
+  .tf-step { position: absolute; inset: 0; margin: 0; padding: 14px 2px 0; border: none; opacity: 0; transform: translateY(46px); pointer-events: none; transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); display: flex; flex-direction: column; }
+  .tf-step.act { opacity: 1; transform: none; pointer-events: auto; position: relative; }
+  .tf-step.leave-up { opacity: 0; transform: translateY(-46px); }
+
+  .tf-step legend { display: block; padding: 0; margin-bottom: 14px; float: left; width: 100%; }
+  .tf-qnum { color: var(--blue); font-weight: 800; font-size: 0.85rem; margin-right: 8px; }
+  .tf-qnum i { font-style: normal; }
+  .tf-q { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.15rem, 2.2vw, 1.45rem); color: var(--navy); }
+  .tf-opt { margin-left: 8px; font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+  .lead-form.tf .tf-input { width: 100%; border: none; border-bottom: 2px solid rgba(15, 53, 103, 0.18); border-radius: 0; background: transparent; padding: 10px 2px 12px; font-size: clamp(1.15rem, 2vw, 1.5rem); color: var(--ink); font-family: var(--font); transition: border-color 0.25s; }
+  .lead-form.tf .tf-input::placeholder { color: rgba(90, 111, 133, 0.45); }
+  .lead-form.tf .tf-input:focus { outline: none; border-bottom-color: var(--blue); background: transparent; box-shadow: 0 2px 0 0 rgba(25, 200, 255, 0.35); }
+  .lead-form.tf textarea.tf-input { resize: vertical; min-height: 84px; }
+
+  .tf-options { display: flex; flex-direction: column; gap: 9px; max-width: 480px; }
+  .tf-option { display: flex; align-items: center; gap: 12px; text-align: left; font-family: var(--font); font-size: 1rem; font-weight: 600; color: var(--navy); background: rgba(25, 123, 255, 0.05); border: 1.5px solid rgba(25, 123, 255, 0.3); border-radius: 12px; padding: 11px 14px; cursor: pointer; transition: transform 0.16s ease, background 0.16s, border-color 0.16s, box-shadow 0.16s; }
+  .tf-option:hover { background: rgba(25, 123, 255, 0.1); transform: translateX(4px); }
+  .tf-option.sel { background: linear-gradient(120deg, rgba(25, 123, 255, 0.16), rgba(25, 200, 255, 0.12)); border-color: var(--blue); box-shadow: 0 6px 18px rgba(25, 123, 255, 0.22); }
+  .tf-key { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; border: 1.5px solid rgba(25, 123, 255, 0.45); font-size: 0.78rem; font-weight: 800; color: var(--blue); background: #fff; flex-shrink: 0; }
+  .tf-check { margin-left: auto; opacity: 0; font-weight: 800; color: var(--blue); transition: opacity 0.15s; }
+  .tf-option.sel .tf-check { opacity: 1; }
+
+  .tf-err { color: #c0392b; font-weight: 700; font-size: 0.85rem; min-height: 1.2em; margin: 8px 0 0; }
+  .tf-actions { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .tf-ok { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(120deg, var(--blue), var(--accent)); color: #fff; font-family: var(--font); font-weight: 800; font-size: 1rem; border: none; border-radius: 10px; padding: 12px 26px; cursor: pointer; box-shadow: 0 8px 22px rgba(25, 123, 255, 0.3); transition: transform 0.18s ease, box-shadow 0.18s ease; }
+  .tf-ok:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(25, 123, 255, 0.42); }
+  .tf-ok i { font-style: normal; }
+  .tf-hint { font-size: 0.8rem; color: var(--muted); }
+  .tf-hint b { color: var(--navy); }
+
+  .tf-nav { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 6px; }
+  .tf-arrow { width: 38px; height: 38px; border-radius: 10px; border: none; background: linear-gradient(120deg, var(--blue), var(--accent)); color: #fff; font-size: 1.05rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s, transform 0.18s; }
+  .tf-arrow:hover { transform: translateY(-2px); }
+  .tf-arrow:disabled { opacity: 0.35; cursor: default; transform: none; }
+
   .form-success .form-confirmation { font-weight: 600; color: var(--navy); background: rgba(25, 123, 255, 0.07); border: 1.5px solid rgba(25, 123, 255, 0.25); border-radius: 12px; padding: 16px 18px; }
   .booking-embed { margin-top: 18px; }
   .booking-lead { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
   .booking-fallback { font-size: 0.88rem; color: var(--muted); margin-top: 10px; }
+
+  .tf-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9; }
+
+  @media (max-width: 560px) {
+    .tf-viewport { min-height: 340px; }
+    .tf-nav { display: none; }
+    .tf-hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tf-step, .tf-fill, .tf-option, .tf-ok, .tf-arrow { transition: none; }
+  }
 </style>
 
-<script define:vars={{ formId, confirmation }}>
+<script define:vars={{ formId, total }}>
   const wrap = document.getElementById(`form-${formId}`);
   const form = wrap.querySelector('form');
+  const steps = [...wrap.querySelectorAll('.tf-step')];
+  const fill = wrap.querySelector('.tf-fill');
+  const cur = wrap.querySelector('.tf-cur');
   const status = wrap.querySelector('.form-status');
   const success = wrap.querySelector('.form-success');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = form.querySelector('button[type="submit"]');
-    const data = Object.fromEntries(new FormData(form).entries());
-    data.source = formId;
-    data.page = window.location.pathname + window.location.search;
+  const prevBtn = wrap.querySelector('.tf-prev');
+  const nextBtn = wrap.querySelector('.tf-next');
+  const answers = {};
+  let idx = 0;
+  let busy = false;
+
+  const setProgress = () => {
+    fill.style.width = ((idx) / total * 100) + '%';
+    cur.textContent = idx + 1;
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total - 1;
+  };
+
+  const focusStep = (s) => {
+    const inp = s.querySelector('.tf-input');
+    if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 320);
+  };
+
+  const go = (to, dir) => {
+    if (to < 0 || to >= total || to === idx) return;
+    const from = steps[idx];
+    const next = steps[to];
+    from.classList.remove('act');
+    from.classList.add(dir > 0 ? 'leave-up' : '');
+    setTimeout(() => from.classList.remove('leave-up'), 460);
+    next.classList.add('act');
+    idx = to;
+    setProgress();
+    focusStep(next);
+  };
+
+  const readStep = (s) => {
+    const type = s.dataset.type;
+    if (type === 'select') {
+      const sel = s.querySelector('.tf-option.sel');
+      return sel ? sel.dataset.value : '';
+    }
+    const inp = s.querySelector('.tf-input');
+    return inp ? inp.value.trim() : '';
+  };
+
+  const validate = (s) => {
+    const err = s.querySelector('.tf-err');
+    const val = readStep(s);
+    const required = s.dataset.required === '1';
+    if (required && !val) { err.textContent = 'Please fill this in.'; return false; }
+    if (val && s.dataset.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) { err.textContent = 'That email does not look right.'; return false; }
+    if (val && s.dataset.type === 'tel' && val.replace(/\D/g, '').length < 10) { err.textContent = 'Please enter a 10-digit phone number.'; return false; }
+    err.textContent = '';
+    answers[s.dataset.name] = val;
+    return true;
+  };
+
+  // ===== confetti: two side cannons =====
+  const confetti = () => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = wrap.querySelector('.tf-confetti');
+    const ctx = cv.getContext('2d');
+    const r = wrap.getBoundingClientRect();
+    cv.width = r.width; cv.height = r.height;
+    const colors = ['#197bff', '#19c8ff', '#f5b942', '#0f3567', '#66e0ff', '#ffffff'];
+    const parts = [];
+    const spawn = (side) => {
+      for (let i = 0; i < 70; i++) {
+        const angle = (side === 0 ? -0.25 : Math.PI + 0.25) + (Math.random() - 0.5) * 0.9;
+        const speed = 7 + Math.random() * 9;
+        parts.push({
+          x: side === 0 ? -6 : cv.width + 6,
+          y: cv.height * (0.35 + Math.random() * 0.4),
+          vx: Math.cos(angle) * speed * (side === 0 ? 1 : 1),
+          vy: Math.sin(angle) * speed - 5 - Math.random() * 3,
+          w: 6 + Math.random() * 6, h: 4 + Math.random() * 5,
+          rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+          c: colors[(Math.random() * colors.length) | 0],
+          life: 130 + Math.random() * 60,
+        });
+      }
+    };
+    spawn(0); spawn(1);
+    setTimeout(() => { spawn(0); spawn(1); }, 350);
+    let frames = 0;
+    const tick = () => {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      parts.forEach((p) => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.28; p.vx *= 0.985; p.rot += p.vr; p.life--;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 40));
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      for (let i = parts.length - 1; i >= 0; i--) if (parts[i].life <= 0 || parts[i].y > cv.height + 30) parts.splice(i, 1);
+      if (parts.length && frames++ < 480) requestAnimationFrame(tick);
+      else ctx.clearRect(0, 0, cv.width, cv.height);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const submit = async () => {
+    if (busy) return;
+    busy = true;
     status.textContent = 'Sending...';
-    btn.disabled = true;
+    const data = { ...answers, source: formId, page: location.pathname + location.search };
     try {
       const res = await fetch('/api/lead', {
         method: 'POST',
@@ -96,11 +281,43 @@ const BOOKING_URL = 'https://api.leadconnectorhq.com/widget/booking/naoB13PMLUxH
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       form.style.display = 'none';
       status.textContent = '';
+      fill.style.width = '100%';
       success.hidden = false;
+      confetti();
       success.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      btn.disabled = false;
+      busy = false;
       status.textContent = 'Something went wrong sending the form. Please try again or call 800-240-8185.';
     }
+  };
+
+  const advance = () => {
+    const s = steps[idx];
+    if (!validate(s)) return;
+    if (idx === total - 1) { submit(); return; }
+    go(idx + 1, 1);
+  };
+
+  steps.forEach((s) => {
+    s.querySelector('.tf-ok').addEventListener('click', advance);
+    s.querySelectorAll('.tf-option').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        s.querySelectorAll('.tf-option').forEach((o) => o.classList.remove('sel'));
+        opt.classList.add('sel');
+        s.querySelector('.tf-err').textContent = '';
+        setTimeout(advance, 260);
+      });
+    });
+    const inp = s.querySelector('.tf-input');
+    if (inp && inp.tagName !== 'TEXTAREA') {
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); advance(); } });
+    }
+    if (inp && inp.tagName === 'TEXTAREA') {
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); advance(); } });
+    }
   });
+  prevBtn.addEventListener('click', () => go(idx - 1, -1));
+  nextBtn.addEventListener('click', () => { if (validate(steps[idx])) go(idx + 1, 1); });
+  form.addEventListener('submit', (e) => e.preventDefault());
+  setProgress();
 </script>
