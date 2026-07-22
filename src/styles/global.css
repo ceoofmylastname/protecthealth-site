@@ -302,3 +302,11 @@ p { margin: 0.7rem 0; }
 .lp-team .t b { display: block; color: var(--navy); font-size: 1.02rem; }
 .lp-formwrap { border: 1.5px solid transparent; border-radius: 28px; padding: 8px; background: linear-gradient(160deg, #ffffff, #f2f8ff) padding-box, linear-gradient(130deg, rgba(25,123,255,0.5), rgba(25,200,255,0.25) 50%, rgba(0,125,179,0.5)) border-box; box-shadow: 0 20px 54px rgba(15,53,103,0.14); }
 @media (max-width: 720px) { .lp-hero { padding: 72px 0 80px; } .lp-quote { padding: 42px 28px; } }
+
+/* LP reading library (below the form — education path for the not-ready-yet visitor) */
+.lp-read h2 { margin-top: 0; }
+.lp-qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 26px; }
+.qa-pill { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 20px; border-radius: 16px; text-decoration: none; font-weight: 700; font-size: 0.93rem; color: var(--navy); border: 1.5px solid transparent; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(120deg, rgba(25,123,255,0.3), rgba(25,200,255,0.16) 60%, rgba(0,125,179,0.35)) border-box; box-shadow: var(--shadow-sm); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.qa-pill i { font-style: normal; color: var(--blue); font-weight: 800; transition: transform 0.25s ease; }
+.qa-pill:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,53,103,0.15); }
+.qa-pill:hover i { transform: translateX(4px); }

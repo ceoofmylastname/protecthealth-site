@@ -4,10 +4,19 @@
 import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
-import { SITE, ORG_ID, TEAM, HF_ASSETS, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, ORG_ID, TEAM, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 import { GOOGLE_REVIEWS } from '../lib/reviews';
+import { getCollection } from 'astro:content';
 
 const pageUrl = `${SITE.domain}/employers`;
+
+// Reading library: every employers-cluster post + Q&A, TOFU first (auto-updates as content grows)
+const clusterPosts = (await getCollection('blog'))
+  .filter((p) => p.data.cluster === 'employers')
+  .sort((a, b) => (a.data.funnelStage === b.data.funnelStage ? 0 : a.data.funnelStage === 'TOFU' ? -1 : 1));
+const clusterQa = (await getCollection('qa'))
+  .filter((q) => q.data.cluster === 'employers')
+  .sort((a, b) => a.data.question.localeCompare(b.data.question));
 const proof = ['Al Molinaro', 'Doris Moliga', 'Rachel Wren']
   .map((n) => GOOGLE_REVIEWS.find((r) => r.name === n))
   .filter(Boolean);
@@ -180,6 +189,40 @@ const schemas = [
           ]}
         />
       </div>
+    </div>
+  </section>
+
+  <!-- READING LIBRARY — the education path for the not-ready-yet visitor -->
+  <section class="section lp-read">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Not Ready To Talk Yet?</div>
+        <h2>Read your way in</h2>
+        <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">Every guide and answer below was written for business owners running teams — benefits, payroll, HR, and the tipped-payroll rules Las Vegas runs on.</p>
+      </div>
+      <div class="grid cols-3">
+        {clusterPosts.map((p) => (
+          <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
+            <div class="thumb">{BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}</div>
+            <div class="body-pad">
+              <span class="badge">{p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper'}</span>
+              <h3>{p.data.title}</h3>
+              <p>{p.data.description}</p>
+              <span class="more">Read The Guide →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="section-head center" style="margin-top:54px;margin-bottom:0;">
+        <div class="section-label">Quick Answers</div>
+        <h2 style="margin-top:0;">The questions business owners actually ask</h2>
+      </div>
+      <div class="lp-qa-grid">
+        {clusterQa.map((q) => (
+          <a class="qa-pill" href={`/qa/${q.id}`}>{q.data.question}<i>→</i></a>
+        ))}
+      </div>
+      <p style="text-align:center;margin-top:30px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
     </div>
   </section>
 </Base>
