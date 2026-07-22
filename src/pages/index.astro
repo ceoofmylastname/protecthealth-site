@@ -9,6 +9,9 @@ import { getCollection } from 'astro:content';
 const reviewRowA = GOOGLE_REVIEWS.slice(0, 10);
 const reviewRowB = GOOGLE_REVIEWS.slice(10);
 
+// Cinematic intro: plays once per browser session on the homepage, then dissolves into the page.
+const INTRO_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_062759_b0f2c41b-4f29-4be1-bdf5-f542bfd663af.mp4';
+
 const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.datePublished.localeCompare(a.data.datePublished))
   .slice(0, 3);
@@ -35,6 +38,13 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   description="ProtectHealth is a Las Vegas insurance brokerage that builds coverage around your life and business — health, life, dental, vision, Medicare, and employer benefits. Strategy first, product second."
   schemas={schemas}
 >
+  <!-- ============ CINEMATIC INTRO (plays once per session, dissolves into homepage) ============ -->
+  <div id="site-intro" aria-hidden="true">
+    <video id="intro-video" src={INTRO_VIDEO} muted playsinline preload="auto"></video>
+    <div class="intro-brand">P R O T E C T H E A L T H</div>
+    <button id="intro-skip" type="button">Skip Intro →</button>
+  </div>
+
   <!-- shared SVG gradient defs -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#197bff"/><stop offset="1" stop-color="#007db3"/></linearGradient></defs></svg>
 
@@ -463,6 +473,16 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   .reveal.in ~ * .uline svg path, .uline.draw svg path { animation: drawLine 1.1s ease 0.3s forwards; }
   @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
+  /* ===== Cinematic intro overlay ===== */
+  #site-intro { position: fixed; inset: 0; z-index: 99999; background: #000; display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.95s ease; }
+  #site-intro video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #site-intro .intro-brand { position: absolute; bottom: 9vh; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.85); font-family: var(--font-display); font-weight: 700; font-size: clamp(0.7rem, 1.4vw, 0.95rem); letter-spacing: 0.6em; text-indent: 0.6em; animation: introBrand 2.4s ease 0.6s both; pointer-events: none; }
+  @keyframes introBrand { from { opacity: 0; transform: translateY(12px); letter-spacing: 0.9em; } to { opacity: 1; transform: translateY(0); letter-spacing: 0.6em; } }
+  #intro-skip { position: absolute; right: 26px; bottom: 26px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 9px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); transition: background 0.25s, color 0.25s; }
+  #intro-skip:hover { background: rgba(255,255,255,0.2); color: #fff; }
+  #site-intro.intro-out { opacity: 0; pointer-events: none; }
+  html.intro-lock, html.intro-lock body { overflow: hidden; }
+
   /* ===== v5: review showcase ===== */
   .review-showcase { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 34px; background: linear-gradient(120deg, #0a2246, var(--navy) 55%, #17457e); border-radius: 28px; padding: 40px 46px; text-decoration: none; color: #fff; overflow: hidden; box-shadow: var(--shadow); transition: transform 0.25s; }
   .review-showcase:hover { transform: translateY(-4px); }
@@ -579,4 +599,33 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     const uio = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) { ul.classList.add('draw'); uio.disconnect(); } }); }, { threshold: 0.6 });
     uio.observe(ul);
   }
+
+  // ===== Cinematic intro: play once per session, then dissolve into the page =====
+  (() => {
+    const intro = document.getElementById('site-intro');
+    if (!intro) return;
+    const vid = document.getElementById('intro-video');
+    let seen = false;
+    try { seen = sessionStorage.getItem('ph_intro_seen') === '1'; } catch (e) {}
+    const saveData = navigator.connection && navigator.connection.saveData;
+    if (seen || reduce || saveData) { intro.remove(); return; }
+    try { sessionStorage.setItem('ph_intro_seen', '1'); } catch (e) {}
+
+    document.documentElement.classList.add('intro-lock');
+    let done = false;
+    const end = () => {
+      if (done) return;
+      done = true;
+      intro.classList.add('intro-out');
+      document.documentElement.classList.remove('intro-lock');
+      setTimeout(() => intro.remove(), 1000);
+    };
+    vid.addEventListener('ended', end);
+    vid.addEventListener('error', end);
+    document.getElementById('intro-skip').addEventListener('click', end);
+    // Safety net: never hold the page hostage
+    setTimeout(end, 9000);
+    const p = vid.play();
+    if (p && p.catch) p.catch(end);
+  })();
 </script>
