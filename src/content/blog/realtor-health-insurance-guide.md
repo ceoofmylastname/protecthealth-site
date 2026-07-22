@@ -40,6 +40,12 @@ NAR's own surveys put the Realtor uninsured rate at **10-15%** — better than t
 - **Small-group opportunities.** Teams and brokerages with W-2 staff are structured a hundred different ways, and some structures unlock group options nobody has mentioned.
 - **Tax-advantaged structures.** Depending on business structure, arrangements like an [ICHRA](/blog-post/what-is-an-ichra) or Section 105 plan may be worth exploring — with the agent's tax professional in the loop.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>For agents whose commission income makes standard advice useless, the tax-advantaged structures guide covers Section 105 plans, reimbursement arrangements, and the strategies built for 1099 income.</p>
+  <a class="fc-link" href="/blog-post/tax-advantaged-health-benefits-self-employed">Read: Tax-Advantaged Health Benefits For The Self-Employed</a>
+</div>
+
 ## What's the wrong question?
 
 "What do you pay?" A plan that's perfect for a 31-year-old single agent is a bad fit for a 52-year-old broker with a family of four and two prescriptions. Age, household income, tax-credit eligibility, networks, prescriptions, and total financial exposure determine what "good coverage" looks like. The better question: **"Is my coverage built around how my business is structured, or did I just buy what someone was selling?"**

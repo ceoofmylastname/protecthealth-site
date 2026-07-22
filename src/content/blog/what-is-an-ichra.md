@@ -44,6 +44,12 @@ The employer gets a predictable, fixed benefits budget with no renewal shock. Th
 
 HRA Council data tells the story: ICHRA adoption rose **34% among large employers** and **52% among small employers** from 2024 to 2025 — the fifth consecutive year of growth. The stat that matters most: **83% of employers offering an ICHRA or QSEHRA in 2025 had never offered health benefits at all before.** The structure is bringing benefits to businesses that group insurance priced out.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>The question after "what is it" is "does it beat what I'd buy on my own." The head-to-head comparison walks through exactly when an ICHRA outperforms a marketplace plan, and when it doesn't.</p>
+  <a class="fc-link" href="/blog-post/ichra-vs-marketplace-health-insurance">Read: ICHRA vs. Marketplace Health Insurance</a>
+</div>
+
 ## Does ICHRA fit everyone?
 
 No — and any pitch claiming otherwise should raise an eyebrow. Fit depends on business structure, team composition, local individual-market strength, and owner eligibility rules. S-corp owners above 2% ownership generally cannot participate in their own ICHRA, which is exactly the kind of detail that surfaces in a real strategy conversation, not a Facebook comment thread.

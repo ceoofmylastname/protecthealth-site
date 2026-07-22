@@ -41,6 +41,12 @@ No — under 50 full-time-equivalent employees, no federal mandate applies. The 
 
 The remarkable stat: **83% of employers offering an ICHRA or QSEHRA in 2025 had never offered health benefits before.** These structures are how businesses that "couldn't afford benefits" start offering them.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>Health insurance is the anchor, but the businesses winning the hiring war are competing on the full benefits package. The complete guide covers what that package looks like at small-business scale and cost.</p>
+  <a class="fc-link" href="/blog-post/employee-benefits-guide-small-business">Read: The Employee Benefits Guide For Small Business</a>
+</div>
+
 ## How does an owner pick the right structure?
 
 Team size, workforce mix, budget certainty, and what employees actually value. A 6-person office where everyone wants the same PPO looks nothing like a 30-person restaurant group with tipped staff and high turnover. The structure should come out of the business's shape — not out of whatever product a salesperson happened to carry.

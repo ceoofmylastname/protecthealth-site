@@ -41,6 +41,12 @@ Premium tax credits reduce the monthly premium immediately — not at tax time. 
 
 Nationally, roughly 5 million small-business owners and self-employed workers enrolled through ACA marketplaces in 2025 — the marketplace is the workhorse of self-employed coverage.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>Subsidies and tiers are inputs. Choosing the plan is the decision, and the full framework covers the total-cost math, network verification, and formulary checks that settle it.</p>
+  <a class="fc-link" href="/blog-post/how-to-choose-a-health-insurance-plan-nevada">Read: How To Choose A Health Insurance Plan In Nevada</a>
+</div>
+
 ## What do the metal tiers mean?
 
 | Tier | Premium | Out-of-pocket | Best fit |

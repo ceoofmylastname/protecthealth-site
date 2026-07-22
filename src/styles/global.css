@@ -172,6 +172,18 @@ p { margin: 0.7rem 0; }
 .cta-band p { color: #cfe0f5; max-width: 560px; }
 .cta-band > * { position: relative; z-index: 2; }
 
+/* ============ Funnel CTA (mid-article TOFU→MOFU→BOFU chain) ============ */
+.funnel-cta { position: relative; display: block; margin: 38px 0; padding: 26px 30px 26px 34px; border-radius: var(--radius-lg); background: linear-gradient(120deg, rgba(15,53,103,0.05), rgba(25,123,255,0.09)); border: 1px solid rgba(25,123,255,0.25); overflow: hidden; }
+.funnel-cta::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, var(--blue), var(--cyanL, #19c8ff)); border-radius: 5px 0 0 5px; }
+.funnel-cta::after { content: ""; position: absolute; right: -60px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, rgba(25,200,255,0.16), transparent 70%); pointer-events: none; }
+.funnel-cta .fc-kicker { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.funnel-cta p { margin: 0 0 14px; color: var(--ink, #1c2b3a); font-size: 1.02rem; max-width: 640px; }
+.funnel-cta a.fc-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--blue); text-decoration: none; font-size: 1rem; }
+.funnel-cta a.fc-link::after { content: "→"; transition: transform 0.25s ease; }
+.funnel-cta a.fc-link:hover::after { transform: translateX(5px); }
+.funnel-cta a.fc-btn { display: inline-block; background: linear-gradient(120deg, var(--blue), var(--accent)); color: #fff; font-weight: 800; padding: 12px 24px; border-radius: 999px; text-decoration: none; box-shadow: 0 8px 22px rgba(25,123,255,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.funnel-cta a.fc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(25,123,255,0.4); }
+
 /* split feature (photo + text) */
 .split-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
 .split-feature .photo { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }

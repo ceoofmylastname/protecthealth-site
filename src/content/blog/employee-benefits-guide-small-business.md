@@ -43,6 +43,12 @@ A $2-an-hour raise at a competitor evaporates the first time an employee prices 
 
 **Reliable payroll.** Nothing erodes trust like a wrong paycheck. Payroll accuracy is an employee-experience feature, not a back-office detail.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Take The Next Step</span>
+  <p>ProtectHealth has officially partnered with Paychex, so one conversation covers the benefits strategy and the payroll, HR, and compliance machinery underneath it. Free, and built around your headcount.</p>
+  <a class="fc-btn" href="/employers">Book An Employer Strategy Conversation</a>
+</div>
+
 ## How does a business build this without drowning?
 
 One picture, not five vendors. Benefits, payroll, HR, compliance, and retirement pull on the same budget and the same owner-hours, and duct-taping five vendors together is how owners end up spending a week a month on administration. This is exactly why ProtectHealth partnered with Paychex: the benefits strategy and the employer infrastructure get designed in one conversation, and where Paychex tools fit, a dedicated team takes the handoff directly.

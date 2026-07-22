@@ -48,6 +48,12 @@ The critical interaction: **the two subsidies don't stack.** An employee offered
 | Portability | Fully portable | Plan portable; reimbursement ends at exit |
 | Best fit | Solo operators with credit eligibility | Teams formalizing benefits |
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Take The Next Step</span>
+  <p>Which side of this comparison a self-employed professional lands on depends on business structure, income, and household, not on a blog post. A free 20-minute ProtectHealth strategy conversation maps it for your actual situation.</p>
+  <a class="fc-btn" href="/self-employed">Book A Strategy Conversation</a>
+</div>
+
 ## Who should lean which way?
 
 **Lean direct marketplace** if operating solo with meaningful premium tax-credit eligibility — the subsidy is often larger than any reimbursement a small business would self-fund.

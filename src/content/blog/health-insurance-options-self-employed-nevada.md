@@ -39,6 +39,12 @@ Going self-employed means losing the benefits packet — and discovering nobody 
 
 **Path 4 — Tax-advantaged structures.** Arrangements like an [ICHRA](/blog-post/what-is-an-ichra) or a Section 105 plan can turn health costs into business-advantaged spending when the entity type and setup fit. These depend heavily on structure — sole proprietor versus LLC versus S-corp — and belong in a conversation that includes a tax professional.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>Two of these paths get compared constantly and confused even more often. The head-to-head breaks down when an ICHRA beats buying a marketplace plan directly, with the math shown.</p>
+  <a class="fc-link" href="/blog-post/ichra-vs-marketplace-health-insurance">Read: ICHRA vs. Marketplace Health Insurance</a>
+</div>
+
 ## How does business structure change the answer?
 
 | Structure | What it can change |

@@ -11,7 +11,7 @@ const blog = defineCollection({
     description: z.string(),
     category: z.string().default('Guide'),
     funnelStage: z.enum(['TOFU', 'MOFU', 'BOFU']),
-    cluster: z.enum(['ichra', 'employers', 'nevada-core']),
+    cluster: z.enum(['ichra', 'employers', 'nevada-core', 'life', 'dental-vision', 'medicare']),
     datePublished: z.string(),
     dateModified: z.string().optional(), // omit unless content genuinely changed (wiki: date-modified-schema)
     author: z.string().default('ProtectHealth Team'),
@@ -29,7 +29,7 @@ const qa = defineCollection({
   schema: z.object({
     question: z.string(),
     description: z.string(),
-    cluster: z.enum(['ichra', 'employers', 'nevada-core']),
+    cluster: z.enum(['ichra', 'employers', 'nevada-core', 'life', 'dental-vision', 'medicare']),
     parentPost: z.string(), // slug of the parent blog post
     siblings: z.array(z.string()).min(1), // sibling Q&A slugs
     datePublished: z.string(),

@@ -46,6 +46,12 @@ Quick question for business owners: who's your HR department? If the answer is "
 
 **7. Growth is breaking the systems.** New location, fifth employee, tenth employee — the spreadsheet and shoebox that got the business here stop working. Growing pains are the best problem to have, but they are a problem.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>If two or more of the signs hit home, the next question is which fix fits: doing it in-house, hiring a payroll service, or joining a PEO. The total-cost comparison lays out what each path really costs.</p>
+  <a class="fc-link" href="/blog-post/peo-vs-payroll-service-vs-diy">Read: PEO vs. Payroll Service vs. DIY</a>
+</div>
+
 ## What's the fix — hire an HR department?
 
 Almost never. The fix is **reachable HR guidance**: handbooks, onboarding processes, compliance support, and documentation, delivered as a service instead of a salary. That's precisely the territory covered in [the employee benefits and retention guide](/blog-post/employee-benefits-guide-small-business) — and precisely why ProtectHealth partnered with Paychex, so one conversation can cover the benefits strategy and the back office that supports it.

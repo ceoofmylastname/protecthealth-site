@@ -51,6 +51,12 @@ relatedQa:
 
 The table is a starting point, not an answer. Real eligibility runs through entity type, payroll setup, household income, and what coverage the household actually needs — the same factors covered in [the full self-employed options map](/blog-post/health-insurance-options-self-employed-nevada).
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Take The Next Step</span>
+  <p>Eligibility for every structure on this page depends on how a business is set up, which is exactly what a free ProtectHealth strategy conversation sorts out — insurance nerds on the coverage, a tax professional looped in where structure meets the return.</p>
+  <a class="fc-btn" href="/self-employed">Book A Strategy Conversation</a>
+</div>
+
 ## Where do people get burned?
 
 Three places. Implementing a Section 105 plan without legitimate employment and documentation. Assuming ICHRA reimbursement stacks with premium tax credits (it generally doesn't — see [ICHRA vs. marketplace](/blog-post/ichra-vs-marketplace-health-insurance)). And taking structure advice from someone selling a product who has never asked about entity type.

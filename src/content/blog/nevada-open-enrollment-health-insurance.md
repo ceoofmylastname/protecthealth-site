@@ -41,6 +41,12 @@ A plan selected on time but never paid does not activate. The first premium paym
 
 A qualifying life event opens a **special enrollment period** — usually 60 days from the event. Qualifying events include losing job-based coverage, marriage or divorce, the birth or adoption of a child, and a permanent move into Nevada. Self-employed Nevadans losing group coverage from a former employer also qualify, which matters for new Realtors and 1099 contractors leaving W-2 jobs.
 
+<div class="funnel-cta">
+  <span class="fc-kicker">Go Deeper</span>
+  <p>Knowing the deadline is half the job. Picking the right plan inside the window is the other half, and the strategy-first framework walks through total cost, networks, and subsidies step by step.</p>
+  <a class="fc-link" href="/blog-post/how-to-choose-a-health-insurance-plan-nevada">Read: How To Choose A Health Insurance Plan In Nevada</a>
+</div>
+
 ## What actually determines the right plan?
 
 Premium and deductible are the two numbers everyone compares, and the two least useful in isolation. What "good coverage" looks like depends on:
