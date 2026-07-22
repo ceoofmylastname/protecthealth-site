@@ -30,7 +30,8 @@ const schemas = [
         submitLabel="Book My Conversation"
         confirmation="You're in. A ProtectHealth broker will reach out shortly to set up your strategy conversation."
         fields={[
-          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'first_name', label: 'First name', type: 'text' },
+          { name: 'last_name', label: 'Last name', type: 'text' },
           { name: 'email', label: 'Email', type: 'email' },
           { name: 'phone', label: 'Phone number', type: 'tel' },
           { name: 'interest', label: 'What can ProtectHealth help with?', type: 'select', options: ['Health Insurance', 'Life Insurance', 'GAP Coverage', 'Medicare', 'Dental & Vision', 'Self-Employed Health Strategy', 'Employer Benefits / Paychex', 'Not sure — let\'s talk'] },

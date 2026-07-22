@@ -202,7 +202,8 @@ const schemas = [
           submitLabel="Book A Strategy Conversation"
           confirmation="You're booked. Quick heads-up on how we work: this is a strategy conversation, not a sales appointment. Have a rough idea of your household income and current plan details handy if you can."
           fields={[
-            { name: 'name', label: 'Full name', type: 'text' },
+            { name: 'first_name', label: 'First name', type: 'text' },
+            { name: 'last_name', label: 'Last name', type: 'text' },
             { name: 'email', label: 'Email', type: 'email' },
             { name: 'phone', label: 'Phone number', type: 'tel' },
             { name: 'profile', label: 'Which best describes you?', type: 'select', options: ['Realtor', '1099 contractor', 'Self-employed', 'Small business owner with a team', 'Other'] },

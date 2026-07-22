@@ -30,7 +30,8 @@ const schemas = [
         submitLabel="Make An Appointment"
         confirmation="Thank you! Your submission has been received. A ProtectHealth broker will reach out shortly."
         fields={[
-          { name: 'name', label: 'Full name', type: 'text' },
+          { name: 'first_name', label: 'First name', type: 'text' },
+          { name: 'last_name', label: 'Last name', type: 'text' },
           { name: 'email', label: 'Email', type: 'email' },
           { name: 'phone', label: 'Phone number', type: 'tel' },
           { name: 'interest', label: 'Interested in...', type: 'select', options: ['Health Insurance Consultation', 'Life & Gap Coverage Options', 'Dental and Vision Plans', 'Medicare Solutions', 'Self-Employed Health Strategy', 'Employer Benefits'] },

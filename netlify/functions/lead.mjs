@@ -70,9 +70,15 @@ export default async (req) => {
   const formId = String(data.source || 'general');
   const campaign = CAMPAIGNS[formId] || CAMPAIGNS.general;
 
-  const fullName = String(data.name || '').trim();
-  const firstName = fullName.split(/\s+/)[0] || '';
-  const lastName = fullName.split(/\s+/).slice(1).join(' ') || '';
+  // Forms send first_name/last_name; fall back to splitting a legacy full name.
+  let firstName = String(data.first_name || '').trim();
+  let lastName = String(data.last_name || '').trim();
+  if (!firstName && data.name) {
+    const fullName = String(data.name).trim();
+    firstName = fullName.split(/\s+/)[0] || '';
+    lastName = fullName.split(/\s+/).slice(1).join(' ') || '';
+  }
+  const fullName = [firstName, lastName].filter(Boolean).join(' ');
   const email = String(data.email || '').trim();
   const phone = String(data.phone || '').trim();
   if (!email && !phone) {
@@ -95,7 +101,7 @@ export default async (req) => {
     if (!contactId) throw new Error('No contact id returned from upsert');
 
     // 2. Note with the full form answers (skip core identity fields)
-    const skip = new Set(['name', 'email', 'phone', 'source']);
+    const skip = new Set(['name', 'first_name', 'last_name', 'email', 'phone', 'source']);
     const lines = Object.entries(data)
       .filter(([k, v]) => !skip.has(k) && String(v || '').trim() !== '')
       .map(([k, v]) => `${k}: ${String(v).trim()}`);
