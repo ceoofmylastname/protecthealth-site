@@ -64,12 +64,40 @@ export const ASSETS = {
     `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e27_Avatar%203.jpg`,
     `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e26_Avatar%204.jpg`,
   ],
-  blog: {
-    'nevada-open-enrollment-health-insurance': `${CDN}/66c61e498a0b1c025cc02da3/67111487cb7b1c725902576a_Nevada%20(4).png`,
-    'small-business-health-insurance': `${CDN}/66c61e498a0b1c025cc02da3/671111326a6f578ca4a980da_Nevada%20(2).png`,
-    'silver-state-health-insurance-exchange': `${CDN}/66c61e498a0b1c025cc02da3/67110e4b1fd87729670db5c6_Nevada%20(1).png`,
-  } as Record<string, string>,
 };
+
+// ===== Editorial artwork (Higgsfield Nano Banana 2, 2K) =====
+// Each entry: full-res PNG (article hero + JSON-LD image), WebP (cards), alt description.
+const HF2 = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH';
+const art = (ts: string, id: string, alt: string) => ({
+  png: `${HF2}/hf_20260722_${ts}_${id}.png`,
+  webp: `${HF2}/hf_20260722_${ts}_${id}_min.webp`,
+  alt,
+});
+
+export const BLOG_ART: Record<string, { png: string; webp: string; alt: string }> = {
+  'nevada-open-enrollment-health-insurance': art('033952', 'cd74f42f-d6bf-4fe1-a816-81368c3d0cd2', 'Glass hourglass pouring golden light that wraps a protected Las Vegas home — the Nevada open enrollment window closing'),
+  'silver-state-health-insurance-exchange': art('033955', '7c9f8b5b-fd5a-4b0f-a59b-417f00dc9838', 'Nevada sculpted in gradient glass with streams of light flowing to a glowing marketplace pavilion — the Silver State Health Insurance Exchange'),
+  'small-business-health-insurance': art('033959', '98fe38d2-fb78-458a-8602-4b88a07a492d', 'A blooming canopy of gradient light sheltering a small glowing storefront and its team — small business health insurance'),
+  'what-is-an-ichra': art('034002', '536c8944-9674-4af0-a983-0b03c54ae485', 'A glass hand holding a glowing benefit orb that splits into three streams toward floating plan cards — how an ICHRA turns one budget into personal choice'),
+  'realtor-health-insurance-guide': art('034006', '1b6cd524-04d5-45d0-aaae-a65fefa141c7', 'A luminous gradient key and protective aurora arcing over a modern home — health insurance strategy for Realtors'),
+  'health-insurance-options-self-employed-nevada': art('034009', '7ab2936d-667d-4379-91b2-d4818d7ec38a', 'Four rivers of gradient light diverging toward four glowing coverage monuments — the self-employed health insurance options map'),
+  'ichra-vs-marketplace-health-insurance': art('034018', '3f6b72ec-cc6c-42e5-9c42-95eff90573dc', 'Two crystalline structures — a marketplace archway and an employer tower — bridged by violet light — ICHRA versus marketplace coverage'),
+  'tax-advantaged-health-benefits-self-employed': art('034021', '218a08a9-fb50-4538-a63c-120d20bcda5d', 'A gradient glass vault releasing a protected spiral of glowing coins beneath a floating shield — tax-advantaged health benefit structures'),
+  'signs-your-business-needs-hr-support': art('034025', '35150595-2c5e-4e34-a7ba-d22758697ca8', 'A storm of spiraling paperwork calmed by a wide river of cyan light — the warning signs a small business needs HR support'),
+  'employee-benefits-guide-small-business': art('034043', '59f6db8e-0f95-4eac-adc4-55eccbc4a2d5', 'Crystalline orbs of benefits — heart, umbrella, nest egg, clock — orbiting two colleagues — employee benefits that keep good people'),
+};
+
+export const QA_ART: Record<string, { png: string; webp: string; alt: string }> = {
+  'is-an-ichra-legit': art('034032', 'ba573c77-0dbb-40ca-a544-1764a609e7f1', 'A layered gradient glass shield on a marble plinth under a museum spotlight with a ring of verification light — ICHRA legitimacy proven'),
+  'what-is-a-section-105-plan': art('034050', '109f0b9f-aac0-40e0-809b-b11bcfb8a611', 'A glowing glass scroll casting a bridge of light and coins to a family at their home — a Section 105 plan at work'),
+  'can-realtors-get-group-health-insurance': art('034050', '6adc4e85-a034-47c1-975e-3120b0151982', 'A lone professional raising a personal aurora of light beside a sheltered group dome — Realtors and group health insurance'),
+  'does-a-small-business-need-an-hr-department': art('034053', '15df0996-5693-4f60-b3a1-ccd8745b7de8', 'A calm hand of gradient light sliding beneath a juggled arc of business tasks — HR support arriving for a small business owner'),
+  'what-does-a-peo-do': art('034057', '7826276a-ee9a-464f-9bf4-7975ea5ad04c', 'Two glass towers joined by a double helix of gradient light with figures traveling between them — how a PEO partnership carries the weight'),
+  'when-should-a-business-outsource-payroll': art('034100', '99f5294a-8e72-43f8-b100-1b3f1907c69c', 'A river of glowing pay envelopes flowing from a cluttered shoreline through a crystalline archway into perfect order — payroll outsourced'),
+};
+
+export const FAQ_ART = art('034236', 'ef11febc-6b23-4a46-b916-8d7739c65543', 'A spiral galaxy of glowing question orbs orbiting a radiant gradient beacon — every ProtectHealth question finding a clear answer');
 
 // Higgsfield-generated brand imagery (hotlinked; localize with the Webflow set — see CLAUDE.md).
 const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH';

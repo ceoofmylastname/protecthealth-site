@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { SITE, ASSETS, breadcrumbSchema } from '../../lib/site';
+import { SITE, BLOG_ART, breadcrumbSchema } from '../../lib/site';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog')).sort((a, b) =>
@@ -30,7 +30,7 @@ const schemas = [
       <div class="grid cols-3">
         {posts.map((p) => (
           <a class="img-card" href={`/blog-post/${p.id}`} style="text-decoration:none;">
-            {ASSETS.blog[p.id] && <div class="thumb"><img src={ASSETS.blog[p.id]} alt={p.data.title} loading="lazy" /></div>}
+            {BLOG_ART[p.id] && <div class="thumb"><img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" /></div>}
             <div class="body-pad">
               <span class="badge">{p.data.category}</span>
               <h3>{p.data.title}</h3>

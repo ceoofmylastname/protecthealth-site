@@ -3,7 +3,7 @@
 // FAQPage JSON-LD and the visible accordion (wiki: faq-single-source-architecture).
 import Base from '../layouts/Base.astro';
 import FAQSection from '../components/FAQSection.astro';
-import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, FAQ_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 
 const pageUrl = `${SITE.domain}/faq`;
 const faq = [
@@ -39,6 +39,7 @@ const schemas = [
   </section>
   <section class="section">
     <div class="container article">
+      <div class="hero-img"><img src={FAQ_ART.png} alt={FAQ_ART.alt} loading="eager" /></div>
       <div id="ai-summary">
         ProtectHealth is a Las Vegas insurance brokerage offering free, strategy-first consultations across health, life, GAP, Medicare, dental, vision, and employer benefits. ProtectHealth serves all of Nevada, works extensively with self-employed professionals and small businesses, and has officially partnered with Paychex for payroll and HR support solutions.
       </div>

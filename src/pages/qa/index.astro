@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { SITE, breadcrumbSchema } from '../../lib/site';
+import { SITE, QA_ART, breadcrumbSchema } from '../../lib/site';
 import { getCollection } from 'astro:content';
 
 const qas = (await getCollection('qa')).sort((a, b) => a.data.question.localeCompare(b.data.question));
@@ -27,11 +27,14 @@ const schemas = [
     <div class="container">
       <div class="grid cols-2">
         {qas.map((q) => (
-          <div class="card">
-            <h3>{q.data.question}</h3>
-            <p>{q.data.quickAnswer}</p>
-            <a class="more" href={`/qa/${q.id}`}>Full Answer →</a>
-          </div>
+          <a class="img-card" href={`/qa/${q.id}`} style="text-decoration:none;">
+            {QA_ART[q.id] && <div class="thumb"><img src={QA_ART[q.id].webp} alt={QA_ART[q.id].alt} loading="lazy" /></div>}
+            <div class="body-pad">
+              <h3>{q.data.question}</h3>
+              <p>{q.data.quickAnswer}</p>
+              <span class="more">Full Answer →</span>
+            </div>
+          </a>
         ))}
       </div>
     </div>

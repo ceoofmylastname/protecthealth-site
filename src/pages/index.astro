@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import ReviewBadge from '../components/ReviewBadge.astro';
-import { SITE, ASSETS, HF_ASSETS, TEAM, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, ASSETS, HF_ASSETS, TEAM, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 import { SERVICES } from '../lib/services';
 import { getCollection } from 'astro:content';
 
@@ -250,7 +250,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
       <div class="grid cols-3">
         {posts.map((p, i) => (
           <a class={`img-card reveal d${i}`} href={`/blog-post/${p.id}`} style="text-decoration:none;">
-            <div class="thumb grad-thumb" style={ASSETS.blog[p.id] ? `background-image:url('${ASSETS.blog[p.id]}')` : ''}></div>
+            <div class="thumb grad-thumb">{BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}</div>
             <div class="body-pad">
               <span class="badge">{p.data.category}</span>
               <h3>{p.data.title}</h3>
