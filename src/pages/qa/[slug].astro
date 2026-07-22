@@ -59,7 +59,15 @@ const schemas = [
   ]),
 ];
 
-const ctaUrl = d.cluster === 'employers' ? '/employers' : d.cluster === 'ichra' ? '/self-employed' : '/contact-us';
+const QA_CTA: Record<string, string> = {
+  employers: '/employers',
+  ichra: '/self-employed',
+  life: '/services/life-insurance',
+  'dental-vision': '/services/dental-insurance',
+  medicare: '/services/medicare',
+  'nevada-core': '/contact-us',
+};
+const ctaUrl = QA_CTA[d.cluster] ?? '/contact-us';
 ---
 <Base title={`${d.question} | ProtectHealth Q&A`} description={d.description} schemas={schemas}>
   <section class="section">

@@ -4,8 +4,9 @@ description: "Whether ICHRA is a legitimate, IRS-recognized health benefit struc
 cluster: "ichra"
 parentPost: "what-is-an-ichra"
 siblings:
-  - "what-is-a-section-105-plan"
-  - "can-realtors-get-group-health-insurance"
+  - "can-an-s-corp-owner-use-an-ichra"
+  - "what-happens-to-my-ichra-if-i-leave-my-job"
+  - "how-does-ichra-reimbursement-work"
 datePublished: "2026-07-21"
 quickAnswer: "Yes. ICHRA is an IRS-recognized structure available since 2020, and adoption has grown five consecutive years. Whether an ICHRA fits a specific business depends on structure, team, and location."
 speakableText: "ICHRA, the Individual Coverage Health Reimbursement Arrangement, is a federally recognized health benefit structure created by regulation effective in 2020. HRA Council data shows adoption grew 34 percent among large employers and 52 percent among small employers from 2024 to 2025 — the fifth consecutive year of growth. The legitimacy question and the fit question are different questions: ICHRA is fully legitimate, but eligibility details like S-corp owner participation rules mean fit depends on how a specific business is structured."

@@ -4,8 +4,9 @@ description: "Whether a small business needs dedicated HR staff, what HR functio
 cluster: "employers"
 parentPost: "signs-your-business-needs-hr-support"
 siblings:
-  - "what-does-a-peo-do"
   - "when-should-a-business-outsource-payroll"
+  - "what-hr-tasks-can-be-outsourced"
+  - "how-much-does-an-hr-mistake-cost-a-small-business"
 datePublished: "2026-07-21"
 quickAnswer: "No — most small businesses need HR functions, not an HR department. Handbooks, onboarding, compliance, and documentation can be covered through outsourced HR support at a fraction of a full-time salary."
 speakableText: "Most small businesses do not need a dedicated HR department, but every business with employees needs HR functions: compliant hiring paperwork, an employee handbook, documented onboarding, and a reliable answer source for compliance questions. Research shows 70 percent of small business owners spend more than a week per month on HR administration when handling these functions alone. Outsourced HR support delivers the functions without the salary, which is why most businesses under 50 employees choose support services over staff."
