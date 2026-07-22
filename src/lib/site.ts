@@ -88,11 +88,12 @@ export const HF_ASSETS = {
   } as Record<string, string>,
 };
 
+// Team headshots: Nano Banana 2 re-renders on a unified studio gradient (identity-preserved from originals).
 export const TEAM = [
-  { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ccf1320acdd4645e4ad420_IMG20240826105217_01_2_1_-removebg-preview.png` },
-  { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ce141a6e73f1177f30b916_Brian3.png` },
-  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66cced54887cb94e34ddd242_2024-05-08-14-55-45-468_2-removebg-preview.png` },
-  { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66d126e6d9c01db944de9143_Jason.png` },
+  { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker', photo: `${HF}/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00.png` },
+  { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6.png` },
+  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_022208_8ac08dcc-e50f-4e83-82d7-1f6837eb2d36.png` },
+  { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker', photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9.png` },
 ];
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
