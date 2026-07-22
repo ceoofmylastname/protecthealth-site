@@ -15,6 +15,7 @@
   --radius-lg: 20px;
   --maxw: 1160px;
   --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Sora', 'DM Sans', system-ui, -apple-system, sans-serif;
   --shadow: 0 10px 34px rgba(15, 53, 103, 0.10);
   --shadow-sm: 0 4px 14px rgba(15, 53, 103, 0.08);
 }
@@ -25,7 +26,7 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: var(--accent); }
 .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
-h1, h2, h3, h4 { color: var(--navy); line-height: 1.15; font-weight: 800; letter-spacing: -0.01em; }
+h1, h2, h3, h4 { color: var(--navy); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; font-family: var(--font-display); }
 h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); }
 h2 { font-size: clamp(1.55rem, 3vw, 2.3rem); margin: 2.2rem 0 0.8rem; }
 h3 { font-size: 1.22rem; margin: 1.6rem 0 0.5rem; }
