@@ -35,7 +35,11 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#197bff"/><stop offset="1" stop-color="#007db3"/></linearGradient></defs></svg>
 
   <!-- ============ HERO ============ -->
+  <div id="scrollbar" aria-hidden="true"><i id="scrollbar-fill"></i></div>
   <section class="lux-hero" style="background-image:url('/assets/art-hero.webp')">
+    <div class="hero-bg" id="heroBg" style={`background-image:url('${HF_ASSETS.hero}')`}></div>
+    <div class="hero-duotone"></div>
+    <div class="aurora"></div>
     <div class="mesh m1"></div><div class="mesh m2"></div><div class="mesh m3"></div>
     <div class="grain"></div>
     <div class="container lux-hero-grid">
@@ -106,7 +110,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     <div class="container">
       <div class="section-head center">
         <div class="section-label">Our Portfolio</div>
-        <h2 style="margin-top:0;">Coverage we build <span class="grad-text">strategies</span> around</h2>
+        <h2 style="margin-top:0;">Coverage we build <span class="grad-text uline">strategies<svg viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 10 C 60 2, 160 2, 216 8" fill="none" stroke="url(#ug)" stroke-width="5" stroke-linecap="round"/><defs><linearGradient id="ug" x1="0" y1="0" x2="220" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#197bff"/><stop offset="1" stop-color="#19c8ff"/></linearGradient></defs></svg></span> around</h2>
         <p style="color:var(--muted);">Whether you're covering a family, a business, or just yourself — the process starts with you, not a plan brochure.</p>
       </div>
       <div class="grid cols-3">
@@ -193,7 +197,26 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     </div>
   </section>
 
-  <ReviewBadge variant="band" />
+  <!-- ============ REVIEW SHOWCASE ============ -->
+  <section class="section" style="padding-top:26px;">
+    <div class="container">
+      <a class="review-showcase reveal" href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">
+        <div class="rs-glow"></div>
+        <div class="rs-left">
+          <div class="rs-g">G</div>
+          <div>
+            <div class="rs-stars stars">★★★★★</div>
+            <div class="rs-big"><span data-count="4.9" data-dec="1">4.9</span> <em>/ 5</em></div>
+          </div>
+        </div>
+        <div class="rs-mid">
+          <div class="rs-count"><span data-count="703">703</span>+ Google reviews</div>
+          <div class="rs-sub">Insurance agency in Clark County, Nevada — rated by the people who had the conversation.</div>
+        </div>
+        <div class="rs-cta">Read the reviews →</div>
+      </a>
+    </div>
+  </section>
 
   <!-- ============ TEAM ============ -->
   <section class="section soft rounded-section">
@@ -377,6 +400,54 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   .reveal.in { opacity: 1; transform: none; }
   .d1 { transition-delay: 0.12s; } .d2 { transition-delay: 0.24s; } .d3 { transition-delay: 0.36s; } .d4 { transition-delay: 0.48s; } .d5 { transition-delay: 0.6s; }
 
+  /* ===== v5: scroll progress bar ===== */
+  #scrollbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 90; background: transparent; }
+  #scrollbar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), #19c8ff, var(--accent)); box-shadow: 0 0 12px rgba(25,200,255,.7); }
+
+  /* ===== v5: cinematic hero background ===== */
+  .hero-bg { position: absolute; inset: -6%; background-size: cover; background-position: center 30%; animation: kenburns 26s ease-in-out infinite alternate; will-change: transform; }
+  @keyframes kenburns { from { transform: scale(1) translateY(0); } to { transform: scale(1.12) translateY(-2.5%); } }
+  .hero-duotone { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(7,24,50,0.96) 0%, rgba(10,34,70,0.86) 38%, rgba(15,53,103,0.55) 68%, rgba(15,53,103,0.35) 100%); }
+  .aurora { position: absolute; inset: -30%; background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(25,123,255,0.22) 70deg, rgba(25,200,255,0.28) 140deg, transparent 200deg, rgba(0,125,179,0.2) 290deg, transparent 360deg); filter: blur(60px); animation: auroraSpin 22s linear infinite; mix-blend-mode: screen; }
+  @keyframes auroraSpin { to { transform: rotate(360deg); } }
+
+  /* ===== v5: conic ring behind glass card ===== */
+  .glass-card::before { content: ""; position: absolute; inset: -2px; border-radius: 24px; padding: 2px; background: conic-gradient(from var(--sweep,0deg), transparent 0%, #19c8ff 12%, transparent 30%, transparent 70%, #197bff 82%, transparent 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: ringSweep 6s linear infinite; pointer-events: none; }
+  @property --sweep { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes ringSweep { to { --sweep: 360deg; } }
+
+  /* ===== v5: shine sweep on cards ===== */
+  .icon-card, .img-card, .photo-card { position: relative; overflow: hidden; }
+  .icon-card::after, .img-card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 55%; left: -80%; background: linear-gradient(105deg, transparent, rgba(255,255,255,0.5), transparent); transform: skewX(-18deg); transition: left 0.65s ease; pointer-events: none; }
+  .icon-card:hover::after, .img-card:hover::after { left: 130%; }
+  .photo-card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 55%; left: -80%; background: linear-gradient(105deg, transparent, rgba(255,255,255,0.22), transparent); transform: skewX(-18deg); transition: left 0.7s ease; pointer-events: none; z-index: 3; }
+  .photo-card:hover::after { left: 130%; }
+
+  /* ===== v5: stat tilt ===== */
+  .stat { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+  .stat:hover { transform: translateY(-5px) rotate(-1deg) scale(1.02); box-shadow: 0 16px 40px rgba(15,53,103,0.16); }
+
+  /* ===== v5: hand-drawn underline ===== */
+  .uline { position: relative; display: inline-block; }
+  .uline svg { position: absolute; left: 0; right: 0; bottom: -0.28em; width: 100%; height: 0.32em; }
+  .uline svg path { stroke-dasharray: 240; stroke-dashoffset: 240; }
+  .reveal.in ~ * .uline svg path, .uline.draw svg path { animation: drawLine 1.1s ease 0.3s forwards; }
+  @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+  /* ===== v5: review showcase ===== */
+  .review-showcase { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 34px; background: linear-gradient(120deg, #0a2246, var(--navy) 55%, #17457e); border-radius: 28px; padding: 40px 46px; text-decoration: none; color: #fff; overflow: hidden; box-shadow: var(--shadow); transition: transform 0.25s; }
+  .review-showcase:hover { transform: translateY(-4px); }
+  .rs-glow { position: absolute; width: 420px; height: 420px; border-radius: 50%; right: -140px; top: -180px; background: radial-gradient(circle, rgba(25,200,255,0.3), transparent 65%); animation: drift 12s ease-in-out infinite alternate; }
+  .rs-left { display: flex; align-items: center; gap: 22px; position: relative; }
+  .rs-g { width: 74px; height: 74px; border-radius: 20px; background: #fff; color: #4285f4; font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+  .rs-stars { font-size: 1.1rem; }
+  .rs-big { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; line-height: 1; }
+  .rs-big em { font-style: normal; font-size: 1.1rem; color: #8ec9ff; font-weight: 600; }
+  .rs-count { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
+  .rs-sub { color: #b9cbe1; font-size: 0.95rem; margin-top: 4px; max-width: 480px; }
+  .rs-cta { position: relative; font-weight: 800; color: #66e0ff; white-space: nowrap; }
+  @media (max-width: 860px) { .review-showcase { grid-template-columns: 1fr; gap: 18px; text-align: left; } }
+
   @media (max-width: 900px) {
     .lux-hero-grid { grid-template-columns: 1fr; gap: 44px; }
     .lux-hero { padding: 56px 0 64px; }
@@ -388,7 +459,8 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     .chip.c1 { left: 8px; } .chip.c2 { right: 8px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .mesh, .btn.glow, .float-pill, .marquee-track, .band-glow, .glass-card, .chip { animation: none !important; }
+    .mesh, .btn.glow, .float-pill, .marquee-track, .band-glow, .glass-card, .chip, .hero-bg, .aurora, .glass-card::before, .rs-glow { animation: none !important; }
+    .uline svg path { stroke-dashoffset: 0; }
     .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
   }
@@ -421,4 +493,37 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     entries.forEach((en) => { if (en.isIntersecting) { runCount(en.target); cio.unobserve(en.target); } });
   }, { threshold: 0.4 });
   counters.forEach((c) => cio.observe(c));
+
+  // v5: scroll progress bar + parallax (skipped under reduced motion)
+  const fill = document.getElementById('scrollbar-fill');
+  const heroBg = document.getElementById('heroBg');
+  const pcs = [...document.querySelectorAll('.pc-photo')];
+  if (!reduce) {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - innerHeight;
+        if (fill) fill.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
+        // heroBg motion handled by the Ken Burns CSS animation
+        pcs.forEach((el) => {
+          const r = el.parentElement.getBoundingClientRect();
+          if (r.top < innerHeight && r.bottom > 0) {
+            const p = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
+            el.style.transform = `scale(1.08) translateY(${p * -22}px)`;
+          }
+        });
+        ticking = false;
+      });
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+  // underline draw trigger
+  const ul = document.querySelector('.uline');
+  if (ul) {
+    const uio = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) { ul.classList.add('draw'); uio.disconnect(); } }); }, { threshold: 0.6 });
+    uio.observe(ul);
+  }
 </script>
