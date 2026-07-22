@@ -6,7 +6,7 @@
 // fields with different content (wiki: speakable-vs-accepted-answer).
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, QA_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -45,6 +45,7 @@ const qaPageSchema: Record<string, unknown> = {
     })),
   },
   datePublished: d.datePublished,
+  image: QA_ART[qa.id] ? { '@type': 'ImageObject', url: QA_ART[qa.id].png } : undefined,
 };
 if (d.dateModified) qaPageSchema.dateModified = d.dateModified;
 
@@ -67,6 +68,8 @@ const ctaUrl = d.cluster === 'employers' ? '/employers' : d.cluster === 'ichra' 
         <a href="/">Home</a> › <a href="/qa">Q&amp;A</a> › <span>{d.question}</span>
       </nav>
       <h1>{d.question}</h1>
+
+      {QA_ART[qa.id] && <div class="hero-img"><img src={QA_ART[qa.id].png} alt={QA_ART[qa.id].alt} loading="eager" /></div>}
 
       <div class="quick-answer">
         <h2>Quick Answer</h2>

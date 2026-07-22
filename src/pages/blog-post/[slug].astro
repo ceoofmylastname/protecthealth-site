@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, ASSETS, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -48,7 +48,7 @@ const articleSchema: Record<string, unknown> = {
   datePublished: d.datePublished,
   author: { '@type': 'Organization', name: d.author, url: SITE.domain },
   publisher: { '@id': ORG_ID },
-  image: { '@type': 'ImageObject', url: `${SITE.domain}/assets/og-default.webp` },
+  image: { '@type': 'ImageObject', url: BLOG_ART[post.id]?.png ?? `${SITE.domain}/assets/og-default.webp` },
 };
 // dateModified only when content genuinely changed (wiki: date-modified-schema)
 if (d.dateModified) articleSchema.dateModified = d.dateModified;
@@ -73,7 +73,7 @@ const schemas = [
       <h1>{d.title}</h1>
       <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
 
-      {ASSETS.blog[post.id] && <div class="hero-img"><img src={ASSETS.blog[post.id]} alt={d.heroAlt ?? d.title} loading="eager" /></div>}
+      {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].png} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
 
       <div id="ai-summary">{d.speakableText}</div>
 
