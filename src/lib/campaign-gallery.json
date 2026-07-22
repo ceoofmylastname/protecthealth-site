@@ -1,0 +1,794 @@
+{
+ "ichra": {
+  "images": [
+   {
+    "file": "01-strategy-first.png",
+    "hook": "Strategy first. Insurance second.",
+    "caption": "Most agents open with a plan brochure. We open with how your business is actually built. Sole prop, LLC, S-corp, they all unlock different doors. 20 minutes, zero dollars, real answers.\n\nLearn more: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_073645_0032766b-3905-4cb6-96b8-3b3558a39667.png"
+   },
+   {
+    "file": "02-hidden-benefits-1099.png",
+    "hook": "Your 1099 has hidden benefits.",
+    "caption": "Nobody hands 1099 pros a benefits packet. But depending on how you're structured, the options are real. Subsidies on net income, the premium deduction, structures your CPA would respect. Someone just has to walk you through them.\n\nSee what might fit: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074018_86a90128-4993-4c86-bff8-490fa872a190.png"
+   },
+   {
+    "file": "03-realtors-no-coverage.png",
+    "hook": "1 in 7 Realtors has NO coverage.",
+    "caption": "NAR's own numbers. Not because options don't exist, because nobody ever explained them. If you protect other people's biggest asset for a living, protect your own downside too.\n\nStart here: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074023_96eae20b-6421-4afb-a4c6-753abc329853.png"
+   },
+   {
+    "file": "04-commissions-no-benefits.png",
+    "hook": "Commissions don't come with benefits.",
+    "caption": "Your income closes in escrow. Your coverage shouldn't care which month it is. Plans can be built around lumpy income. It starts with strategy, not a quote.\n\nBuild yours: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074031_d14c93a3-0fbc-491e-8b80-b66c79b027e0.png"
+   },
+   {
+    "file": "05-guessed-income.png",
+    "hook": "You guessed your income. Your premium noticed.",
+    "caption": "Marketplace subsidies run on your income estimate. Guess wrong either way and you pay for it, at tax time or every month. Self-employed math is different. We run it with you.\n\nGet it right: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074034_3535964d-0295-43f5-89b8-74f3ae7778f8.png"
+   },
+   {
+    "file": "06-built-for-w2.png",
+    "hook": "Health insurance was built for W-2 people.",
+    "caption": "Open enrollment emails. HR portals. Payroll deductions. None of it was designed for you. The self-employed version exists, it just doesn't advertise.\n\nSee your version: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074040_3ac01653-6e78-4250-a5d5-57c434926729.png"
+   },
+   {
+    "file": "07-not-self-insured.png",
+    "hook": "Self-employed is not self-insured.",
+    "caption": "Betting the business on never getting sick is still a bet. One conversation maps which doors your structure opens. Worst case, you learn what you have is already right.\n\nTake the 20 minutes: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074045_42c23def-1920-4b0e-8fac-2e7b66899cb1.png"
+   },
+   {
+    "file": "08-ichra-five-years.png",
+    "hook": "ICHRA. Five straight years of growth.",
+    "caption": "The fastest-growing structure in health benefits, and most self-employed pros have never heard it said out loud. It doesn't fit everyone. Finding out if it fits you takes one conversation.\n\nAsk the question: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074051_3ebb6cc0-35ed-4fe8-8d3a-c2d8477d4e0a.png"
+   },
+   {
+    "file": "09-cpa-knows.png",
+    "hook": "Your CPA knows. Your agent never asked.",
+    "caption": "How you file taxes changes which coverage doors are open. Most agents never ask because they're selling a product, not building a strategy. We ask first, and your tax pro stays in the loop.\n\nHave the real conversation: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074056_d97db9c0-2847-41be-b384-f492d6f8cb0c.png"
+   },
+   {
+    "file": "10-stop-renting.png",
+    "hook": "Stop renting a stranger's health plan.",
+    "caption": "A plan built for somebody else's life fits like it. Your doctors, your prescriptions, your income pattern, your structure. That's the blueprint. The plan comes after.\n\nGet your blueprint: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074100_191a9ac4-8df5-4cc6-a483-453de2712d46.png"
+   },
+   {
+    "file": "11-unclaimed-deduction.png",
+    "hook": "The deduction most 1099s never claim.",
+    "caption": "If you qualify, self-employed health premiums come off your income above the line. Real money, left unclaimed every April. We're insurance nerds, not tax pros, so your CPA gets looped in on this one.\n\nStop leaving it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074105_e32539bf-4d43-40b7-b5f5-c610c570fa44.png"
+   },
+   {
+    "file": "12-vegas-runs-1099.png",
+    "hook": "Vegas runs on 1099s.",
+    "caption": "Agents, dealers, drivers, artists, trainers, techs. This valley is powered by people without an HR department. Your coverage options exist. They just don't get mailed in an enrollment packet.\n\nFind yours: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074145_f72edf57-9d7e-4df6-ad0c-fef5c216c912.png"
+   },
+   {
+    "file": "13-cheap-premiums-fortune.png",
+    "hook": "Cheap premiums can cost a fortune.",
+    "caption": "The lowest premium with the wrong network is the most expensive plan money can buy. Total exposure is the number that matters, and almost nobody shows it to you before you sign. We do.\n\nSee the whole number: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074152_5afecf07-9493-4a9a-8053-5178f6c6a769.png"
+   },
+   {
+    "file": "14-keep-doctors.png",
+    "hook": "Keep your doctors. Keep your sanity.",
+    "caption": "Vegas networks shift every single year. The plan that covered your doctor in March can drop them in January. We check your actual doctors against the actual plan before you enroll, not after.\n\nCheck first: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074157_a922e901-c4c8-47f5-9f3f-a0ffbebbc297.png"
+   },
+   {
+    "file": "15-scorp-options.png",
+    "hook": "An S-corp changes your options.",
+    "caption": "That election your CPA made changes which health strategies you can and can't use. Some doors open, others close. If nobody's mapped it since you restructured, you're flying blind.\n\nMap it in 20 minutes: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074202_3f95d916-ad18-4020-8d16-79f06ac5e1dc.png"
+   },
+   {
+    "file": "16-20-min-0-dollars.png",
+    "hook": "20 minutes. $0. Real answers.",
+    "caption": "No pitch, no pressure, no 40-slide deck. You bring how your business runs. We bring which options fit, which don't, and why. If what you have is already right, we say that too.\n\nBook it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074208_bd90a981-515c-4872-bd9b-8fb54142904c.png"
+   },
+   {
+    "file": "17-big-deal-energy.png",
+    "hook": "Big deal energy. Zero coverage.",
+    "caption": "You'd never let a client close without title insurance. But 1 in 7 agents is walking around with no health coverage at all. Protect the person who makes the deals happen.\n\nHandle it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074212_a5eb5ccf-23e0-41b5-afac-590e0e0a67b3.png"
+   },
+   {
+    "file": "18-insurance-nerds.png",
+    "hook": "Insurance nerds. Not salespeople.",
+    "caption": "We read plan documents for fun so you don't have to. Networks, formularies, subsidy math, structure rules. Ask us anything, including whether you even need to change anything.\n\nMeet the nerds: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074218_80649c12-e2b2-4636-ac43-dfdbc99a12df.png"
+   },
+   {
+    "file": "19-net-income.png",
+    "hook": "Subsidies run on NET income.",
+    "caption": "Not your gross 1099 total. Net, after expenses. That one word is why so many self-employed Nevadans assume they earn too much for help and never check. Five minutes of math says otherwise.\n\nRun your number: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074222_b2d175b4-3215-41a6-917e-b1c51e337a72.png"
+   },
+   {
+    "file": "20-lumpy-income.png",
+    "hook": "Built for lumpy income.",
+    "caption": "Three closings in March. Crickets in April. Your coverage strategy should survive both months without breaking a sweat. That's a design problem, and design problems have answers.\n\nDesign yours: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074228_e78072da-1a6d-47ae-9c12-c27f492ca8f5.png"
+   },
+   {
+    "file": "21-network-expires.png",
+    "hook": "Your network expires every January.",
+    "caption": "Plans re-price and re-network every year, even when the name on the card stays the same. Auto-renewing without a check is how people discover mid-treatment that their specialist left. Re-shop it. Takes 20 minutes.\n\nBefore renewal: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074234_eb341348-0bb0-4334-b54f-7920b1ef2aa6.png"
+   },
+   {
+    "file": "22-jan-15-deadline.png",
+    "hook": "Open enrollment ends Jan 15.",
+    "caption": "Nevada Health Link opens November 1 and closes January 15. Miss it and your options shrink to qualifying life events. The strategy conversation before the window beats the panic call after it.\n\nGet ahead of it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074316_b6250971-47a8-404f-be23-8465b2d5b33a.png"
+   },
+   {
+    "file": "23-not-only-door.png",
+    "hook": "The marketplace isn't your only door.",
+    "caption": "Marketplace plans are one option. Depending on your structure, PPO access, small-group opportunities, and tax-advantaged setups may be on the table too. Most people never hear about doors two through four.\n\nSee all your doors: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074321_f38d3c6c-8c84-455f-9021-4c51a65b7b88.png"
+   },
+   {
+    "file": "24-slow-season.png",
+    "hook": "Slow season shouldn't scare you.",
+    "caption": "Every self-employed Vegas pro knows the quiet months. Your coverage should be built to survive them without lapsing, downgrading, or panic. That's a strategy question with a real answer.\n\nBuild for the dip: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074326_18b260c0-5781-4e4a-9a50-06db14b58985.png"
+   },
+   {
+    "file": "25-deductibles-half-story.png",
+    "hook": "Deductibles are half the story.",
+    "caption": "Networks, formularies, out-of-pocket maximums, subsidy eligibility. The premium and deductible are two numbers out of seven that decide what a bad year actually costs you.\n\nRead the whole story: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074331_501ee2d0-be3f-49bb-b032-dd2667852a1b.png"
+   },
+   {
+    "file": "26-ppo-not-myth.png",
+    "hook": "PPO access is not a myth.",
+    "caption": "Everyone told you self-employed means HMO-only. Depending on how your business is structured, genuine PPO options may exist. It costs nothing to find out if you're one of the people they fit.\n\nFind out: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074338_c75e3441-a807-4d65-b291-5871394d9696.png"
+   },
+   {
+    "file": "27-family-hustle.png",
+    "hook": "Your family rides on your hustle.",
+    "caption": "When you're the engine, maintenance isn't optional. Coverage for you is coverage for everyone who depends on you. Twenty minutes to map it properly is the cheapest protection you'll ever buy.\n\nProtect the engine: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074343_dc83df12-0e4c-4633-95c2-fbaae53f5a71.png"
+   },
+   {
+    "file": "28-section-105.png",
+    "hook": "Section 105. Ask about it.",
+    "caption": "A Section 105 arrangement can turn family medical costs into a legitimate business strategy for some setups. Not everyone qualifies, and anyone who says otherwise is selling. We check, with your tax pro in the loop.\n\nAsk us: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074347_e65644c0-d154-4bc8-843a-854c8571e5d2.png"
+   },
+   {
+    "file": "29-plan-fits-say-so.png",
+    "hook": "If your plan fits, we'll say so.",
+    "caption": "Sometimes the answer is keep what you have. We say it out loud and you keep your money. That's the difference between a strategy conversation and a sales appointment.\n\nTest us: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074352_bf337b43-b4b2-487a-a274-57a3acfd948e.png"
+   },
+   {
+    "file": "30-gig-apps.png",
+    "hook": "Gig apps don't cover you.",
+    "caption": "The apps call you a partner right up until you need benefits. Driving, delivering, designing, whatever your hustle is, your coverage is on you. Good news: on you doesn't mean alone.\n\nGet backup: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074358_65673240-0623-4bd4-a2af-b5b5e1f6887b.png"
+   },
+   {
+    "file": "31-one-bad-year.png",
+    "hook": "One bad year shouldn't break you.",
+    "caption": "One diagnosis, one accident, one uncovered ER visit. The whole point of coverage strategy is making sure a bad year stays a bad year instead of becoming a bankruptcy story.\n\nStress-test yours: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074402_e89868bd-7d93-4ffc-bd73-ead89fd09f5f.png"
+   },
+   {
+    "file": "32-before-you-renew.png",
+    "hook": "Read this before you renew.",
+    "caption": "Auto-renewal is the most expensive button on the internet. Plans re-price and re-network every year. One 20-minute review before you renew can save you the entire year of regret.\n\nReview first: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074447_8d1800ac-e5f1-4c4b-9a28-d451b42ab73d.png"
+   },
+   {
+    "file": "33-group-plan-never-got.png",
+    "hook": "The group plan you never got.",
+    "caption": "You left the W-2 world and the benefits stayed behind. Depending on your structure, some of what you lost can be rebuilt, sometimes better, because this time it's built around you.\n\nRebuild it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074452_6d6fc8bf-85c2-441f-a9a9-dc2b244569e5.png"
+   },
+   {
+    "file": "34-license-lockbox.png",
+    "hook": "License. Lockbox. No safety net?",
+    "caption": "You invested in the license, the marketing, the brand photos. The safety net under all of it costs less attention than a single listing. Vegas agents, this one's for you.\n\nWeave the net: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074457_c29d75cd-b1a6-4c37-b8dd-d274f2e76851.png"
+   },
+   {
+    "file": "35-freedom-floor.png",
+    "hook": "Freelance freedom needs a floor.",
+    "caption": "Freedom is the point. A floor is what makes the freedom sustainable. Coverage built around freelance reality means you can take the leaps without pricing the fall.\n\nPour the floor: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074503_ef842954-e825-4b86-ac59-7d1bdf32fb67.png"
+   },
+   {
+    "file": "36-just-in-case.png",
+    "hook": "Stop overpaying for 'just in case.'",
+    "caption": "Paying too much for coverage you don't understand is not safety, it's a subscription to anxiety. The right-sized plan exists. Finding it is math, not luck.\n\nRight-size it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074508_11fa7b94-1ced-4cc5-974a-05876347fd67.png"
+   },
+   {
+    "file": "37-better-questions.png",
+    "hook": "Ask better insurance questions.",
+    "caption": "Not \"what's the cheapest plan\" but \"what happens to my subsidy in a big commission year?\" Not \"what's the deductible\" but \"what's my worst-case total?\" Better questions, better decade.\n\nBring your questions: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074514_ac20e366-1a33-47fe-878e-ad310bd63f83.png"
+   },
+   {
+    "file": "38-doctors-checked.png",
+    "hook": "Doctors checked before you sign.",
+    "caption": "The directory says in-network. The front desk says otherwise. We verify your actual doctors against the actual plan before anything gets signed, because after is too late.\n\nVerify first: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074519_7bb5d3f7-3f77-4be1-870a-5ca94cc4ace0.png"
+   },
+   {
+    "file": "39-person-first.png",
+    "hook": "Person first. Product last.",
+    "caption": "The product should serve the strategy, not become the strategy. That one sentence is the whole ProtectHealth philosophy. Everything else is execution.\n\nSee it in action: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074525_b2538a56-a9b3-4f14-8d2a-b40527712087.png"
+   },
+   {
+    "file": "40-best-client-you.png",
+    "hook": "Your best client is you.",
+    "caption": "You return every call, chase every lead, protect every deal. Book one 20-minute appointment where you're the client for once. It might be the highest-ROI meeting on your calendar.\n\nBook you in: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074529_e599c1da-3f92-422c-a61e-687be2c4c685.png"
+   },
+   {
+    "file": "41-survives-commissions.png",
+    "hook": "Coverage that survives commission months.",
+    "caption": "Feast in spring, famine in summer, your coverage shouldn't notice either. Strategy built for commission income keeps the bridge level no matter which pillar is taller this quarter.\n\nLevel the bridge: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074536_ee2955c8-bcca-41d2-ab28-dcc731071bb8.png"
+   },
+   {
+    "file": "42-nhl-decoded.png",
+    "hook": "Nevada Health Link, decoded.",
+    "caption": "Metal tiers, benchmark plans, MAGI, CSRs. The state marketplace speaks a language nobody taught you. We're fluent, and the translation is free.\n\nGet the translation: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074622_9d522dc6-8306-4139-88ad-6d31defc0fb8.png"
+   },
+   {
+    "file": "43-renewal-first-offer.png",
+    "hook": "Your renewal letter is a first offer.",
+    "caption": "You negotiate everything else in your business. Why is the renewal letter the one document you just accept? Twenty minutes of strategy turns it back into a negotiation.\n\nCounter it: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074627_fc61e129-ae74-45a3-8c57-5c2b8b7e7433.png"
+   },
+   {
+    "file": "44-two-agents.png",
+    "hook": "Two agents. Same premium. Different worlds.",
+    "caption": "Same brokerage, same monthly payment. One has her doctors in network and her subsidy dialed in. One's been paying for a plan that never fit. The difference wasn't money. It was strategy.\n\nBe the first one: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074633_d70515ae-a0b1-4e97-aac0-00ad0306e1b0.png"
+   },
+   {
+    "file": "45-look-us-up.png",
+    "hook": "Look us up. We'll wait.",
+    "caption": "Every ProtectHealth broker is verifiable through the Nevada Division of Insurance, and 703+ Google reviews say what working with us is like. Vet us before you call. We prefer it that way.\n\nThen call: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074638_264a8c61-5336-48c2-8a63-8ed715dcba81.png"
+   },
+   {
+    "file": "46-703-reviews.png",
+    "hook": "703 five-star reviews. One approach.",
+    "caption": "Real people, real names, real reviews on our Google listing. The pattern in all of them: somebody finally explained it. That's the whole trick.\n\nGet it explained: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074646_32082e6a-0295-4bb4-a59b-ed325bf1e8f5.png"
+   },
+   {
+    "file": "47-in-between-years.png",
+    "hook": "Insurance for the in-between years.",
+    "caption": "Too young for Medicare, done with W-2 jobs, building something of your own. The in-between years are when coverage strategy matters most and gets ignored hardest.\n\nCover the gap years: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074648_1f8860c3-7e78-4b87-838f-e11e0d1d891b.png"
+   },
+   {
+    "file": "48-built-in-vegas.png",
+    "hook": "Built in Vegas. For Vegas hustle.",
+    "caption": "We're on West Charleston, not in a call center. We know what commission season feels like here, which networks actually work here, and which doctors are taking patients here.\n\nTalk local: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074653_ee8e6b92-8650-4cc9-a31f-d40a80b970f1.png"
+   },
+   {
+    "file": "49-5-minute-form.png",
+    "hook": "The 5-minute form that starts it.",
+    "caption": "Five minutes on the form. Twenty on the call. A decade of knowing your coverage actually fits how you earn. Best time-to-value ratio in your business.\n\nStart the clock: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074659_9d15c4c9-ddab-44c3-af20-b5a16504228a.png"
+   },
+   {
+    "file": "50-solo-full-protection.png",
+    "hook": "Solo business. Full protection.",
+    "caption": "No team, no HR, no problem. A business of one deserves the same protection engineering as a business of one hundred. That's exactly what strategy-first means.\n\nEngineer yours: https://www.protecthealth.com/self-employed",
+    "landing": "https://www.protecthealth.com/self-employed",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074703_0db7dc96-f64e-432e-8766-fe3185bba118.png"
+   }
+  ],
+  "square": [
+   {
+    "file": "video-01-strategy-first.mp4",
+    "hook": "Strategy first. Insurance second.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151359_081c8e9c-5ffd-4f9b-a4f7-82e73e1d54ca.mp4"
+   },
+   {
+    "file": "video-02-20-min-0-dollars.mp4",
+    "hook": "20 minutes. $0. Real answers.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151402_50aac773-1f1e-4fe3-9d2b-8c3eaa23d24d.mp4"
+   },
+   {
+    "file": "video-03-realtors-no-coverage.mp4",
+    "hook": "1 in 7 Realtors has NO coverage.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151407_a51b3c40-2479-409e-b2e6-54f9ed7e9d39.mp4"
+   }
+  ],
+  "vertical": [
+   {
+    "file": "video-01-strategy-first-9x16.mp4",
+    "hook": "Strategy first. Insurance second.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_152959_21b3d2db-754f-4a55-94f9-aa371f15857e.mp4"
+   },
+   {
+    "file": "video-02-20-min-0-dollars-9x16.mp4",
+    "hook": "20 minutes. $0. Real answers.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_153001_6f21cf61-01a0-4d53-9303-cc17053275d7.mp4"
+   },
+   {
+    "file": "video-03-realtors-no-coverage-9x16.mp4",
+    "hook": "1 in 7 Realtors has NO coverage.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_153006_51c3db95-068f-46c9-ade3-b0d897712dad.mp4"
+   }
+  ]
+ },
+ "paychex": {
+  "images": [
+   {
+    "file": "01-more-than-group-plan.png",
+    "hook": "More than your group plan.",
+    "caption": "Benefits, payroll, HR, compliance, retirement. ProtectHealth partnered with Paychex so one conversation covers the whole employer picture. No brochures. You get handed to a person.\n\nSee what that unlocks: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_073653_d147ca61-2119-4a5d-a119-27bc54db7a2d.png"
+   },
+   {
+    "file": "02-back-office-second-job.png",
+    "hook": "Your back office is a second job.",
+    "caption": "You opened a business to do the thing, not to run payroll at 9pm and Google handbook templates. ProtectHealth partnered with Paychex so the employer side gets handled by people who do it all day.\n\nHand it off: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074757_98da35ae-d726-4097-a935-de61fd331df5.png"
+   },
+   {
+    "file": "03-week-a-month.png",
+    "hook": "Owners lose a week a month to HR.",
+    "caption": "70 percent of small business owners spend more than a week every month on HR administration. That's 12 weeks a year you're not selling, cooking, building, or resting. One conversation starts the reclaim.\n\nGet your week back: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074801_5fcbfa2c-1e35-4ecf-82c5-ccd898aa3f15.png"
+   },
+   {
+    "file": "04-no-tip-credit.png",
+    "hook": "Nevada has NO tip credit.",
+    "caption": "The national playbook says pay tipped staff $2.13. Nevada says full minimum wage before a single tip, no exceptions. If your payroll setup came from a franchise manual, that's back-wage exposure compounding weekly.\n\nCheck your setup: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074807_7bb4268e-4d11-40b8-9a0e-a03299ec4b9b.png"
+   },
+   {
+    "file": "05-unclaimed-fica.png",
+    "hook": "The tax credit your bar never claimed.",
+    "caption": "Food and beverage employers can claim a federal credit on the payroll taxes they pay on tips. In a tip-heavy town like this one, that's real money, and a shocking number of Vegas spots have never filed for it. Your CPA files it. We make sure the conversation happens.\n\nStart the conversation: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074812_86b95043-1038-40d6-9a45-e65ddbe970f4.png"
+   },
+   {
+    "file": "06-five-vendors.png",
+    "hook": "Five vendors. One headache.",
+    "caption": "Payroll here, workers comp there, benefits somewhere else, and nobody talks to anybody. One conversation with ProtectHealth maps the whole employer picture, with Paychex muscle behind it.\n\nConsolidate the chaos: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074817_acc5bc16-e58d-456e-b9f9-7e115bef1046.png"
+   },
+   {
+    "file": "07-growth-breaks.png",
+    "hook": "Growth breaks spreadsheets.",
+    "caption": "Five employees became fifteen and the spreadsheet is crying. Growth is the best problem you'll ever have, if the systems underneath it grow too. That's a solvable design question.\n\nBuild the platform: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074822_6bf96d16-fea7-45e6-a937-cc5d484e7b71.png"
+   },
+   {
+    "file": "08-night-manager.png",
+    "hook": "Your night manager is not HR.",
+    "caption": "Onboarding lives in someone's head. Files live in three drawers. The handbook is a group text. Every growing Vegas business hits this moment, and there's a cleaner way through it.\n\nSee the fix: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074829_8695edd7-309b-436c-b27c-9ff8b7f7fe83.png"
+   },
+   {
+    "file": "09-benefits-hiring-war.png",
+    "hook": "Benefits win the hiring war.",
+    "caption": "In this labor market, salary gets people in the door and benefits keep them from walking back out. Small businesses can compete on the package. Most just never learned how.\n\nCompete properly: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074834_eb14b825-b3dc-463c-ae8f-49b70683579a.png"
+   },
+   {
+    "file": "10-one-conversation.png",
+    "hook": "One conversation. Whole picture.",
+    "caption": "Benefits, payroll, HR, compliance, retirement. Not five sales calls with five vendors. One conversation that maps what your business actually needs, and honest answers about what it doesn't.\n\nBook the one call: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074838_7321d6f4-fac5-45b0-9ac4-217af4ead0aa.png"
+   },
+   {
+    "file": "11-strategy-muscle.png",
+    "hook": "Strategy meets muscle.",
+    "caption": "ProtectHealth is the strategy. Paychex is the muscle. You keep running the business while the machinery behind it finally matches the ambition in front of it.\n\nSee the partnership: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074844_9968a491-b184-4597-846a-1552c197a154.png"
+   },
+   {
+    "file": "12-handed-to-person.png",
+    "hook": "You get handed to a person.",
+    "caption": "No brochure, no ticket number, no 'someone will reach out.' When payroll or HR needs muscle, you're introduced to a dedicated Paychex team by name. You'll always know who you're talking to and why.\n\nMeet your people: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074937_de49b1a6-d4f4-4747-84b3-ebaa5c7aceaf.png"
+   },
+   {
+    "file": "13-9pm-payroll-club.png",
+    "hook": "Resign from the 9pm payroll club.",
+    "caption": "Membership costs your evenings, your focus, and eventually a filing mistake. Resignation takes one conversation. The dues you get back are called your life.\n\nSubmit your resignation: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074942_d7537f97-1062-492f-9c45-cb3755f0155b.png"
+   },
+   {
+    "file": "14-vegas-tips-rules.png",
+    "hook": "Vegas tips. Vegas rules.",
+    "caption": "Tipped payroll in Nevada has its own rulebook, and most national software never read it. If your team earns tips, your payroll setup needs to speak local.\n\nGet the local rulebook: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074947_31b4c91e-bf67-4e44-bb74-a3ebff38eab7.png"
+   },
+   {
+    "file": "15-cook-poached.png",
+    "hook": "Your best cook just got poached.",
+    "caption": "The place down the street didn't offer more money. They offered insurance and a 401(k). Turnover is usually a benefits problem wearing a salary costume.\n\nFix the real problem: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074951_7e12bb98-a990-4bd9-baf2-4958465a6fb7.png"
+   },
+   {
+    "file": "16-nine-employees.png",
+    "hook": "Big-company benefits. Nine employees.",
+    "caption": "Pooling structures let small teams access benefits pricing that used to require a thousand-person company. Your nine people can get treated like they work somewhere huge, because structurally, they do.\n\nSee how pooling works: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_074957_153b17dc-ecbc-4317-ba0e-4c185af1d808.png"
+   },
+   {
+    "file": "17-whats-a-peo.png",
+    "hook": "What's a PEO? Ask us.",
+    "caption": "Three letters that can change how a small business runs payroll, benefits, and compliance. It fits some businesses beautifully and others not at all. The honest breakdown takes 20 minutes.\n\nGet the breakdown: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075003_97ca6db6-78f0-4da3-a1ec-96b220fe7fa9.png"
+   },
+   {
+    "file": "18-compliance-guess.png",
+    "hook": "Compliance shouldn't be a guess.",
+    "caption": "Half the owners we meet are one audit away from finding out their setup was folklore. Compliance is a system, not a vibe. Systems can be installed.\n\nInstall yours: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075007_a95efbeb-b0c1-4202-8b5c-4c2b0708877b.png"
+   },
+   {
+    "file": "19-handbook-group-text.png",
+    "hook": "Your handbook is a group text.",
+    "caption": "Policies made up on the fly, rules that change by who answers, nothing written anywhere. It works until the day it really, really doesn't. Getting it structured is easier than you think.\n\nStructure it: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075011_9b16c728-e588-49c8-bc88-60086cc32e79.png"
+   },
+   {
+    "file": "20-service-charges.png",
+    "hook": "Service charges aren't tips.",
+    "caption": "Auto-gratuities and banquet fees are wages, not tips. Different withholding, different overtime math, no tip credit eligibility. Venues that code them wrong build an audit finding one event at a time.\n\nCode it right: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075017_410bb6c9-4a6f-4228-bd02-0ddfa2bab09f.png"
+   },
+   {
+    "file": "21-two-locations.png",
+    "hook": "Two locations. Zero systems.",
+    "caption": "Location two was supposed to double the revenue, not the chaos. Expansion is exactly when payroll, HR, and benefits need to become systems instead of habits.\n\nSystemize before three: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075023_0f733b35-f7d8-4a14-82ab-8f3c1a47cbb8.png"
+   },
+   {
+    "file": "22-turnover-benefits.png",
+    "hook": "Turnover is a benefits problem.",
+    "caption": "Exit interviews say 'better opportunity.' Translation: somebody offered a package. Keeping good people costs less than replacing them, and the math starts with benefits.\n\nRun the retention math: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075116_9f3a5f08-169e-4f57-83e6-db3e0985a1eb.png"
+   },
+   {
+    "file": "23-workers-comp-panic.png",
+    "hook": "Workers comp, without the panic.",
+    "caption": "The claim, the paperwork, the premium audit, the what-do-I-do-now. Workers comp is only scary when nobody set it up as a system. One conversation puts the dome over it.\n\nCalm it down: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075120_39c1511f-c9dd-4e66-8159-83a37957552d.png"
+   },
+   {
+    "file": "24-retirement-hires.png",
+    "hook": "Retirement plans hire people.",
+    "caption": "A 401(k) on the offer letter changes who applies. Small businesses can offer one without drowning in administration, and most owners never learned that.\n\nAdd the magnet: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075126_f50889fe-6356-41e0-a853-69fcb86bcada.png"
+   },
+   {
+    "file": "25-own-hr-dept.png",
+    "hook": "Stop being your own HR department.",
+    "caption": "Owner, salesperson, therapist, payroll clerk, compliance officer. Some hats you wear by choice, the rest you wear because nobody told you there's another way. There's another way.\n\nHang up some hats: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075130_dcd732ca-51fb-4516-a2bf-4c7a6528de37.png"
+   },
+   {
+    "file": "26-audits-organized.png",
+    "hook": "Audits favor the organized.",
+    "caption": "Clean records turn an audit into an afternoon. Folklore turns it into a finding. Which one your business gets is decided long before the letter arrives.\n\nGet organized first: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075136_ccbfc075-7fbb-4e6a-9aa1-ef07c1ee0f67.png"
+   },
+   {
+    "file": "27-strip-never-sleeps.png",
+    "hook": "The Strip never sleeps. Neither does compliance.",
+    "caption": "24-hour town, 24-hour exposure. Overtime rules, tip reporting, scheduling, comp claims, all running around the clock. Your compliance should run on the same shift as your business.\n\nCover the night shift: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075142_8c9e5382-da16-40ac-9beb-7ceb26bd6570.png"
+   },
+   {
+    "file": "28-google-2am.png",
+    "hook": "Don't Google labor law at 2am.",
+    "caption": "Page 4 of search results is no place to make employer decisions. One conversation connects you to people who answer these questions for a living, and it costs exactly nothing.\n\nAsk a human: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075147_01bbf70b-92d2-4c6d-ac2f-096eb8ff422b.png"
+   },
+   {
+    "file": "29-lead-with-benefits.png",
+    "hook": "Hiring? Lead with benefits.",
+    "caption": "Every competitor's job post says competitive pay. Almost none of them say health coverage and a retirement plan. In a tight market, the package is the differentiator.\n\nBuild the package: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075152_3e243cf4-0e97-40bf-b6f5-ffc24617f428.png"
+   },
+   {
+    "file": "30-renewal-shock.png",
+    "hook": "Group plan renewal shock?",
+    "caption": "The renewal came in ugly and the deadline is close. Before you accept it or drop coverage entirely, know that alternatives exist and one conversation maps them fast.\n\nSee the alternatives: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075158_c24044cc-cf35-4300-b62c-262c4f2bec34.png"
+   },
+   {
+    "file": "31-food-truck-franchise.png",
+    "hook": "From food truck to franchise.",
+    "caption": "Every stage of growth changes what your business needs behind the counter. The operators who scale smoothly build the employer infrastructure one stage before they need it.\n\nBuild ahead: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075202_390f1c8d-385e-4252-890b-07d94e070e94.png"
+   },
+   {
+    "file": "32-back-wage-findings.png",
+    "hook": "Back-wage findings hurt.",
+    "caption": "Nevada's Labor Commissioner doesn't grade on a curve. A payroll setup built on out-of-state math compounds liability every pay period it runs. The fix costs a conversation. The finding costs a lot more.\n\nFix it first: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075248_fc817698-19f4-473f-8306-8371526268bb.png"
+   },
+   {
+    "file": "33-cpa-thank-you.png",
+    "hook": "Your CPA will thank you.",
+    "caption": "Clean payroll data, organized benefits records, credits actually claimed. When the employer side runs on a real system, tax season stops being archaeology.\n\nMake their year: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075253_e29b254a-216f-4249-951f-b167d533e6db.png"
+   },
+   {
+    "file": "34-stay-for-package.png",
+    "hook": "Employees stay for the package.",
+    "caption": "People join for the paycheck and stay for the package. Health coverage, retirement, and a workplace that has its act together beat a dollar-an-hour raise almost every time.\n\nWrap the package: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075259_268086bb-a696-4617-a354-7776e75c0917.png"
+   },
+   {
+    "file": "35-free-to-explore.png",
+    "hook": "Free to explore. Really.",
+    "caption": "The conversation is free. There's no obligation to switch payroll providers, buy anything, or sit through a pitch deck. Explore what the employer side could look like, then decide.\n\nExplore it: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075303_c2898e29-a592-40e6-b008-f1f955168898.png"
+   },
+   {
+    "file": "36-salon-chairs.png",
+    "hook": "Salon chairs. Real payroll.",
+    "caption": "Chair renters, W-2 stylists, tips on cards, tips in cash. Salon payroll is its own puzzle, and getting it wrong is expensive in a state with no tip credit. There's a clean way to run it.\n\nClean it up: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075308_64267759-b76d-471e-9bda-c850cfbce002.png"
+   },
+   {
+    "file": "37-thin-margins.png",
+    "hook": "Thin margins deserve thick protection.",
+    "caption": "Restaurant margins don't leave room for payroll penalties, comp surprises, or turnover spirals. Protection isn't a luxury at thin margins. It's the moat.\n\nDig the moat: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075315_0f62c41c-b13f-4420-835d-b1cca97b76e4.png"
+   },
+   {
+    "file": "38-one-form-fix.png",
+    "hook": "One form starts the fix.",
+    "caption": "Tell us what the employer side of your business feels like right now. Two minutes of typing, one honest conversation, and a map of what's worth fixing first.\n\nStart here: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075319_76dc669e-9c32-435a-9f8c-801348ccb1b1.png"
+   },
+   {
+    "file": "39-no-brochures.png",
+    "hook": "No brochures. People.",
+    "caption": "When payroll or HR needs real muscle, you don't get a PDF. You get introduced to a dedicated Paychex team, by name, with context. That's what the partnership actually means.\n\nMeet them: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075328_dd064e8b-0021-4ef7-97fe-a8bfb60270e3.png"
+   },
+   {
+    "file": "40-nerds-meet-pros.png",
+    "hook": "Insurance nerds meet payroll pros.",
+    "caption": "ProtectHealth reads plan documents for fun. Paychex runs payroll for hundreds of thousands of businesses. Your business gets both brains in one conversation.\n\nGet both: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075329_1dfa5467-89db-43a7-89ac-90d464b22d9b.png"
+   },
+   {
+    "file": "41-win-back-sundays.png",
+    "hook": "Win back your Sundays.",
+    "caption": "Somewhere along the way, Sunday became admin day. It doesn't have to stay that way. The owners who got their weekends back all started with the same 20-minute conversation.\n\nTake Sunday back: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075334_c9dd8797-6d0e-4fc7-a255-0dfef01530dc.png"
+   },
+   {
+    "file": "42-paychex-power-local.png",
+    "hook": "Paychex power. Local strategy.",
+    "caption": "National infrastructure behind a local team that knows Vegas payroll cold. That's the combination most small businesses never get access to. Now you do.\n\nPlug in: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075418_6aa33d06-0887-4e79-8e02-3b527ddc7fd4.png"
+   },
+   {
+    "file": "43-team-of-5.png",
+    "hook": "Team of 5? You have options.",
+    "caption": "Too small for benefits is a myth that keeps small teams underpowered. Five employees is enough to open real doors, and finding out which ones costs nothing.\n\nOpen the doors: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075422_6f8d13f8-f4cf-42f5-a39e-aafa55e8d277.png"
+   },
+   {
+    "file": "44-penalties-optional.png",
+    "hook": "Payroll penalties are optional.",
+    "caption": "A huge share of small businesses eat IRS payroll penalties every single year. Late deposits, misclassifications, tip reporting slips. Every one of them preventable with the right system.\n\nOpt out: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075428_3b9943a1-e5f3-4c2b-865c-546dfe1a1dd3.png"
+   },
+   {
+    "file": "45-team-dont-leave.png",
+    "hook": "Build a team people don't leave.",
+    "caption": "Culture gets people in the door. The package keeps them a decade. Benefits, retirement, and a back office that works are the quiet retention machine.\n\nBuild it: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075433_5fc6bd64-3876-4122-a50f-2806efb5b379.png"
+   },
+   {
+    "file": "46-badge-means-access.png",
+    "hook": "The partnership badge means access.",
+    "caption": "ProtectHealth officially partnered with Paychex. For you that means one conversation opens payroll, HR, compliance, benefits administration, and retirement, with a dedicated team on the other side.\n\nUse the access: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075437_5b7b8069-c626-4036-a0d1-7b5469c2516c.png"
+   },
+   {
+    "file": "47-run-the-back.png",
+    "hook": "Run the business. We'll run the back.",
+    "caption": "You didn't open a restaurant to become a payroll expert. Front of house is yours. The engine room behind it can hum without you touching it.\n\nSplit the work: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075442_d19ebcda-2fd8-4d14-a22f-022c7d6b28c1.png"
+   },
+   {
+    "file": "48-team-asked-insurance.png",
+    "hook": "Your team asked about insurance. Now what?",
+    "caption": "That question means your people are thinking long-term about you. The answer doesn't have to be 'maybe next year.' Options exist at nearly every team size.\n\nGive them an answer: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075449_ab04c78a-e9fc-4c65-987c-9578618682db.png"
+   },
+   {
+    "file": "49-boulder-to-summerlin.png",
+    "hook": "Boulder Highway to Summerlin. We know the rules.",
+    "caption": "Vegas employers play by Nevada rules, and we're on West Charleston, not in a call center. Local strategy, national muscle, one conversation.\n\nTalk local: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075453_e5076ddb-c831-4525-a3cd-570b50a94e5e.png"
+   },
+   {
+    "file": "50-whole-picture-finally.png",
+    "hook": "The whole employer picture. Finally.",
+    "caption": "Payroll, benefits, comp, retirement, HR. Five puzzle pieces that never sat on the same table, until now. One conversation assembles the whole picture.\n\nSee it assembled: https://www.protecthealth.com/employers",
+    "landing": "https://www.protecthealth.com/employers",
+    "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_075458_d904aa91-f6a8-43a8-9890-0f9442809f67.png"
+   }
+  ],
+  "square": [
+   {
+    "file": "video-01-more-than-group-plan.mp4",
+    "hook": "More than your group plan.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151411_8e993ea3-87db-4a90-9c58-57ed618e2196.mp4"
+   },
+   {
+    "file": "video-02-no-tip-credit.mp4",
+    "hook": "Nevada has NO tip credit.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151415_d6c9d660-2d57-43b5-ade4-ab704eedfca0.mp4"
+   },
+   {
+    "file": "video-03-strategy-muscle.mp4",
+    "hook": "Strategy meets muscle.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_151418_88754ca3-a000-427c-bc76-143d451da346.mp4"
+   }
+  ],
+  "vertical": [
+   {
+    "file": "video-01-more-than-group-plan-9x16.mp4",
+    "hook": "More than your group plan.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_153010_81f5a6a1-3ada-4ac5-a3da-b3d6d95a5bf4.mp4"
+   },
+   {
+    "file": "video-02-no-tip-credit-9x16.mp4",
+    "hook": "Nevada has NO tip credit.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_153839_77b2186b-1db5-4458-8b1a-015aea56e368.mp4"
+   },
+   {
+    "file": "video-03-strategy-muscle-9x16.mp4",
+    "hook": "Strategy meets muscle.",
+    "src": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_153018_4d8c6baf-2433-47b0-af02-703902517777.mp4"
+   }
+  ]
+ },
+ "concepts": [
+  {
+   "file": "concept-ichra-advisor-call.png",
+   "hook": "One call. Real answers. Zero pitch.",
+   "caption": "ICHRA advisor-call layout. Copy-heavy format with a live advisor on the phone. Animation in progress.",
+   "landing": "https://www.protecthealth.com/self-employed",
+   "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_155056_8b5903c1-807b-4a12-b331-e0c2215954a5.png"
+  },
+  {
+   "file": "concept-paychex-advisor-call.png",
+   "hook": "Benefits. Payroll. HR. One call.",
+   "caption": "Paychex advisor-call layout. Copy-heavy format with a live advisor on the phone. Animation in progress.",
+   "landing": "https://www.protecthealth.com/employers",
+   "img": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260722_155101_b37167f2-7030-4a74-b09d-cc6e15688c48.png"
+  }
+ ]
+}

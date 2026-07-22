@@ -1,0 +1,198 @@
+---
+// Internal campaign creative library. Unlisted: noindex, excluded from sitemap, not in nav.
+import Base from '../layouts/Base.astro';
+import data from '../lib/campaign-gallery.json';
+
+const tabs = [
+  { id: 'ichra-vid', label: 'ICHRA Videos' },
+  { id: 'ichra-img', label: 'ICHRA Images' },
+  { id: 'paychex-vid', label: 'Paychex Videos' },
+  { id: 'paychex-img', label: 'Paychex Images' },
+  { id: 'concepts', label: 'New Concepts' },
+];
+---
+<Base
+  title="Campaign Creative Library | ProtectHealth"
+  description="Internal creative review library for ProtectHealth campaigns."
+  noindex={true}
+>
+  <div class="hero cg-hero">
+    <div class="container">
+      <span class="cg-kicker">Internal Creative Review</span>
+      <h1>Campaign <span class="cg-grad">Creative Library</span></h1>
+      <p class="cg-sub">
+        Two campaigns, 102 ad creatives, 12 animated video ads. Every asset is labeled with its
+        exact filename from the campaign folders. Click any image for full resolution.
+      </p>
+      <nav class="cg-tabs" id="cgTabs">
+        {tabs.map((t, i) => (
+          <button class={i === 0 ? 'active' : ''} data-t={t.id}>{t.label}</button>
+        ))}
+      </nav>
+    </div>
+  </div>
+
+  <section id="ichra-vid" class="cg-panel show">
+    <div class="container">
+      <span class="section-label">ICHRA — Strategy Over Product</span>
+      <h2>Video Ads — Square 1:1</h2>
+      <p class="cg-count">Feed placements</p>
+      <div class="cg-vgrid">
+        {data.ichra.square.map((v) => (
+          <article class="cg-vcard spot sq">
+            <video controls preload="metadata" playsinline src={v.src}></video>
+            <div class="cg-meta"><span class="cg-filetag">{v.file}</span><h3>{v.hook}</h3></div>
+          </article>
+        ))}
+      </div>
+      <h2>Video Ads — 9:16 Vertical</h2>
+      <p class="cg-count">Reels, TikTok, Shorts, Stories</p>
+      <div class="cg-vgrid vert">
+        {data.ichra.vertical.map((v) => (
+          <article class="cg-vcard spot vt">
+            <video controls preload="metadata" playsinline src={v.src}></video>
+            <div class="cg-meta"><span class="cg-filetag">{v.file}</span><h3>{v.hook}</h3></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="ichra-img" class="cg-panel soft">
+    <div class="container">
+      <span class="section-label">ICHRA — Strategy Over Product</span>
+      <h2>Ad Images — 50 Creatives</h2>
+      <p class="cg-count">Landing: protecthealth.com/self-employed</p>
+      <div class="cg-grid">
+        {data.ichra.images.map((a) => (
+          <article class="cg-card spot">
+            <a href={a.img} target="_blank" rel="noopener"><img loading="lazy" src={a.img} alt={a.hook} /></a>
+            <div class="cg-meta">
+              <span class="cg-filetag">{a.file}</span>
+              <h3>{a.hook}</h3>
+              <p>{a.caption}</p>
+              <a class="cg-landing" href={a.landing} target="_blank" rel="noopener">{a.landing.replace('https://www.', '')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="paychex-vid" class="cg-panel">
+    <div class="container">
+      <span class="section-label">Paychex — More Than Your Group Plan</span>
+      <h2>Video Ads — Square 1:1</h2>
+      <p class="cg-count">Feed placements</p>
+      <div class="cg-vgrid">
+        {data.paychex.square.map((v) => (
+          <article class="cg-vcard spot sq">
+            <video controls preload="metadata" playsinline src={v.src}></video>
+            <div class="cg-meta"><span class="cg-filetag">{v.file}</span><h3>{v.hook}</h3></div>
+          </article>
+        ))}
+      </div>
+      <h2>Video Ads — 9:16 Vertical</h2>
+      <p class="cg-count">Reels, TikTok, Shorts, Stories</p>
+      <div class="cg-vgrid vert">
+        {data.paychex.vertical.map((v) => (
+          <article class="cg-vcard spot vt">
+            <video controls preload="metadata" playsinline src={v.src}></video>
+            <div class="cg-meta"><span class="cg-filetag">{v.file}</span><h3>{v.hook}</h3></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="paychex-img" class="cg-panel soft">
+    <div class="container">
+      <span class="section-label">Paychex — More Than Your Group Plan</span>
+      <h2>Ad Images — 50 Creatives</h2>
+      <p class="cg-count">Landing: protecthealth.com/employers</p>
+      <div class="cg-grid">
+        {data.paychex.images.map((a) => (
+          <article class="cg-card spot">
+            <a href={a.img} target="_blank" rel="noopener"><img loading="lazy" src={a.img} alt={a.hook} /></a>
+            <div class="cg-meta">
+              <span class="cg-filetag">{a.file}</span>
+              <h3>{a.hook}</h3>
+              <p>{a.caption}</p>
+              <a class="cg-landing" href={a.landing} target="_blank" rel="noopener">{a.landing.replace('https://www.', '')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="concepts" class="cg-panel">
+    <div class="container">
+      <span class="section-label">New Format</span>
+      <h2>Advisor Call Concepts</h2>
+      <p class="cg-count">Copy-heavy layout with a live advisor on the phone. Video versions in progress.</p>
+      <div class="cg-grid wide">
+        {data.concepts.map((a) => (
+          <article class="cg-card spot">
+            <a href={a.img} target="_blank" rel="noopener"><img loading="lazy" src={a.img} alt={a.hook} class="tall" /></a>
+            <div class="cg-meta">
+              <span class="cg-filetag">{a.file}</span>
+              <h3>{a.hook}</h3>
+              <p>{a.caption}</p>
+              <a class="cg-landing" href={a.landing} target="_blank" rel="noopener">{a.landing.replace('https://www.', '')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cg-hero { padding: 72px 0 56px; }
+  .cg-kicker { display: inline-block; text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; font-weight: 800; margin-bottom: 12px; background: linear-gradient(90deg, #19c8ff, #8fd8ff 70%, #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .cg-hero h1 { color: #fff; }
+  .cg-grad { background: linear-gradient(100deg, #19c8ff 15%, #8fd8ff 50%, #fff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .cg-sub { color: #cfe2f7; max-width: 680px; margin-top: 14px; font-size: 1.06rem; }
+  .cg-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; }
+  .cg-tabs button { font-family: var(--font); font-size: 0.9rem; font-weight: 700; color: #dcebfb; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 10px 20px; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s; }
+  .cg-tabs button:hover { border-color: rgba(25,200,255,0.7); color: #fff; }
+  .cg-tabs button.active { background: linear-gradient(120deg, var(--blue), var(--accent)); color: #fff; border-color: transparent; box-shadow: 0 8px 24px rgba(25,123,255,0.4); }
+
+  .cg-panel { display: none; padding: 56px 0 90px; }
+  .cg-panel.show { display: block; }
+  .cg-panel.soft { background: var(--bg-soft); }
+  .cg-count { color: var(--muted); font-size: 0.95rem; margin: 0 0 26px; }
+
+  .cg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 24px; }
+  .cg-grid.wide { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+  .cg-vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 24px; margin-bottom: 48px; }
+  .cg-vgrid.vert { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+
+  .cg-card, .cg-vcard { background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+  .cg-card:hover, .cg-vcard:hover { transform: translateY(-4px); border-color: rgba(25,123,255,0.4); box-shadow: 0 18px 48px rgba(15,53,103,0.16); }
+  .cg-card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--bg-soft); }
+  .cg-card img.tall { aspect-ratio: 9 / 16; }
+  .cg-vcard video { width: 100%; display: block; background: #04162e; }
+  .cg-vcard.sq video { aspect-ratio: 1 / 1; }
+  .cg-vcard.vt video { aspect-ratio: 9 / 16; }
+
+  .cg-meta { padding: 18px 20px 22px; }
+  .cg-meta h3 { font-size: 1.08rem; margin: 0 0 8px; }
+  .cg-meta p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin: 0 0 10px; white-space: pre-line; }
+  .cg-filetag { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; color: var(--accent); background: rgba(0,125,179,0.08); border: 1px solid rgba(0,125,179,0.18); border-radius: 999px; padding: 3px 12px; margin-bottom: 10px; }
+  .cg-landing { font-size: 0.85rem; font-weight: 700; color: var(--blue); text-decoration: none; }
+  .cg-landing:hover { text-decoration: underline; }
+</style>
+
+<script>
+  document.querySelectorAll('#cgTabs button').forEach((b) => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#cgTabs button').forEach((x) => x.classList.remove('active'));
+      document.querySelectorAll('.cg-panel').forEach((s) => s.classList.remove('show'));
+      b.classList.add('active');
+      const target = document.getElementById(b.getAttribute('data-t'));
+      if (target) target.classList.add('show');
+    });
+  });
+</script>
