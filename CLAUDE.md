@@ -29,7 +29,8 @@ Campaign briefs and launch kits live in the claude.ai project "Strategy Over Pro
 - Q&A pages: ONE top-level QAPage schema; FAQPage nested via `hasPart` (avoids duplicate root `mainEntity`). `quickAnswer` (acceptedAnswer) and `speakableText` (#ai-summary) MUST be different content.
 - Formatting: answer in first 160 chars under every H2; H2s are real questions; no pronouns in FAQ/speakable/quick-answer text; tables and lists over dense prose.
 - `dateModified` only when content genuinely changes. Never bulk-set it.
-- Internal linking: TOFU → 1-2 MOFU + 1 sibling TOFU; MOFU → 1 TOFU + BOFU (landing page) + sibling MOFU; BOFU landing pages never link back out to cluster posts. Q&A: 2 siblings + parent post.
+- Internal linking: TOFU → 1-2 MOFU + 1 sibling TOFU; MOFU → 1 TOFU + BOFU (landing page) + sibling MOFU. Q&A: siblings + parent post.
+- BOFU landing pages carry a "reading library" BELOW the conversation form (owner decision, July 2026): dynamic cluster blog cards (TOFU-first) + all cluster QA pills, auto-populated via getCollection filters. Never place cluster links ABOVE the form — conversion first, education after.
 - All internal links are plain `<a href>` in static HTML. Slugs are LOCKED once indexed — never rename a published slug.
 - New images: WebP, descriptive noun-specific alt text.
 
