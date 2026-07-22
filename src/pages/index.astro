@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import ReviewBadge from '../components/ReviewBadge.astro';
 import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
 import { SERVICES } from '../lib/services';
 import { getCollection } from 'astro:content';
@@ -27,6 +28,8 @@ const schemas = [
       &nbsp; <a href="/free-quote" class="btn ghost big" style="border-color:#9fc4ff;color:#fff;">Get Started</a>
     </div>
   </section>
+
+  <ReviewBadge variant="band" />
 
   <section class="section">
     <div class="container">

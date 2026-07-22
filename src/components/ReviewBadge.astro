@@ -1,0 +1,29 @@
+---
+// Google review proof badge. Display only — deliberately NO AggregateRating
+// schema (self-serving review markup is ignored by Google and risks manual action).
+import { SITE } from '../lib/site';
+
+interface Props {
+  variant?: 'band' | 'inline' | 'footer';
+}
+const { variant = 'inline' } = Astro.props;
+const r = SITE.reviews;
+---
+{variant === 'band' ? (
+  <div class="proof-band">
+    <div class="container proof-inner">
+      <span class="stars" aria-hidden="true">★★★★★</span>
+      <span class="proof-text"><strong>{r.rating}</strong> stars across <strong>{r.count}+ Google reviews</strong> · Insurance agency in Clark County, Nevada</span>
+      <a href={r.url} target="_blank" rel="noopener noreferrer" class="proof-link">Read the reviews →</a>
+    </div>
+  </div>
+) : variant === 'footer' ? (
+  <a href={r.url} target="_blank" rel="noopener noreferrer" class="proof-footer">
+    <span class="stars" aria-hidden="true">★★★★★</span> {r.rating} · {r.count}+ Google reviews
+  </a>
+) : (
+  <a href={r.url} target="_blank" rel="noopener noreferrer" class="proof-inline">
+    <span class="stars" aria-hidden="true">★★★★★</span>
+    <span><strong>{r.rating}</strong> · {r.count}+ Google reviews</span>
+  </a>
+)}

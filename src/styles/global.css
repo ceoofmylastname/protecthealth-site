@@ -108,6 +108,17 @@ p { margin: 0.7rem 0; }
 .footer-sitemap ul { list-style: none; columns: 2; margin-top: 10px; }
 .footer-legal { border-top: 1px solid #2a4d7d; margin-top: 26px; padding-top: 18px; font-size: 0.82rem; color: #8ba5c4; }
 
+/* Google review proof */
+.stars { color: #f5b942; letter-spacing: 2px; }
+.proof-band { background: var(--navy); color: #d7e5f7; padding: 12px 0; font-size: 0.95rem; }
+.proof-inner { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.proof-band strong { color: #fff; }
+.proof-link { color: #9fc4ff; font-weight: 700; text-decoration: none; }
+.proof-link:hover { color: #fff; }
+.proof-inline { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); text-decoration: none; font-size: 0.9rem; margin-top: 12px; }
+.proof-inline strong { color: var(--navy); }
+.proof-footer { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.9rem; }
+
 .badge { display: inline-block; background: #e7f2f8; color: var(--accent-dark); font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 30px; margin-bottom: 10px; }
 .compliance-note { font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 26px; padding-top: 14px; }
 

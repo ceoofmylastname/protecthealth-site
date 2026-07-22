@@ -15,12 +15,14 @@ interface Props {
   submitLabel: string;
   confirmation: string;
 }
+import ReviewBadge from './ReviewBadge.astro';
 const { formId, heading, fields, submitLabel, confirmation } = Astro.props;
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
 ---
 <div class="lead-form" id={`form-${formId}`}>
   <h3>{heading}</h3>
+  <ReviewBadge variant="inline" />
   <form data-form-id={formId} method="post">
     {fields.map((f) => (
       <div>

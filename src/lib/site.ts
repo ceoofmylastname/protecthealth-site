@@ -13,6 +13,12 @@ export const SITE = {
     country: 'US',
   },
   logo: '/assets/logo.webp',
+  reviews: {
+    rating: '4.9',
+    count: 703,
+    // TODO: swap for the real Google Business Profile review link
+    url: 'https://www.google.com/search?q=ProtectHealth+Las+Vegas+Google+reviews',
+  },
   social: {
     facebook: 'https://www.facebook.com/protecthealthnv',
     linkedin: 'https://www.linkedin.com/company/protecthealth',

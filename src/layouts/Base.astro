@@ -1,5 +1,6 @@
 ---
 import { SITE, organizationSchema } from '../lib/site';
+import ReviewBadge from '../components/ReviewBadge.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -80,6 +81,7 @@ const orgSchema = organizationSchema();
           <div>
             <h4>ProtectHealth</h4>
             <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy — not become the strategy.</p>
+            <ReviewBadge variant="footer" />
           </div>
           <div>
             <h4>Coverage</h4>
