@@ -4,7 +4,7 @@ Context for Claude Code sessions working in this repo.
 
 ## What this is
 
-Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Cloudflare Pages, Supabase lead capture. The site operationalizes two confirmed marketing campaigns:
+Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Netlify. Lead capture: GoHighLevel via Netlify function (`netlify/functions/lead.mjs`, exposed at `/api/lead`) — upserts contact + tags by campaign + note with form answers + opportunity in the "ProtectHealth New Lead/Client" pipeline (location nF7RwerbB5hn27XaM9D2). Requires `GHL_API_TOKEN` env var in Netlify (Private Integration token, contacts.write + opportunities.write). Thank-you state embeds the GHL "ProtectHealth Consultation" booking calendar (naoB13PMLUxH7fAcVXg0). The site operationalizes two confirmed marketing campaigns:
 
 1. **ICHRA campaign** ("Strategy Over Product") — Realtors, 1099s, self-employed → `/self-employed`
 2. **Paychex campaign** ("More Than Your Group Plan") — business owners with employees → `/employers`

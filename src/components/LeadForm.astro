@@ -1,6 +1,8 @@
 ---
-// Lead capture form → Supabase. Intentional friction: questions filter
-// price-shoppers and attract advisor conversations (campaign win condition).
+// Lead capture form → GoHighLevel via Netlify function (/api/lead).
+// Intentional friction: questions filter price-shoppers and attract advisor
+// conversations (campaign win condition). On success the form swaps to a
+// confirmation + embedded GHL booking calendar so the lead books immediately.
 interface Field {
   name: string;
   label: string;
@@ -9,16 +11,17 @@ interface Field {
   required?: boolean;
 }
 interface Props {
-  formId: string; // stored in Supabase `source` column: 'ichra' | 'employers' | 'general'
+  formId: string; // GHL routing: 'ichra' | 'employers' | 'general' | 'quote'
   heading: string;
   fields: Field[];
   submitLabel: string;
   confirmation: string;
+  showBooking?: boolean; // embed the booking calendar after submit (default true)
 }
 import ReviewBadge from './ReviewBadge.astro';
-const { formId, heading, fields, submitLabel, confirmation } = Astro.props;
-const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+const { formId, heading, fields, submitLabel, confirmation, showBooking = true } = Astro.props;
+// GHL "ProtectHealth Consultation" calendar
+const BOOKING_URL = 'https://api.leadconnectorhq.com/widget/booking/naoB13PMLUxH7fAcVXg0';
 ---
 <div class="lead-form" id={`form-${formId}`}>
   <h3>{heading}</h3>
@@ -43,36 +46,61 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
     <button type="submit" class="btn big" style="margin-top:14px;">{submitLabel}</button>
     <p class="form-status" role="status" aria-live="polite"></p>
   </form>
+  <div class="form-success" hidden>
+    <p class="form-confirmation">{confirmation}</p>
+    {showBooking && (
+      <div class="booking-embed">
+        <p class="booking-lead">Grab a time that works while you're here:</p>
+        <iframe
+          src={BOOKING_URL}
+          title="Book your ProtectHealth conversation"
+          loading="lazy"
+          style="width:100%;min-height:720px;border:none;border-radius:14px;overflow:hidden;"
+          scrolling="no"
+        ></iframe>
+        <p class="booking-fallback">
+          Calendar not loading? <a href={BOOKING_URL} target="_blank" rel="noopener">Open the booking page in a new tab</a>
+          or call <a href="tel:8002408185">800-240-8185</a>.
+        </p>
+      </div>
+    )}
+  </div>
 </div>
 
-<script define:vars={{ formId, confirmation, SUPABASE_URL, SUPABASE_ANON_KEY }}>
+<style>
+  .form-success .form-confirmation { font-weight: 600; color: var(--navy); background: rgba(25, 123, 255, 0.07); border: 1.5px solid rgba(25, 123, 255, 0.25); border-radius: 12px; padding: 16px 18px; }
+  .booking-embed { margin-top: 18px; }
+  .booking-lead { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .booking-fallback { font-size: 0.88rem; color: var(--muted); margin-top: 10px; }
+</style>
+
+<script define:vars={{ formId, confirmation }}>
   const wrap = document.getElementById(`form-${formId}`);
   const form = wrap.querySelector('form');
   const status = wrap.querySelector('.form-status');
+  const success = wrap.querySelector('.form-success');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
     const data = Object.fromEntries(new FormData(form).entries());
     data.source = formId;
+    data.page = window.location.pathname + window.location.search;
     status.textContent = 'Sending...';
+    btn.disabled = true;
     try {
-      const url = SUPABASE_URL;
-      const key = SUPABASE_ANON_KEY;
-      if (!url || !key) throw new Error('Supabase not configured');
-      const res = await fetch(`${url}/rest/v1/leads`, {
+      const res = await fetch('/api/lead', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-          Prefer: 'return=minimal',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       form.style.display = 'none';
-      status.textContent = confirmation;
+      status.textContent = '';
+      success.hidden = false;
+      success.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      status.textContent = 'Something went wrong sending the form. Please try again or reach out directly.';
+      btn.disabled = false;
+      status.textContent = 'Something went wrong sending the form. Please try again or call 800-240-8185.';
     }
   });
 </script>
