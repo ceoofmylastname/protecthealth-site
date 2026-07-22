@@ -17,8 +17,8 @@ export const SITE = {
   reviews: {
     rating: '4.9',
     count: 703,
-    // TODO: swap for the real Google Business Profile review link
-    url: 'https://www.google.com/search?q=ProtectHealth+Las+Vegas+Google+reviews',
+    // Real Google Maps listing (CID 11534166079504797199, 2915 W Charleston Blvd Ste 170)
+    url: 'https://www.google.com/maps/place/ProtectHealth+Insurance+Agency/@36.1582831,-115.1808756,17z/data=!4m6!3m5!1s0x80c8c3a1ee8daa15:0xa01196f04d3e4e0f!8m2!3d36.1582831!4d-115.1808756!16s%2Fg%2F11hdjdfltp',
   },
   social: {
     facebook: 'https://www.facebook.com/protecthealthnv',

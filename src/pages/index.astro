@@ -3,7 +3,11 @@ import Base from '../layouts/Base.astro';
 import ReviewBadge from '../components/ReviewBadge.astro';
 import { SITE, ASSETS, HF_ASSETS, TEAM, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 import { SERVICES } from '../lib/services';
+import { GOOGLE_REVIEWS } from '../lib/reviews';
 import { getCollection } from 'astro:content';
+
+const reviewRowA = GOOGLE_REVIEWS.slice(0, 10);
+const reviewRowB = GOOGLE_REVIEWS.slice(10);
 
 const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.datePublished.localeCompare(a.data.datePublished))
@@ -215,6 +219,30 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
         </div>
         <div class="rs-cta">Read the reviews →</div>
       </a>
+    </div>
+
+    <!-- Real Google reviews wall — verbatim from the live listing, display-only (no review schema by design) -->
+    <div class="review-wall reveal">
+      {[reviewRowA, reviewRowB].map((row, ri) => (
+        <div class={`rv-row ${ri === 1 ? 'rv-reverse' : ''}`}>
+          <div class="rv-track">
+            {[...row, ...row].map((r) => (
+              <a class="rv-card" href={SITE.reviews.url} target="_blank" rel="noopener noreferrer" aria-label={`Google review by ${r.name}`}>
+                <div class="rv-top">
+                  <span class="rv-stars">★★★★★</span>
+                  <span class="rv-g">G</span>
+                </div>
+                <p class="rv-text">{r.text}</p>
+                <div class="rv-who">
+                  <span class="rv-avatar">{r.name.charAt(0)}</span>
+                  <span class="rv-meta"><b>{r.name}</b><em>{r.date} · Google</em></span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+      <p class="rv-note">Real reviews, word for word, from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+ on Google</a>.</p>
     </div>
   </section>
 
@@ -447,6 +475,29 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   .rs-sub { color: #b9cbe1; font-size: 0.95rem; margin-top: 4px; max-width: 480px; }
   .rs-cta { position: relative; font-weight: 800; color: #66e0ff; white-space: nowrap; }
   @media (max-width: 860px) { .review-showcase { grid-template-columns: 1fr; gap: 18px; text-align: left; } }
+
+  /* ===== Real Google reviews wall ===== */
+  .review-wall { margin-top: 34px; overflow: hidden; }
+  .rv-row { overflow: hidden; padding: 10px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .rv-track { display: flex; gap: 22px; width: max-content; animation: rvScroll 90s linear infinite; }
+  .rv-reverse .rv-track { animation-direction: reverse; }
+  .rv-row:hover .rv-track { animation-play-state: paused; }
+  @keyframes rvScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .rv-card { display: flex; flex-direction: column; gap: 12px; width: 360px; flex-shrink: 0; background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(240,247,255,0.85)); border: 1px solid rgba(25,123,255,0.16); border-radius: 20px; padding: 22px 24px; text-decoration: none; color: var(--ink, #1c2b3a); box-shadow: 0 10px 30px rgba(15,53,103,0.08); backdrop-filter: blur(6px); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .rv-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,53,103,0.16); }
+  .rv-top { display: flex; align-items: center; justify-content: space-between; }
+  .rv-stars { color: #f5b942; letter-spacing: 2px; font-size: 0.95rem; text-shadow: 0 0 12px rgba(245,185,66,0.45); }
+  .rv-g { font-weight: 800; font-family: var(--font-display); font-size: 1rem; background: conic-gradient(from -45deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rv-text { margin: 0; font-size: 0.93rem; line-height: 1.55; color: #2a3c52; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .rv-who { display: flex; align-items: center; gap: 10px; margin-top: auto; }
+  .rv-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--accent)); box-shadow: 0 4px 12px rgba(25,123,255,0.35); }
+  .rv-meta { display: flex; flex-direction: column; line-height: 1.25; }
+  .rv-meta b { font-size: 0.88rem; }
+  .rv-meta em { font-style: normal; font-size: 0.78rem; color: var(--muted, #5b6b7e); }
+  .rv-note { text-align: center; font-size: 0.85rem; color: var(--muted, #5b6b7e); margin: 16px 0 0; }
+  .rv-note a { color: var(--blue); font-weight: 700; }
+  @media (max-width: 640px) { .rv-card { width: 300px; } }
+  @media (prefers-reduced-motion: reduce) { .rv-track { animation: none; } .rv-row { overflow-x: auto; } }
 
   @media (max-width: 900px) {
     .lux-hero-grid { grid-template-columns: 1fr; gap: 44px; }
