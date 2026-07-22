@@ -10,16 +10,16 @@ export interface GuideArt {
 }
 
 export const GUIDE_ART: Record<string, GuideArt> = {
-  hero: { src: '', alt: 'Glass compass resting on insurance documents under a navy studio spotlight', ratio: '16/9' },
-  'lesson-ceiling': { src: '', alt: 'Two glass pillars of different heights representing premium versus out-of-pocket ceiling', ratio: '16/9' },
-  'lesson-network': { src: '', alt: 'Glowing map of connected clinic nodes with one node outside the boundary', ratio: '16/9' },
-  'lesson-toolbox': { src: '', alt: 'Open glass toolbox with six distinct glowing instruments, one per coverage line', ratio: '16/9' },
-  'lesson-timing': { src: '', alt: 'Glass hourglass beside a calendar etched in light showing enrollment windows', ratio: '16/9' },
-  'lesson-conversation': { src: '', alt: 'Two glass chairs facing each other under a warm spotlight, no desk between them', ratio: '16/9' },
-  health: { src: '', alt: 'Crystal shield with a plus sign over a family silhouette in navy studio light', ratio: '1/1' },
-  life: { src: '', alt: 'Glass tree with golden roots sheltering small house and family figures', ratio: '1/1' },
-  gap: { src: '', alt: 'Glass bridge closing the gap between two cliff edges lit in cyan', ratio: '1/1' },
-  medicare: { src: '', alt: 'Four interlocking glass segments forming a circle, one segment gold', ratio: '1/1' },
-  dental: { src: '', alt: 'Crystal tooth on a pedestal with a soft protective light dome', ratio: '1/1' },
-  vision: { src: '', alt: 'Glass eye lens focusing a beam of light into sharp focus on a point', ratio: '1/1' },
+  hero: { src: '/assets/buyers-guide/01-hero.webp', alt: 'Glass compass resting on insurance documents under a navy studio spotlight', ratio: '16/9' },
+  'lesson-ceiling': { src: '/assets/buyers-guide/02-ceiling.webp', alt: 'Two glass pillars of different heights representing premium versus out-of-pocket ceiling', ratio: '1/1' },
+  'lesson-network': { src: '/assets/buyers-guide/03-network.webp', alt: 'Glowing map of connected clinic nodes with one node outside the boundary', ratio: '1/1' },
+  'lesson-toolbox': { src: '/assets/buyers-guide/04-toolbox.webp', alt: 'Open glass toolbox with six distinct glowing instruments, one per coverage line', ratio: '1/1' },
+  'lesson-timing': { src: '/assets/buyers-guide/05-timing.webp', alt: 'Glass hourglass beside a calendar etched in light showing enrollment windows', ratio: '1/1' },
+  'lesson-conversation': { src: '/assets/buyers-guide/06-conversation.webp', alt: 'Two glass chairs facing each other under a warm spotlight, no desk between them', ratio: '1/1' },
+  health: { src: '/assets/buyers-guide/07-health.webp', alt: 'Crystal shield with a plus sign over a family silhouette in navy studio light', ratio: '1/1' },
+  life: { src: '/assets/buyers-guide/08-life.webp', alt: 'Glass tree with golden roots sheltering small house and family figures', ratio: '1/1' },
+  gap: { src: '/assets/buyers-guide/09-gap.webp', alt: 'Glass bridge closing the gap between two cliff edges lit in cyan', ratio: '1/1' },
+  medicare: { src: '/assets/buyers-guide/10-medicare.webp', alt: 'Four interlocking glass segments forming a circle, one segment gold', ratio: '1/1' },
+  dental: { src: '/assets/buyers-guide/11-dental.webp', alt: 'Crystal tooth on a pedestal with a soft protective light dome', ratio: '1/1' },
+  vision: { src: '/assets/buyers-guide/12-vision.webp', alt: 'Glass eye lens focusing a beam of light into sharp focus on a point', ratio: '1/1' },
 };
