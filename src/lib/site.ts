@@ -71,6 +71,23 @@ export const ASSETS = {
   } as Record<string, string>,
 };
 
+// Higgsfield-generated brand imagery (hotlinked; localize with the Webflow set — see CLAUDE.md).
+const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH';
+export const HF_ASSETS = {
+  hero: `${HF}/hf_20260722_013708_a84d4826-1079-4760-9abb-41f524438e7d.png`,
+  advisor: `${HF}/hf_20260722_013710_d47f6de9-17a4-470b-a6f0-9f0c5853ea68.png`,
+  realtor: `${HF}/hf_20260722_013712_31f9529e-81b6-4bdd-9fe9-ac965a5246da.png`,
+  employers: `${HF}/hf_20260722_013714_46d2a51a-942a-4ecc-aee3-a320f2aaca8c.png`,
+  icons: {
+    'health-insurance': `${HF}/hf_20260722_013725_2285183b-231e-4eae-9734-beb0340564fb.png`,
+    'life-insurance': `${HF}/hf_20260722_013727_524ccf50-5b61-4320-b4d6-1b309fa33f23.png`,
+    'gap-health-insurance': `${HF}/hf_20260722_013728_0cd1aa94-5acb-416b-b880-feef2b301dda.png`,
+    'medicare': `${HF}/hf_20260722_013730_b4e06409-9e04-4111-9ee3-da84b8e14570.png`,
+    'dental-insurance': `${HF}/hf_20260722_014206_f59ef6cb-24da-4761-9832-40407cda5f79.png`,
+    'vision-insurance': `${HF}/hf_20260722_013733_dc867883-ef0f-4d28-8f20-f8c9ec35a715.png`,
+  } as Record<string, string>,
+};
+
 export const TEAM = [
   { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ccf1320acdd4645e4ad420_IMG20240826105217_01_2_1_-removebg-preview.png` },
   { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ce141a6e73f1177f30b916_Brian3.png` },
