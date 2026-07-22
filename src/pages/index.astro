@@ -234,7 +234,10 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
                 </div>
                 <p class="rv-text">{r.text}</p>
                 <div class="rv-who">
-                  <span class="rv-avatar">{r.name.charAt(0)}</span>
+                  <span class="rv-avatar">
+                    {r.name.charAt(0)}
+                    {r.photo && <img src={r.photo} alt={`${r.name} on Google`} loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" />}
+                  </span>
                   <span class="rv-meta"><b>{r.name}</b><em>{r.date} · Google</em></span>
                 </div>
               </a>
@@ -490,7 +493,8 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   .rv-g { font-weight: 800; font-family: var(--font-display); font-size: 1rem; background: conic-gradient(from -45deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .rv-text { margin: 0; font-size: 0.93rem; line-height: 1.55; color: #2a3c52; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
   .rv-who { display: flex; align-items: center; gap: 10px; margin-top: auto; }
-  .rv-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--accent)); box-shadow: 0 4px 12px rgba(25,123,255,0.35); }
+  .rv-avatar { position: relative; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--accent)); box-shadow: 0 4px 12px rgba(25,123,255,0.35); flex-shrink: 0; }
+  .rv-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.9); }
   .rv-meta { display: flex; flex-direction: column; line-height: 1.25; }
   .rv-meta b { font-size: 0.88rem; }
   .rv-meta em { font-style: normal; font-size: 0.78rem; color: var(--muted, #5b6b7e); }
