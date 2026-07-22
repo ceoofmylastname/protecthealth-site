@@ -59,10 +59,11 @@ const orgSchema = organizationSchema();
       <div class="container">
         <div class="nav-shell">
           <a href="/" class="logo" aria-label="ProtectHealth home">
-            <img src={ASSETS.logo} alt="ProtectHealth — Medical, Medicare, Life, Annuity, Supplements" width="150" height="48" />
+            <img src={ASSETS.logo} alt="ProtectHealth: Medical, Medicare, Life, Annuity, Supplements" width="150" height="48" />
           </a>
           <nav class="nav" aria-label="Main">
             <a href="/services">Services</a>
+            <a href="/buyers-guide">Buyer's Guide</a>
             <a href="/self-employed">Self-Employed</a>
             <a href="/employers">Employers</a>
             <a href="/blog">Blog</a>
@@ -102,7 +103,7 @@ const orgSchema = organizationSchema();
         <div class="footer-grid">
           <div>
             <div class="footer-logo"><img src={ASSETS.logo} alt="ProtectHealth logo" width="110" height="44" loading="lazy" /></div>
-            <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy — not become the strategy.</p>
+            <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy, not become the strategy.</p>
             <p><a href={SITE.phoneHref} class="footer-phone">{SITE.phone}</a></p>
             <ReviewBadge variant="footer" />
           </div>
@@ -142,7 +143,7 @@ const orgSchema = organizationSchema();
           <slot name="footer-sitemap" />
         </div>
         <div class="footer-legal">
-          <p>© {new Date().getFullYear()} ProtectHealth. Insurance products and availability vary by individual situation, business structure, and eligibility. ProtectHealth brokers are insurance professionals, not tax professionals — for tax or business-structure decisions, a conversation with a licensed tax professional is a make-sense next step.</p>
+          <p>© {new Date().getFullYear()} ProtectHealth. Insurance products and availability vary by individual situation, business structure, and eligibility. ProtectHealth brokers are insurance professionals, not tax professionals. For tax or business-structure decisions, a conversation with a licensed tax professional is a make-sense next step.</p>
         </div>
       </div>
     </footer>

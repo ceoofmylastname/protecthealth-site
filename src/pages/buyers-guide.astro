@@ -1,0 +1,354 @@
+---
+// The ProtectHealth Buyer's Guide: one educational page teaching people how
+// to buy insurance without getting sold, then walking every coverage line.
+import Base from '../layouts/Base.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { GUIDE_ART } from '../lib/buyers-guide-art';
+
+const pageUrl = `${SITE.domain}/buyers-guide`;
+const description =
+  'The ProtectHealth Buyer\'s Guide teaches Nevadans how to buy health, life, GAP, Medicare, dental, and vision coverage: what each product does, what to compare, and what to ask before signing anything.';
+
+const faq = [
+  {
+    q: 'What is the ProtectHealth Buyer\'s Guide?',
+    a: 'The ProtectHealth Buyer\'s Guide is a free educational page that explains how insurance products work, what to compare on each one, and what questions to ask before buying, covering health, life, GAP, Medicare, dental, and vision coverage in Nevada.',
+  },
+  {
+    q: 'Does reading the Buyer\'s Guide obligate anyone to buy from ProtectHealth?',
+    a: 'No. The guide exists so Nevadans make better decisions with any agent or on their own. ProtectHealth consultations are free and plan pricing is identical with or without a broker.',
+  },
+  {
+    q: 'Which insurance product should a person buy first?',
+    a: 'Health insurance comes first for almost everyone, because medical bills are the largest financial risk most households face. Life insurance follows for anyone with dependents, then supplemental lines like GAP, dental, and vision based on the household\'s actual exposure.',
+  },
+  {
+    q: 'How does a person avoid being oversold on insurance?',
+    a: 'Ask three questions of any agent: how do you get paid, what does this policy not cover, and what happens in the worst-case year. Honest answers to all three make overselling nearly impossible. Evasive answers are the signal to leave.',
+  },
+  {
+    q: 'Does the Buyer\'s Guide cover Nevada-specific rules?',
+    a: 'Yes. The guide reflects Nevada realities including Nevada Health Link enrollment windows, Las Vegas network structures, and the coverage gaps most common for the state\'s self-employed and hospitality workforce.',
+  },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': pageUrl,
+    name: 'The ProtectHealth Insurance Buyer\'s Guide',
+    description,
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Buyer\'s Guide', url: pageUrl },
+  ]),
+];
+
+const lessons = [
+  {
+    art: 'lesson-ceiling',
+    kicker: 'Lesson 1',
+    h2: 'Why should you buy the ceiling, not the sticker?',
+    paras: [
+      `The sticker is the monthly premium. The ceiling is the out-of-pocket maximum, the most a plan can cost you in a bad year, and it is the number that decides whether a hospital week is an inconvenience or a crisis. Two plans with the same premium can carry ceilings thousands of dollars apart, and the plan documents will not point that out for you.`,
+      `The habit that fixes it: for any plan, write down premium times twelve, then add the out-of-pocket maximum. That total is the real worst case. Compare plans on that number and the cheap plan frequently stops being cheap. The full mechanics live in <a href="/qa/what-is-an-out-of-pocket-maximum">what is an out-of-pocket maximum</a>.`,
+    ],
+  },
+  {
+    art: 'lesson-network',
+    kicker: 'Lesson 2',
+    h2: 'Why do networks matter more than brand names?',
+    paras: [
+      `A plan is only as good as the doctors who accept it, and in Las Vegas the same medical group can be in-network on one plan and out on another from the same company. People pick plans for the logo and lose the pediatrician. That order is backwards.`,
+      `The habit: list the doctors who matter, then check each one against the specific plan ID before enrolling, not after. The two-minute method is in <a href="/qa/how-do-you-check-if-a-doctor-is-in-network">how to check if a doctor is in-network</a>, and the plan-type trade-offs are in <a href="/qa/what-is-the-difference-between-hmo-and-ppo">HMO versus PPO</a>.`,
+    ],
+  },
+  {
+    art: 'lesson-toolbox',
+    kicker: 'Lesson 3',
+    h2: 'Why is every insurance product a different tool?',
+    paras: [
+      `Health insurance covers medical bills. Life insurance replaces an income. GAP fills the hole a deductible leaves. Medicare replaces health insurance at 65. Dental and vision prepay maintenance and discount the big repairs. Six tools, six different jobs, and most bad purchases come from using one tool for another tool's job.`,
+      `The habit: name the risk first, then pick the product that answers it. A family with thin savings and a high deductible has a GAP-shaped problem. A new mortgage with one income behind it is a term-life-shaped problem. The product cards below run this exercise for every line ProtectHealth handles.`,
+    ],
+  },
+  {
+    art: 'lesson-timing',
+    kicker: 'Lesson 4',
+    h2: 'Why is timing part of the coverage?',
+    paras: [
+      `Insurance runs on windows. Nevada health plans sell from November 1 to January 15 unless a life event opens a special window. Medicare opens a seven-month window at 65 and one six-month Medigap window that never reopens on the same terms. Dental plans impose waiting periods. Life insurance gets more expensive with every birthday.`,
+      `The habit: know your next window before you need it. The dates are in the <a href="/blog-post/nevada-open-enrollment-health-insurance">open enrollment guide</a>, <a href="/qa/what-is-a-qualifying-life-event">qualifying life events</a>, and the <a href="/blog-post/turning-65-in-nevada-medicare-checklist">turning 65 checklist</a>. Missing a window is the one insurance mistake that cannot be fixed with money.`,
+    ],
+  },
+  {
+    art: 'lesson-conversation',
+    kicker: 'Lesson 5',
+    h2: 'Why buy a conversation instead of a quote?',
+    paras: [
+      `A quote is a number without context. A conversation is where the context lives: your income, your doctors, your prescriptions, your risk tolerance, your business structure if you have one. Quote-first shopping optimizes the one number that matters least and ignores the five that matter most.`,
+      `The habit: interview the human before the product. Ask how they get paid. Ask what the policy does not cover. Ask what the worst-case year costs. ProtectHealth answers all three on this site in plain text, because the anchor for everything here is simple: the product should serve the strategy, not become the strategy.`,
+    ],
+  },
+];
+
+const products = [
+  {
+    art: 'health',
+    name: 'Health Insurance',
+    href: '/services/health-insurance',
+    what: 'Pays medical bills, from checkups to hospital weeks. The foundation every other line builds on.',
+    compare: 'Total worst-case cost (premium x 12 plus the out-of-pocket maximum), network fit against your actual doctors, and prescription tiers against your actual medication list.',
+    buyIf: 'You are breathing. Health coverage is first-priority for every Nevada household, and subsidies reach further up the income scale than most people assume.',
+    skipIf: 'Nobody skips this line. The only real decision is which plan and whether subsidy dollars apply, which is a free 20-minute check.',
+    redFlag: 'Anyone quoting a plan without asking for your doctor list and medication list is selling a sticker, not coverage.',
+    links: [
+      { label: 'Full health insurance guide', href: '/services/health-insurance' },
+      { label: 'Choosing a plan in Nevada', href: '/blog-post/how-to-choose-a-health-insurance-plan-nevada' },
+      { label: 'Who qualifies for subsidies?', href: '/qa/who-qualifies-for-health-insurance-subsidies-in-nevada' },
+    ],
+  },
+  {
+    art: 'life',
+    name: 'Life Insurance',
+    href: '/services/life-insurance',
+    what: 'Replaces an income if the person earning it dies. Term covers a window of years cheaply. Whole covers forever at a much higher price.',
+    compare: 'Coverage amount against the DIME math (debts, income, mortgage, education), term length against your obligations, and conversion rights in case health changes.',
+    buyIf: 'Anyone depends on your income: spouse, kids, a mortgage co-signer, a business partner. Buy while healthy, because pricing locks at application.',
+    skipIf: 'No dependents, no debts anyone inherits, and enough assets to bury you. Then term life is optional and whole life is usually a bad savings account.',
+    redFlag: 'A whole life pitch to a young family that has not first been shown the term price for the same coverage amount.',
+    links: [
+      { label: 'Full life insurance guide', href: '/services/life-insurance' },
+      { label: 'How much do you need?', href: '/blog-post/how-much-life-insurance-do-i-need' },
+      { label: 'Term vs whole life', href: '/blog-post/term-vs-whole-life-insurance' },
+    ],
+  },
+  {
+    art: 'gap',
+    name: 'GAP Health Insurance',
+    href: '/services/gap-health-insurance',
+    what: 'Pays cash toward the deductible and out-of-pocket costs your health plan leaves behind when a hospital event happens.',
+    compare: 'Benefit amount against your actual deductible, covered events, waiting periods, and price against the premium you saved by picking a high-deductible plan.',
+    buyIf: 'You chose a high-deductible plan for the premium savings and could not write a check for the full deductible tomorrow.',
+    skipIf: 'Your savings already cover the out-of-pocket maximum, or your deductible is low. A cushion you own beats a policy you rent.',
+    redFlag: 'A GAP benefit that does not match your deductible, or a seller who cannot say plainly what events trigger payment.',
+    links: [
+      { label: 'Full GAP insurance guide', href: '/services/gap-health-insurance' },
+      { label: 'What is GAP insurance?', href: '/blog-post/what-is-gap-health-insurance' },
+      { label: 'Is GAP worth it?', href: '/qa/is-gap-health-insurance-worth-it' },
+    ],
+  },
+  {
+    art: 'medicare',
+    name: 'Medicare Solutions',
+    href: '/services/medicare',
+    what: 'Federal health coverage from 65: Part A hospital, Part B medical, Part D drugs, and the fork between Original Medicare with Medigap or Medicare Advantage.',
+    compare: 'The whole year of expected costs under each structure, network rules against your doctors, and formularies against your prescriptions. Never the premium alone, especially the $0 kind.',
+    buyIf: 'You are inside the seven-month window around your 65th birthday, or approaching it. The sequencing decisions made in that window echo for decades.',
+    skipIf: 'Still covered by a qualifying employer plan and delaying on purpose, with the rules confirmed. That is the one legitimate delay.',
+    redFlag: 'Any pitch that leads with $0 premium and never mentions networks, prior authorization, or the one-time Medigap window.',
+    links: [
+      { label: 'Full Medicare guide', href: '/services/medicare' },
+      { label: 'Turning 65 checklist', href: '/blog-post/turning-65-in-nevada-medicare-checklist' },
+      { label: 'Advantage vs Medigap', href: '/blog-post/medicare-advantage-vs-medigap-nevada' },
+    ],
+  },
+  {
+    art: 'dental',
+    name: 'Dental Insurance',
+    href: '/services/dental-insurance',
+    what: 'Covers preventive care near 100 percent, fillings around 80, major work around 50, all capped by an annual maximum. Prevention is the product.',
+    compare: 'The annual maximum, waiting periods against any work you already know is coming, and whether your dentist is in-network.',
+    buyIf: 'No employer dental and you actually use preventive visits. The premium roughly prepays the cleanings and the tiers protect the crown year.',
+    skipIf: 'Major work is needed right now and waiting periods block it. Compare discount plans and cash negotiation first.',
+    redFlag: 'Buying any plan without reading the waiting period table, or assuming orthodontics is covered because the brochure showed braces.',
+    links: [
+      { label: 'Full dental guide', href: '/services/dental-insurance' },
+      { label: 'Is dental insurance worth it?', href: '/blog-post/is-dental-insurance-worth-it' },
+      { label: 'Insurance vs discount plans', href: '/blog-post/dental-insurance-vs-discount-plans' },
+    ],
+  },
+  {
+    art: 'vision',
+    name: 'Vision Insurance',
+    href: '/services/vision-insurance',
+    what: 'Prepays the annual exam and discounts lenses, frames, and contacts on a set refresh schedule. Closer to a maintenance plan than insurance.',
+    compare: 'Twelve months of premium against the cash price of your exam plus a year of eyewear. The plan wins for most prescription wearers and loses for most people with perfect vision.',
+    buyIf: 'Glasses or contacts live in your house, or screen-heavy work has your eyes on a slow prescription creep.',
+    skipIf: 'Perfect vision, no family eye history, and discipline to still get periodic exams cash. Then the math often says pay as you go.',
+    redFlag: 'Letting benefit cycles expire unused. A vision plan you do not use every cycle is a donation.',
+    links: [
+      { label: 'Full vision guide', href: '/services/vision-insurance' },
+      { label: 'Is vision insurance worth it?', href: '/qa/is-vision-insurance-worth-it' },
+      { label: 'Health insurance basics', href: '/services/health-insurance' },
+    ],
+  },
+];
+
+const startTable = {
+  head: ['Your situation', 'Start the conversation here'],
+  rows: [
+    ['Self-employed, Realtor, or 1099 in Nevada', '<a href="/self-employed">The self-employed strategy page</a>, because business structure changes the whole map'],
+    ['Business owner with employees', '<a href="/employers">The employers page</a>, where benefits, payroll, and HR get one conversation'],
+    ['Turning 65 within a year', '<a href="/services/medicare">The Medicare guide</a> and the <a href="/blog-post/turning-65-in-nevada-medicare-checklist">checklist</a>, before the window opens'],
+    ['Family on a high-deductible plan', '<a href="/services/gap-health-insurance">The GAP guide</a>, then the health plan review alongside it'],
+    ['New mortgage or new baby', '<a href="/services/life-insurance">The life insurance guide</a>, sized with the DIME math'],
+    ['No employer benefits at all', '<a href="/services/health-insurance">Health first</a>, then dental and vision in the same conversation'],
+  ],
+};
+---
+<Base title="Insurance Buyer's Guide For Nevada | ProtectHealth" description={description} schemas={schemas}>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">The Buyer's Guide</div>
+      <h1>How to buy insurance without getting sold</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container article">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> › <span>Buyer's Guide</span>
+      </nav>
+
+      {GUIDE_ART.hero.src ? (
+        <div class="hero-img"><img src={GUIDE_ART.hero.src} alt={GUIDE_ART.hero.alt} loading="eager" /></div>
+      ) : (
+        <div class="bg-placeholder wide" aria-hidden="true"><span>Guide artwork loading</span></div>
+      )}
+
+      <div id="ai-summary">
+        The ProtectHealth Buyer's Guide teaches Nevadans how to buy insurance the way brokers wish everyone would: compare total worst-case cost instead of premiums, verify networks before enrolling, match each product to a named risk, respect enrollment windows, and interview the agent before the policy. The guide covers health, life, GAP, Medicare, dental, and vision coverage.
+      </div>
+
+      <p>
+        Every insurance product on this page is bought by two kinds of people: the ones who were taught how it works, and the ones who were sold it. The difference usually costs four figures. This guide exists to put every reader permanently in the first group, whether the eventual purchase happens through ProtectHealth, another broker, or nobody at all. Five lessons first, then a buyer's card for each product, then where to start based on your situation.
+      </p>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">The Visual Lesson</div>
+        <h2 style="margin-top:0;">Five things to know before buying any policy</h2>
+      </div>
+      {lessons.map((l) => (
+        <div class="bg-lesson spot">
+          {GUIDE_ART[l.art].src ? (
+            <div class="bg-lesson-art"><img src={GUIDE_ART[l.art].src} alt={GUIDE_ART[l.art].alt} loading="lazy" /></div>
+          ) : (
+            <div class="bg-lesson-art bg-placeholder" aria-hidden="true"><span>{l.kicker}</span></div>
+          )}
+          <div class="bg-lesson-body">
+            <div class="section-label">{l.kicker}</div>
+            <h2>{l.h2}</h2>
+            {l.paras.map((p) => <p set:html={p} />)}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Product By Product</div>
+        <h2 style="margin-top:0;">The buyer's card for every coverage line</h2>
+        <p style="color:var(--muted);max-width:640px;margin:8px auto 0;">What each product does, what to compare, when to buy, when to skip, and the red flag that should end any sales conversation.</p>
+      </div>
+      <div class="bg-products">
+        {products.map((pr) => (
+          <article class="bg-product spot">
+            {GUIDE_ART[pr.art].src ? (
+              <div class="bg-product-art"><img src={GUIDE_ART[pr.art].src} alt={GUIDE_ART[pr.art].alt} loading="lazy" /></div>
+            ) : (
+              <div class="bg-product-art bg-placeholder" aria-hidden="true"><span>{pr.name}</span></div>
+            )}
+            <div class="bg-product-body">
+              <h3><a href={pr.href}>{pr.name}</a></h3>
+              <p class="bg-what">{pr.what}</p>
+              <p><strong>Compare on:</strong> {pr.compare}</p>
+              <p><strong>Buy it if:</strong> {pr.buyIf}</p>
+              <p><strong>Think twice if:</strong> {pr.skipIf}</p>
+              <p class="bg-flag"><strong>Red flag:</strong> {pr.redFlag}</p>
+              <div class="bg-links">
+                {pr.links.map((lk) => <a class="qa-pill" href={lk.href}>{lk.label}</a>)}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container article">
+      <div class="section-label">Where To Start</div>
+      <h2 style="margin-top:0;">Which conversation fits your situation?</h2>
+      <p>Nobody needs all six products at once, and the order matters more than the count. Find your row, start there, and let the rest follow in their turn.</p>
+      <div class="svc-tablewrap">
+        <table class="svc-table">
+          <thead><tr>{startTable.head.map((h) => <th>{h}</th>)}</tr></thead>
+          <tbody>{startTable.rows.map((r) => <tr>{r.map((c) => <td set:html={c} />)}</tr>)}</tbody>
+        </table>
+      </div>
+      <p>
+        And a standing note that applies to every row: when business structure or taxes enter the picture, ProtectHealth brokers are insurance nerds, not tax professionals, and a quick conversation with a licensed tax professional is the recommended companion step. The wider education library lives on the <a href="/blog">blog</a>, the <a href="/faq">FAQ</a>, and the quick-answer pages linked throughout this guide.
+      </p>
+
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+
+      <div class="cta-band">
+        <h2>Class dismissed. Questions welcome.</h2>
+        <p>Bring anything from this guide to a free 20-minute conversation. No pitch, no pressure, and if what you already have is right, that is exactly what you'll hear.</p>
+        <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .bg-placeholder { display: flex; align-items: center; justify-content: center; background: linear-gradient(120deg, var(--navy), var(--navy-2)); border-radius: var(--radius-lg); }
+  .bg-placeholder span { color: rgba(255, 255, 255, 0.55); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; }
+  .bg-placeholder.wide { aspect-ratio: 16 / 9; margin: 18px 0 26px; }
+
+  .bg-lesson { display: grid; grid-template-columns: minmax(280px, 2fr) 3fr; gap: 30px; align-items: center; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 26px; margin: 22px 0; }
+  .bg-lesson:nth-child(even) { grid-template-columns: 3fr minmax(280px, 2fr); }
+  .bg-lesson:nth-child(even) .bg-lesson-art { order: 2; }
+  .bg-lesson-art { aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; }
+  .bg-lesson-art img { width: 100%; height: 100%; object-fit: cover; }
+  .bg-lesson-body h2 { margin: 4px 0 10px; font-size: clamp(1.25rem, 2.2vw, 1.6rem); }
+  .bg-lesson-body p { color: var(--ink); font-size: 0.98rem; }
+
+  .bg-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+  .bg-product { background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+  .bg-product:hover { transform: translateY(-4px); border-color: rgba(25, 123, 255, 0.4); box-shadow: 0 18px 48px rgba(15, 53, 103, 0.16); }
+  .bg-product-art { aspect-ratio: 1 / 1; max-height: 260px; width: 100%; overflow: hidden; }
+  .bg-product-art.bg-placeholder { aspect-ratio: auto; height: 200px; border-radius: 0; }
+  .bg-product-art img { width: 100%; height: 100%; object-fit: cover; }
+  .bg-product-body { padding: 20px 22px 24px; }
+  .bg-product-body h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .bg-product-body h3 a { color: var(--navy); text-decoration: none; }
+  .bg-product-body h3 a:hover { color: var(--blue); }
+  .bg-product-body p { font-size: 0.92rem; color: var(--ink); margin: 7px 0; line-height: 1.6; }
+  .bg-what { color: var(--muted) !important; }
+  .bg-flag { background: rgba(245, 185, 66, 0.12); border-left: 3px solid var(--gold); padding: 8px 12px; border-radius: 0 8px 8px 0; }
+  .bg-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+  .svc-tablewrap { margin: 22px 0; overflow-x: auto; }
+  .svc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .svc-table th { background: var(--navy); color: #fff; text-align: left; padding: 10px 14px; font-weight: 700; }
+  .svc-table td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  .svc-table tr:nth-child(even) td { background: var(--bg-soft); }
+
+  @media (max-width: 820px) {
+    .bg-lesson, .bg-lesson:nth-child(even) { grid-template-columns: 1fr; }
+    .bg-lesson:nth-child(even) .bg-lesson-art { order: 0; }
+  }
+</style>
