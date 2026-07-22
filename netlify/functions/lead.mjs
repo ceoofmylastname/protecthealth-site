@@ -22,12 +22,13 @@ const CAMPAIGNS = {
     tags: ['campaign:paychex', 'more-than-your-group-plan', 'source:website'],
     oppPrefix: 'Employer Strategy Call',
   },
+  // Contact page — every "Talk To A Broker" button on the site lands here
   general: {
-    tags: ['website-lead', 'source:website'],
-    oppPrefix: 'Website Lead',
+    tags: ['talk-to-a-broker', 'source:website'],
+    oppPrefix: 'Talk To A Broker',
   },
   quote: {
-    tags: ['website-lead', 'quote-request', 'source:website'],
+    tags: ['quote-request', 'source:website'],
     oppPrefix: 'Quote Request',
   },
 };
