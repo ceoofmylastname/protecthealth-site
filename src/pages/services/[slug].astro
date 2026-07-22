@@ -3,11 +3,13 @@ import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
 import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../../lib/site';
 import { SERVICES } from '../../lib/services';
+import { RICH } from '../../lib/services-content';
 
 export function getStaticPaths() {
   return SERVICES.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
 }
 const { service } = Astro.props;
+const rich = RICH[service.slug];
 const pageUrl = `${SITE.domain}/services/${service.slug}`;
 
 const schemas = [
@@ -27,6 +29,8 @@ const schemas = [
     { name: service.name, url: pageUrl },
   ]),
 ];
+
+const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 0;
 ---
 <Base title={`${service.name} In Nevada | ProtectHealth`} description={service.description} schemas={schemas}>
   <section class="hero">
@@ -42,19 +46,105 @@ const schemas = [
       </nav>
       <div class="hero-img"><img src={service.image} alt={`${service.name} coverage in Nevada with ProtectHealth`} loading="eager" /></div>
       <div id="ai-summary">{service.intro}</div>
-      {service.body.map((b) => (
+
+      {rich ? (
         <>
-          <h2>{b.h2}</h2>
-          <p>{b.text}</p>
+          {rich.sections.map((sec, i) => (
+            <>
+              <h2>{sec.h2}</h2>
+              {sec.paras.map((p) => <p set:html={p} />)}
+              {rich.chart && i === rich.chartAfter && (
+                <figure class="svc-chart spot">
+                  <figcaption>
+                    <strong>{rich.chart.title}</strong>
+                    {rich.chart.note && <span class="chart-note">{rich.chart.note}</span>}
+                  </figcaption>
+                  <div class="bars">
+                    {rich.chart.bars.map((b) => (
+                      <div class="bar-row">
+                        <span class="bar-label">{b.label}</span>
+                        <span class="bar-track"><span class="bar-fill" style={`width:${Math.round((b.value / maxBar) * 100)}%`}></span></span>
+                        <span class="bar-value">{b.display}</span>
+                      </div>
+                    ))}
+                  </div>
+                </figure>
+              )}
+              {rich.table && i === rich.tableAfter && (
+                <div class="svc-tablewrap">
+                  <p class="table-title"><strong>{rich.table.title}</strong></p>
+                  <table class="svc-table">
+                    <thead><tr>{rich.table.head.map((h) => <th>{h}</th>)}</tr></thead>
+                    <tbody>{rich.table.rows.map((r) => <tr>{r.map((c) => <td set:html={c} />)}</tr>)}</tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          ))}
+
+          <div class="svc-resources spot">
+            <h3>Independent resources worth bookmarking</h3>
+            <p>None of these organizations sell insurance. They exist to inform, regulate, or assist, which makes them a good gut-check on anything any broker tells you, including ProtectHealth.</p>
+            <ul>
+              {rich.resources.map((r) => (
+                <li><a href={r.href} target="_blank" rel="noopener">{r.label}</a>: {r.why}</li>
+              ))}
+            </ul>
+          </div>
         </>
-      ))}
+      ) : (
+        service.body.map((b) => (
+          <>
+            <h2>{b.h2}</h2>
+            <p>{b.text}</p>
+          </>
+        ))
+      )}
+
       <FAQSection faq={service.faq} pageUrl={pageUrl} />
+
       <div class="cta-band">
         <h2>Talk through your situation</h2>
         <p>A 20-minute conversation with a ProtectHealth broker maps which options fit and which don't. Free, no pressure, no obligation.</p>
         <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
       </div>
+
+      {rich && (
+        <div class="svc-reading">
+          <h2>Keep reading</h2>
+          <p class="reading-sub">Guides and quick answers from the ProtectHealth library that pair with this page.</p>
+          <div class="lp-qa-grid">
+            {rich.reading.map((r) => (
+              <a class="qa-pill" href={r.href}>{r.label}</a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure becomes part of the discussion, a brief conversation with a licensed tax professional is a make-sense next step.</p>
     </div>
   </section>
 </Base>
+
+<style>
+  .svc-chart { margin: 26px 0; padding: 22px 24px 18px; background: var(--bg-soft); border: 1.5px solid var(--line); border-radius: var(--radius-lg); }
+  .svc-chart figcaption { margin-bottom: 14px; color: var(--navy); }
+  .chart-note { display: block; font-size: 0.85rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .bar-row { display: grid; grid-template-columns: minmax(110px, 1fr) 3fr auto; gap: 12px; align-items: center; margin: 9px 0; }
+  .bar-label { font-size: 0.88rem; font-weight: 700; color: var(--ink); }
+  .bar-track { display: block; height: 14px; background: rgba(15, 53, 103, 0.08); border-radius: 999px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), #19c8ff); }
+  .bar-value { font-size: 0.85rem; font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .svc-tablewrap { margin: 26px 0; overflow-x: auto; }
+  .table-title { margin-bottom: 8px; color: var(--navy); }
+  .svc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .svc-table th { background: var(--navy); color: #fff; text-align: left; padding: 10px 14px; font-weight: 700; }
+  .svc-table td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  .svc-table tr:nth-child(even) td { background: var(--bg-soft); }
+  .svc-resources { margin: 30px 0; padding: 22px 26px; border: 1.5px solid rgba(25, 123, 255, 0.25); border-radius: var(--radius-lg); background: rgba(25, 123, 255, 0.04); }
+  .svc-resources h3 { margin-top: 0; }
+  .svc-resources ul { margin: 10px 0 0 18px; }
+  .svc-resources li { margin: 7px 0; font-size: 0.95rem; }
+  .svc-reading { margin-top: 34px; }
+  .reading-sub { color: var(--muted); margin-top: -4px; }
+</style>

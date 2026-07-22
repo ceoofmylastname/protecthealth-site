@@ -1,4 +1,4 @@
-// Service page data — one entry per coverage line. Old Webflow URLs were
+// Service page data, one entry per coverage line. Old Webflow URLs were
 // /projects/[slug]; Cloudflare redirects map them to /services/[slug] (see public/_redirects).
 export interface Service {
   slug: string;
@@ -20,7 +20,7 @@ export const SERVICES: Service[] = [
     description:
       'ProtectHealth helps Nevadans compare individual and family health insurance plans based on income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure.',
     intro:
-      'Health insurance is the coverage people get wrong most often, because most plans are sold on premium and deductible alone. ProtectHealth starts with the person: age, household income, tax-credit eligibility, provider networks, prescriptions, expected usage, and total financial exposure. Then the plan gets chosen — not the other way around.',
+      'Health insurance is the coverage people get wrong most often, because most plans are sold on premium and deductible alone. ProtectHealth starts with the person: age, household income, tax-credit eligibility, provider networks, prescriptions, expected usage, and total financial exposure. Then the plan gets chosen, not the other way around.',
     body: [
       {
         h2: 'What does a health insurance strategy include?',
@@ -28,7 +28,7 @@ export const SERVICES: Service[] = [
       },
       {
         h2: 'Who does ProtectHealth help with health insurance?',
-        text: 'ProtectHealth helps individuals, families, Realtors, 1099 contractors, self-employed professionals, and small businesses across Nevada. Self-employed clients may also have access to tax-advantaged health-benefit structures worth exploring — see the ProtectHealth self-employed strategy page.',
+        text: 'ProtectHealth helps individuals, families, Realtors, 1099 contractors, self-employed professionals, and small businesses across Nevada. Self-employed clients may also have access to tax-advantaged health-benefit structures worth exploring, see the ProtectHealth self-employed strategy page.',
       },
     ],
     faq: [
@@ -43,7 +43,7 @@ export const SERVICES: Service[] = [
     name: 'Life Insurance',
     headline: 'Life insurance that matches your financial goals',
     description:
-      'ProtectHealth offers tailored life insurance guidance in Nevada — term, whole, and final expense — aligned with income protection and family financial goals.',
+      'ProtectHealth offers tailored life insurance guidance in Nevada, term, whole, and final expense, aligned with income protection and family financial goals.',
     intro:
       'Life insurance is not one product. Term, whole life, and final expense coverage serve different goals, and the right answer depends on income, debts, dependents, and time horizon. ProtectHealth builds the strategy first, then matches the coverage.',
     body: [
@@ -54,7 +54,7 @@ export const SERVICES: Service[] = [
     ],
     faq: [
       { q: 'What is the difference between term and whole life insurance?', a: 'Term life insurance covers a fixed period, typically 10 to 30 years, at lower premiums. Whole life insurance covers the insured for life and builds cash value at higher premiums. The right fit depends on budget and goals.' },
-      { q: 'Can self-employed people deduct life insurance premiums?', a: 'Generally personal life insurance premiums are not tax-deductible. Business-owned policies have different rules. ProtectHealth brokers are insurance professionals, not tax professionals — a licensed tax professional should confirm any deduction question.' },
+      { q: 'Can self-employed people deduct life insurance premiums?', a: 'Generally personal life insurance premiums are not tax-deductible. Business-owned policies have different rules. ProtectHealth brokers are insurance professionals, not tax professionals, a licensed tax professional should confirm any deduction question.' },
       { q: 'Does ProtectHealth offer life insurance quotes without a consultation?', a: 'ProtectHealth prefers a short conversation first because age, health, and coverage goals change pricing significantly. A quote without context is a guess.' },
     ],
   },
@@ -70,7 +70,7 @@ export const SERVICES: Service[] = [
     body: [
       {
         h2: 'When does GAP health insurance make sense?',
-        text: 'GAP coverage makes the most sense for households on high-deductible plans that could not comfortably absorb the full deductible in a bad year. The math depends on premium cost versus realistic exposure — a calculation ProtectHealth runs in every GAP consultation.',
+        text: 'GAP coverage makes the most sense for households on high-deductible plans that could not comfortably absorb the full deductible in a bad year. The math depends on premium cost versus realistic exposure, a calculation ProtectHealth runs in every GAP consultation.',
       },
     ],
     faq: [
@@ -85,7 +85,7 @@ export const SERVICES: Service[] = [
     name: 'Medicare Solutions',
     headline: 'Medicare without the maze',
     description:
-      'ProtectHealth simplifies Medicare in Nevada — Part A, Part B, Medicare Advantage, Part D prescription plans, and Medigap supplements — with tailored enrollment guidance.',
+      'ProtectHealth simplifies Medicare in Nevada, Part A, Part B, Medicare Advantage, Part D prescription plans, and Medigap supplements, with tailored enrollment guidance.',
     intro:
       'Medicare has more moving parts than any other coverage type: Part A, Part B, Medicare Advantage (Part C), prescription drug plans (Part D), and Supplement plans (Medigap). ProtectHealth brokers simplify the enrollment process and match coverage to actual doctors, prescriptions, and budgets.',
     body: [
@@ -95,7 +95,7 @@ export const SERVICES: Service[] = [
       },
     ],
     faq: [
-      { q: 'When can a person enroll in Medicare?', a: 'The Initial Enrollment Period spans seven months around a person\'s 65th birthday — three months before the birthday month, the birthday month, and three months after. Annual and special enrollment periods provide additional windows.' },
+      { q: 'When can a person enroll in Medicare?', a: 'The Initial Enrollment Period spans seven months around a person\'s 65th birthday, three months before the birthday month, the birthday month, and three months after. Annual and special enrollment periods provide additional windows.' },
       { q: 'Does Medicare Advantage cost more than Original Medicare?', a: 'Many Medicare Advantage plans carry low or zero additional premiums beyond Part B, but total cost depends on usage, networks, and out-of-pocket maximums. Premium alone does not determine the better deal.' },
       { q: 'Can ProtectHealth compare Medicare plans from multiple carriers?', a: 'Yes. ProtectHealth is a brokerage, which means brokers compare plans across carriers rather than selling a single company\'s products.' },
     ],
@@ -106,9 +106,9 @@ export const SERVICES: Service[] = [
     name: 'Dental Insurance',
     headline: 'Dental coverage that keeps you smiling',
     description:
-      'ProtectHealth finds dental insurance plans in Nevada matched to individual and family needs — preventive care, major work, and orthodontics.',
+      'ProtectHealth finds dental insurance plans in Nevada matched to individual and family needs, preventive care, major work, and orthodontics.',
     intro:
-      'Dental plans differ widely in waiting periods, annual maximums, and coverage for major work. ProtectHealth matches dental coverage to the care a household actually anticipates — from cleanings to crowns to orthodontics.',
+      'Dental plans differ widely in waiting periods, annual maximums, and coverage for major work. ProtectHealth matches dental coverage to the care a household actually anticipates, from cleanings to crowns to orthodontics.',
     body: [
       {
         h2: 'What should a person check before buying dental insurance?',
