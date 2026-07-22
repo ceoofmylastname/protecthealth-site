@@ -310,3 +310,40 @@ p { margin: 0.7rem 0; }
 .qa-pill i { font-style: normal; color: var(--blue); font-weight: 800; transition: transform 0.25s ease; }
 .qa-pill:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,53,103,0.15); }
 .qa-pill:hover i { transform: translateX(4px); }
+
+/* ============ v8 — custom-feel layer ============ */
+/* Ambient background spotlights (whole site, light sections) */
+html { background: var(--bg); }
+body { background: transparent; }
+body::before, body::after { content: ""; position: fixed; z-index: -1; pointer-events: none; border-radius: 50%; filter: blur(110px); }
+body::before { width: 52vw; height: 52vw; top: -18vw; right: -16vw; background: radial-gradient(circle, rgba(25,123,255,0.10), transparent 65%); animation: ambA 22s ease-in-out infinite alternate; }
+body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background: radial-gradient(circle, rgba(245,185,66,0.09), transparent 65%); animation: ambB 26s ease-in-out infinite alternate; }
+@keyframes ambA { to { transform: translate(-6vw, 5vh) scale(1.15); } }
+@keyframes ambB { to { transform: translate(5vw, -6vh) scale(1.12); } }
+
+/* Animated gradient headline utility */
+.h-grad { background: linear-gradient(95deg, var(--navy) 15%, var(--blue) 38%, #19c8ff 52%, var(--accent) 66%, var(--navy) 85%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: hgFlow 7s ease-in-out infinite; }
+@keyframes hgFlow { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+
+/* Inner-page hero headline shimmer (all navy heroes) */
+.hero h1 { background: linear-gradient(100deg, #fff 25%, #8ee4ff 45%, #fff 65%); background-size: 240% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: heroSheen 7s ease-in-out 1s infinite; }
+@keyframes heroSheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+
+/* Scroll reveal (global) */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* 3D tilt cards */
+.tilt { transform-style: preserve-3d; will-change: transform; transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s ease, border-color 0.25s ease; }
+.tilt:hover { transition-duration: 0.06s; }
+.tilt > * { transform: translateZ(0); }
+
+/* Glass utility for light sections */
+.glassy { background: rgba(255, 255, 255, 0.66) !important; backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); border-color: rgba(255, 255, 255, 0.85) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
+  .h-grad, .hero h1 { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .tilt { transition: none; }
+}

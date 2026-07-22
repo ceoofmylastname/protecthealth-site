@@ -54,7 +54,7 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
               <h2>{sec.h2}</h2>
               {sec.paras.map((p) => <p set:html={p} />)}
               {rich.chart && i === rich.chartAfter && (
-                <figure class="svc-chart spot">
+                <figure class="svc-chart spot reveal">
                   <figcaption>
                     <strong>{rich.chart.title}</strong>
                     {rich.chart.note && <span class="chart-note">{rich.chart.note}</span>}
@@ -82,7 +82,7 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
             </>
           ))}
 
-          <div class="svc-resources spot">
+          <div class="svc-resources spot reveal">
             <h3>Independent resources worth bookmarking</h3>
             <p>None of these organizations sell insurance. They exist to inform, regulate, or assist, which makes them a good gut-check on anything any broker tells you, including ProtectHealth.</p>
             <ul>

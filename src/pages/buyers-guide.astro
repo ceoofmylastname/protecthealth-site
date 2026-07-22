@@ -239,7 +239,7 @@ const startTable = {
         <h2 style="margin-top:0;">Five things to know before buying any policy</h2>
       </div>
       {lessons.map((l) => (
-        <div class="bg-lesson spot">
+        <div class="bg-lesson spot reveal">
           {GUIDE_ART[l.art].src ? (
             <div class="bg-lesson-art"><img src={GUIDE_ART[l.art].src} alt={GUIDE_ART[l.art].alt} loading="lazy" /></div>
           ) : (
@@ -264,7 +264,7 @@ const startTable = {
       </div>
       <div class="bg-products">
         {products.map((pr) => (
-          <article class="bg-product spot">
+          <article class="bg-product spot tilt reveal">
             {GUIDE_ART[pr.art].src ? (
               <div class="bg-product-art"><img src={GUIDE_ART[pr.art].src} alt={GUIDE_ART[pr.art].alt} loading="lazy" /></div>
             ) : (

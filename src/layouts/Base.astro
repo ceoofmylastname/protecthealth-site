@@ -96,6 +96,31 @@ const orgSchema = organizationSchema();
         t.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
         t.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
       }, { passive: true });
+      // v8: global scroll reveal + 3D tilt (site-wide)
+      (() => {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const els = document.querySelectorAll('.reveal');
+        if (reduce) { els.forEach((el) => el.classList.add('in')); }
+        else {
+          const io = new IntersectionObserver((ens) => {
+            ens.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+          }, { threshold: 0.15 });
+          els.forEach((el) => io.observe(el));
+        }
+        if (reduce || matchMedia('(hover: none)').matches) return;
+        document.addEventListener('pointermove', (e) => {
+          const t = e.target.closest && e.target.closest('.tilt');
+          if (!t) return;
+          const r = t.getBoundingClientRect();
+          const rx = ((e.clientY - r.top) / r.height - 0.5) * -7;
+          const ry = ((e.clientX - r.left) / r.width - 0.5) * 7;
+          t.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-3px)`;
+        }, { passive: true });
+        document.addEventListener('pointerout', (e) => {
+          const t = e.target.closest && e.target.closest('.tilt');
+          if (t && !t.contains(e.relatedTarget)) t.style.transform = '';
+        }, { passive: true });
+      })();
     </script>
 
     <footer class="site-footer">
