@@ -23,13 +23,13 @@ const schemas = [
   </section>
   <section class="section">
     <div class="container">
-      <div class="grid cols-3">
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
         {TEAM.map((m) => (
-          <div class="card">
+          <a class="team-card" href={`/team-members/${m.slug}`}>
+            <div class="photo"><img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" /></div>
             <h3>{m.name}</h3>
-            <p>{m.role} · ProtectHealth</p>
-            <a class="more" href={`/team-members/${m.slug}`}>View Profile →</a>
-          </div>
+            <div class="role">{m.role} · ProtectHealth</div>
+          </a>
         ))}
       </div>
     </div>

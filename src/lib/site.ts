@@ -3,9 +3,10 @@ export const SITE = {
   name: 'ProtectHealth',
   domain: 'https://www.protecthealth.com',
   tagline: 'The product should serve the strategy — not become the strategy.',
+  phone: '800-240-8185',
+  phoneHref: 'tel:+18002408185',
   description:
     'ProtectHealth is a Las Vegas, Nevada insurance brokerage helping individuals, self-employed professionals, and small businesses build coverage strategies across health, life, dental, vision, Medicare, and employer benefits.',
-  phone: '',
   email: '',
   address: {
     locality: 'Las Vegas',
@@ -50,11 +51,31 @@ export function organizationSchema() {
   };
 }
 
+// Images currently hotlinked from the live Webflow CDN.
+// TODO (Claude Code): download to /public/assets as WebP and swap paths (see CLAUDE.md roadmap).
+const CDN = 'https://cdn.prod.website-files.com';
+export const ASSETS = {
+  logo: `${CDN}/66c61e488a0b1c025cc02cdc/66c9286791d542e6438faae0_New%20LO.webp`,
+  heroFamily: `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e24_About%20Us-Home%20(1).webp`,
+  contactPortrait: `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02dbc_contact%20us%20img%20(1).webp`,
+  avatars: [
+    `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e23_Avatar.jpg`,
+    `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e25_Avatar%202.jpg`,
+    `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e27_Avatar%203.jpg`,
+    `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e26_Avatar%204.jpg`,
+  ],
+  blog: {
+    'nevada-open-enrollment-health-insurance': `${CDN}/66c61e498a0b1c025cc02da3/67111487cb7b1c725902576a_Nevada%20(4).png`,
+    'small-business-health-insurance': `${CDN}/66c61e498a0b1c025cc02da3/671111326a6f578ca4a980da_Nevada%20(2).png`,
+    'silver-state-health-insurance-exchange': `${CDN}/66c61e498a0b1c025cc02da3/67110e4b1fd87729670db5c6_Nevada%20(1).png`,
+  } as Record<string, string>,
+};
+
 export const TEAM = [
-  { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker' },
-  { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker' },
-  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker' },
-  { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker' },
+  { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ccf1320acdd4645e4ad420_IMG20240826105217_01_2_1_-removebg-preview.png` },
+  { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66ce141a6e73f1177f30b916_Brian3.png` },
+  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66cced54887cb94e34ddd242_2024-05-08-14-55-45-468_2-removebg-preview.png` },
+  { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker', photo: `${CDN}/66c61e498a0b1c025cc02da3/66d126e6d9c01db944de9143_Jason.png` },
 ];
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {

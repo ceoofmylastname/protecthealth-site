@@ -26,11 +26,14 @@ const schemas = [
     <div class="container">
       <div class="grid cols-3">
         {SERVICES.map((s) => (
-          <div class="card">
-            <h3>{s.name}</h3>
-            <p>{s.description}</p>
-            <a class="more" href={`/services/${s.slug}`}>Learn More →</a>
-          </div>
+          <a class="img-card" href={`/services/${s.slug}`} style="text-decoration:none;">
+            <div class="thumb"><img src={s.image} alt={`${s.name} in Nevada`} loading="lazy" /></div>
+            <div class="body-pad">
+              <h3>{s.name}</h3>
+              <p>{s.description}</p>
+              <span class="more">Learn More →</span>
+            </div>
+          </a>
         ))}
       </div>
       <div class="grid cols-2" style="margin-top:22px;">

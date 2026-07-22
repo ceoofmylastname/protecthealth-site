@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, ORG_ID, ASSETS, breadcrumbSchema, speakableSchema } from '../../lib/site';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -72,6 +72,8 @@ const schemas = [
       <span class="badge">{d.category}</span>
       <h1>{d.title}</h1>
       <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
+
+      {ASSETS.blog[post.id] && <div class="hero-img"><img src={ASSETS.blog[post.id]} alt={d.heroAlt ?? d.title} loading="eager" /></div>}
 
       <div id="ai-summary">{d.speakableText}</div>
 

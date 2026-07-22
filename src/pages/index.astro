@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import ReviewBadge from '../components/ReviewBadge.astro';
-import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, ASSETS, TEAM, breadcrumbSchema, speakableSchema } from '../lib/site';
 import { SERVICES } from '../lib/services';
 import { getCollection } from 'astro:content';
 
@@ -19,13 +19,21 @@ const schemas = [
   description="ProtectHealth is a Las Vegas insurance brokerage that builds coverage around your life and business — health, life, dental, vision, Medicare, and employer benefits. Strategy first, product second."
   schemas={schemas}
 >
-  <section class="hero">
+  <section class="hero photo" style={`--hero-img:url('${ASSETS.heroFamily}')`}>
     <div class="container">
       <div class="kicker">Protection. Trustworthy. Personalized.</div>
       <h1>Insurance strategy for everyone. Not just insurance products.</h1>
-      <p class="lead">Most of the insurance industry starts with a product. ProtectHealth starts with you: how your household or business is structured, what you actually need, and what you can access. The product should serve the strategy — not become the strategy.</p>
-      <a href="/contact-us" class="btn big">Talk To A Broker</a>
-      &nbsp; <a href="/free-quote" class="btn ghost big" style="border-color:#9fc4ff;color:#fff;">Get Started</a>
+      <p class="lead">Most of the industry starts with a product. ProtectHealth starts with you: how your household or business is structured, what you actually need, and what you can access. The product should serve the strategy — not become the strategy.</p>
+      <div class="hero-ctas">
+        <a href="/contact-us" class="btn big">Talk To A Broker</a>
+        <a href="/free-quote" class="btn big ghost" style="border-color:#8ec9ff;color:#fff;">Get Started</a>
+      </div>
+      <div class="avatars-strip">
+        <div class="avatars">
+          {ASSETS.avatars.map((a) => <img src={a} alt="ProtectHealth client" width="46" height="46" loading="lazy" />)}
+        </div>
+        <div class="txt"><b><span class="stars">★★★★★</span> 4.9 rating</b>Trusted by Nevadans across Clark County</div>
+      </div>
     </div>
   </section>
 
@@ -37,21 +45,36 @@ const schemas = [
         ProtectHealth is a Las Vegas, Nevada insurance brokerage serving individuals, families, self-employed professionals, and small businesses. ProtectHealth brokers compare plans across carriers for health, life, GAP, Medicare, dental, and vision coverage, and help business owners explore employer benefits alongside payroll and HR support through an official Paychex partnership. Consultations are free and start with strategy, not a sales pitch.
       </div>
 
-      <h2>Why have insurance before you need it?</h2>
-      <p>You can't buy auto insurance after someone crashes into you, and you can't buy health insurance after you get sick or injured. Coverage only works when it's in place before the bad day. ProtectHealth builds that protection around age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure — the factors that actually determine whether coverage fits.</p>
+      <div class="split-feature" style="margin-top:34px;">
+        <div class="photo"><img src={ASSETS.contactPortrait} alt="ProtectHealth client reviewing coverage options" loading="lazy" /></div>
+        <div>
+          <div class="section-label">Why have insurance?</div>
+          <h2 style="margin-top:0;">You can't buy it after you need it.</h2>
+          <p>You can't buy auto insurance after someone crashes into you, and you can't buy health insurance after you get sick or injured. Coverage only works when it's in place before the bad day.</p>
+          <p>ProtectHealth builds that protection around age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure — the factors that actually determine whether coverage fits.</p>
+          <a href="/about-us" class="btn" style="margin-top:10px;">Our Approach</a>
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="section soft">
     <div class="container">
-      <h2>Coverage we build strategies around</h2>
-      <div class="grid cols-3" style="margin-top:22px;">
+      <div class="section-head center">
+        <div class="section-label">Our Portfolio</div>
+        <h2 style="margin-top:0;">Coverage we build strategies around</h2>
+        <p style="color:var(--muted);">Whether you're covering a family, a business, or just yourself — the process starts with you, not a plan brochure.</p>
+      </div>
+      <div class="grid cols-3">
         {SERVICES.map((s) => (
-          <div class="card">
-            <h3>{s.name}</h3>
-            <p>{s.description}</p>
-            <a class="more" href={`/services/${s.slug}`}>Learn More →</a>
-          </div>
+          <a class="img-card" href={`/services/${s.slug}`} style="text-decoration:none;">
+            <div class="thumb"><img src={s.image} alt={`${s.name} in Nevada`} loading="lazy" /></div>
+            <div class="body-pad">
+              <h3>{s.name}</h3>
+              <p>{s.description}</p>
+              <span class="more">Learn More →</span>
+            </div>
+          </a>
         ))}
       </div>
     </div>
@@ -63,14 +86,29 @@ const schemas = [
         <div class="card" style="border-top:5px solid var(--accent);">
           <span class="badge">Realtors · 1099 · Self-Employed</span>
           <h3>Self-employed? Your coverage should be built around your business.</h3>
-          <p>Depending on how a business is structured, self-employed professionals may have access to individual coverage, genuine PPO options, small-group opportunities, or tax-advantaged health-benefit structures like ICHRA and Section 105 arrangements. Most have never had these options properly explained.</p>
+          <p style="color:var(--muted);">Individual coverage, genuine PPO options, small-group opportunities, or tax-advantaged structures like ICHRA and Section 105 — depending on how your business is structured. Most have never had these options properly explained.</p>
           <a class="more" href="/self-employed">Explore The Strategy →</a>
         </div>
         <div class="card" style="border-top:5px solid var(--navy);">
           <span class="badge">Business Owners</span>
           <h3>ProtectHealth has officially partnered with Paychex.</h3>
-          <p>Payroll, HR support, compliance, benefits administration, onboarding, and retirement plans — explored alongside the insurance strategy, with a direct line to a dedicated Paychex team. One relationship, a much bigger toolbox.</p>
+          <p style="color:var(--muted);">Payroll, HR support, compliance, benefits administration, onboarding, and retirement plans — explored alongside the insurance strategy, with a direct line to a dedicated Paychex team.</p>
           <a class="more" href="/employers">See What That Unlocks →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="navy-band">
+        <div class="section-label" style="color:#8ec9ff;">Why Choose Us?</div>
+        <h2 style="margin-top:0;max-width:560px;">We understand that everyone's insurance needs are unique.</h2>
+        <div class="grid cols-2">
+          <div class="feature-num"><div class="n">1</div><div><h3>Customized Coverage</h3><p>Strategies built around your household, your business structure, and your real financial exposure.</p></div></div>
+          <div class="feature-num"><div class="n">2</div><div><h3>Exceptional Customer Service</h3><p>A dedicated team ready to assist with any question — before, during, and after enrollment.</p></div></div>
+          <div class="feature-num"><div class="n">3</div><div><h3>Trusted Expertise</h3><p>Years of industry experience across health, life, Medicare, and employer benefits.</p></div></div>
+          <div class="feature-num"><div class="n">4</div><div><h3>Strong Partnerships</h3><p>Transparency, integrity, and an official Paychex partnership that gives business owners a bigger toolbox.</p></div></div>
         </div>
       </div>
     </div>
@@ -78,15 +116,17 @@ const schemas = [
 
   <section class="section soft">
     <div class="container">
-      <h2>Latest from the blog</h2>
-      <div class="grid cols-3" style="margin-top:22px;">
-        {posts.map((p) => (
-          <div class="card">
-            <span class="badge">{p.data.category}</span>
-            <h3>{p.data.title}</h3>
-            <p>{p.data.description}</p>
-            <a class="more" href={`/blog-post/${p.id}`}>Read More →</a>
-          </div>
+      <div class="section-head center">
+        <div class="section-label">Our Team</div>
+        <h2 style="margin-top:0;">Meet the professionals behind the strategy</h2>
+      </div>
+      <div class="grid cols-3" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+        {TEAM.map((m) => (
+          <a class="team-card" href={`/team-members/${m.slug}`}>
+            <div class="photo"><img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" /></div>
+            <h3>{m.name}</h3>
+            <div class="role">{m.role} · ProtectHealth</div>
+          </a>
         ))}
       </div>
     </div>
@@ -94,10 +134,32 @@ const schemas = [
 
   <section class="section">
     <div class="container">
+      <div class="section-head">
+        <div class="section-label">Blog / News</div>
+        <h2 style="margin-top:0;">Our latest news &amp; guides</h2>
+      </div>
+      <div class="grid cols-3">
+        {posts.map((p) => (
+          <a class="img-card" href={`/blog-post/${p.id}`} style="text-decoration:none;">
+            {ASSETS.blog[p.id] && <div class="thumb"><img src={ASSETS.blog[p.id]} alt={p.data.title} loading="lazy" /></div>}
+            <div class="body-pad">
+              <span class="badge">{p.data.category}</span>
+              <h3>{p.data.title}</h3>
+              <p>{p.data.description}</p>
+              <span class="more">Read More →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
       <div class="cta-band">
         <h2>20 minutes. No pitch. Just clarity.</h2>
         <p>Bring your current coverage — or your lack of it — and walk away knowing which options fit, which don't, and what questions to ask next. If what you have is right, ProtectHealth will tell you that too.</p>
-        <a href="/contact-us" class="btn big" style="background:#fff;color:var(--navy);">Book A Strategy Conversation</a>
+        <a href="/contact-us" class="btn big white">Book A Strategy Conversation</a>
       </div>
     </div>
   </section>

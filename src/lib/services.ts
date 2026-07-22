@@ -2,6 +2,7 @@
 // /projects/[slug]; Cloudflare redirects map them to /services/[slug] (see public/_redirects).
 export interface Service {
   slug: string;
+  image: string;
   name: string;
   headline: string;
   description: string;
@@ -13,6 +14,7 @@ export interface Service {
 export const SERVICES: Service[] = [
   {
     slug: 'health-insurance',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66c7ac0fddbd0ad40b70125c_66c61e498a0b1c025cc02e1c_64dcea930cfc1c9b6dbaffbb_business%20(1).webp',
     name: 'Health Insurance',
     headline: 'Health insurance built around your life, not a sales quota',
     description:
@@ -37,6 +39,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: 'life-insurance',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66d0ff50cb9b30e70b619ce1_photo.png',
     name: 'Life Insurance',
     headline: 'Life insurance that matches your financial goals',
     description:
@@ -57,6 +60,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: 'gap-health-insurance',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66c7abdf78e83b92eb53fe04_Gap%203.png',
     name: 'GAP Health Insurance',
     headline: 'Cover the costs your main health plan leaves behind',
     description:
@@ -77,6 +81,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: 'medicare',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66c7ad9efc08b6777e87e631_medicare.png',
     name: 'Medicare Solutions',
     headline: 'Medicare without the maze',
     description:
@@ -97,6 +102,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: 'dental-insurance',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66c7b09eb31be63f3432da85_Dental.png',
     name: 'Dental Insurance',
     headline: 'Dental coverage that keeps you smiling',
     description:
@@ -117,6 +123,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: 'vision-insurance',
+    image: 'https://cdn.prod.website-files.com/66c61e498a0b1c025cc02da3/66c7b243cd3f082ce0c6f28c_vision.png',
     name: 'Vision Insurance',
     headline: 'See clearly, pay less',
     description:

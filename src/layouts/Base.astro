@@ -1,5 +1,5 @@
 ---
-import { SITE, organizationSchema } from '../lib/site';
+import { SITE, ASSETS, organizationSchema } from '../lib/site';
 import ReviewBadge from '../components/ReviewBadge.astro';
 import '../styles/global.css';
 
@@ -57,15 +57,16 @@ const orgSchema = organizationSchema();
   <body>
     <header class="site-header">
       <div class="container">
-        <a href="/" class="logo">Protect<span>Health</span></a>
+        <a href="/" class="logo" aria-label="ProtectHealth home">
+          <img src={ASSETS.logo} alt="ProtectHealth — Medical, Medicare, Life, Annuity, Supplements" width="150" height="48" />
+        </a>
         <nav class="nav" aria-label="Main">
           <a href="/services">Services</a>
           <a href="/self-employed">Self-Employed</a>
           <a href="/employers">Employers</a>
           <a href="/blog">Blog</a>
-          <a href="/qa">Q&amp;A</a>
-          <a href="/faq">FAQ</a>
           <a href="/about-us">About</a>
+          <a href={SITE.phoneHref} class="nav-phone">{SITE.phone}</a>
           <a href="/contact-us" class="btn">Talk To A Broker</a>
         </nav>
       </div>
@@ -79,8 +80,9 @@ const orgSchema = organizationSchema();
       <div class="container">
         <div class="footer-grid">
           <div>
-            <h4>ProtectHealth</h4>
+            <div class="footer-logo"><img src={ASSETS.logo} alt="ProtectHealth logo" width="110" height="44" loading="lazy" /></div>
             <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy — not become the strategy.</p>
+            <p><a href={SITE.phoneHref} class="footer-phone">{SITE.phone}</a></p>
             <ReviewBadge variant="footer" />
           </div>
           <div>

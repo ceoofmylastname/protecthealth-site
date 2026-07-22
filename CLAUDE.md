@@ -44,8 +44,8 @@ Q&A (6): 3 per campaign, parents = what-is-an-ichra and signs-your-business-need
 2. Employers cluster 3rd TOFU: "Tipped Payroll: What Vegas Restaurants, Bars & Salons Get Wrong" + 3 child Q&As (tipped tax credits, tip credit vs minimum wage, FICA tip credit).
 3. Employers 2nd MOFU: "PEO vs. Payroll Service vs. DIY: Total Cost Comparison".
 4. ICHRA 3rd QA wave: "how much does health insurance cost for realtors in nevada", "can an s-corp owner use an ichra", "what happens to my ichra if I leave my job".
-5. Legacy blog images: pull from Webflow CDN (URLs in project doc), convert to WebP, place in `public/assets/`, update posts' heroAlt.
-6. Real og-default.webp + logo.webp (current files are placeholders) — logo source: Webflow CDN `New LO.webp`.
+5. **Localize hotlinked images (HIGH PRIORITY before launch).** All photos (logo, hero, team, services, blog, avatars) currently hotlink to the live Webflow CDN — URLs centralized in `src/lib/site.ts` (ASSETS, TEAM) and `src/lib/services.ts` (image). Download each, convert to WebP, place in `public/assets/`, swap the constants. Do this before the Webflow site is decommissioned or the images 404.
+6. Real og-default.webp (current file is a generated placeholder).
 7. `llms-full.txt` generation script once content >25 pages.
 8. Wire Google Search Console + submit sitemap after DNS cutover.
 
