@@ -27,7 +27,7 @@ const schemas = [
     <div class="container">
       <div class="grid cols-2">
         {qas.map((q) => (
-          <a class="img-card" href={`/qa/${q.id}`} style="text-decoration:none;">
+          <a class="img-card spot" href={`/qa/${q.id}`} style="text-decoration:none;">
             {QA_ART[q.id] && <div class="thumb"><img src={QA_ART[q.id].webp} alt={QA_ART[q.id].alt} loading="lazy" /></div>}
             <div class="body-pad">
               <h3>{q.data.question}</h3>

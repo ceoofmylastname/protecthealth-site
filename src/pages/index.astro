@@ -58,12 +58,12 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
     <div class="grain"></div>
     <div class="container lux-hero-grid">
       <div class="lux-hero-copy">
-        <div class="kicker reveal">✦ Protection. Trustworthy. Personalized.</div>
+        <div class="kicker-chip reveal"><i class="kdot"></i> Strategy-First Insurance · Las Vegas</div>
         <h1 class="headline">
-          <span class="hw">Insurance</span> <span class="hw">strategy</span> <span class="hw">for</span> <span class="hw">everyone.</span><br/>
-          <span class="hw grad-anim">Not</span> <span class="hw grad-anim">just</span> <span class="hw grad-anim">insurance</span> <span class="hw grad-anim">products.</span>
+          <span class="hw">Strategy</span> <span class="hw hl-under">first.<svg viewBox="0 0 180 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 10 C 50 3, 130 3, 176 8" fill="none" stroke="url(#hu)" stroke-width="6" stroke-linecap="round"/><defs><linearGradient id="hu" x1="0" y1="0" x2="180" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#19c8ff"/><stop offset="1" stop-color="#66e0ff"/></linearGradient></defs></svg></span><br/>
+          <span class="hw grad-anim">Insurance</span> <span class="hw grad-anim">second.</span>
         </h1>
-        <p class="lead reveal d3">Most of the industry starts with a product. ProtectHealth starts with you — how your household or business is structured, what you actually need, and what you can access.</p>
+        <p class="lead reveal d3">The rest of the industry starts with a product. <b style="color:#fff;">ProtectHealth starts with how your life and business are actually built.</b></p>
         <div class="hero-ctas reveal d4">
           <a href="/contact-us" class="btn big glow">Talk To A Broker</a>
           <a href="/free-quote" class="btn big glass no-arrow">Get Started</a>
@@ -79,7 +79,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
       <!-- glass strategy card (self-contained, photo enhances behind) -->
       <div class="hero-panel reveal d3">
         <div class="hero-photo" style={`background-image:url('${HF_ASSETS.hero}')`}></div>
-        <div class="glass-card">
+        <div class="glass-card spot">
           <div class="gc-row"><span class="stars">★★★★★</span><b>4.9</b><span class="gc-muted">· 703+ Google reviews</span></div>
           <div class="gc-title">Your coverage strategy</div>
           <ul class="gc-list">
@@ -108,13 +108,16 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   <section class="section grad-soft" style="padding-bottom:34px;">
     <div class="container">
       <div class="stat-row">
-        <div class="stat reveal"><div class="num"><span data-count="4.9" data-dec="1">0</span></div><div class="lbl">Google rating</div></div>
-        <div class="stat reveal d1"><div class="num"><span data-count="703">0</span>+</div><div class="lbl">Five-star reviews</div></div>
-        <div class="stat reveal d2"><div class="num"><span data-count="6">0</span></div><div class="lbl">Coverage lines</div></div>
-        <div class="stat reveal d3"><div class="num">$<span data-count="0">0</span></div><div class="lbl">Cost to talk to us</div></div>
+        <div class="stat spot reveal"><div class="num"><span data-count="4.9" data-dec="1">0</span></div><div class="lbl">Google rating</div><i class="tick"></i></div>
+        <div class="stat spot reveal d1"><div class="num"><span data-count="703">0</span>+</div><div class="lbl">Five-star reviews</div><i class="tick"></i></div>
+        <div class="stat spot reveal d2"><div class="num"><span data-count="6">0</span></div><div class="lbl">Coverage lines</div><i class="tick"></i></div>
+        <div class="stat spot reveal d3"><div class="num">$<span data-count="0">0</span></div><div class="lbl">Cost to talk to us</div><i class="tick"></i></div>
       </div>
-      <div id="ai-summary" style="margin-top:38px;">
-        ProtectHealth is a Las Vegas, Nevada insurance brokerage serving individuals, families, self-employed professionals, and small businesses. ProtectHealth brokers compare plans across carriers for health, life, GAP, Medicare, dental, and vision coverage, and help business owners explore employer benefits alongside payroll and HR support through an official Paychex partnership. Consultations are free and start with strategy, not a sales pitch.
+      <div class="ai-wrap spot reveal">
+        <div class="ai-label">The ProtectHealth Difference</div>
+        <div id="ai-summary">
+          ProtectHealth is a Las Vegas, Nevada insurance brokerage serving individuals, families, self-employed professionals, and small businesses. ProtectHealth brokers compare plans across carriers for health, life, GAP, Medicare, dental, and vision coverage, and help business owners explore employer benefits alongside payroll and HR support through an official Paychex partnership. Consultations are free and start with strategy, not a sales pitch.
+        </div>
       </div>
     </div>
   </section>
@@ -129,7 +132,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
       </div>
       <div class="grid cols-3">
         {SERVICES.map((s, i) => (
-          <a class={`icon-card reveal d${i % 3}`} href={`/services/${s.slug}`}>
+          <a class={`icon-card spot reveal d${i % 3}`} href={`/services/${s.slug}`}>
             <div class="icon-squircle" set:html={ICONS[s.slug]} />
             <h3>{s.name}</h3>
             <p>{s.description}</p>
@@ -170,7 +173,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   <section class="section" style="padding-top:20px;">
     <div class="container">
       <div class="grid cols-2">
-        <a class="photo-card reveal" href="/self-employed" style="background-image:url('/assets/art-realtor.webp')">
+        <a class="photo-card spot reveal" href="/self-employed" style="background-image:url('/assets/art-realtor.webp')">
           <div class="pc-photo" style={`background-image:url('${HF_ASSETS.realtor}')`}></div>
           <div class="pc-overlay"></div>
           <div class="pc-body">
@@ -180,7 +183,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
             <span class="pc-btn">Explore The Strategy →</span>
           </div>
         </a>
-        <a class="photo-card reveal d1" href="/employers" style="background-image:url('/assets/art-employers.webp')">
+        <a class="photo-card spot reveal d1" href="/employers" style="background-image:url('/assets/art-employers.webp')">
           <div class="pc-photo" style={`background-image:url('${HF_ASSETS.employers}')`}></div>
           <div class="pc-overlay"></div>
           <div class="pc-body">
@@ -214,7 +217,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   <!-- ============ REVIEW SHOWCASE ============ -->
   <section class="section" style="padding-top:26px;">
     <div class="container">
-      <a class="review-showcase reveal" href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">
+      <a class="review-showcase spot reveal" href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">
         <div class="rs-glow"></div>
         <div class="rs-left">
           <div class="rs-g">G</div>
@@ -291,7 +294,7 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
       </div>
       <div class="grid cols-3">
         {posts.map((p, i) => (
-          <a class={`img-card reveal d${i}`} href={`/blog-post/${p.id}`} style="text-decoration:none;">
+          <a class={`img-card spot reveal d${i}`} href={`/blog-post/${p.id}`} style="text-decoration:none;">
             <div class="thumb grad-thumb">{BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}</div>
             <div class="body-pad">
               <span class="badge">{p.data.category}</span>
@@ -330,13 +333,19 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(46px,-34px) scale(1.12); } }
   .grain { position: absolute; inset: 0; opacity: 0.05; background-image: radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px); background-size: 3px 3px; pointer-events: none; }
   .lux-hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 56px; align-items: center; }
-  .lux-hero .kicker { text-transform: uppercase; letter-spacing: 3px; font-size: 0.78rem; font-weight: 800; color: #8ec9ff; margin-bottom: 18px; }
-  .lux-hero h1 { color: #fff; font-family: var(--font-display); }
+  .kicker-chip { display: inline-flex; align-items: center; gap: 9px; text-transform: uppercase; letter-spacing: 2.6px; font-size: 0.74rem; font-weight: 800; color: #bfe2ff; margin-bottom: 20px; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(142,201,255,0.35); background: linear-gradient(120deg, rgba(25,123,255,0.18), rgba(25,200,255,0.1)); backdrop-filter: blur(6px); }
+  .kicker-chip .kdot { width: 7px; height: 7px; border-radius: 50%; background: #19c8ff; box-shadow: 0 0 0 0 rgba(25,200,255,0.7); animation: kpulse 2.2s ease infinite; }
+  @keyframes kpulse { 0% { box-shadow: 0 0 0 0 rgba(25,200,255,0.65); } 70% { box-shadow: 0 0 0 9px rgba(25,200,255,0); } 100% { box-shadow: 0 0 0 0 rgba(25,200,255,0); } }
+  .lux-hero h1 { color: #fff; font-family: var(--font-display); font-size: clamp(2.7rem, 6.2vw, 4.7rem); line-height: 1.02; letter-spacing: -0.03em; }
+  .hl-under { position: relative; }
+  .hl-under svg { position: absolute; left: 2%; bottom: -0.12em; width: 96%; height: 0.22em; }
+  .hl-under svg path { stroke-dasharray: 260; stroke-dashoffset: 260; animation: hdraw 1s cubic-bezier(.2,.7,.2,1) 0.9s forwards; }
+  @keyframes hdraw { to { stroke-dashoffset: 0; } }
 
   /* animated headline */
   .hw { display: inline-block; opacity: 0; transform: translateY(0.6em) rotate(1.2deg); animation: wordUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
-  .headline .hw:nth-child(1){animation-delay:.05s}.headline .hw:nth-child(2){animation-delay:.13s}.headline .hw:nth-child(3){animation-delay:.21s}.headline .hw:nth-child(4){animation-delay:.29s}
-  .headline .hw:nth-child(6){animation-delay:.45s}.headline .hw:nth-child(7){animation-delay:.53s}.headline .hw:nth-child(8){animation-delay:.61s}.headline .hw:nth-child(9){animation-delay:.69s}
+  .headline .hw:nth-child(1){animation-delay:.05s}.headline .hw:nth-child(2){animation-delay:.16s}
+  .headline .hw:nth-child(4){animation-delay:.34s}.headline .hw:nth-child(5){animation-delay:.46s}
   @keyframes wordUp { to { opacity: 1; transform: none; } }
   .grad-anim { background: linear-gradient(92deg, #8ec9ff, #19c8ff 40%, #66e0ff 60%, #8ec9ff); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: wordUp 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards, shimmer 5s linear 1.2s infinite; }
   @keyframes shimmer { to { background-position: 220% 0; } }
@@ -384,17 +393,26 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   /* stats */
   .grad-soft { background: linear-gradient(180deg, #eef5fc 0%, #ffffff 60%); }
   .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-  .stat { background: linear-gradient(#fff,#fff) padding-box, linear-gradient(120deg, #197bff44, #007db366) border-box; border: 1.5px solid transparent; border-radius: 22px; padding: 26px; text-align: center; box-shadow: var(--shadow-sm); }
-  .stat .num { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
-  .stat .num span { background: linear-gradient(120deg, var(--navy), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .stat .lbl { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+  .stat { overflow: hidden; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(120deg, #197bff55, #19c8ff44 50%, #007db377) border-box; border: 1.5px solid transparent; border-radius: 22px; padding: 28px 26px 30px; text-align: center; box-shadow: var(--shadow-sm); }
+  .stat .num { font-family: var(--font-display); font-size: 3rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat .num span { background: linear-gradient(120deg, var(--navy), var(--blue) 60%, #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .stat .lbl { color: var(--muted); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.02em; }
+  .stat .tick { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 56px; height: 4px; border-radius: 4px 4px 0 0; background: linear-gradient(90deg, var(--blue), #19c8ff); opacity: 0.85; }
+
+  /* editorial statement panel (wraps the speakable summary) */
+  .ai-wrap { position: relative; overflow: hidden; margin-top: 40px; border: 1.5px solid transparent; border-radius: 26px; padding: 34px 40px 36px;
+    background: linear-gradient(160deg, #ffffff, #f4f9ff) padding-box, linear-gradient(130deg, rgba(25,123,255,0.5), rgba(25,200,255,0.25) 50%, rgba(0,125,179,0.5)) border-box;
+    box-shadow: 0 16px 44px rgba(15,53,103,0.1); }
+  .ai-wrap::after { content: ""; position: absolute; right: -90px; top: -90px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(25,200,255,0.18), transparent 70%); pointer-events: none; }
+  .ai-label { display: inline-block; text-transform: uppercase; letter-spacing: 2.6px; font-size: 0.72rem; font-weight: 800; margin-bottom: 12px; background: linear-gradient(90deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .ai-wrap #ai-summary { background: transparent; border: none; padding: 0; margin: 0; font-size: 1.14rem; line-height: 1.75; color: #2a3c52; }
 
   /* icon cards */
   .rounded-section { border-radius: 44px 44px 0 0; }
-  .icon-card { display: block; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg, #197bff2e, #007db34d) border-box; border: 1.5px solid transparent; border-radius: 26px; padding: 30px; text-decoration: none; box-shadow: var(--shadow-sm); transition: 0.22s; }
-  .icon-card:hover { transform: translateY(-6px); box-shadow: 0 18px 44px rgba(15,53,103,0.16); }
-  .icon-squircle { width: 78px; height: 78px; border-radius: 24px; background: linear-gradient(135deg, #eaf3ff, #dff2fa); display: flex; align-items: center; justify-content: center; padding: 16px; box-shadow: inset 0 0 0 1.5px #c9e2f5, 0 8px 20px rgba(15,53,103,0.10); transition: 0.25s; }
-  .icon-card:hover .icon-squircle { transform: scale(1.06) rotate(-3deg); }
+  .icon-card { display: block; background: linear-gradient(160deg, #ffffff, #f6faff) padding-box, linear-gradient(135deg, rgba(25,123,255,0.45), rgba(25,200,255,0.22) 50%, rgba(0,125,179,0.5)) border-box; border: 1.5px solid transparent; border-radius: 26px; padding: 30px; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s; }
+  .icon-card:hover { transform: translateY(-8px); box-shadow: 0 24px 54px rgba(15,53,103,0.2); }
+  .icon-squircle { position: relative; width: 78px; height: 78px; border-radius: 24px; background: linear-gradient(135deg, #eaf3ff, #dff2fa); display: flex; align-items: center; justify-content: center; padding: 16px; box-shadow: inset 0 0 0 1.5px #c9e2f5, 0 8px 20px rgba(15,53,103,0.10); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s; }
+  .icon-card:hover .icon-squircle { transform: scale(1.08) rotate(-4deg); box-shadow: inset 0 0 0 1.5px #9fd0f2, 0 12px 30px rgba(25,123,255,0.35), 0 0 34px rgba(25,200,255,0.35); }
   .icon-squircle :global(svg) { width: 100%; height: 100%; }
   .icon-card h3 { margin: 16px 0 6px; }
   .icon-card p { color: var(--muted); font-size: 0.95rem; }

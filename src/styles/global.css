@@ -31,31 +31,49 @@ h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); }
 h2 { font-size: clamp(1.55rem, 3vw, 2.3rem); margin: 2.2rem 0 0.8rem; }
 h3 { font-size: 1.22rem; margin: 1.6rem 0 0.5rem; }
 p { margin: 0.7rem 0; }
-.section-label { text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+.section-label { display: inline-block; text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; font-weight: 800; margin-bottom: 10px; background: linear-gradient(90deg, var(--blue), #19c8ff 70%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-/* ============ Header ============ */
-.site-header { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; }
-.site-header .container { display: flex; align-items: center; justify-content: space-between; height: 78px; gap: 18px; }
+/* ============ Header v3 — floating glass pill ============ */
+.site-header { position: sticky; top: 0; z-index: 50; padding: 14px 0 8px; background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0)); transition: padding 0.3s ease; }
+.site-header .container { display: block; }
+.nav-shell { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 9px 12px 9px 20px;
+  border: 1.5px solid transparent; border-radius: 999px;
+  background: linear-gradient(rgba(255,255,255,0.86), rgba(255,255,255,0.86)) padding-box,
+    linear-gradient(120deg, rgba(25,123,255,0.45), rgba(25,200,255,0.3) 50%, rgba(0,125,179,0.45)) border-box;
+  backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: 0 10px 34px rgba(15,53,103,0.12); transition: box-shadow 0.3s ease; }
+.site-header.scrolled { padding-top: 8px; }
+.site-header.scrolled .nav-shell { box-shadow: 0 16px 44px rgba(15,53,103,0.2); }
 .logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-.logo img { height: 48px; width: auto; }
-.nav { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-.nav a { color: var(--ink); text-decoration: none; font-size: 0.92rem; font-weight: 600; padding: 6px 2px; border-bottom: 2px solid transparent; white-space: nowrap; }
-.nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.nav a.btn { border-bottom: none; color: #fff; padding: 11px 20px; font-size: 0.92rem; }
-.nav-phone { font-weight: 800; color: var(--navy) !important; white-space: nowrap; }
-.nav-phone:hover { color: var(--accent) !important; }
+.logo img { height: 44px; width: auto; }
+.nav { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.nav a { position: relative; color: var(--ink); text-decoration: none; font-size: 0.92rem; font-weight: 700; padding: 8px 12px; border-radius: 999px; white-space: nowrap; transition: color 0.2s, background 0.2s; }
+.nav a:not(.btn):not(.nav-phone)::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--blue), #19c8ff); transform: scaleX(0); transform-origin: left; transition: transform 0.3s cubic-bezier(.2,.8,.2,1); }
+.nav a:not(.btn):not(.nav-phone):hover { color: var(--blue); background: rgba(25,123,255,0.06); }
+.nav a:not(.btn):not(.nav-phone):hover::after { transform: scaleX(1); }
+.nav a.btn { color: #fff; padding: 11px 22px; font-size: 0.9rem; }
+.nav-phone { font-weight: 800; color: var(--navy) !important; white-space: nowrap; border: 1.5px solid rgba(25,123,255,0.25); border-radius: 999px; padding: 8px 16px !important; background: rgba(25,123,255,0.05); transition: border-color 0.2s, background 0.2s; }
+.nav-phone:hover { color: var(--blue) !important; border-color: rgba(25,123,255,0.55); background: rgba(25,123,255,0.1); }
 
-/* ============ Buttons ============ */
-.btn { display: inline-flex; align-items: center; gap: 9px; background: var(--accent); color: #fff; font-weight: 700; padding: 13px 26px; border-radius: var(--radius); text-decoration: none; border: none; font-size: 1rem; cursor: pointer; font-family: var(--font); transition: 0.18s; box-shadow: var(--shadow-sm); }
-.btn::after { content: "→"; font-weight: 700; transition: transform 0.18s; }
-.btn:hover { background: var(--navy); transform: translateY(-1px); }
-.btn:hover::after { transform: translateX(3px); }
+/* ============ Buttons v3 — gradient pills with sheen ============ */
+.btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 9px; background: linear-gradient(120deg, var(--blue), var(--accent) 95%); color: #fff; font-weight: 800; padding: 13px 28px; border-radius: 999px; text-decoration: none; border: none; font-size: 1rem; cursor: pointer; font-family: var(--font); transition: transform 0.22s ease, box-shadow 0.22s ease; box-shadow: 0 8px 24px rgba(25,123,255,0.28); }
+.btn::before { content: ""; position: absolute; top: 0; bottom: 0; width: 50%; left: -80%; background: linear-gradient(105deg, transparent, rgba(255,255,255,0.45), transparent); transform: skewX(-18deg); transition: left 0.55s ease; pointer-events: none; }
+.btn:hover::before { left: 130%; }
+.btn::after { content: "→"; font-weight: 800; transition: transform 0.22s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 15px 36px rgba(25,123,255,0.42); }
+.btn:hover::after { transform: translateX(4px); }
 .btn.no-arrow::after { content: none; }
 .btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
 .btn.ghost:hover { background: var(--accent); color: #fff; }
-.btn.big { padding: 16px 34px; font-size: 1.05rem; }
-.btn.white { background: #fff; color: var(--navy); }
-.btn.white:hover { background: var(--gold); color: var(--navy); }
+.btn.big { padding: 17px 36px; font-size: 1.05rem; }
+.btn.white { background: #fff; color: var(--navy); box-shadow: 0 8px 24px rgba(6,20,44,0.22); }
+.btn.white:hover { background: var(--gold); color: var(--navy); box-shadow: 0 14px 32px rgba(245,185,66,0.4); }
+
+/* ============ Pointer spotlight (add class "spot" to any card) ============ */
+.spot { position: relative; }
+.spot::before { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.35s ease;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(25,123,255,0.14), rgba(25,200,255,0.08) 42%, transparent 68%); }
+.spot:hover::before { opacity: 1; }
 
 /* ============ Hero ============ */
 .hero { position: relative; color: #fff; padding: 96px 0 110px; overflow: hidden; background: linear-gradient(120deg, var(--navy) 0%, var(--navy-2) 100%); }
@@ -91,9 +109,9 @@ p { margin: 0.7rem 0; }
 .card .more { font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; }
 .card .more:hover { gap: 10px; }
 
-/* image cards (services, blog) */
-.img-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: 0.2s; display: flex; flex-direction: column; }
-.img-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+/* image cards (services, blog) — gradient hairline + lift */
+.img-card { background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg, rgba(25,123,255,0.24), rgba(25,200,255,0.14) 50%, rgba(0,125,179,0.3)) border-box; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s; display: flex; flex-direction: column; }
+.img-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(15,53,103,0.18); }
 .img-card .thumb { aspect-ratio: 16/9; overflow: hidden; background: var(--bg-soft); }
 .img-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s; }
 .img-card:hover .thumb img { transform: scale(1.045); }

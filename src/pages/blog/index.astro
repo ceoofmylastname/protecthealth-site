@@ -29,7 +29,7 @@ const schemas = [
     <div class="container">
       <div class="grid cols-3">
         {posts.map((p) => (
-          <a class="img-card" href={`/blog-post/${p.id}`} style="text-decoration:none;">
+          <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
             {BLOG_ART[p.id] && <div class="thumb"><img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" /></div>}
             <div class="body-pad">
               <span class="badge">{p.data.category}</span>
