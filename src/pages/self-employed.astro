@@ -1,11 +1,17 @@
 ---
 // BOFU terminus for the ICHRA cluster. Copy from the approved ICHRA Launch Kit.
+// v7 journey treatment: hero → pain → four doors → anchor → proof → process → team → FAQ → conversation.
 import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
-import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, ORG_ID, TEAM, HF_ASSETS, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { GOOGLE_REVIEWS } from '../lib/reviews';
 
 const pageUrl = `${SITE.domain}/self-employed`;
+const proof = ['Yvette Auger', 'Amber Gunn (Niel)', 'Stephen Kuo']
+  .map((n) => GOOGLE_REVIEWS.find((r) => r.name === n))
+  .filter(Boolean);
+
 const faq = [
   { q: 'Does every self-employed person qualify for an ICHRA or Section 105 arrangement?', a: 'No. Eligibility for tax-advantaged health-benefit structures depends on business structure, income, and household situation. A ProtectHealth strategy conversation maps which options actually fit a specific situation.' },
   { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation walks through business structure, household needs, and available options — individual coverage, PPO access, small-group opportunities, or tax-advantaged structures. If existing coverage is already right, ProtectHealth says so.' },
@@ -36,58 +42,144 @@ const schemas = [
   description="Self-employed? Your health coverage should be built around your business — not somebody's product. Realtors, 1099 contractors, and self-employed professionals may have options nobody ever explained."
   schemas={schemas}
 >
-  <section class="hero">
+  <!-- HERO -->
+  <section class="lp-hero">
+    <div class="lp-photo" style={`background-image:url('${HF_ASSETS.realtor}')`}></div>
+    <div class="lp-duo"></div>
+    <div class="lp-aurora"></div>
     <div class="container">
-      <div class="kicker">Realtors · 1099 Contractors · Self-Employed</div>
-      <h1>Your health coverage should be built around your business. Not somebody's product.</h1>
-      <p class="lead">Realtors, 1099 contractors, and self-employed professionals may have access to individual coverage, genuine PPO options, small-group opportunities, and tax-advantaged health-benefit structures. Most have never had them properly explained. That's what ProtectHealth does.</p>
-      <a href="#talk" class="btn big">Let's Talk Through Your Situation</a>
+      <div class="lp-kick"><i></i> Realtors · 1099 Contractors · Self-Employed</div>
+      <h1 class="lp-h1">Built around your business.<br/><span class="lp-grad">Not somebody's product.</span></h1>
+      <p class="lp-lead">Individual coverage, genuine PPO access, small-group opportunities, tax-advantaged structures — <b>most self-employed professionals have never had a single one of them properly explained.</b> That's what ProtectHealth does.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="#talk" class="btn big">Let's Talk Through Your Situation</a>
+        <a href={SITE.phoneHref} class="btn big white no-arrow">Call {SITE.phone}</a>
+      </div>
+      <div class="lp-proof">
+        <span class="pp"><span class="stars">★★★★★</span> 4.9 · {SITE.reviews.count}+ Google reviews</span>
+        <span class="pp">20 minutes · $0 · No pitch</span>
+        <span class="pp">Las Vegas · All of Nevada</span>
+      </div>
     </div>
   </section>
 
+  <!-- PAIN / TRUTH -->
   <section class="section">
-    <div class="container article">
-      <div id="ai-summary">
+    <div class="container">
+      <div class="section-label">The Part Nobody Explains</div>
+      <p class="lp-statement">Premiums and deductibles are the beginning of the conversation — <span class="lp-mark">not the end of it.</span></p>
+      <p style="max-width:760px;color:var(--muted);">Age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure decide what "good coverage" actually looks like. Two Realtors at the same brokerage with the same premium can have completely different coverage quality. NAR data shows 10 to 15 percent of Realtors carry no coverage at all — usually because nobody ever explained the options, not because options don't exist.</p>
+
+      <div id="ai-summary" style="margin-top:26px;">
         ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how their business is structured. Depending on structure, options may include individual marketplace coverage, genuine PPO access, small-group plans, or tax-advantaged health-benefit structures such as ICHRA and Section 105 arrangements. National Association of Realtors data shows 10 to 15 percent of Realtors remain uninsured — usually because nobody ever explained the options, not because options don't exist.
       </div>
+    </div>
+  </section>
 
-      <h2>Why don't premiums and deductibles tell the whole story?</h2>
-      <p>Premiums and deductibles are the beginning of the conversation, not the end of it. Age, household income, tax-credit eligibility, provider networks, prescriptions, expected healthcare usage, and total financial exposure determine what "good coverage" looks like — and those factors are different for every person reading this page. Two Realtors at the same brokerage with the same premium can have completely different coverage quality.</p>
+  <!-- FOUR DOORS -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Your Possible Doors</div>
+        <h2 style="margin-top:0;">Four paths. <span class="lp-mark" style="background:linear-gradient(120deg,var(--blue),#19c8ff);-webkit-background-clip:text;background-clip:text;color:transparent;">One of them fits.</span></h2>
+        <p style="color:var(--muted);">Which doors are open depends on how your business is structured. That's exactly what the conversation figures out.</p>
+      </div>
+      <div class="lp-cards">
+        <div class="lp-card spot"><span class="n">01</span><h3>Individual Coverage, Done Right</h3><p>Marketplace plans with the subsidy math actually run — net self-employment income, tax credits, and the deduction most 1099s never claim.</p></div>
+        <div class="lp-card spot"><span class="n">02</span><h3>Genuine PPO Access</h3><p>Real PPO options with real networks — checked against your actual doctors before anything gets signed.</p></div>
+        <div class="lp-card spot"><span class="n">03</span><h3>Small-Group Opportunities</h3><p>Some business setups unlock group coverage most self-employed people assume they can't have.</p></div>
+        <div class="lp-card spot"><span class="n">04</span><h3>Tax-Advantaged Structures</h3><p>ICHRA and Section 105 arrangements — small-employer ICHRA adoption grew 52% last year. Eligibility depends on structure, which is the whole point of the conversation.</p></div>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:22px;">Not every option fits every person. That's the point of having a strategy.</p>
+    </div>
+  </section>
 
-      <h2>What options might a self-employed person actually have?</h2>
-      <p>Depending on how the business is structured, the conversation may point to individual coverage, a genuine PPO, a small-group opportunity, or a tax-advantaged structure like an ICHRA (Individual Coverage Health Reimbursement Arrangement) or Section 105 arrangement. Adoption of these structures grew for the fifth consecutive year in 2025, with small-employer ICHRA adoption up 52 percent — yet most self-employed professionals have never had a single conversation about them.</p>
-      <p>Not every option fits every person. That's the point of having a strategy.</p>
+  <!-- ANCHOR -->
+  <section class="section" style="padding-top:20px;">
+    <div class="container">
+      <div class="lp-quote">
+        <p>"The product should serve the strategy — <em>not become the strategy.</em>"</p>
+      </div>
+    </div>
+  </section>
 
-      <h2>What does "the product should serve the strategy" mean?</h2>
-      <p>Much of the insurance industry starts with a product and works backward to the sale. ProtectHealth starts with the person: how the business is structured, what the household actually needs, what's accessible. Then — and only then — does a product enter the picture. The product should serve the strategy, not become the strategy.</p>
+  <!-- PROOF -->
+  <section class="section" style="padding-top:26px;">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">Real Reviews, Real Names</div>
+        <h2 style="margin-top:0;">Self-employed Nevadans have had this conversation</h2>
+      </div>
+      <div class="lp-reviews">
+        {proof.map((r) => (
+          <div class="lp-review spot">
+            <span class="stars">★★★★★</span>
+            <p>{r.text}</p>
+            <div class="who">
+              {r.photo ? <img src={r.photo} alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" /> : <span class="av">{r.name.charAt(0)}</span>}
+              <span><b>{r.name}</b> · {r.date} · Google</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p style="font-size:0.88rem;color:var(--muted);margin-top:16px;">Pulled word for word from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+</a>.</p>
+    </div>
+  </section>
 
-      <h2>We're insurance nerds, not tax professionals</h2>
-      <p>When business or tax structure becomes part of the discussion, ProtectHealth recommends a brief conversation with a licensed tax professional as a make-sense next step. The right answer usually comes from the insurance advisor and the tax professional working from the same page. ProtectHealth is happy to have that conversation three-way.</p>
+  <!-- PROCESS -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">How It Works</div>
+        <h2 style="margin-top:0;">20 minutes, start to clarity</h2>
+      </div>
+      <div class="lp-steps">
+        <div class="lp-step spot"><h3>Tell us your situation</h3><p>Two minutes on the form below — how you work, how the business is set up, what you have now.</p></div>
+        <div class="lp-step spot"><h3>The strategy conversation</h3><p>Structure, doctors, prescriptions, subsidy math, total exposure. Which doors are open for you, which aren't, and why.</p></div>
+        <div class="lp-step spot"><h3>Walk away with the map</h3><p>Zero dollars, zero obligation. If what you already have is right, ProtectHealth tells you that too. When tax structure enters the picture, a licensed tax professional joins the conversation — we're insurance nerds, not tax professionals.</p></div>
+      </div>
+      <div class="lp-team">
+        <div class="faces">
+          {TEAM.map((m) => <img src={m.photo} alt={m.name} loading="lazy" />)}
+        </div>
+        <div class="t"><b>Six licensed Nevada brokers</b>The team behind {SITE.reviews.count}+ five-star conversations · <a href="/our-team">meet them</a></div>
+      </div>
+    </div>
+  </section>
 
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container article">
       <FAQSection faq={faq} pageUrl={pageUrl} />
     </div>
   </section>
 
+  <!-- CONVERSATION -->
   <section class="section soft" id="talk">
     <div class="container">
-      <h2>Book a strategy conversation</h2>
-      <p style="max-width:640px;">20 minutes. Walk away knowing which options fit your structure, which don't, and what questions to ask next. No quote-blasting, no pressure.</p>
-      <LeadForm
-        formId="ichra"
-        heading="Tell us about your situation"
-        submitLabel="Book A Strategy Conversation"
-        confirmation="You're booked. Quick heads-up on how we work: this is a strategy conversation, not a sales appointment. Have a rough idea of your household income and current plan details handy if you can."
-        fields={[
-          { name: 'name', label: 'Full name', type: 'text' },
-          { name: 'email', label: 'Email', type: 'email' },
-          { name: 'phone', label: 'Phone number', type: 'tel' },
-          { name: 'profile', label: 'Which best describes you?', type: 'select', options: ['Realtor', '1099 contractor', 'Self-employed', 'Small business owner with a team', 'Other'] },
-          { name: 'structure', label: 'How is your business currently structured?', type: 'select', options: ['Sole proprietor', 'LLC', 'S-corp', 'Not sure', 'Prefer to discuss'] },
-          { name: 'coverage', label: "What's your current coverage situation?", type: 'select', options: ['Marketplace plan', "Spouse's plan", 'Group plan', 'No coverage right now', 'Not sure what I have'] },
-          { name: 'priority', label: 'What matters most to you in this conversation?', type: 'select', options: ['Keeping my doctors', 'Lowering total cost', 'Understanding my options', 'Covering my family', 'Exploring options for my team'] },
-          { name: 'notes', label: 'Anything you want us to know before we talk? (optional)', type: 'textarea', required: false },
-        ]}
-      />
+      <div class="section-head center">
+        <div class="section-label">No Quote-Blasting · No Pressure</div>
+        <h2 style="margin-top:0;">Book your strategy conversation</h2>
+        <p style="color:var(--muted);max-width:600px;margin:8px auto 0;">Walk away knowing which options fit your structure, which don't, and what questions to ask next.</p>
+      </div>
+      <div class="lp-formwrap">
+        <LeadForm
+          formId="ichra"
+          heading="Tell us about your situation"
+          submitLabel="Book A Strategy Conversation"
+          confirmation="You're booked. Quick heads-up on how we work: this is a strategy conversation, not a sales appointment. Have a rough idea of your household income and current plan details handy if you can."
+          fields={[
+            { name: 'name', label: 'Full name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone number', type: 'tel' },
+            { name: 'profile', label: 'Which best describes you?', type: 'select', options: ['Realtor', '1099 contractor', 'Self-employed', 'Small business owner with a team', 'Other'] },
+            { name: 'structure', label: 'How is your business currently structured?', type: 'select', options: ['Sole proprietor', 'LLC', 'S-corp', 'Not sure', 'Prefer to discuss'] },
+            { name: 'coverage', label: "What's your current coverage situation?", type: 'select', options: ['Marketplace plan', "Spouse's plan", 'Group plan', 'No coverage right now', 'Not sure what I have'] },
+            { name: 'priority', label: 'What matters most to you in this conversation?', type: 'select', options: ['Keeping my doctors', 'Lowering total cost', 'Understanding my options', 'Covering my family', 'Exploring options for my team'] },
+            { name: 'notes', label: 'Anything you want us to know before we talk? (optional)', type: 'textarea', required: false },
+          ]}
+        />
+      </div>
     </div>
   </section>
 </Base>

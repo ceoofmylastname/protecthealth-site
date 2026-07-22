@@ -1,11 +1,17 @@
 ---
 // BOFU terminus for the Paychex cluster. Copy from the approved Paychex Launch Kit.
+// v7 journey treatment: hero → pain → partnership → who it's for → proof → process → team → FAQ → conversation.
 import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
-import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, ORG_ID, TEAM, HF_ASSETS, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { GOOGLE_REVIEWS } from '../lib/reviews';
 
 const pageUrl = `${SITE.domain}/employers`;
+const proof = ['Al Molinaro', 'Doris Moliga', 'Rachel Wren']
+  .map((n) => GOOGLE_REVIEWS.find((r) => r.name === n))
+  .filter(Boolean);
+
 const faq = [
   { q: 'What does the ProtectHealth and Paychex partnership include?', a: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR support, compliance, benefits administration, onboarding, retirement plans, and other employer-support solutions alongside their insurance strategy.' },
   { q: 'Is ProtectHealth becoming a payroll company?', a: 'No. ProtectHealth handles the benefits strategy conversation. When payroll, HR infrastructure, or employer services are worth exploring, ProtectHealth connects the business owner directly with a dedicated Paychex team.' },
@@ -36,60 +42,144 @@ const schemas = [
   description="ProtectHealth has officially partnered with Paychex. Payroll, HR, compliance, benefits administration, and employer-support solutions — explored alongside your insurance strategy in one conversation."
   schemas={schemas}
 >
-  <section class="hero">
+  <!-- HERO -->
+  <section class="lp-hero">
+    <div class="lp-photo" style={`background-image:url('${HF_ASSETS.employers}')`}></div>
+    <div class="lp-duo"></div>
+    <div class="lp-aurora"></div>
     <div class="container">
-      <div class="kicker">Business Owners · Official Paychex Partner</div>
-      <h1>Your insurance agency just got a much bigger toolbox.</h1>
-      <p class="lead">ProtectHealth has officially partnered with Paychex to help small businesses think through payroll, HR, compliance, benefits administration, and employer-support solutions alongside their insurance strategy. One conversation. The whole employer picture.</p>
-      <a href="#talk" class="btn big">Tell Us What's On Your Plate</a>
+      <div class="lp-kick"><i></i> Business Owners · Official Paychex Partner</div>
+      <h1 class="lp-h1">More than your group plan.<br/><span class="lp-grad">A much bigger toolbox.</span></h1>
+      <p class="lp-lead">Payroll, HR, compliance, benefits administration, retirement — <b>one conversation now covers the whole employer picture.</b> ProtectHealth has officially partnered with Paychex to make that real.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="#talk" class="btn big">Tell Us What's On Your Plate</a>
+        <a href={SITE.phoneHref} class="btn big white no-arrow">Call {SITE.phone}</a>
+      </div>
+      <div class="lp-proof">
+        <span class="pp"><span class="stars">★★★★★</span> 4.9 · {SITE.reviews.count}+ Google reviews</span>
+        <span class="pp">✓ Official Paychex Partner</span>
+        <span class="pp">Free · No obligation</span>
+      </div>
     </div>
   </section>
 
+  <!-- PAIN -->
   <section class="section">
-    <div class="container article">
-      <div id="ai-summary">
+    <div class="container">
+      <div class="section-label">The Second Job Nobody Applied For</div>
+      <p class="lp-statement">Running the employer side of a business shouldn't feel like a second job — <span class="lp-mark">but for most owners, it does.</span></p>
+      <p style="max-width:760px;color:var(--muted);">Payroll. Onboarding. Handbooks. Compliance. Workers comp. Retirement. Benefits questions. Most owners are duct-taping five vendors together — or handling it all themselves at 9pm. Research shows 70 percent of small business owners lose more than a week every month to HR administration, and 51 percent say compliance requirements actively hold back growth.</p>
+
+      <div id="ai-summary" style="margin-top:26px;">
         ProtectHealth, a Las Vegas insurance brokerage, has officially partnered with Paychex to support small businesses beyond group health insurance. Business owners work with ProtectHealth on benefits strategy, and when payroll, HR infrastructure, compliance, onboarding, or retirement plans are worth exploring, ProtectHealth connects them directly with a dedicated Paychex team. Industry research shows 70 percent of small business owners spend more than a week per month on HR administration — time the partnership is designed to win back.
       </div>
+    </div>
+  </section>
 
-      <h2>Why shouldn't running the "employer side" feel like a second job?</h2>
-      <p>Payroll. Onboarding. Handbooks. Compliance. Workers comp. Retirement. Benefits questions. Most owners are duct-taping five vendors together, or worse, handling it all themselves at 9pm. Research shows 70 percent of small business owners lose more than a week every month to HR administration, and 51 percent say compliance requirements actively hold back growth.</p>
+  <!-- PARTNERSHIP -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">How The Partnership Works</div>
+        <h2 style="margin-top:0;">ProtectHealth is the strategy. <span style="background:linear-gradient(120deg,var(--blue),#19c8ff);-webkit-background-clip:text;background-clip:text;color:transparent;">Paychex is the muscle.</span></h2>
+        <p style="color:var(--muted);max-width:640px;margin:10px auto 0;">The process starts with a conversation about the business: the team, the pain points, what's growing, and what's breaking. Where benefits strategy is the answer, that's ProtectHealth. Where payroll, HR infrastructure, or employer services are the answer, you're connected directly with a dedicated Paychex team.</p>
+      </div>
+      <div class="lp-cards">
+        <div class="lp-card spot"><span class="n">01</span><h3>Tipped Industries</h3><p>Restaurants, bars, salons, spas, and wellness businesses — where tipped payroll carries quirks and potential tax-credit opportunities most setups miss.</p></div>
+        <div class="lp-card spot"><span class="n">02</span><h3>No Real HR Department</h3><p>Employees but no handbook, onboarding that lives in someone's head, files scattered across three drawers.</p></div>
+        <div class="lp-card spot"><span class="n">03</span><h3>Growing Companies</h3><p>Adding employees, opening locations, or changing payroll vendors as the back office gets messy in the best possible way.</p></div>
+        <div class="lp-card spot"><span class="n">04</span><h3>Owners Competing For Talent</h3><p>Where benefits, retirement plans, and a real employee experience beat salary-only offers.</p></div>
+      </div>
+    </div>
+  </section>
 
-      <h2>How does the ProtectHealth × Paychex partnership work?</h2>
-      <p>ProtectHealth is the strategy. Paychex is the muscle. The process starts with a conversation about the business: the team, the pain points, what's growing, and what's breaking. Where benefits strategy is the answer, that's ProtectHealth. Where payroll, HR infrastructure, or employer services are the answer, ProtectHealth connects the owner directly with a dedicated Paychex team. Business owners don't get handed a brochure — they get handed to a person.</p>
+  <!-- ANCHOR -->
+  <section class="section" style="padding-top:20px;">
+    <div class="container">
+      <div class="lp-quote">
+        <p>"You don't get handed a brochure — <em>you get handed to a person.</em>"</p>
+      </div>
+    </div>
+  </section>
 
-      <h2>Who is this built for?</h2>
-      <ul>
-        <li><strong>Tipped industries</strong> — restaurants, bars, salons, spas, and wellness businesses, where tipped payroll carries quirks and potential tax-credit opportunities most setups miss</li>
-        <li><strong>Businesses with no real HR department</strong> — employees but no handbook, onboarding that lives in someone's head, files scattered across three drawers</li>
-        <li><strong>Growing companies</strong> — adding employees, opening locations, or changing payroll vendors as the back office gets messy in the best possible way</li>
-        <li><strong>Owners competing for talent</strong> — where benefits, retirement plans, and a real employee experience beat salary-only offers</li>
-      </ul>
+  <!-- PROOF -->
+  <section class="section" style="padding-top:26px;">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">Real Reviews, Real Names</div>
+        <h2 style="margin-top:0;">The conversation, rated 4.9 out of 5</h2>
+      </div>
+      <div class="lp-reviews">
+        {proof.map((r) => (
+          <div class="lp-review spot">
+            <span class="stars">★★★★★</span>
+            <p>{r.text}</p>
+            <div class="who">
+              {r.photo ? <img src={r.photo} alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" /> : <span class="av">{r.name.charAt(0)}</span>}
+              <span><b>{r.name}</b> · {r.date} · Google</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p style="font-size:0.88rem;color:var(--muted);margin-top:16px;">Pulled word for word from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+</a>.</p>
+    </div>
+  </section>
 
+  <!-- PROCESS -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">How It Works</div>
+        <h2 style="margin-top:0;">One conversation. The whole employer picture.</h2>
+      </div>
+      <div class="lp-steps">
+        <div class="lp-step spot"><h3>Tell us what's breaking</h3><p>Two minutes on the form below — your team, your industry, and where the friction is right now.</p></div>
+        <div class="lp-step spot"><h3>The strategy conversation</h3><p>Benefits, payroll, HR, compliance, retirement — mapped against how the business actually runs. No seminar, no 40-slide deck.</p></div>
+        <div class="lp-step spot"><h3>Meet the right people</h3><p>Where benefits strategy is the answer, that's ProtectHealth. Where employer infrastructure is the answer, you're introduced directly to a dedicated Paychex team. You'll always know who you're talking to and why.</p></div>
+      </div>
+      <div class="lp-team">
+        <div class="faces">
+          {TEAM.map((m) => <img src={m.photo} alt={m.name} loading="lazy" />)}
+        </div>
+        <div class="t"><b>Six licensed Nevada brokers</b>The team behind {SITE.reviews.count}+ five-star conversations · <a href="/our-team">meet them</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container article">
       <FAQSection faq={faq} pageUrl={pageUrl} />
     </div>
   </section>
 
+  <!-- CONVERSATION -->
   <section class="section soft" id="talk">
     <div class="container">
-      <h2>Start with one conversation</h2>
-      <p style="max-width:640px;">No commitment, no seminar, no 40-slide deck. Tell ProtectHealth what the employer side of your business feels like right now, and you'll hear what's worth exploring.</p>
-      <LeadForm
-        formId="employers"
-        heading="Tell us what's on your plate"
-        submitLabel="Book An Employer Strategy Conversation"
-        confirmation="Got it. Someone from ProtectHealth will reach out to set up a short conversation. If it makes sense to go deeper on payroll or HR, we'll bring in our dedicated Paychex team. You'll always know who you're talking to and why."
-        fields={[
-          { name: 'name', label: 'Full name', type: 'text' },
-          { name: 'business', label: 'Business name', type: 'text' },
-          { name: 'email', label: 'Email', type: 'email' },
-          { name: 'phone', label: 'Phone number', type: 'tel' },
-          { name: 'industry', label: 'What industry are you in?', type: 'select', options: ['Restaurant, bar or hospitality', 'Salon, spa or wellness', 'Professional services', 'Retail', 'Construction or trades', 'Other'] },
-          { name: 'employees', label: 'How many employees do you have?', type: 'select', options: ['1–4', '5–9', '10–24', '25–49', '50+'] },
-          { name: 'friction', label: 'Which of these is creating the most friction right now?', type: 'select', options: ['Payroll and tax filing', 'No real HR structure', 'Hiring and keeping people', 'Benefits for my team', 'Workers comp / compliance', "We're growing and systems are breaking"] },
-          { name: 'payroll', label: 'Do you currently work with a payroll provider?', type: 'select', options: ["Yes, and it's fine", "Yes, but I'd switch", 'No, I handle it myself', 'Not sure what we have'] },
-          { name: 'notes', label: 'Anything else we should know? (optional)', type: 'textarea', required: false },
-        ]}
-      />
+      <div class="section-head center">
+        <div class="section-label">No Commitment · No Seminar</div>
+        <h2 style="margin-top:0;">Start with one conversation</h2>
+        <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">Tell ProtectHealth what the employer side of your business feels like right now, and you'll hear what's worth exploring.</p>
+      </div>
+      <div class="lp-formwrap">
+        <LeadForm
+          formId="employers"
+          heading="Tell us what's on your plate"
+          submitLabel="Book An Employer Strategy Conversation"
+          confirmation="Got it. Someone from ProtectHealth will reach out to set up a short conversation. If it makes sense to go deeper on payroll or HR, we'll bring in our dedicated Paychex team. You'll always know who you're talking to and why."
+          fields={[
+            { name: 'name', label: 'Full name', type: 'text' },
+            { name: 'business', label: 'Business name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone number', type: 'tel' },
+            { name: 'industry', label: 'What industry are you in?', type: 'select', options: ['Restaurant, bar or hospitality', 'Salon, spa or wellness', 'Professional services', 'Retail', 'Construction or trades', 'Other'] },
+            { name: 'employees', label: 'How many employees do you have?', type: 'select', options: ['1–4', '5–9', '10–24', '25–49', '50+'] },
+            { name: 'friction', label: 'Which of these is creating the most friction right now?', type: 'select', options: ['Payroll and tax filing', 'No real HR structure', 'Hiring and keeping people', 'Benefits for my team', 'Workers comp / compliance', "We're growing and systems are breaking"] },
+            { name: 'payroll', label: 'Do you currently work with a payroll provider?', type: 'select', options: ["Yes, and it's fine", "Yes, but I'd switch", 'No, I handle it myself', 'Not sure what we have'] },
+            { name: 'notes', label: 'Anything else we should know? (optional)', type: 'textarea', required: false },
+          ]}
+        />
+      </div>
     </div>
   </section>
 </Base>
