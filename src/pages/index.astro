@@ -255,16 +255,17 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
       <div class="section-head center">
         <div class="section-label">Our Team</div>
         <h2 style="margin-top:0;">Meet the professionals behind the strategy</h2>
+        <p style="color:var(--muted);max-width:560px;margin:10px auto 0;">Six licensed brokers, one philosophy: the product should serve the strategy — not become the strategy.</p>
       </div>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+      <div class="grid team-grid">
         {TEAM.map((m, i) => (
-          <a class={`team-card reveal d${i}`} href={`/team-members/${m.slug}`}>
+          <a class={`team-card reveal d${Math.min(i, 4)}`} href={`/team-members/${m.slug}`}>
             <div class="photo">
-              <span class="initials">{m.name.split(' ').map((w) => w[0]).join('')}</span>
-              <div class="tp" style={`background-image:url('${m.photo}')`}></div>
+              <img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" />
             </div>
             <h3>{m.name}</h3>
-            <div class="role">{m.role} · ProtectHealth</div>
+            <span class="role">{m.role} · ProtectHealth</span>
+            <span class="tc-more">View Profile →</span>
           </a>
         ))}
       </div>
@@ -419,9 +420,6 @@ const AVATAR_INITIALS = ['JM', 'RS', 'KT', 'DB'];
   .cta-band.lux { border-radius: 30px; }
 
   /* team photo fallback */
-  .team-card .photo { position: relative; }
-  .team-card .initials { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; color: #9dc4e8; }
-  .team-card .tp { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; }
 
   /* blog thumbs fallback */
   .grad-thumb { background-color: #14396b; background-image: linear-gradient(135deg, #17457e, #007db3); background-size: cover; background-position: center; }

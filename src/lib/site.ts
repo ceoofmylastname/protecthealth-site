@@ -216,6 +216,8 @@ export const TEAM = [
   { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6.png` },
   { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_022208_8ac08dcc-e50f-4e83-82d7-1f6837eb2d36.png` },
   { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker', photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9.png` },
+  { slug: 'janet-nevarez', name: 'Janet Nevarez', role: 'Broker', photo: `${HF}/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08.png` },
+  { slug: 'chris-bridgeforth', name: 'Chris Bridgeforth', role: 'Broker', photo: `${HF}/hf_20260722_060925_8d3e3ee0-ceaa-4bba-8c6b-93d9257a7032.png` },
 ];
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
