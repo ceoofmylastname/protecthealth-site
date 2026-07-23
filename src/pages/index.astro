@@ -234,40 +234,46 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   </section>
 
   <!-- ============ REVIEW SHOWCASE ============ -->
-  <!-- ============ v8: HORIZONTAL SCROLL JOURNEY ============ -->
-  <section class="hscroll" id="method" aria-label="The ProtectHealth method">
-    <div class="hs-sticky">
-      <div class="container hs-head">
-        <div class="section-label" style="color:#8ec9ff;">The ProtectHealth Method</div>
-        <h2>Keep scrolling. <span class="hs-grad">The room turns.</span></h2>
+  <!-- ============ v8.3: METHOD COVERFLOW CAROUSEL ============ -->
+  <section class="section" id="method" style="padding-bottom:30px;">
+    <div class="container">
+      <div class="mframe reveal">
+        <div class="mpanel">
+          <div class="mbadge"><span class="mspark">✦</span> The ProtectHealth Method</div>
+          <div class="mhead">
+            <h2>Four steps. <span class="grad-text">Zero brochures.</span></h2>
+            <p>How every ProtectHealth conversation runs, from first hello to years later.</p>
+          </div>
+          <div class="mcarousel" id="mCarousel">
+            <div class="mtrack" id="mTrack">
+              {[
+                { n: '01', t: 'Listen', img: '/assets/buyers-guide/06-conversation.webp', alt: 'Two glass chairs facing each other under a warm spotlight', p: 'The first 20 minutes are about your life, not our products. No brochure makes an appearance.', href: '/contact-us', link: 'Start the conversation' },
+                { n: '02', t: 'Map', img: '/assets/buyers-guide/01-hero.webp', alt: 'Glass compass resting on insurance documents', p: 'Income, tax credits, business structure, real exposure. The map decides what belongs on the table.', href: '/buyers-guide', link: 'See how we think' },
+                { n: '03', t: 'Match', img: '/assets/buyers-guide/04-toolbox.webp', alt: 'Glass toolbox with six glowing coverage instruments', p: 'Only now do products enter the room, auditioning for a job that is already defined.', href: '/services', link: 'The coverage lines' },
+                { n: '04', t: 'Stay', img: '/assets/buyers-guide/05-timing.webp', alt: 'Glass hourglass beside a calendar of light', p: 'Renewals, network shuffles, life changes. The strategy gets maintained by people who answer the phone.', href: '/our-team', link: 'Meet the team' },
+              ].concat([
+                { n: '01', t: 'Listen', img: '/assets/buyers-guide/06-conversation.webp', alt: 'Two glass chairs facing each other under a warm spotlight', p: 'The first 20 minutes are about your life, not our products. No brochure makes an appearance.', href: '/contact-us', link: 'Start the conversation' },
+                { n: '02', t: 'Map', img: '/assets/buyers-guide/01-hero.webp', alt: 'Glass compass resting on insurance documents', p: 'Income, tax credits, business structure, real exposure. The map decides what belongs on the table.', href: '/buyers-guide', link: 'See how we think' },
+                { n: '03', t: 'Match', img: '/assets/buyers-guide/04-toolbox.webp', alt: 'Glass toolbox with six glowing coverage instruments', p: 'Only now do products enter the room, auditioning for a job that is already defined.', href: '/services', link: 'The coverage lines' },
+                { n: '04', t: 'Stay', img: '/assets/buyers-guide/05-timing.webp', alt: 'Glass hourglass beside a calendar of light', p: 'Renewals, network shuffles, life changes. The strategy gets maintained by people who answer the phone.', href: '/our-team', link: 'Meet the team' },
+              ]).map((st) => (
+                <article class="mcard">
+                  <div class="mcard-img"><img src={st.img} alt={st.alt} loading="lazy" /></div>
+                  <div class="mcard-body">
+                    <span class="mnum">{st.n}</span>
+                    <h3>{st.t}</h3>
+                    <p>{st.p}</p>
+                    <a href={st.href} class="mlink">{st.link} →</a>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <button class="mnav mprev" aria-label="Previous step" type="button">←</button>
+            <button class="mnav mnext" aria-label="Next step" type="button">→</button>
+            <div class="mdots" id="mDots" role="tablist" aria-label="Method steps"></div>
+          </div>
+        </div>
       </div>
-      <div class="hs-track" id="hsTrack">
-        <article class="hs-panel">
-          <div class="hs-num">01</div>
-          <h3>Listen</h3>
-          <p>The first 20 minutes are about your life, not our products. Household, work, doctors, prescriptions, what keeps you up at night. No brochure makes an appearance.</p>
-          <a href="/contact-us" class="hs-link">Start the conversation →</a>
-        </article>
-        <article class="hs-panel">
-          <div class="hs-num">02</div>
-          <h3>Map</h3>
-          <p>Income, tax-credit eligibility, business structure, real financial exposure. The full picture becomes a map, and the map decides what even belongs on the table.</p>
-          <a href="/buyers-guide" class="hs-link">See how we think →</a>
-        </article>
-        <article class="hs-panel">
-          <div class="hs-num">03</div>
-          <h3>Match</h3>
-          <p>Only now do products enter the room, auditioning for a job that's already defined. The product serves the strategy, never the other way around.</p>
-          <a href="/services" class="hs-link">The coverage lines →</a>
-        </article>
-        <article class="hs-panel">
-          <div class="hs-num">04</div>
-          <h3>Stay</h3>
-          <p>Enrollment is the start, not the finish. Renewals, network shuffles, formulary drift, life changes. The strategy gets maintained by people who answer the phone.</p>
-          <a href="/our-team" class="hs-link">Meet the team →</a>
-        </article>
-      </div>
-      <div class="hs-progress" aria-hidden="true"><i id="hsFill"></i></div>
     </div>
   </section>
 
@@ -569,31 +575,40 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     .sz-card, .sz-card.r0, .sz-card.r2 { transform: none; }
   }
 
-  /* ===== v8: horizontal scroll journey ===== */
-  .hscroll { position: relative; height: 380vh; background: linear-gradient(150deg, #081d3d 0%, var(--navy) 55%, #12325f 100%); border-radius: 34px; margin: 40px 14px; }
-  .hs-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 4vh; }
-  .hs-sticky::before { content: ""; position: absolute; width: 60vw; height: 60vw; top: -28vw; right: -18vw; border-radius: 50%; background: radial-gradient(circle, rgba(25,200,255,0.14), transparent 62%); filter: blur(70px); }
-  .hs-sticky::after { content: ""; position: absolute; width: 46vw; height: 46vw; bottom: -22vw; left: -14vw; border-radius: 50%; background: radial-gradient(circle, rgba(245,185,66,0.10), transparent 62%); filter: blur(70px); }
-  .hs-head { position: relative; z-index: 2; }
-  .hs-head h2 { color: #fff; margin: 6px 0 0; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
-  .hs-grad { background: linear-gradient(92deg, #8ec9ff, #19c8ff 45%, #66e0ff 60%, #8ec9ff); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 5s linear infinite; }
-  .hs-track { position: relative; z-index: 2; display: flex; gap: 3.4vw; padding: 0 max(6vw, calc((100vw - var(--maxw)) / 2 + 24px)); will-change: transform; }
-  .hs-panel { flex: 0 0 min(62vw, 640px); background: rgba(255, 255, 255, 0.055); border: 1.5px solid rgba(142, 201, 255, 0.22); border-radius: 26px; padding: clamp(26px, 4vh, 46px) clamp(26px, 3vw, 44px); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 30px 70px rgba(3, 12, 28, 0.35); }
-  .hs-num { font-family: var(--font-display); font-weight: 800; font-size: clamp(3rem, 7vw, 5.2rem); line-height: 1; background: linear-gradient(120deg, #197bff, #19c8ff 55%, #f5b942 130%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hs-panel h3 { color: #fff; font-size: clamp(1.4rem, 2.4vw, 1.9rem); margin: 10px 0 10px; }
-  .hs-panel p { color: #c9def5; font-size: clamp(0.95rem, 1.3vw, 1.08rem); line-height: 1.7; margin: 0 0 18px; }
-  .hs-link { color: #66e0ff; font-weight: 800; text-decoration: none; }
-  .hs-link:hover { text-decoration: underline; }
-  .hs-progress { position: relative; z-index: 2; height: 4px; width: min(320px, 50vw); margin: 0 auto; border-radius: 99px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
-  .hs-progress i { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), #19c8ff); }
-  @media (max-width: 860px), (prefers-reduced-motion: reduce) {
-    .hscroll { height: auto; margin: 30px 10px; padding: 50px 0 60px; }
-    .hs-sticky { position: static; height: auto; overflow: visible; }
-    .hs-track { flex-direction: column; gap: 18px; transform: none !important; padding: 0 24px; }
-    .hs-panel { flex: none; }
-    .hs-progress { display: none; }
+  /* ===== v8.3: method coverflow carousel ===== */
+  .mframe { max-width: 1000px; margin: 0 auto; border: 1.5px solid rgba(15, 53, 103, 0.08); border-radius: 44px 44px 26px 26px; padding: 9px; box-shadow: var(--shadow-sm); background: #fff; }
+  .mpanel { position: relative; border: 1.5px solid rgba(15, 53, 103, 0.07); border-radius: 38px 38px 20px 20px; background: var(--bg-soft); padding: 18px 14px 8px; overflow: hidden; }
+  .mbadge { position: absolute; left: 22px; top: 20px; display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid rgba(15, 53, 103, 0.12); background: #fff; border-radius: 14px; padding: 7px 14px; font-weight: 700; font-size: 0.85rem; color: var(--navy); z-index: 3; }
+  .mspark { color: var(--gold); }
+  .mhead { text-align: center; padding: 52px 16px 6px; }
+  .mhead h2 { margin: 0 0 4px; }
+  .mhead p { color: var(--muted); margin: 0; }
+  .mcarousel { position: relative; padding: 22px 0 10px; }
+  .mtrack { position: relative; height: 460px; perspective: 1100px; }
+  .mcard { position: absolute; left: 50%; top: 8px; width: min(300px, 78vw); margin-left: max(-150px, -39vw); background: linear-gradient(165deg, #0f3567, #17457e); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 53, 103, 0.3); transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s ease; will-change: transform; }
+  .mcard-img { aspect-ratio: 1 / 1; max-height: 240px; width: 100%; overflow: hidden; }
+  .mcard-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mcard-body { padding: 16px 20px 20px; color: #fff; position: relative; }
+  .mnum { position: absolute; right: 16px; top: 8px; font-family: var(--font-display); font-weight: 800; font-size: 2rem; background: linear-gradient(120deg, #19c8ff, #f5b942); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: 0.9; }
+  .mcard-body h3 { color: #fff; margin: 0 0 6px; font-size: 1.3rem; }
+  .mcard-body p { color: #c9def5; font-size: 0.88rem; line-height: 1.55; margin: 0 0 10px; }
+  .mlink { color: #66e0ff; font-weight: 800; font-size: 0.9rem; text-decoration: none; }
+  .mlink:hover { text-decoration: underline; }
+  .mnav { position: absolute; top: 45%; z-index: 5; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(15, 53, 103, 0.12); background: #fff; color: var(--navy); font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .mnav:hover { transform: scale(1.08); box-shadow: var(--shadow); }
+  .mprev { left: 10px; } .mnext { right: 10px; }
+  .mdots { display: flex; justify-content: center; gap: 8px; padding: 14px 0 10px; }
+  .mdots button { width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(15, 53, 103, 0.18); cursor: pointer; transition: transform 0.2s, background 0.2s; padding: 0; }
+  .mdots button.on { background: linear-gradient(120deg, var(--blue), #19c8ff); transform: scale(1.35); }
+  @media (max-width: 640px) {
+    .mtrack { height: 440px; }
+    .mnav { display: none; }
+    .mframe { border-radius: 28px 28px 20px 20px; }
+    .mpanel { border-radius: 22px 22px 14px 14px; }
+    .mbadge { position: static; margin: 4px auto 0; display: flex; width: fit-content; }
+    .mhead { padding-top: 16px; }
   }
-  .d1 { transition-delay: 0.12s; } .d2 { transition-delay: 0.24s; } .d3 { transition-delay: 0.36s; } .d4 { transition-delay: 0.48s; } .d5 { transition-delay: 0.6s; }
+
 
   /* ===== v5: scroll progress bar ===== */
   #scrollbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 90; background: transparent; }
@@ -722,26 +737,68 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   }, { threshold: 0.4 });
   counters.forEach((c) => cio.observe(c));
 
-  // v8: horizontal scroll journey — vertical scroll drives sideways travel
+  // v8.3: method coverflow carousel
   (() => {
-    if (reduce || matchMedia('(max-width: 860px)').matches) return;
-    const sec = document.getElementById('method');
-    const track = document.getElementById('hsTrack');
-    const hsFill = document.getElementById('hsFill');
-    if (!sec || !track) return;
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const rect = sec.getBoundingClientRect();
-      const total = sec.offsetHeight - innerHeight;
-      const p = Math.min(1, Math.max(0, -rect.top / total));
-      const dist = track.scrollWidth - innerWidth + innerWidth * 0.12;
-      track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px, 0, 0)`;
-      if (hsFill) hsFill.style.width = (p * 100).toFixed(1) + '%';
+    const track = document.getElementById('mTrack');
+    if (!track) return;
+    const cards = [...track.querySelectorAll('.mcard')];
+    const dotsWrap = document.getElementById('mDots');
+    const N = cards.length; // 8 (4 steps x2)
+    const STEPS = 4;
+    let active = 0;
+    let timer = null;
+    const spacing = Math.min(250, innerWidth * 0.28);
+    // dots represent the 4 steps
+    for (let i = 0; i < STEPS; i++) {
+      const b = document.createElement('button');
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-label', 'Go to step ' + (i + 1));
+      b.addEventListener('click', () => { goTo(i); restart(); });
+      dotsWrap.appendChild(b);
+    }
+    const dots = [...dotsWrap.children];
+    const render = () => {
+      cards.forEach((c, i) => {
+        let o = ((i - active) % N + N) % N;
+        if (o > N / 2) o -= N;
+        const abs = Math.abs(o);
+        const visible = abs <= 2;
+        c.style.opacity = visible ? String(1 - abs * 0.18) : '0';
+        c.style.pointerEvents = o === 0 ? 'auto' : visible ? 'auto' : 'none';
+        c.style.zIndex = String(20 - abs);
+        c.style.transform = `translateX(${o * spacing}px) translateZ(${-abs * 120}px) rotateY(${o * -7}deg) scale(${1 - abs * 0.1})`;
+        c.setAttribute('aria-hidden', o === 0 ? 'false' : 'true');
+      });
+      dots.forEach((d, i) => d.classList.toggle('on', i === active % STEPS));
     };
-    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-    addEventListener('resize', update, { passive: true });
-    update();
+    const goTo = (i) => { active = ((i % N) + N) % N; render(); };
+    const next = () => goTo(active + 1);
+    const prev = () => goTo(active - 1);
+    document.querySelector('.mnext').addEventListener('click', () => { next(); restart(); });
+    document.querySelector('.mprev').addEventListener('click', () => { prev(); restart(); });
+    // click a side card to bring it to center
+    cards.forEach((c, i) => c.addEventListener('click', (e) => {
+      let o = ((i - active) % N + N) % N; if (o > N / 2) o -= N;
+      if (o !== 0) { e.preventDefault(); goTo(i); restart(); }
+    }));
+    // swipe
+    let sx = null;
+    track.addEventListener('pointerdown', (e) => { sx = e.clientX; }, { passive: true });
+    track.addEventListener('pointerup', (e) => {
+      if (sx === null) return;
+      const dx = e.clientX - sx; sx = null;
+      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); restart(); }
+    }, { passive: true });
+    // autoplay (pause on hover, off for reduced motion)
+    const start = () => { if (!reduce) timer = setInterval(next, 3200); };
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const restart = () => { stop(); start(); };
+    const wrap = document.getElementById('mCarousel');
+    wrap.addEventListener('mouseenter', stop);
+    wrap.addEventListener('mouseleave', start);
+    addEventListener('resize', render, { passive: true });
+    render();
+    start();
   })();
 
   // v5: scroll progress bar + parallax (skipped under reduced motion)
