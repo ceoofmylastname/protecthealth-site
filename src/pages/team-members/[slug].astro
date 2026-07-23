@@ -41,7 +41,11 @@ const schemas = [
       <div class="split-feature">
         <div class="photo" style="background:linear-gradient(180deg,#e8f2fa,#cfe4f2);max-width:420px;"><img src={member.photo} alt={`${member.name}, ${member.role} at ProtectHealth`} /></div>
         <div>
-          <p>{member.name} helps Nevadans build coverage strategies across health, life, dental, vision, Medicare, and employer benefits — starting with the person, not the product. <em>[Full bio and credentials coming — see CLAUDE.md content roadmap.]</em></p>
+          {'bio' in member && member.bio ? (
+            member.bio.map((p) => <p>{p}</p>)
+          ) : (
+            <p>{member.name} helps Nevadans build coverage strategies across health, life, dental, vision, Medicare, and employer benefits, starting with the person, not the product.</p>
+          )}
           <a href="/contact-us" class="btn" style="margin-top:10px;">Book A Conversation With {member.name.split(' ')[0]}</a>
         </div>
       </div>

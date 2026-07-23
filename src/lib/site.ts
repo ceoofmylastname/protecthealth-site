@@ -212,11 +212,53 @@ export const HF_ASSETS = {
 
 // Team headshots: Nano Banana 2 re-renders on a unified studio gradient (identity-preserved from originals).
 export const TEAM = [
-  { slug: 'robert-morgen', name: 'Robert Morgen', role: 'Broker', photo: `${HF}/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00.png` },
-  { slug: 'brian-douglas', name: 'Brian Douglas', role: 'Broker', photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6.png` },
+  {
+    slug: 'brian-douglas',
+    name: 'Brian Douglas',
+    role: 'Owner / CEO',
+    photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6.png`,
+    bio: [
+      `Brian D. Douglas is the Owner and Chief Executive Officer of ProtectHealth, one of Nevada's largest and most respected individual health insurance agencies. A licensed insurance broker and benefits advisor, Brian has spent years helping individuals, families, and small businesses navigate the often-confusing world of health insurance with clarity, transparency, and confidence.`,
+      `Based in Las Vegas, Brian leads a statewide network of more than 40 licensed brokers and oversees a significant share of Nevada's individual health insurance market. His agency works extensively with Nevada Health Link and major carriers, giving clients access to comprehensive coverage options while ensuring compliance, accuracy, and long-term value.`,
+      `Known for his straightforward approach and deep industry knowledge, Brian is passionate about simplifying complex insurance decisions and advocating for consumers in a constantly changing regulatory landscape. He believes that insurance should empower people, not overwhelm them, and has built ProtectHealth around education, integrity, and service-first principles.`,
+      `When he's not leading ProtectHealth, Brian is actively involved in mentoring brokers, improving industry standards, and contributing to discussions that shape the future of healthcare access in Nevada.`,
+    ],
+  },
+  {
+    slug: 'robert-morgen',
+    name: 'Robert Morgen',
+    role: 'Owner / COO & Group Services Director',
+    photo: `${HF}/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00.png`,
+    bio: [
+      `Robert is one of the three owners of ProtectHealth and is a licensed Life & Health insurance broker based locally in Las Vegas. With more than a decade of experience serving Nevada families and small businesses, Robert is known for making complex health insurance decisions feel clear, practical, and manageable.`,
+      `As ProtectHealth's Director of Employer Group Services, Robert specializes in designing benefit strategies for small employers. Robert also leads ProtectHealth's agent training and development to ensure clients receive a consistent, high-integrity experience from first conversation through enrollment and beyond.`,
+      `Whether he's helping a business build a sustainable benefits package or guiding a household through Nevada Health Link options, Robert's approach is rooted in straight answers, strong education, and long-term client relationships.`,
+    ],
+  },
   { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_061526_8d8ff14f-d71b-427c-9658-63597f3d0b6c.png` },
-  { slug: 'jason-vasquez', name: 'Jason Vasquez', role: 'Broker', photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9.png` },
-  { slug: 'janet-nevarez', name: 'Janet Nevarez', role: 'Broker', photo: `${HF}/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08.png` },
+  {
+    slug: 'jason-vasquez',
+    name: 'Jason Vasquez',
+    role: 'Licensed Broker & Benefits Advisor',
+    photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9.png`,
+    bio: [
+      `Jason Vasquez is a licensed Line of Authority Broker with over 16 years of experience in the financial industry, helping individuals and families make informed decisions around protecting their financial future. His approach centers on the belief that insurance is not a standalone product, but a foundational component of a well-designed financial strategy, one that helps protect income, assets, and long-term goals when life takes an unexpected turn.`,
+      `Born in the San Francisco Bay Area and raised in Las Vegas from a young age, Jason brings a grounded, real-world perspective to financial protection. His career has spanned multiple areas of finance, giving him a deep understanding of how risk management, cash flow, and long-term planning work together. This background allows him to educate clients in clear, relatable terms, without jargon or pressure, so they can make confident decisions for themselves and their families.`,
+      `As a family man, Jason understands firsthand the responsibility that comes with providing security and stability for loved ones. That perspective shapes how he serves clients: with empathy, transparency, and a focus on solutions that align with each family's unique situation and goals.`,
+      `Jason is passionate about helping people see insurance not as an expense, but as a strategic tool, one that supports financial resilience, preserves options, and creates peace of mind as part of an overall financial plan.`,
+    ],
+  },
+  {
+    slug: 'janet-nevarez',
+    name: 'Janet Nevarez',
+    role: 'Director of Administration & Operations',
+    photo: `${HF}/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08.png`,
+    bio: [
+      `As ProtectHealth's Director of Administration & Operations, Janet Nevarez plays a central role in shaping the agency's operational excellence and client-focused service model. With ProtectHealth recognized as one of Nevada's largest and most respected individual health insurance agencies, Janet ensures that the organization's internal systems, administrative processes, and compliance standards consistently meet the highest level of quality.`,
+      `Janet oversees the day-to-day operations that keep the agency running smoothly, from licensing and appointments to workflow optimization and cross-department coordination. Her strategic approach strengthens efficiency, enhances accuracy, and supports the seamless experience ProtectHealth is known for.`,
+      `A collaborative and solutions-driven leader, Janet is committed to empowering brokers with the structure, clarity, and support they need to perform at their best. Her dedication to operational integrity and continuous improvement directly contributes to ProtectHealth's long-standing reputation for reliability, responsiveness, and trusted guidance in the health insurance marketplace.`,
+    ],
+  },
   { slug: 'chris-bridgeforth', name: 'Chris Bridgeforth', role: 'Broker', photo: `${HF}/hf_20260722_060925_8d3e3ee0-ceaa-4bba-8c6b-93d9257a7032.png` },
 ];
 
