@@ -297,24 +297,21 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
           <div class="rv-track">
             {[...row, ...row].map((r) => (
               <a class="rv-card" href={SITE.reviews.url} target="_blank" rel="noopener noreferrer" aria-label={`Google review by ${r.name}`}>
-                <div class="rv-top">
-                  <span class="rv-stars">★★★★★</span>
-                  <span class="rv-g">G</span>
-                </div>
-                <p class="rv-text">{r.text}</p>
-                <div class="rv-who">
+                <div class="rv-head">
                   <span class="rv-avatar">
                     {r.name.charAt(0)}
                     {r.photo && <img src={r.photo} alt={`${r.name} on Google`} loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" />}
                   </span>
-                  <span class="rv-meta"><b>{r.name}</b><em>{r.date} · Google</em></span>
+                  <span class="rv-meta"><b>{r.name}</b><em><span class="rv-stars">★★★★★</span> · {r.date}</em></span>
+                  <span class="rv-g">G</span>
                 </div>
+                <p class="rv-text">{r.text}</p>
               </a>
             ))}
           </div>
         </div>
       ))}
-      <p class="rv-note">Real reviews, word for word, from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+ on Google</a>.</p>
+      <p class="rv-note">Real reviews, word for word, from ProtectHealth's Google listing. <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">Read all {SITE.reviews.count}+ on Google</a>.</p>
     </div>
   </section>
 
@@ -659,25 +656,24 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* ===== Real Google reviews wall ===== */
   .review-wall { margin-top: 34px; overflow: hidden; }
   .rv-row { overflow: hidden; padding: 10px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-  .rv-track { display: flex; gap: 22px; width: max-content; animation: rvScroll 90s linear infinite; }
+  .rv-track { display: flex; gap: 16px; width: max-content; animation: rvScroll 55s linear infinite; }
   .rv-reverse .rv-track { animation-direction: reverse; }
   .rv-row:hover .rv-track { animation-play-state: paused; }
   @keyframes rvScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .rv-card { display: flex; flex-direction: column; gap: 12px; width: 360px; flex-shrink: 0; background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(240,247,255,0.85)); border: 1px solid rgba(25,123,255,0.16); border-radius: 20px; padding: 22px 24px; text-decoration: none; color: var(--ink, #1c2b3a); box-shadow: 0 10px 30px rgba(15,53,103,0.08); backdrop-filter: blur(6px); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-  .rv-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,53,103,0.16); }
-  .rv-top { display: flex; align-items: center; justify-content: space-between; }
-  .rv-stars { color: #f5b942; letter-spacing: 2px; font-size: 0.95rem; text-shadow: 0 0 12px rgba(245,185,66,0.45); }
-  .rv-g { font-weight: 800; font-family: var(--font-display); font-size: 1rem; background: conic-gradient(from -45deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .rv-text { margin: 0; font-size: 0.93rem; line-height: 1.55; color: #2a3c52; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
-  .rv-who { display: flex; align-items: center; gap: 10px; margin-top: auto; }
-  .rv-avatar { position: relative; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--accent)); box-shadow: 0 4px 12px rgba(25,123,255,0.35); flex-shrink: 0; }
-  .rv-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.9); }
-  .rv-meta { display: flex; flex-direction: column; line-height: 1.25; }
-  .rv-meta b { font-size: 0.88rem; }
-  .rv-meta em { font-style: normal; font-size: 0.78rem; color: var(--muted, #5b6b7e); }
+  .rv-card { display: flex; flex-direction: column; gap: 10px; width: 272px; flex-shrink: 0; background: rgba(255, 255, 255, 0.85); border: 1.5px solid rgba(25, 123, 255, 0.14); border-radius: 16px; padding: 16px 18px; text-decoration: none; color: var(--ink, #1c2b3a); box-shadow: 0 6px 18px rgba(15, 53, 103, 0.06); backdrop-filter: blur(8px); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+  .rv-card:hover { transform: translateY(-3px); border-color: rgba(25, 123, 255, 0.4); box-shadow: 0 14px 34px rgba(15, 53, 103, 0.14); }
+  .rv-head { display: flex; align-items: center; gap: 10px; }
+  .rv-stars { color: #f5b942; letter-spacing: 1px; font-size: 0.7rem; }
+  .rv-g { margin-left: auto; font-weight: 800; font-family: var(--font-display); font-size: 1.05rem; background: conic-gradient(from -45deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rv-text { margin: 0; font-size: 0.87rem; line-height: 1.55; color: #2a3c52; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .rv-avatar { position: relative; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 0.85rem; background: linear-gradient(135deg, var(--blue), var(--accent)); box-shadow: 0 4px 12px rgba(25, 123, 255, 0.35); flex-shrink: 0; }
+  .rv-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.9); }
+  .rv-meta { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; }
+  .rv-meta b { font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rv-meta em { font-style: normal; font-size: 0.74rem; color: var(--muted, #5b6b7e); }
   .rv-note { text-align: center; font-size: 0.85rem; color: var(--muted, #5b6b7e); margin: 16px 0 0; }
   .rv-note a { color: var(--blue); font-weight: 700; }
-  @media (max-width: 640px) { .rv-card { width: 300px; } }
+  @media (max-width: 640px) { .rv-card { width: 240px; } }
   @media (prefers-reduced-motion: reduce) { .rv-track { animation: none; } .rv-row { overflow-x: auto; } }
 
   @media (max-width: 900px) {
