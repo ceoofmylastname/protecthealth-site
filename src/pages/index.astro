@@ -358,18 +358,27 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
         <div class="section-label">Blog / News</div>
         <h2 style="margin-top:0;">Our latest news &amp; guides</h2>
       </div>
-      <div class="grid cols-3">
+      <div class="b8-list">
         {posts.map((p, i) => (
-          <a class={`img-card spot tilt reveal d${i}`} href={`/blog-post/${p.id}`} style="text-decoration:none;">
-            <div class="thumb grad-thumb">{BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}</div>
-            <div class="body-pad">
-              <span class="badge">{p.data.category}</span>
-              <h3>{p.data.title}</h3>
+          <article class={`b8-row reveal d${i}`}>
+            <div class="b8-copy">
+              <div class="b8-tags">
+                <span>{p.data.category}</span>
+                {p.data.funnelStage && <span>{p.data.funnelStage === 'TOFU' ? 'Start Here' : p.data.funnelStage === 'MOFU' ? 'Go Deeper' : 'Take Action'}</span>}
+              </div>
+              <h3><a href={`/blog-post/${p.id}`}>{p.data.title}</a></h3>
               <p>{p.data.description}</p>
-              <span class="more">Read More →</span>
+              <div class="b8-meta">{p.data.author ?? 'ProtectHealth Team'} <i>•</i> {new Date(p.data.datePublished).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+              <a class="b8-more" href={`/blog-post/${p.id}`}>Read more <span class="b8-arrow">→</span></a>
             </div>
-          </a>
+            <a class="b8-media" href={`/blog-post/${p.id}`} aria-hidden="true" tabindex="-1">
+              {BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}
+            </a>
+          </article>
         ))}
+      </div>
+      <div style="text-align:center;margin-top:34px;">
+        <a href="/blog" class="btn ghost no-arrow">Browse All Guides</a>
       </div>
     </div>
   </section>
@@ -521,6 +530,28 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* reveals */
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.in { opacity: 1; transform: none; }
+
+  /* ===== v8.4: editorial blog rows ===== */
+  .b8-list { display: flex; flex-direction: column; gap: 44px; max-width: 1000px; margin: 10px auto 0; }
+  .b8-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 52px); align-items: center; }
+  .b8-tags { display: flex; gap: 18px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.72rem; font-weight: 800; color: var(--muted); margin-bottom: 12px; }
+  .b8-tags span:first-child { background: linear-gradient(90deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .b8-copy h3 { margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.75rem); line-height: 1.2; }
+  .b8-copy h3 a { color: var(--navy); text-decoration: none; background-image: linear-gradient(90deg, var(--blue), #19c8ff); background-size: 0% 2px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size 0.35s ease; padding-bottom: 3px; }
+  .b8-copy h3 a:hover { background-size: 100% 2px; }
+  .b8-copy p { color: var(--muted); margin: 12px 0 0; font-size: 0.97rem; line-height: 1.65; }
+  .b8-meta { margin-top: 16px; font-size: 0.86rem; color: var(--muted); }
+  .b8-meta i { font-style: normal; margin: 0 6px; color: rgba(15, 53, 103, 0.3); }
+  .b8-more { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-weight: 800; color: var(--blue); text-decoration: none; }
+  .b8-arrow { transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .b8-more:hover .b8-arrow { transform: translateX(5px); }
+  .b8-media { display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; border: 1.5px solid var(--line); box-shadow: var(--shadow-sm); }
+  .b8-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s ease; }
+  .b8-media:hover img { transform: scale(1.05); opacity: 0.85; }
+  @media (max-width: 760px) {
+    .b8-row { grid-template-columns: 1fr; gap: 16px; }
+    .b8-media { order: -1; }
+  }
 
   /* ===== v8.2: fanned team deck ===== */
   .team-fan { position: relative; height: 300px; margin-top: 26px; }
