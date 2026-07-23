@@ -607,11 +607,11 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   }
 
   /* ===== v8.3: method coverflow carousel ===== */
-  .mframe { max-width: 1000px; margin: 0 auto; border: 1.5px solid rgba(15, 53, 103, 0.08); border-radius: 44px 44px 26px 26px; padding: 9px; box-shadow: var(--shadow-sm); background: #fff; }
-  .mpanel { position: relative; border: 1.5px solid rgba(15, 53, 103, 0.07); border-radius: 38px 38px 20px 20px; background: var(--bg-soft); padding: 18px 14px 8px; overflow: hidden; }
-  .mbadge { position: absolute; left: 22px; top: 20px; display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid rgba(15, 53, 103, 0.12); background: #fff; border-radius: 14px; padding: 7px 14px; font-weight: 700; font-size: 0.85rem; color: var(--navy); z-index: 3; }
+  .mframe { max-width: 1060px; margin: 0 auto; }
+  .mpanel { position: relative; }
+  .mbadge { display: flex; width: fit-content; margin: 0 auto; align-items: center; gap: 7px; border: 1.5px solid rgba(15, 53, 103, 0.12); background: #fff; border-radius: 999px; padding: 7px 16px; font-weight: 700; font-size: 0.85rem; color: var(--navy); box-shadow: var(--shadow-sm); }
   .mspark { color: var(--gold); }
-  .mhead { text-align: center; padding: 52px 16px 6px; }
+  .mhead { text-align: center; padding: 16px 16px 6px; }
   .mhead h2 { margin: 0 0 4px; }
   .mhead p { color: var(--muted); margin: 0; }
   .mcarousel { position: relative; padding: 22px 0 10px; }
@@ -634,10 +634,6 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   @media (max-width: 640px) {
     .mtrack { height: 440px; }
     .mnav { display: none; }
-    .mframe { border-radius: 28px 28px 20px 20px; }
-    .mpanel { border-radius: 22px 22px 14px 14px; }
-    .mbadge { position: static; margin: 4px auto 0; display: flex; width: fit-content; }
-    .mhead { padding-top: 16px; }
   }
 
 
