@@ -55,19 +55,37 @@ p { margin: 0.7rem 0; }
 .nav-phone { font-weight: 800; color: var(--navy) !important; white-space: nowrap; border: 1.5px solid rgba(25,123,255,0.25); border-radius: 999px; padding: 8px 16px !important; background: rgba(25,123,255,0.05); transition: border-color 0.2s, background 0.2s; }
 .nav-phone:hover { color: var(--blue) !important; border-color: rgba(25,123,255,0.55); background: rgba(25,123,255,0.1); }
 
-/* ============ Buttons v3 — gradient pills with sheen ============ */
-.btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 9px; background: linear-gradient(120deg, var(--blue), var(--accent) 95%); color: #fff; font-weight: 800; padding: 13px 28px; border-radius: 999px; text-decoration: none; border: none; font-size: 1rem; cursor: pointer; font-family: var(--font); transition: transform 0.22s ease, box-shadow 0.22s ease; box-shadow: 0 8px 24px rgba(25,123,255,0.28); }
+/* ============ Buttons v4 — spark-ring pills (rotating conic border + sheen + press states) ============ */
+@property --ba { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 9px; color: #fff; font-weight: 800; padding: 13px 28px; border-radius: 999px; text-decoration: none; font-size: 1rem; cursor: pointer; font-family: var(--font); transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.22s ease; box-shadow: 0 8px 24px rgba(25,123,255,0.28);
+  border: 1.5px solid transparent;
+  background: linear-gradient(120deg, var(--blue), var(--accent) 95%) padding-box,
+    conic-gradient(from var(--ba), rgba(255,255,255,0) 0deg, rgba(255,255,255,0) 288deg, rgba(102,224,255,0.95) 332deg, rgba(255,255,255,0.9) 345deg, rgba(255,255,255,0) 360deg) border-box;
+  animation: btnspin 3.2s linear infinite; }
+@keyframes btnspin { to { --ba: 360deg; } }
+.btn:active { transform: scale(0.96); }
 .btn::before { content: ""; position: absolute; top: 0; bottom: 0; width: 50%; left: -80%; background: linear-gradient(105deg, transparent, rgba(255,255,255,0.45), transparent); transform: skewX(-18deg); transition: left 0.55s ease; pointer-events: none; }
 .btn:hover::before { left: 130%; }
 .btn::after { content: "→"; font-weight: 800; transition: transform 0.22s ease; }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 15px 36px rgba(25,123,255,0.42); }
+.btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 15px 36px rgba(25,123,255,0.42); }
 .btn:hover::after { transform: translateX(4px); }
 .btn.no-arrow::after { content: none; }
-.btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
-.btn.ghost:hover { background: var(--accent); color: #fff; }
+.btn.ghost { color: var(--accent); box-shadow: none;
+  background: linear-gradient(rgba(255,255,255,0.01), rgba(255,255,255,0.01)) padding-box,
+    conic-gradient(from var(--ba), rgba(0,125,179,0.35) 0deg, rgba(0,125,179,0.35) 288deg, var(--blue) 332deg, #19c8ff 345deg, rgba(0,125,179,0.35) 360deg) border-box; }
+.btn.ghost:hover { background: linear-gradient(var(--accent), var(--accent)) padding-box, conic-gradient(from var(--ba), var(--accent) 0deg, var(--accent) 360deg) border-box; color: #fff; }
 .btn.big { padding: 17px 36px; font-size: 1.05rem; }
-.btn.white { background: #fff; color: var(--navy); box-shadow: 0 8px 24px rgba(6,20,44,0.22); }
-.btn.white:hover { background: var(--gold); color: var(--navy); box-shadow: 0 14px 32px rgba(245,185,66,0.4); }
+.btn.white { color: var(--navy); box-shadow: 0 8px 24px rgba(6,20,44,0.22);
+  background: linear-gradient(#fff, #fff) padding-box,
+    conic-gradient(from var(--ba), rgba(255,255,255,0.35) 0deg, rgba(255,255,255,0.35) 288deg, var(--gold) 332deg, #19c8ff 348deg, rgba(255,255,255,0.35) 360deg) border-box; }
+.btn.white:hover { background: linear-gradient(var(--gold), var(--gold)) padding-box, conic-gradient(from var(--ba), var(--gold) 0deg, var(--gold) 360deg) border-box; color: var(--navy); box-shadow: 0 14px 32px rgba(245,185,66,0.4); }
+.btn.glass { color: #fff; box-shadow: none;
+  background: linear-gradient(rgba(255,255,255,0.14), rgba(255,255,255,0.14)) padding-box,
+    conic-gradient(from var(--ba), rgba(255,255,255,0.5) 0deg, rgba(255,255,255,0.5) 288deg, #fff 335deg, rgba(255,255,255,0.5) 360deg) border-box;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.btn.glass:hover { background: linear-gradient(rgba(255,255,255,0.22), rgba(255,255,255,0.22)) padding-box, conic-gradient(from var(--ba), rgba(255,255,255,0.35) 0deg, rgba(255,255,255,0.35) 288deg, #fff 335deg, rgba(255,255,255,0.35) 360deg) border-box; }
+@media (prefers-reduced-motion: reduce) { .btn { animation: none; } }
+
 
 /* ============ Pointer spotlight (add class "spot" to any card) ============ */
 .spot { position: relative; }
@@ -217,7 +235,8 @@ p { margin: 0.7rem 0; }
 .funnel-cta a.fc-link::after { content: "→"; transition: transform 0.25s ease; }
 .funnel-cta a.fc-link:hover::after { transform: translateX(5px); }
 .funnel-cta a.fc-btn { display: inline-block; background: linear-gradient(120deg, var(--blue), var(--accent)); color: #fff; font-weight: 800; padding: 12px 24px; border-radius: 999px; text-decoration: none; box-shadow: 0 8px 22px rgba(25,123,255,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease; }
-.funnel-cta a.fc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(25,123,255,0.4); }
+.funnel-cta a.fc-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 28px rgba(25,123,255,0.4); }
+.funnel-cta a.fc-btn:active { transform: scale(0.97); }
 
 /* split feature (photo + text) */
 .split-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
