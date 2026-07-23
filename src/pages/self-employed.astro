@@ -6,6 +6,7 @@ import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
 import { SITE, ORG_ID, TEAM, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 import ReviewWall from '../components/ReviewWall.astro';
+import FloatingMagnet from '../components/FloatingMagnet.astro';
 import { getCollection } from 'astro:content';
 
 const pageUrl = `${SITE.domain}/self-employed`;
@@ -249,4 +250,11 @@ const schemas = [
       <p style="text-align:center;margin-top:30px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
     </div>
   </section>
+
+  <FloatingMagnet
+    href="/free-guide/self-employed"
+    cover="/assets/guides/cover-self-employed.webp"
+    label="Free 9-Page Playbook"
+    title="The Self-Employed Coverage Playbook"
+  />
 </Base>
