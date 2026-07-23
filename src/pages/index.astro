@@ -131,21 +131,32 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   </section>
 
   <!-- ============ SERVICES ============ -->
-  <section class="section soft rounded-section">
-    <div class="container">
-      <div class="section-head center">
-        <div class="section-label">Our Portfolio</div>
-        <h2 style="margin-top:0;">Coverage we build <span class="grad-text uline">strategies<svg viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 10 C 60 2, 160 2, 216 8" fill="none" stroke="url(#ug)" stroke-width="5" stroke-linecap="round"/><defs><linearGradient id="ug" x1="0" y1="0" x2="220" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#197bff"/><stop offset="1" stop-color="#19c8ff"/></linearGradient></defs></svg></span> around</h2>
-        <p style="color:var(--muted);">Whether you're covering a family, a business, or just yourself — the process starts with you, not a plan brochure.</p>
+  <!-- ============ COVERAGE — sticky stacking deck ============ -->
+  <section class="stackzone" id="coverage">
+    <div class="sz-gridbg" aria-hidden="true"></div>
+    <div class="sz-glow" aria-hidden="true"></div>
+    <div class="container sz-cols">
+      <div class="sz-left">
+        <div class="sz-pinhead">
+          <div class="section-label" style="background:linear-gradient(90deg,#66e0ff,#8ec9ff);-webkit-background-clip:text;background-clip:text;">Our Portfolio</div>
+          <h2>Six lines of coverage.<br /><span class="hs-grad">One strategy.</span></h2>
+          <p>Whether you're covering a family, a business, or just yourself, the process starts with you, not a plan brochure. Keep scrolling and watch the deck stack up.</p>
+          <a href="/buyers-guide" class="btn big glass no-arrow" style="margin-top:8px;">Read The Buyer's Guide</a>
+        </div>
       </div>
-      <div class="grid cols-3">
+      <div class="sz-right">
         {SERVICES.map((s, i) => (
-          <a class={`icon-card spot tilt reveal d${i % 3}`} href={`/services/${s.slug}`}>
-            <div class="icon-squircle" set:html={ICONS[s.slug]} />
-            <h3>{s.name}</h3>
-            <p>{s.description}</p>
-            <span class="more">Learn More →</span>
-          </a>
+          <figure class="sz-pin">
+            <a class={`sz-card r${i % 3}`} href={`/services/${s.slug}`} style={`--i:${i}`}>
+              <div class="sz-top">
+                <div class="icon-squircle" set:html={ICONS[s.slug]} />
+                <span class="sz-idx">0{i + 1}</span>
+              </div>
+              <h3>{s.name}</h3>
+              <p>{s.description}</p>
+              <span class="sz-more">Learn More →</span>
+            </a>
+          </figure>
         ))}
       </div>
     </div>
@@ -502,6 +513,37 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* reveals */
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.in { opacity: 1; transform: none; }
+
+  /* ===== v8.1: sticky stacking coverage deck ===== */
+  .stackzone { position: relative; background: linear-gradient(160deg, #081d3d 0%, var(--navy) 50%, #0d2a52 100%); border-radius: 34px; margin: 40px 14px; padding: 30px 0 60px; overflow: clip; }
+  .sz-gridbg { position: absolute; inset: 0; background: linear-gradient(to right, rgba(142, 201, 255, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(142, 201, 255, 0.07) 1px, transparent 1px); background-size: 54px 54px; -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%); }
+  .sz-glow { position: absolute; width: 50vw; height: 50vw; top: -20vw; right: -14vw; border-radius: 50%; background: radial-gradient(circle, rgba(25, 200, 255, 0.13), transparent 62%); filter: blur(70px); }
+  .sz-cols { position: relative; z-index: 2; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(30px, 5vw, 80px); align-items: stretch; }
+  .sz-left { position: relative; }
+  .sz-pinhead { position: sticky; top: 120px; padding: 40px 0; }
+  .sz-pinhead h2 { color: #fff; font-size: clamp(1.9rem, 3.6vw, 2.9rem); margin: 10px 0 14px; line-height: 1.08; }
+  .sz-pinhead p { color: #b9d4f0; max-width: 420px; font-size: 1.02rem; line-height: 1.7; }
+  .sz-pin { position: sticky; top: 100px; height: 74vh; display: grid; place-content: center; margin: 0; }
+  .sz-card { display: block; width: min(480px, 88%); margin: 0 auto; background: rgba(255, 255, 255, 0.97); border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 22px; padding: 30px 32px 26px; text-decoration: none; box-shadow: 0 34px 80px rgba(3, 12, 28, 0.5); transform: rotate(0deg) translateY(calc(var(--i) * 6px)); transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease; }
+  .sz-card.r0 { transform: rotate(2.6deg) translateY(calc(var(--i) * 6px)); }
+  .sz-card.r2 { transform: rotate(-2.6deg) translateY(calc(var(--i) * 6px)); }
+  .sz-card:hover { transform: rotate(0deg) translateY(calc(var(--i) * 6px - 6px)); box-shadow: 0 44px 96px rgba(3, 12, 28, 0.6); }
+  .sz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sz-idx { font-family: var(--font-display); font-weight: 800; font-size: 2rem; background: linear-gradient(120deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: 0.85; }
+  .sz-card h3 { color: var(--navy); font-size: 1.35rem; margin: 0 0 8px; }
+  .sz-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.65; margin: 0 0 14px; }
+  .sz-more { color: var(--blue); font-weight: 800; font-size: 0.95rem; }
+  @media (max-width: 900px) {
+    .sz-cols { grid-template-columns: 1fr; }
+    .sz-pinhead { position: static; padding: 30px 0 6px; text-align: center; }
+    .sz-pinhead p { margin: 0 auto; }
+    .sz-pin { position: static; height: auto; margin: 14px 0; }
+    .sz-card, .sz-card.r0, .sz-card.r2 { transform: none; width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sz-pin { position: static; height: auto; margin: 14px 0; }
+    .sz-card, .sz-card.r0, .sz-card.r2 { transform: none; }
+  }
 
   /* ===== v8: horizontal scroll journey ===== */
   .hscroll { position: relative; height: 380vh; background: linear-gradient(150deg, #081d3d 0%, var(--navy) 55%, #12325f 100%); border-radius: 34px; margin: 40px 14px; }
