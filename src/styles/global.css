@@ -439,3 +439,17 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 @media (prefers-reduced-motion: reduce) {
   .mnav-layer, .mnav-list a, .mnav-foot, .mnav-scrim { transition: none; }
 }
+
+/* ============ Mobile performance tier: static decor on touch devices ============ */
+@media (pointer: coarse), (max-width: 1023px) {
+  /* fixed blurred ambient washes: gone (biggest scroll-repaint cost) */
+  body::before, body::after { display: none; }
+  /* spark-ring buttons: static ring, no per-frame gradient repaint */
+  .btn, .tf-ok { animation: none !important; }
+  /* glass surfaces: solid fills instead of live backdrop blur */
+  .glassy { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(255, 255, 255, 0.94) !important; }
+  .lead-form.tf { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255, 255, 255, 0.97); }
+  .nav-shell { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255, 255, 255, 0.97); }
+  /* animated gradient headlines: static */
+  .h-grad, .hero h1, .grad-text { animation: none !important; }
+}

@@ -553,6 +553,8 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     .b8-media { order: -1; }
   }
 
+
+
   /* ===== v8.2: fanned team deck ===== */
   .team-fan { position: relative; height: 300px; margin-top: 26px; }
   .fan-card { position: absolute; left: 50%; top: 50%; width: clamp(120px, 13vw, 172px); height: clamp(120px, 13vw, 172px); border-radius: 18px; overflow: visible; opacity: 0;
@@ -733,6 +735,13 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     .uline svg path { stroke-dashoffset: 0; }
     .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
+  }
+  /* mobile performance tier (homepage decor) — keep last so it wins the cascade */
+  @media (pointer: coarse), (max-width: 1023px) {
+    .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip { animation: none !important; }
+    .rv-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: #fff !important; }
+    .glass-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(10, 34, 70, 0.78) !important; }
+    .kicker-chip, .lp-kick, .hs-panel { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
   }
 </style>
 
