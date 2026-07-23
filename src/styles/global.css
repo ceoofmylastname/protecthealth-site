@@ -245,7 +245,8 @@ p { margin: 0.7rem 0; }
 @media (max-width: 820px) { .split-feature { grid-template-columns: 1fr; } }
 
 /* ============ Footer ============ */
-.site-footer { background: var(--navy); color: #b9cbe1; margin-top: 72px; padding: 56px 0 30px; font-size: 0.92rem; }
+.site-footer { position: relative; overflow: hidden; background: linear-gradient(170deg, #081d3d 0%, var(--navy) 55%, #0a2450 100%); color: #b9cbe1; margin: 72px 14px 14px; padding: 60px 0 0; font-size: 0.92rem; border-radius: 30px; }
+.site-footer::before { content: ""; position: absolute; width: 46vw; height: 46vw; top: -20vw; right: -12vw; border-radius: 50%; background: radial-gradient(circle, rgba(25,200,255,0.10), transparent 62%); filter: blur(70px); pointer-events: none; }
 .site-footer a { color: #d7e5f7; text-decoration: none; }
 .site-footer a:hover { color: #fff; text-decoration: underline; }
 .site-footer h4 { color: #fff; font-size: 0.95rem; margin-bottom: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -258,6 +259,17 @@ p { margin: 0.7rem 0; }
 .footer-sitemap details summary { cursor: pointer; font-weight: 700; color: #fff; }
 .footer-sitemap ul { list-style: none; columns: 2; margin-top: 10px; }
 .footer-legal { border-top: 1px solid #2a4d7d; margin-top: 28px; padding-top: 20px; font-size: 0.82rem; color: #8ba5c4; }
+
+/* Giant interactive wordmark */
+.footer-wordmark { display: flex; justify-content: center; align-items: flex-end; margin-top: 34px; padding: 0 10px; transform: translateY(0.14em); user-select: none; line-height: 0.8; white-space: nowrap; }
+.fw-l { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 6.9vw, 7.4rem); letter-spacing: -0.01em; color: transparent; -webkit-text-stroke: 1.5px rgba(102, 179, 255, 0.4); cursor: default; transition: color 0.25s ease, -webkit-text-stroke-color 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), text-shadow 0.25s ease; }
+.fw-l:hover { transform: translateY(-0.08em); }
+.fw-l:nth-child(4n+1):hover { color: #197bff; -webkit-text-stroke-color: #197bff; text-shadow: 0 0 34px rgba(25, 123, 255, 0.65); }
+.fw-l:nth-child(4n+2):hover { color: #19c8ff; -webkit-text-stroke-color: #19c8ff; text-shadow: 0 0 34px rgba(25, 200, 255, 0.65); }
+.fw-l:nth-child(4n+3):hover { color: #f5b942; -webkit-text-stroke-color: #f5b942; text-shadow: 0 0 34px rgba(245, 185, 66, 0.65); }
+.fw-l:nth-child(4n+4):hover { color: #ffffff; -webkit-text-stroke-color: #ffffff; text-shadow: 0 0 34px rgba(255, 255, 255, 0.6); }
+@media (max-width: 640px) { .site-footer { margin: 56px 8px 8px; border-radius: 22px; } .fw-l { -webkit-text-stroke-width: 1px; } }
+@media (prefers-reduced-motion: reduce) { .fw-l, .fw-l:hover { transition: none; transform: none; } }
 
 .compliance-note { font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 26px; padding-top: 14px; }
 
