@@ -1,3 +1,5 @@
+// Cloudflare Pages Function — mirrors netlify/functions/lead-magnet.mjs. Env vars set in
+// Cloudflare Pages dashboard: GHL_API_TOKEN, RESEND_API_KEY, RESEND_FROM
 // Lead magnet opt-in → GHL contact + tagged, then Resend delivers the PDF email.
 // Env vars (Netlify → Site configuration → Environment variables):
 //   GHL_API_TOKEN  - existing GHL Private Integration token
@@ -76,15 +78,16 @@ function emailHtml(m, firstName) {
   </td></tr></table></body></html>`;
 }
 
-export default async (req) => {
-  if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
-  const ghlToken = process.env.GHL_API_TOKEN;
-  const resendKey = process.env.RESEND_API_KEY;
+export async function onRequestPost(context) {
+  const req = context.request;
+  const env = context.env;
+  SITE_URL = new URL(req.url).origin;
+  const ghlToken = env.GHL_API_TOKEN;
+  const resendKey = env.RESEND_API_KEY;
   if (!ghlToken || !resendKey) {
     return new Response(JSON.stringify({ error: 'Server not configured (GHL_API_TOKEN / RESEND_API_KEY)' }), { status: 500 });
   }
 
-  SITE_URL = new URL(req.url).origin;
   let data;
   try { data = await req.json(); } catch { return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 }); }
 
@@ -114,7 +117,7 @@ export default async (req) => {
     }
 
     // 3. Email the PDF via Resend
-    const from = process.env.RESEND_FROM || 'ProtectHealth <onboarding@resend.dev>';
+    const from = env.RESEND_FROM || 'ProtectHealth <onboarding@resend.dev>';
     const rres = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
@@ -136,6 +139,4 @@ export default async (req) => {
     console.error('lead-magnet error:', err.message);
     return new Response(JSON.stringify({ error: 'Delivery failed' }), { status: 502 });
   }
-};
-
-export const config = { path: '/api/lead-magnet' };
+}
