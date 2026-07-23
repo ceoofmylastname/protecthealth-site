@@ -324,19 +324,26 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
       <div class="section-head center">
         <div class="section-label">Our Team</div>
         <h2 style="margin-top:0;">Meet the professionals behind the strategy</h2>
-        <p style="color:var(--muted);max-width:560px;margin:10px auto 0;">Six licensed brokers, one philosophy: the product should serve the strategy — not become the strategy.</p>
+        <p style="color:var(--muted);max-width:560px;margin:10px auto 0;">Six licensed brokers, one philosophy: the product should serve the strategy, not become the strategy.</p>
       </div>
-      <div class="grid team-grid">
-        {TEAM.map((m, i) => (
-          <a class={`team-card tilt reveal d${Math.min(i, 4)}`} href={`/team-members/${m.slug}`}>
-            <div class="photo">
+      <div class="team-fan reveal">
+        {TEAM.map((m, i) => {
+          const d = i - (TEAM.length - 1) / 2;
+          return (
+            <a
+              class="fan-card"
+              href={`/team-members/${m.slug}`}
+              aria-label={`${m.name}, ${m.role} at ProtectHealth`}
+              style={`--fx:${(d * 95).toFixed(0)}px; --fy:${(Math.abs(d) * -26).toFixed(0)}px; --fr:${(d * 10).toFixed(1)}deg; --fd:${i * 90}ms; z-index:${TEAM.length - Math.round(Math.abs(d) * 2)};`}
+            >
               <img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" />
-            </div>
-            <h3>{m.name}</h3>
-            <span class="role">{m.role} · ProtectHealth</span>
-            <span class="tc-more">View Profile →</span>
-          </a>
-        ))}
+              <span class="fan-name"><b>{m.name.split(' ')[0]}</b>{m.role.split('/')[0].trim()}</span>
+            </a>
+          );
+        })}
+      </div>
+      <div style="text-align:center;margin-top:26px;">
+        <a href="/our-team" class="btn">Meet The Whole Team</a>
       </div>
     </div>
   </section>
@@ -511,6 +518,28 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* reveals */
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.in { opacity: 1; transform: none; }
+
+  /* ===== v8.2: fanned team deck ===== */
+  .team-fan { position: relative; height: 300px; margin-top: 26px; }
+  .fan-card { position: absolute; left: 50%; top: 50%; width: clamp(120px, 13vw, 172px); height: clamp(120px, 13vw, 172px); border-radius: 18px; overflow: visible; opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4); transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; transition-delay: var(--fd); text-decoration: none; }
+  .team-fan.in .fan-card { opacity: 1; transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) rotate(var(--fr)); }
+  .fan-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; border: 3px solid #fff; box-shadow: 0 18px 44px rgba(15, 53, 103, 0.28); display: block; transition: box-shadow 0.25s ease; }
+  .fan-card:hover { z-index: 99 !important; }
+  .team-fan.in .fan-card:hover { transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy) - 10px)) rotate(0deg) scale(1.12); transition-delay: 0s; transition-duration: 0.35s; }
+  .fan-card:hover img { box-shadow: 0 28px 60px rgba(15, 53, 103, 0.4), 0 0 0 3px rgba(25, 123, 255, 0.35); }
+  .fan-name { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%) translateY(6px); display: flex; flex-direction: column; align-items: center; gap: 0; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 14px; font-size: 0.72rem; color: var(--muted); white-space: nowrap; box-shadow: var(--shadow-sm); opacity: 0; transition: opacity 0.22s ease, transform 0.22s ease; pointer-events: none; }
+  .fan-name b { color: var(--navy); font-size: 0.88rem; }
+  .fan-card:hover .fan-name { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 700px) {
+    .team-fan { height: 210px; }
+    .fan-card { width: clamp(84px, 22vw, 110px); height: clamp(84px, 22vw, 110px); }
+    .team-fan.in .fan-card { transform: translate(calc(-50% + var(--fx) * 0.42), calc(-50% + var(--fy) * 0.6)) rotate(var(--fr)); }
+    .team-fan.in .fan-card:hover { transform: translate(calc(-50% + var(--fx) * 0.42), calc(-50% + var(--fy) * 0.6)) scale(1.1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fan-card, .team-fan.in .fan-card { transition: none; }
+  }
 
   /* ===== v8.1: sticky stacking coverage deck ===== */
   .stackzone { position: relative; background: linear-gradient(160deg, #081d3d 0%, var(--navy) 50%, #0d2a52 100%); border-radius: 34px; margin: 40px 14px; padding: 30px 0 60px; overflow: clip; }
