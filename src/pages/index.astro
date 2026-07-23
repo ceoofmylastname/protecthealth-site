@@ -43,7 +43,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
 >
   <!-- ============ CINEMATIC INTRO (plays once per session, dissolves into homepage) ============ -->
   <div id="site-intro" aria-hidden="true">
-    <video id="intro-video" src={INTRO_VIDEO} muted playsinline preload="auto"></video>
+    <video id="intro-video" data-src={INTRO_VIDEO} muted playsinline preload="none"></video>
     <div class="intro-brand">P R O T E C T H E A L T H</div>
     <button id="intro-skip" type="button">Skip Intro →</button>
   </div>
@@ -869,7 +869,9 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     let seen = false;
     try { seen = sessionStorage.getItem('ph_intro_seen') === '1'; } catch (e) {}
     const saveData = navigator.connection && navigator.connection.saveData;
-    if (seen || reduce || saveData) { intro.remove(); return; }
+    const mobile = matchMedia('(max-width: 820px)').matches;
+    if (seen || reduce || saveData || mobile) { intro.remove(); return; }
+    vid.src = vid.dataset.src;
     try { sessionStorage.setItem('ph_intro_seen', '1'); } catch (e) {}
 
     document.documentElement.classList.add('intro-lock');

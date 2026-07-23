@@ -152,6 +152,8 @@ const orgSchema = organizationSchema();
       (() => {
         const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
         const els = document.querySelectorAll('.reveal');
+        // Failsafe: nothing stays invisible if observation stalls on slow devices
+        setTimeout(() => els.forEach((el) => el.classList.add('in')), 3000);
         if (reduce) { els.forEach((el) => el.classList.add('in')); }
         else {
           const io = new IntersectionObserver((ens) => {

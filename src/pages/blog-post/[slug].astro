@@ -88,7 +88,7 @@ const schemas = [
       <h1>{d.title}</h1>
       <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
 
-      {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].png} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
+      {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].webp} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
 
       <div id="ai-summary">{d.speakableText}</div>
 

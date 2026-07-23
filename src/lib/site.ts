@@ -2,7 +2,7 @@
 export const SITE = {
   name: 'ProtectHealth',
   domain: 'https://www.protecthealth.com',
-  tagline: 'The product should serve the strategy — not become the strategy.',
+  tagline: 'The product should serve the strategy, not become the strategy.',
   phone: '800-240-8185',
   phoneHref: 'tel:+18002408185',
   description:
@@ -196,17 +196,17 @@ export const FAQ_ART = art('034236', 'ef11febc-6b23-4a46-b916-8d7739c65543', 'A 
 // Higgsfield-generated brand imagery (hotlinked; localize with the Webflow set — see CLAUDE.md).
 const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH';
 export const HF_ASSETS = {
-  hero: `${HF}/hf_20260722_013708_a84d4826-1079-4760-9abb-41f524438e7d.png`,
-  advisor: `${HF}/hf_20260722_013710_d47f6de9-17a4-470b-a6f0-9f0c5853ea68.png`,
-  realtor: `${HF}/hf_20260722_013712_31f9529e-81b6-4bdd-9fe9-ac965a5246da.png`,
-  employers: `${HF}/hf_20260722_013714_46d2a51a-942a-4ecc-aee3-a320f2aaca8c.png`,
+  hero: `${HF}/hf_20260722_013708_a84d4826-1079-4760-9abb-41f524438e7d_min.webp`,
+  advisor: `${HF}/hf_20260722_013710_d47f6de9-17a4-470b-a6f0-9f0c5853ea68_min.webp`,
+  realtor: `${HF}/hf_20260722_013712_31f9529e-81b6-4bdd-9fe9-ac965a5246da_min.webp`,
+  employers: `${HF}/hf_20260722_013714_46d2a51a-942a-4ecc-aee3-a320f2aaca8c_min.webp`,
   icons: {
-    'health-insurance': `${HF}/hf_20260722_013725_2285183b-231e-4eae-9734-beb0340564fb.png`,
-    'life-insurance': `${HF}/hf_20260722_013727_524ccf50-5b61-4320-b4d6-1b309fa33f23.png`,
-    'gap-health-insurance': `${HF}/hf_20260722_013728_0cd1aa94-5acb-416b-b880-feef2b301dda.png`,
-    'medicare': `${HF}/hf_20260722_013730_b4e06409-9e04-4111-9ee3-da84b8e14570.png`,
-    'dental-insurance': `${HF}/hf_20260722_014206_f59ef6cb-24da-4761-9832-40407cda5f79.png`,
-    'vision-insurance': `${HF}/hf_20260722_013733_dc867883-ef0f-4d28-8f20-f8c9ec35a715.png`,
+    'health-insurance': `${HF}/hf_20260722_013725_2285183b-231e-4eae-9734-beb0340564fb_min.webp`,
+    'life-insurance': `${HF}/hf_20260722_013727_524ccf50-5b61-4320-b4d6-1b309fa33f23_min.webp`,
+    'gap-health-insurance': `${HF}/hf_20260722_013728_0cd1aa94-5acb-416b-b880-feef2b301dda_min.webp`,
+    'medicare': `${HF}/hf_20260722_013730_b4e06409-9e04-4111-9ee3-da84b8e14570_min.webp`,
+    'dental-insurance': `${HF}/hf_20260722_014206_f59ef6cb-24da-4761-9832-40407cda5f79_min.webp`,
+    'vision-insurance': `${HF}/hf_20260722_013733_dc867883-ef0f-4d28-8f20-f8c9ec35a715_min.webp`,
   } as Record<string, string>,
 };
 
@@ -216,7 +216,7 @@ export const TEAM = [
     slug: 'brian-douglas',
     name: 'Brian Douglas',
     role: 'Owner / CEO',
-    photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6.png`,
+    photo: `${HF}/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6_min.webp`,
     bio: [
       `Brian D. Douglas is the Owner and Chief Executive Officer of ProtectHealth, one of Nevada's largest and most respected individual health insurance agencies. A licensed insurance broker and benefits advisor, Brian has spent years helping individuals, families, and small businesses navigate the often-confusing world of health insurance with clarity, transparency, and confidence.`,
       `Based in Las Vegas, Brian leads a statewide network of more than 40 licensed brokers and oversees a significant share of Nevada's individual health insurance market. His agency works extensively with Nevada Health Link and major carriers, giving clients access to comprehensive coverage options while ensuring compliance, accuracy, and long-term value.`,
@@ -228,19 +228,19 @@ export const TEAM = [
     slug: 'robert-morgen',
     name: 'Robert Morgen',
     role: 'Owner / COO & Group Services Director',
-    photo: `${HF}/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00.png`,
+    photo: `${HF}/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00_min.webp`,
     bio: [
       `Robert is one of the three owners of ProtectHealth and is a licensed Life & Health insurance broker based locally in Las Vegas. With more than a decade of experience serving Nevada families and small businesses, Robert is known for making complex health insurance decisions feel clear, practical, and manageable.`,
       `As ProtectHealth's Director of Employer Group Services, Robert specializes in designing benefit strategies for small employers. Robert also leads ProtectHealth's agent training and development to ensure clients receive a consistent, high-integrity experience from first conversation through enrollment and beyond.`,
       `Whether he's helping a business build a sustainable benefits package or guiding a household through Nevada Health Link options, Robert's approach is rooted in straight answers, strong education, and long-term client relationships.`,
     ],
   },
-  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_061526_8d8ff14f-d71b-427c-9658-63597f3d0b6c.png` },
+  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_061526_8d8ff14f-d71b-427c-9658-63597f3d0b6c_min.webp` },
   {
     slug: 'jason-vasquez',
     name: 'Jason Vasquez',
     role: 'Licensed Broker & Benefits Advisor',
-    photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9.png`,
+    photo: `${HF}/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9_min.webp`,
     bio: [
       `Jason Vasquez is a licensed Line of Authority Broker with over 16 years of experience in the financial industry, helping individuals and families make informed decisions around protecting their financial future. His approach centers on the belief that insurance is not a standalone product, but a foundational component of a well-designed financial strategy, one that helps protect income, assets, and long-term goals when life takes an unexpected turn.`,
       `Born in the San Francisco Bay Area and raised in Las Vegas from a young age, Jason brings a grounded, real-world perspective to financial protection. His career has spanned multiple areas of finance, giving him a deep understanding of how risk management, cash flow, and long-term planning work together. This background allows him to educate clients in clear, relatable terms, without jargon or pressure, so they can make confident decisions for themselves and their families.`,
@@ -252,14 +252,14 @@ export const TEAM = [
     slug: 'janet-nevarez',
     name: 'Janet Nevarez',
     role: 'Director of Administration & Operations',
-    photo: `${HF}/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08.png`,
+    photo: `${HF}/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08_min.webp`,
     bio: [
       `As ProtectHealth's Director of Administration & Operations, Janet Nevarez plays a central role in shaping the agency's operational excellence and client-focused service model. With ProtectHealth recognized as one of Nevada's largest and most respected individual health insurance agencies, Janet ensures that the organization's internal systems, administrative processes, and compliance standards consistently meet the highest level of quality.`,
       `Janet oversees the day-to-day operations that keep the agency running smoothly, from licensing and appointments to workflow optimization and cross-department coordination. Her strategic approach strengthens efficiency, enhances accuracy, and supports the seamless experience ProtectHealth is known for.`,
       `A collaborative and solutions-driven leader, Janet is committed to empowering brokers with the structure, clarity, and support they need to perform at their best. Her dedication to operational integrity and continuous improvement directly contributes to ProtectHealth's long-standing reputation for reliability, responsiveness, and trusted guidance in the health insurance marketplace.`,
     ],
   },
-  { slug: 'chris-bridgeforth', name: 'Chris Bridgeforth', role: 'Broker', photo: `${HF}/hf_20260722_060925_8d3e3ee0-ceaa-4bba-8c6b-93d9257a7032.png` },
+  { slug: 'chris-bridgeforth', name: 'Chris Bridgeforth', role: 'Broker', photo: `${HF}/hf_20260722_060925_8d3e3ee0-ceaa-4bba-8c6b-93d9257a7032_min.webp` },
 ];
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
