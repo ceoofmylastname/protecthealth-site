@@ -5,7 +5,7 @@ import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
 import { SITE, ORG_ID, TEAM, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
-import { GOOGLE_REVIEWS } from '../lib/reviews';
+import ReviewWall from '../components/ReviewWall.astro';
 import { getCollection } from 'astro:content';
 
 const pageUrl = `${SITE.domain}/self-employed`;
@@ -17,10 +17,6 @@ const clusterPosts = (await getCollection('blog'))
 const clusterQa = (await getCollection('qa'))
   .filter((q) => q.data.cluster === 'ichra')
   .sort((a, b) => a.data.question.localeCompare(b.data.question));
-const proof = ['Yvette Auger', 'Amber Gunn (Niel)', 'Stephen Kuo']
-  .map((n) => GOOGLE_REVIEWS.find((r) => r.name === n))
-  .filter(Boolean);
-
 const faq = [
   { q: 'Does every self-employed person qualify for an ICHRA or Section 105 arrangement?', a: 'No. Eligibility for tax-advantaged health-benefit structures depends on business structure, income, and household situation. A ProtectHealth strategy conversation maps which options actually fit a specific situation.' },
   { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation walks through business structure, household needs, and available options — individual coverage, PPO access, small-group opportunities, or tax-advantaged structures. If existing coverage is already right, ProtectHealth says so.' },
@@ -132,19 +128,7 @@ const schemas = [
         <div class="section-label">Real Reviews, Real Names</div>
         <h2 style="margin-top:0;">Self-employed Nevadans have had this conversation</h2>
       </div>
-      <div class="lp-reviews">
-        {proof.map((r) => (
-          <div class="lp-review spot">
-            <span class="stars">★★★★★</span>
-            <p>{r.text}</p>
-            <div class="who">
-              {r.photo ? <img src={r.photo} alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" /> : <span class="av">{r.name.charAt(0)}</span>}
-              <span><b>{r.name}</b> · {r.date} · Google</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p style="font-size:0.88rem;color:var(--muted);margin-top:16px;">Pulled word for word from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+</a>.</p>
+      <ReviewWall />
     </div>
   </section>
 

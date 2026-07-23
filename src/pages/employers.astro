@@ -5,7 +5,7 @@ import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
 import { SITE, ORG_ID, TEAM, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
-import { GOOGLE_REVIEWS } from '../lib/reviews';
+import ReviewWall from '../components/ReviewWall.astro';
 import { getCollection } from 'astro:content';
 
 const pageUrl = `${SITE.domain}/employers`;
@@ -17,10 +17,6 @@ const clusterPosts = (await getCollection('blog'))
 const clusterQa = (await getCollection('qa'))
   .filter((q) => q.data.cluster === 'employers')
   .sort((a, b) => a.data.question.localeCompare(b.data.question));
-const proof = ['Al Molinaro', 'Doris Moliga', 'Rachel Wren']
-  .map((n) => GOOGLE_REVIEWS.find((r) => r.name === n))
-  .filter(Boolean);
-
 const faq = [
   { q: 'What does the ProtectHealth and Paychex partnership include?', a: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR support, compliance, benefits administration, onboarding, retirement plans, and other employer-support solutions alongside their insurance strategy.' },
   { q: 'Is ProtectHealth becoming a payroll company?', a: 'No. ProtectHealth handles the benefits strategy conversation. When payroll, HR infrastructure, or employer services are worth exploring, ProtectHealth connects the business owner directly with a dedicated Paychex team.' },
@@ -130,19 +126,7 @@ const schemas = [
         <div class="section-label">Real Reviews, Real Names</div>
         <h2 style="margin-top:0;">The conversation, rated 4.9 out of 5</h2>
       </div>
-      <div class="lp-reviews">
-        {proof.map((r) => (
-          <div class="lp-review spot">
-            <span class="stars">★★★★★</span>
-            <p>{r.text}</p>
-            <div class="who">
-              {r.photo ? <img src={r.photo} alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" /> : <span class="av">{r.name.charAt(0)}</span>}
-              <span><b>{r.name}</b> · {r.date} · Google</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p style="font-size:0.88rem;color:var(--muted);margin-top:16px;">Pulled word for word from ProtectHealth's Google listing — <a href={SITE.reviews.url} target="_blank" rel="noopener noreferrer">read all {SITE.reviews.count}+</a>.</p>
+      <ReviewWall />
     </div>
   </section>
 
