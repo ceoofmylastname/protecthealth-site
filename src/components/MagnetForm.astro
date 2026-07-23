@@ -1,0 +1,70 @@
+---
+// Lead magnet opt-in → /api/lead-magnet (GHL contact + Resend email delivery).
+interface Props {
+  magnet: 'self-employed-playbook' | 'employer-scorecard';
+  buttonLabel?: string;
+}
+const { magnet, buttonLabel = 'Email Me The Free PDF' } = Astro.props;
+---
+<div class="magnet-form" id={`magnet-${magnet}`}>
+  <form novalidate>
+    <div class="mf-row">
+      <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" aria-label="First name" required />
+      <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" aria-label="Last name" required />
+    </div>
+    <input type="email" name="email" placeholder="Your best email" autocomplete="email" aria-label="Email" required />
+    <button type="submit" class="btn big no-arrow mf-btn">{buttonLabel}</button>
+    <p class="mf-status" role="status" aria-live="polite"></p>
+    <p class="mf-fine">Instant delivery to your inbox. No spam, no daily drip, just the guide and one follow-up worth having. Unsubscribe anytime.</p>
+  </form>
+  <div class="mf-done" hidden>
+    <p><b>Check your inbox.</b> The PDF is on its way to the address you entered (give it a minute, and peek at spam the first time). Want to skip ahead? <a href="tel:8002408185">Call 800-240-8185</a> and have the conversation the guide prepares you for.</p>
+  </div>
+</div>
+
+<style>
+  .magnet-form { max-width: 460px; }
+  .mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .magnet-form input { width: 100%; padding: 14px 16px; margin-bottom: 10px; border: 1.5px solid var(--line); border-radius: 12px; font-family: var(--font); font-size: 1rem; background: #fff; transition: border-color 0.2s, box-shadow 0.2s; }
+  .magnet-form input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25, 123, 255, 0.15); }
+  .mf-btn { width: 100%; justify-content: center; }
+  .mf-btn.busy { opacity: 0.75; pointer-events: none; }
+  .mf-status { font-weight: 700; color: #c0392b; font-size: 0.88rem; min-height: 1.2em; margin: 8px 0 0; }
+  .mf-fine { font-size: 0.8rem; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  .mf-done p { background: rgba(25, 123, 255, 0.07); border: 1.5px solid rgba(25, 123, 255, 0.3); border-radius: 12px; padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: var(--ink); }
+  @media (max-width: 480px) { .mf-row { grid-template-columns: 1fr; gap: 0; } }
+</style>
+
+<script define:vars={{ magnet }}>
+  const wrap = document.getElementById(`magnet-${magnet}`);
+  const form = wrap.querySelector('form');
+  const status = wrap.querySelector('.mf-status');
+  const done = wrap.querySelector('.mf-done');
+  const btn = wrap.querySelector('.mf-btn');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(form).entries());
+    if (!fd.first_name || !fd.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fd.email)) {
+      status.textContent = 'Please add your name and a valid email.';
+      return;
+    }
+    status.textContent = '';
+    btn.classList.add('busy');
+    const label = btn.textContent;
+    btn.textContent = 'Sending...';
+    try {
+      const res = await fetch('/api/lead-magnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...fd, magnet }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      form.hidden = true;
+      done.hidden = false;
+    } catch {
+      btn.classList.remove('busy');
+      btn.textContent = label;
+      status.textContent = 'Something went wrong. Try again, or call 800-240-8185.';
+    }
+  });
+</script>

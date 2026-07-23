@@ -1,0 +1,71 @@
+---
+// Lead magnet squeeze page — ICHRA campaign (Realtors / 1099s / self-employed).
+import Base from '../../layouts/Base.astro';
+import MagnetForm from '../../components/MagnetForm.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../../lib/site';
+
+const pageUrl = `${SITE.domain}/free-guide/self-employed`;
+const description =
+  'Free PDF: The Nevada Self-Employed Health Coverage Playbook. The five doors to coverage for Realtors and 1099s, the worst-case math, and the six questions that make you impossible to oversell.';
+const schemas = [
+  { '@context': 'https://schema.org', '@type': 'WebPage', '@id': pageUrl, name: 'The Nevada Self-Employed Health Coverage Playbook (Free PDF)', description, url: pageUrl },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Free Playbook', url: pageUrl },
+  ]),
+];
+---
+<Base title="Free Playbook: Self-Employed Health Coverage In Nevada | ProtectHealth" description={description} schemas={schemas}>
+  <section class="hero mg-hero">
+    <div class="container mg-grid">
+      <div>
+        <div class="kicker">Free Playbook · 9 Pages · Instant Email Delivery</div>
+        <h1>The health coverage playbook nobody hands the self-employed</h1>
+        <p class="lead" style="color:#cfe2f7;max-width:520px;">You protect other people's biggest decisions for a living. This is the 9-page guide that finally explains yours: every door to coverage a Realtor, 1099, or business-of-one in Nevada actually has, and the math to pick between them.</p>
+        <div class="mg-formcard">
+          <p class="mg-formhead">Where should we send your copy?</p>
+          <MagnetForm magnet="self-employed-playbook" buttonLabel="Email Me The Free Playbook" />
+        </div>
+      </div>
+      <div class="mg-coverwrap">
+        <img class="mg-cover" src="/assets/guides/cover-self-employed.webp" alt="Cover of The Nevada Self-Employed Health Coverage Playbook" width="380" height="492" />
+        <span class="mg-badge">FREE PDF</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">What's Inside</div>
+        <h2 style="margin-top:0;">20 minutes of reading. Years of not getting sold.</h2>
+      </div>
+      <div class="grid cols-3 mg-inside">
+        <div class="icon-card spot"><h3>The worst-case formula</h3><p>The one-line math that exposes which "cheap" plan is actually the expensive one. Two identical premiums, $4,400 apart in a bad year, shown on one chart.</p></div>
+        <div class="icon-card spot"><h3>All five coverage doors</h3><p>Marketplace credits, a spouse's plan, ICHRA, Section 105, or keeping what you have. Side by side, with honest notes on who each door opens for.</p></div>
+        <div class="icon-card spot"><h3>Metal tiers decoded</h3><p>The 60-70-80-90 chart carriers rarely show, plus Silver's quiet superpower at certain incomes that most Nevadans miss entirely.</p></div>
+        <div class="icon-card spot"><h3>The Nevada numbers</h3><p>1 in 7 Realtors with no coverage, ICHRA adoption up 52% among small employers, and what the trend means for how you should decide.</p></div>
+        <div class="icon-card spot"><h3>Every window that matters</h3><p>Open enrollment, the 60-day life-event rule, and the auto-renewal trap that quietly costs Las Vegas families their doctors every January.</p></div>
+        <div class="icon-card spot"><h3>Six questions as armor</h3><p>Bring them to any agent, including us, and you become nearly impossible to oversell. Plus the red flags that should end a sales conversation.</p></div>
+      </div>
+      <p style="text-align:center;color:var(--muted);max-width:620px;margin:30px auto 0;font-size:0.95rem;">Written by ProtectHealth, the Las Vegas brokerage rated <b style="color:var(--navy);">4.9 from 703+ Google reviews</b>, on one rule: the product should serve the strategy, not become the strategy. No pitch inside the PDF. The education is the point.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .mg-hero { padding: 72px 0 84px; }
+  .mg-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 50px; align-items: center; }
+  .mg-formcard { margin-top: 26px; background: rgba(255, 255, 255, 0.97); border-radius: 20px; padding: 24px 26px; box-shadow: 0 24px 60px rgba(3, 12, 28, 0.4); }
+  .mg-formhead { font-weight: 800; color: var(--navy); margin: 0 0 12px; font-size: 1.05rem; }
+  .mg-coverwrap { position: relative; justify-self: center; }
+  .mg-cover { width: min(380px, 80vw); height: auto; border-radius: 14px; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.5); transform: rotate(2.5deg); border: 1px solid rgba(142, 201, 255, 0.35); }
+  .mg-badge { position: absolute; top: -14px; right: -10px; background: linear-gradient(120deg, var(--gold), #ffd98a); color: var(--navy); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; padding: 9px 16px; border-radius: 999px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3); transform: rotate(6deg); }
+  .mg-inside .icon-card h3 { margin-top: 0; }
+  @media (max-width: 860px) {
+    .mg-grid { grid-template-columns: 1fr; }
+    .mg-coverwrap { order: -1; }
+    .mg-cover { width: min(260px, 70vw); }
+  }
+</style>

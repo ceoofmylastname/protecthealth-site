@@ -1,0 +1,71 @@
+---
+// Lead magnet squeeze page — Paychex campaign (Las Vegas business owners).
+import Base from '../../layouts/Base.astro';
+import MagnetForm from '../../components/MagnetForm.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../../lib/site';
+
+const pageUrl = `${SITE.domain}/free-guide/employers`;
+const description =
+  "Free PDF: The Las Vegas Employer's Back-Office Scorecard. The Nevada tip rules national playbooks get wrong, the FICA tip credit most operators never claim, and a 12-point self-audit for payroll, HR, compliance, and benefits.";
+const schemas = [
+  { '@context': 'https://schema.org', '@type': 'WebPage', '@id': pageUrl, name: "The Las Vegas Employer's Back-Office Scorecard (Free PDF)", description, url: pageUrl },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Free Scorecard', url: pageUrl },
+  ]),
+];
+---
+<Base title="Free Scorecard: Audit Your Las Vegas Back Office | ProtectHealth" description={description} schemas={schemas}>
+  <section class="hero mg-hero">
+    <div class="container mg-grid">
+      <div>
+        <div class="kicker" style="color:#ffd98a;">Free Scorecard · 9 Pages · Instant Email Delivery</div>
+        <h1>Audit your back office in 10 minutes, before something expensive does it for you</h1>
+        <p class="lead" style="color:#cfe2f7;max-width:540px;">Vegas plays by different payroll rules than the national manuals assume. This 9-page scorecard shows you where tipped businesses leak money, the federal credit most never claim, and a 12-point audit you can run on your own operation tonight.</p>
+        <div class="mg-formcard">
+          <p class="mg-formhead">Where should we send your copy?</p>
+          <MagnetForm magnet="employer-scorecard" buttonLabel="Email Me The Free Scorecard" />
+        </div>
+      </div>
+      <div class="mg-coverwrap">
+        <img class="mg-cover" src="/assets/guides/cover-employers.webp" alt="Cover of The Las Vegas Employer's Back-Office Scorecard" width="380" height="492" />
+        <span class="mg-badge">FREE PDF</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">What's Inside</div>
+        <h2 style="margin-top:0;">Ten minutes with a pen. A back office that stops leaking.</h2>
+      </div>
+      <div class="grid cols-3 mg-inside">
+        <div class="icon-card spot"><h3>The Vegas payroll trap</h3><p>Nevada has no tip credit, and payroll setups imported from national manuals quietly build back-wage exposure every single pay period. The one-page fix.</p></div>
+        <div class="icon-card spot"><h3>The credit you're not claiming</h3><p>The federal FICA tip credit is commonly worth thousands a year to tip-heavy operations, and many eligible businesses have never heard of Form 8846.</p></div>
+        <div class="icon-card spot"><h3>The real cost of DIY HR</h3><p>70% of small business owners spend a week-plus per month on HR admin. See the twelve-weeks-a-year chart and decide if that is still your job.</p></div>
+        <div class="icon-card spot"><h3>The retention math</h3><p>You will not out-benefits a casino, and you do not have to. What small Vegas teams can actually offer, priced against the real cost of turnover.</p></div>
+        <div class="icon-card spot"><h3>The 12-point scorecard</h3><p>Payroll, HR, compliance, benefits, and owner time. Twelve checkboxes, three score bands, and exactly what your number means.</p></div>
+        <div class="icon-card spot"><h3>The one-conversation fix</h3><p>How the official ProtectHealth + Paychex partnership handles the unchecked boxes through one relationship instead of five vendors.</p></div>
+      </div>
+      <p style="text-align:center;color:var(--muted);max-width:620px;margin:30px auto 0;font-size:0.95rem;">From ProtectHealth, the Las Vegas brokerage rated <b style="color:var(--navy);">4.9 from 703+ Google reviews</b>, official Paychex partner. No product pitch inside the PDF. Bring your completed scorecard to a free strategy conversation and we start with the unchecked boxes, in order of expense.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .mg-hero { padding: 72px 0 84px; }
+  .mg-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 50px; align-items: center; }
+  .mg-formcard { margin-top: 26px; background: rgba(255, 255, 255, 0.97); border-radius: 20px; padding: 24px 26px; box-shadow: 0 24px 60px rgba(3, 12, 28, 0.4); }
+  .mg-formhead { font-weight: 800; color: var(--navy); margin: 0 0 12px; font-size: 1.05rem; }
+  .mg-coverwrap { position: relative; justify-self: center; }
+  .mg-cover { width: min(380px, 80vw); height: auto; border-radius: 14px; box-shadow: 0 34px 80px rgba(0, 0, 0, 0.5); transform: rotate(2.5deg); border: 1px solid rgba(245, 185, 66, 0.4); }
+  .mg-badge { position: absolute; top: -14px; right: -10px; background: linear-gradient(120deg, var(--gold), #ffd98a); color: var(--navy); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; padding: 9px 16px; border-radius: 999px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3); transform: rotate(6deg); }
+  .mg-inside .icon-card h3 { margin-top: 0; }
+  @media (max-width: 860px) {
+    .mg-grid { grid-template-columns: 1fr; }
+    .mg-coverwrap { order: -1; }
+    .mg-cover { width: min(260px, 70vw); }
+  }
+</style>

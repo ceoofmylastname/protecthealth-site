@@ -453,3 +453,12 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
   /* animated gradient headlines: static */
   .h-grad, .hero h1, .grad-text { animation: none !important; }
 }
+
+/* Lead magnet promo card (campaign LPs) */
+.mg-promo { display: grid; grid-template-columns: 150px 1fr; gap: 26px; align-items: center; max-width: 860px; margin: 0 auto; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg); padding: 24px 28px; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.mg-promo:hover { transform: translateY(-3px); border-color: rgba(25, 123, 255, 0.4); box-shadow: 0 16px 44px rgba(15, 53, 103, 0.15); }
+.mg-promo img { width: 150px; height: auto; border-radius: 10px; box-shadow: 0 14px 30px rgba(15, 53, 103, 0.25); transform: rotate(-2deg); }
+.mg-promo h3 { margin: 2px 0 6px; color: var(--navy); font-size: 1.25rem; }
+.mg-promo p { margin: 0 0 10px; color: var(--muted); font-size: 0.93rem; line-height: 1.6; }
+.mg-promo-cta { color: var(--blue); font-weight: 800; }
+@media (max-width: 560px) { .mg-promo { grid-template-columns: 1fr; text-align: center; } .mg-promo img { margin: 0 auto; } }
