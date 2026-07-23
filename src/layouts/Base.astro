@@ -171,8 +171,11 @@ const orgSchema = organizationSchema();
           <p>© {new Date().getFullYear()} ProtectHealth. Insurance products and availability vary by individual situation, business structure, and eligibility. ProtectHealth brokers are insurance professionals, not tax professionals. For tax or business-structure decisions, a conversation with a licensed tax professional is a make-sense next step.</p>
         </div>
       </div>
-      <div class="footer-wordmark" aria-hidden="true">
-        {'PROTECTHEALTH'.split('').map((ch) => <span class="fw-l">{ch}</span>)}
+      <div class="footer-mark" aria-hidden="true">
+        <div class="footer-wordmark">
+          {'PROTECTHEALTH'.split('').map((ch) => <span class="fw-l">{ch}</span>)}
+        </div>
+        <div class="footer-badge"><img src={ASSETS.logo} alt="" loading="lazy" /></div>
       </div>
     </footer>
   </body>

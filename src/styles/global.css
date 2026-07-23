@@ -260,16 +260,21 @@ p { margin: 0.7rem 0; }
 .footer-sitemap ul { list-style: none; columns: 2; margin-top: 10px; }
 .footer-legal { border-top: 1px solid #2a4d7d; margin-top: 28px; padding-top: 20px; font-size: 0.82rem; color: #8ba5c4; }
 
-/* Giant interactive wordmark */
-.footer-wordmark { display: flex; justify-content: center; align-items: flex-end; margin-top: 34px; padding: 0 10px; transform: translateY(0.14em); user-select: none; line-height: 0.8; white-space: nowrap; }
-.fw-l { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 6.9vw, 7.4rem); letter-spacing: -0.01em; color: transparent; -webkit-text-stroke: 1.5px rgba(102, 179, 255, 0.4); cursor: default; transition: color 0.25s ease, -webkit-text-stroke-color 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), text-shadow 0.25s ease; }
-.fw-l:hover { transform: translateY(-0.08em); }
-.fw-l:nth-child(4n+1):hover { color: #197bff; -webkit-text-stroke-color: #197bff; text-shadow: 0 0 34px rgba(25, 123, 255, 0.65); }
-.fw-l:nth-child(4n+2):hover { color: #19c8ff; -webkit-text-stroke-color: #19c8ff; text-shadow: 0 0 34px rgba(25, 200, 255, 0.65); }
-.fw-l:nth-child(4n+3):hover { color: #f5b942; -webkit-text-stroke-color: #f5b942; text-shadow: 0 0 34px rgba(245, 185, 66, 0.65); }
-.fw-l:nth-child(4n+4):hover { color: #ffffff; -webkit-text-stroke-color: #ffffff; text-shadow: 0 0 34px rgba(255, 255, 255, 0.6); }
-@media (max-width: 640px) { .site-footer { margin: 56px 8px 8px; border-radius: 22px; } .fw-l { -webkit-text-stroke-width: 1px; } }
-@media (prefers-reduced-motion: reduce) { .fw-l, .fw-l:hover { transition: none; transform: none; } }
+/* Giant ghost wordmark, faded toward the bottom, with floating logo badge */
+.footer-mark { position: relative; margin-top: 26px; padding: 30px 0 46px; }
+.footer-wordmark { display: flex; justify-content: center; align-items: flex-end; padding: 0 10px; user-select: none; line-height: 0.86; white-space: nowrap;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.9) 6%, rgba(0,0,0,0.35) 55%, transparent 96%);
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.9) 6%, rgba(0,0,0,0.35) 55%, transparent 96%); }
+.fw-l { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 6.9vw, 7.4rem); letter-spacing: -0.01em; color: rgba(186, 210, 240, 0.15); cursor: default; transition: color 0.3s ease, text-shadow 0.3s ease; }
+.fw-l:nth-child(4n+1):hover { color: rgba(25, 123, 255, 0.85); text-shadow: 0 0 30px rgba(25, 123, 255, 0.5); }
+.fw-l:nth-child(4n+2):hover { color: rgba(25, 200, 255, 0.85); text-shadow: 0 0 30px rgba(25, 200, 255, 0.5); }
+.fw-l:nth-child(4n+3):hover { color: rgba(245, 185, 66, 0.85); text-shadow: 0 0 30px rgba(245, 185, 66, 0.5); }
+.fw-l:nth-child(4n+4):hover { color: rgba(255, 255, 255, 0.9); text-shadow: 0 0 30px rgba(255, 255, 255, 0.45); }
+.footer-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -58%); width: 92px; height: 92px; border-radius: 24px; background: linear-gradient(165deg, #ffffff, #dfe9f5); display: grid; place-items: center; box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.07), 0 0 60px rgba(25, 200, 255, 0.35), 0 24px 50px rgba(3, 12, 28, 0.55); transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.footer-badge:hover { transform: translate(-50%, -62%) scale(1.05); }
+.footer-badge img { width: 68px; height: auto; }
+@media (max-width: 640px) { .site-footer { margin: 56px 8px 8px; border-radius: 22px; } .footer-badge { width: 64px; height: 64px; border-radius: 17px; } .footer-badge img { width: 46px; } .footer-mark { padding: 18px 0 30px; } }
+@media (prefers-reduced-motion: reduce) { .fw-l, .footer-badge { transition: none; } }
 
 .compliance-note { font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 26px; padding-top: 14px; }
 
