@@ -71,9 +71,42 @@ const orgSchema = organizationSchema();
             <a href={SITE.phoneHref} class="nav-phone">{SITE.phone}</a>
             <a href="/contact-us" class="btn">Talk To A Broker</a>
           </nav>
+          <button type="button" class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mnav">
+            <span class="nb-text"><i>Menu</i><i>Close</i></span>
+            <span class="nb-icon"><b></b><b></b></span>
+          </button>
         </div>
       </div>
     </header>
+
+    <div class="mnav" id="mnav" aria-hidden="true">
+      <div class="mnav-scrim" data-mnav-close></div>
+      <div class="mnav-panel">
+        <div class="mnav-layer l1"></div>
+        <div class="mnav-layer l2"></div>
+        <div class="mnav-layer l3">
+          <div class="mnav-inner">
+            <ul class="mnav-list" aria-label="Mobile navigation">
+              {[
+                { href: '/services', label: 'Services', n: '01' },
+                { href: '/buyers-guide', label: "Buyer's Guide", n: '02' },
+                { href: '/self-employed', label: 'Self-Employed', n: '03' },
+                { href: '/employers', label: 'Employers', n: '04' },
+                { href: '/blog', label: 'Blog', n: '05' },
+                { href: '/about-us', label: 'About', n: '06' },
+              ].map((l) => (
+                <li><span class="mnav-clip"><a href={l.href}><em>{l.n}</em>{l.label}</a></span></li>
+              ))}
+            </ul>
+            <div class="mnav-foot">
+              <a href="/contact-us" class="btn big no-arrow">Talk To A Broker</a>
+              <a href={SITE.phoneHref} class="mnav-phone">{SITE.phone}</a>
+              <p>2915 W Charleston Blvd Ste 170, Las Vegas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <main>
       <slot />
@@ -96,6 +129,25 @@ const orgSchema = organizationSchema();
         t.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
         t.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
       }, { passive: true });
+      // Mobile kinetic menu
+      (() => {
+        const burger = document.getElementById('navBurger');
+        const mnav = document.getElementById('mnav');
+        if (!burger || !mnav) return;
+        let open = false;
+        const set = (v) => {
+          open = v;
+          mnav.classList.toggle('open', open);
+          burger.classList.toggle('open', open);
+          burger.setAttribute('aria-expanded', String(open));
+          mnav.setAttribute('aria-hidden', String(!open));
+          document.documentElement.style.overflow = open ? 'hidden' : '';
+        };
+        burger.addEventListener('click', () => set(!open));
+        mnav.querySelectorAll('a, [data-mnav-close]').forEach((el) =>
+          el.addEventListener('click', () => set(false)));
+        addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) set(false); });
+      })();
       // v8: global scroll reveal + 3D tilt (site-wide)
       (() => {
         const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
