@@ -1,0 +1,803 @@
+---
+// Talk To A Broker — the clarity calendar.
+//
+// Four stages, one surface: qualify → pick a time → details → confirmed.
+// Qualifying first is deliberate (see the ICHRA launch kit: friction is
+// intentional, it filters quote-shoppers and preps the broker).
+//
+// Availability comes from GET /api/slots and the booking is written by
+// POST /api/book. Both are serverless functions holding the GHL private
+// integration token — nothing authenticated ever reaches the browser.
+//
+// Styles are is:global and namespaced under .bb because the day cards and
+// time pills are built at runtime by the client script, so Astro's scoped
+// data attributes would never land on them.
+const SLOT_MINUTES = 20;
+---
+
+<div class="bb" data-slot-minutes={SLOT_MINUTES}>
+  <!-- progress rail -->
+  <ol class="bb-rail" aria-label="Booking progress">
+    <li class="bb-rail-step is-current" data-step="qualify"><span>1</span> Your situation</li>
+    <li class="bb-rail-step" data-step="time"><span>2</span> Pick a time</li>
+    <li class="bb-rail-step" data-step="details"><span>3</span> Details</li>
+  </ol>
+
+  <!-- ══ STAGE 1 — QUALIFY ══ -->
+  <section class="bb-stage is-active" data-stage="qualify" aria-label="A few questions first">
+    <div class="bb-q-count"><b class="bb-q-cur">1</b> of 4</div>
+
+    <div class="bb-q is-active" data-q="role" data-required="1">
+      <h3 class="bb-q-title">Which best describes you?</h3>
+      <p class="bb-q-help">This decides who takes the conversation.</p>
+      <div class="bb-choices" role="radiogroup" aria-label="Which best describes you?">
+        <button type="button" class="bb-choice spot" data-value="Realtor"><i>A</i><span>Realtor</span></button>
+        <button type="button" class="bb-choice spot" data-value="1099 contractor"><i>B</i><span>1099 contractor</span></button>
+        <button type="button" class="bb-choice spot" data-value="Self-employed"><i>C</i><span>Self-employed</span></button>
+        <button type="button" class="bb-choice spot" data-value="Small business owner with a team"><i>D</i><span>Small business owner with a team</span></button>
+        <button type="button" class="bb-choice spot" data-value="Other"><i>E</i><span>Other</span></button>
+      </div>
+    </div>
+
+    <div class="bb-q" data-q="structure" data-required="1">
+      <h3 class="bb-q-title">How is your business currently structured?</h3>
+      <p class="bb-q-help">"Not sure" is a real answer. Most people pick it.</p>
+      <div class="bb-choices" role="radiogroup" aria-label="How is your business currently structured?">
+        <button type="button" class="bb-choice spot" data-value="Sole proprietor"><i>A</i><span>Sole proprietor</span></button>
+        <button type="button" class="bb-choice spot" data-value="LLC"><i>B</i><span>LLC</span></button>
+        <button type="button" class="bb-choice spot" data-value="S-corp"><i>C</i><span>S-corp</span></button>
+        <button type="button" class="bb-choice spot" data-value="Not sure"><i>D</i><span>Not sure</span></button>
+        <button type="button" class="bb-choice spot" data-value="Prefer to discuss"><i>E</i><span>Prefer to discuss</span></button>
+      </div>
+    </div>
+
+    <div class="bb-q" data-q="coverage" data-required="1">
+      <h3 class="bb-q-title">What's your current coverage situation?</h3>
+      <p class="bb-q-help">No wrong answer here either.</p>
+      <div class="bb-choices" role="radiogroup" aria-label="What's your current coverage situation?">
+        <button type="button" class="bb-choice spot" data-value="Marketplace plan"><i>A</i><span>Marketplace plan</span></button>
+        <button type="button" class="bb-choice spot" data-value="Spouse's plan"><i>B</i><span>Spouse's plan</span></button>
+        <button type="button" class="bb-choice spot" data-value="Group plan"><i>C</i><span>Group plan</span></button>
+        <button type="button" class="bb-choice spot" data-value="No coverage right now"><i>D</i><span>No coverage right now</span></button>
+        <button type="button" class="bb-choice spot" data-value="Not sure what I have"><i>E</i><span>Not sure what I have</span></button>
+      </div>
+    </div>
+
+    <div class="bb-q" data-q="priority" data-required="1">
+      <h3 class="bb-q-title">What matters most in this conversation?</h3>
+      <p class="bb-q-help">Last one. Then you pick a time.</p>
+      <div class="bb-choices" role="radiogroup" aria-label="What matters most in this conversation?">
+        <button type="button" class="bb-choice spot" data-value="Keeping my doctors"><i>A</i><span>Keeping my doctors</span></button>
+        <button type="button" class="bb-choice spot" data-value="Lowering total cost"><i>B</i><span>Lowering total cost</span></button>
+        <button type="button" class="bb-choice spot" data-value="Understanding my options"><i>C</i><span>Understanding my options</span></button>
+        <button type="button" class="bb-choice spot" data-value="Covering my family"><i>D</i><span>Covering my family</span></button>
+        <button type="button" class="bb-choice spot" data-value="Exploring options for my team"><i>E</i><span>Exploring options for my team</span></button>
+      </div>
+    </div>
+
+    <div class="bb-nav">
+      <button type="button" class="bb-back" hidden>← Back</button>
+    </div>
+  </section>
+
+  <!-- ══ STAGE 2 — PICK A TIME ══ -->
+  <section class="bb-stage" data-stage="time" aria-label="Pick a time">
+    <div class="bb-cal-head">
+      <div>
+        <span class="bb-eyebrow">Step 2</span>
+        <h3 class="bb-q-title">Pick your twenty minutes.</h3>
+      </div>
+      <div class="bb-chips">
+        <span class="bb-chip bb-chip-dur">20 min</span>
+        <span class="bb-chip bb-chip-tz" data-tz-label>Your local time</span>
+      </div>
+    </div>
+
+    <div class="bb-cal" data-state="loading">
+      <!-- loading -->
+      <div class="bb-cal-loading">
+        <div class="bb-skel-rail">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="bb-skel-grid">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <p class="bb-cal-msg">Checking the brokers' live availability…</p>
+      </div>
+
+      <!-- error -->
+      <div class="bb-cal-error">
+        <p class="bb-cal-msg">The calendar didn't load. That's on us, not you.</p>
+        <button type="button" class="btn ghost bb-retry">Try again</button>
+        <p class="bb-cal-msg bb-cal-sub">Or call <a href="tel:8002408185">800-240-8185</a> and a broker will set the time with you.</p>
+      </div>
+
+      <!-- empty -->
+      <div class="bb-cal-empty">
+        <p class="bb-cal-msg">No open times in the next three weeks.</p>
+        <p class="bb-cal-msg bb-cal-sub">Call <a href="tel:8002408185">800-240-8185</a> and we'll make room.</p>
+      </div>
+
+      <!-- ready -->
+      <div class="bb-cal-ready">
+        <div class="bb-days-wrap">
+          <button type="button" class="bb-days-arrow bb-days-prev" aria-label="Earlier days">‹</button>
+          <div class="bb-days" role="tablist" aria-label="Available days"></div>
+          <button type="button" class="bb-days-arrow bb-days-next" aria-label="Later days">›</button>
+        </div>
+        <div class="bb-times" role="tabpanel" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="bb-nav">
+      <button type="button" class="bb-back">← Back</button>
+    </div>
+  </section>
+
+  <!-- ══ STAGE 3 — DETAILS ══ -->
+  <section class="bb-stage" data-stage="details" aria-label="Your details">
+    <span class="bb-eyebrow">Step 3</span>
+    <h3 class="bb-q-title">Where should the broker reach you?</h3>
+
+    <div class="bb-selected spot" data-selected-summary>
+      <span class="bb-selected-label">Your conversation</span>
+      <strong class="bb-selected-when">—</strong>
+      <button type="button" class="bb-change">Change time</button>
+    </div>
+
+    <form class="bb-form" novalidate>
+      <div class="bb-row">
+        <label class="bb-field">
+          <span>First name</span>
+          <input type="text" name="first_name" autocomplete="given-name" required />
+        </label>
+        <label class="bb-field">
+          <span>Last name</span>
+          <input type="text" name="last_name" autocomplete="family-name" required />
+        </label>
+      </div>
+      <div class="bb-row">
+        <label class="bb-field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label class="bb-field">
+          <span>Phone</span>
+          <input type="tel" name="phone" autocomplete="tel" required />
+        </label>
+      </div>
+      <label class="bb-field">
+        <span>Anything you want us to know before we talk? <i>optional</i></span>
+        <textarea name="notes" rows="2"></textarea>
+      </label>
+
+      <p class="bb-err" role="alert"></p>
+
+      <button type="submit" class="btn big bb-submit">Confirm My Conversation</button>
+
+      <p class="bb-fineprint">
+        This is a strategy conversation, not a sales appointment. If business or tax
+        structure comes up, ProtectHealth may suggest looping in your tax professional.
+        That is a good sign, not a runaround.
+      </p>
+    </form>
+
+    <div class="bb-nav">
+      <button type="button" class="bb-back">← Back</button>
+    </div>
+  </section>
+
+  <!-- ══ STAGE 4 — CONFIRMED ══ -->
+  <section class="bb-stage" data-stage="done" aria-label="Booked">
+    <div class="bb-done">
+      <div class="bb-done-mark" aria-hidden="true">
+        <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" /><path d="M15 27l8 8 15-16" /></svg>
+      </div>
+      <span class="bb-eyebrow">You're booked</span>
+      <h3 class="bb-q-title bb-done-when">—</h3>
+      <p class="bb-done-copy">
+        Quick heads-up on how we work: this is a strategy conversation, not a sales
+        appointment. Have a rough idea of your household income and your current plan
+        details handy if you can. If business structure comes up, we may suggest looping
+        in your tax professional. That's a good sign, not a runaround.
+      </p>
+      <p class="bb-done-copy bb-done-sub">
+        A confirmation is on its way. Need to move it? Call <a href="tel:8002408185">800-240-8185</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- sticky confirm bar for the calendar stage -->
+  <div class="bb-dock" hidden>
+    <div class="bb-dock-inner">
+      <div>
+        <span class="bb-dock-label">Selected</span>
+        <strong class="bb-dock-when">—</strong>
+      </div>
+      <button type="button" class="btn bb-dock-go">Continue</button>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ============ Talk To A Broker — clarity calendar ============ */
+  .bb {
+    position: relative;
+    border-radius: var(--radius-lg);
+    padding: 30px clamp(18px, 3vw, 38px) 34px;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) padding-box,
+      linear-gradient(135deg, rgba(25, 123, 255, 0.55), rgba(25, 200, 255, 0.28) 45%, rgba(0, 125, 179, 0.5)) border-box;
+    border: 1.5px solid transparent;
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .bb::after {
+    content: "";
+    position: absolute;
+    inset: -40% -10% auto -10%;
+    height: 320px;
+    background: radial-gradient(60% 60% at 50% 50%, rgba(25, 123, 255, 0.13), transparent 70%);
+    pointer-events: none;
+  }
+  .bb > * { position: relative; z-index: 1; }
+
+  /* ---- progress rail ---- */
+  .bb-rail { display: flex; gap: 6px; list-style: none; margin: 0 0 26px; padding: 0; flex-wrap: wrap; }
+  .bb-rail-step {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 0.3px;
+    color: var(--muted); padding: 7px 14px 7px 8px; border-radius: 999px;
+    background: rgba(15, 53, 103, 0.05); transition: color 0.3s, background 0.3s;
+  }
+  .bb-rail-step span {
+    display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%;
+    background: rgba(15, 53, 103, 0.12); color: var(--navy); font-size: 0.72rem;
+    transition: background 0.3s, color 0.3s;
+  }
+  .bb-rail-step.is-current { color: var(--navy); background: rgba(25, 123, 255, 0.12); }
+  .bb-rail-step.is-current span { background: linear-gradient(135deg, var(--blue), #19c8ff); color: #fff; }
+  /* font-size:0 collapses the original digit; the tick is sized on ::before,
+     otherwise the number renders underneath the checkmark. */
+  .bb-rail-step.is-done span { background: var(--accent); color: #fff; font-size: 0; }
+  .bb-rail-step.is-done span::before { content: "✓"; font-size: 0.72rem; line-height: 1; }
+
+  /* ---- stages ---- */
+  .bb-stage { display: none; animation: bb-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bb-stage.is-active { display: block; }
+  @keyframes bb-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  .bb-eyebrow {
+    display: inline-block; text-transform: uppercase; letter-spacing: 3px;
+    font-size: 0.7rem; font-weight: 800; margin-bottom: 8px;
+    background: linear-gradient(90deg, var(--blue), #19c8ff 70%, var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .bb-q-title {
+    font-family: var(--font-display); font-weight: 800; color: var(--navy);
+    font-size: clamp(1.25rem, 2.6vw, 1.75rem); line-height: 1.18; margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .bb-q-help { color: var(--muted); font-size: 0.95rem; margin: 0 0 20px; }
+  .bb-q-count { font-size: 0.8rem; font-weight: 800; color: var(--muted); margin-bottom: 10px; }
+  .bb-q-count b { color: var(--blue); }
+
+  /* ---- question choices ---- */
+  .bb-q { display: none; }
+  .bb-q.is-active { display: block; animation: bb-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bb-choices { display: grid; gap: 9px; }
+  .bb-choice {
+    display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; cursor: pointer;
+    font-family: var(--font); font-size: 1rem; font-weight: 600; color: var(--ink);
+    padding: 14px 18px; border-radius: 13px;
+    background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, rgba(15, 53, 103, 0.14), rgba(15, 53, 103, 0.07)) border-box;
+    border: 1.5px solid transparent;
+    transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.22s, background 0.22s;
+  }
+  .bb-choice i {
+    font-style: normal; display: grid; place-items: center; flex: none;
+    width: 27px; height: 27px; border-radius: 8px; font-size: 0.78rem; font-weight: 800;
+    background: rgba(25, 123, 255, 0.1); color: var(--blue); transition: background 0.22s, color 0.22s;
+  }
+  .bb-choice:hover { transform: translateX(3px); box-shadow: 0 8px 22px rgba(25, 123, 255, 0.16); }
+  .bb-choice:hover i, .bb-choice.is-picked i { background: linear-gradient(135deg, var(--blue), #19c8ff); color: #fff; }
+  .bb-choice.is-picked {
+    background: linear-gradient(rgba(25, 123, 255, 0.07), rgba(25, 123, 255, 0.07)) padding-box,
+      linear-gradient(135deg, var(--blue), #19c8ff) border-box;
+  }
+
+  /* ---- calendar ---- */
+  .bb-cal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .bb-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bb-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem; font-weight: 800;
+    padding: 7px 14px; border-radius: 999px; white-space: nowrap;
+    background: rgba(15, 53, 103, 0.06); color: var(--muted);
+  }
+  .bb-chip-dur { background: linear-gradient(135deg, var(--blue), #19c8ff); color: #fff; box-shadow: 0 6px 16px rgba(25, 123, 255, 0.3); }
+
+  .bb-cal-loading, .bb-cal-error, .bb-cal-empty, .bb-cal-ready { display: none; }
+  .bb-cal[data-state="loading"] .bb-cal-loading { display: block; }
+  .bb-cal[data-state="error"] .bb-cal-error { display: block; text-align: center; padding: 26px 0; }
+  .bb-cal[data-state="empty"] .bb-cal-empty { display: block; text-align: center; padding: 26px 0; }
+  .bb-cal[data-state="ready"] .bb-cal-ready { display: block; }
+  .bb-cal-msg { color: var(--muted); font-size: 0.94rem; }
+  .bb-cal-sub { font-size: 0.85rem; margin-top: 6px; }
+  .bb-cal-error .btn { margin: 12px 0 4px; }
+
+  /* skeleton */
+  .bb-skel-rail { display: flex; gap: 10px; margin-bottom: 18px; }
+  .bb-skel-rail i { flex: 1; height: 88px; border-radius: 15px; }
+  .bb-skel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 9px; }
+  .bb-skel-grid i { height: 46px; border-radius: 11px; }
+  .bb-skel-rail i, .bb-skel-grid i {
+    background: linear-gradient(100deg, rgba(15, 53, 103, 0.06) 30%, rgba(15, 53, 103, 0.12) 50%, rgba(15, 53, 103, 0.06) 70%);
+    background-size: 220% 100%; animation: bb-shim 1.4s infinite linear;
+  }
+  @keyframes bb-shim { to { background-position: -220% 0; } }
+  .bb-cal-loading .bb-cal-msg { text-align: center; margin-top: 16px; }
+
+  /* day rail */
+  .bb-days-wrap { position: relative; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+  .bb-days {
+    display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth;
+    padding: 3px 1px 10px; flex: 1; scrollbar-width: none;
+  }
+  .bb-days::-webkit-scrollbar { display: none; }
+  .bb-days-arrow {
+    flex: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    border: 1.5px solid var(--line); background: #fff; color: var(--navy);
+    font-size: 1.15rem; line-height: 1; display: grid; place-items: center;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+  }
+  .bb-days-arrow:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .bb-days-arrow[disabled] { opacity: 0.3; cursor: default; }
+  .bb-days-arrow[disabled]:hover { background: #fff; color: var(--navy); border-color: var(--line); }
+
+  .bb-day {
+    flex: none; width: 92px; cursor: pointer; text-align: center; padding: 13px 6px 11px;
+    border-radius: 15px; font-family: var(--font);
+    background: linear-gradient(#fff, #fff) padding-box, linear-gradient(160deg, rgba(15, 53, 103, 0.14), rgba(15, 53, 103, 0.06)) border-box;
+    border: 1.5px solid transparent;
+    transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.22s, background 0.22s;
+  }
+  .bb-day:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(25, 123, 255, 0.18); }
+  .bb-day-dow { display: block; font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .bb-day-num { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--navy); line-height: 1.1; margin: 2px 0; letter-spacing: -0.02em; }
+  .bb-day-mon { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+  .bb-day-meter { display: flex; gap: 3px; justify-content: center; margin-top: 9px; }
+  .bb-day-meter i { width: 5px; height: 5px; border-radius: 50%; background: rgba(15, 53, 103, 0.18); }
+  .bb-day-meter i.on { background: linear-gradient(135deg, var(--blue), #19c8ff); }
+  .bb-day.is-picked {
+    background: linear-gradient(150deg, var(--navy), var(--navy-2)) padding-box,
+      linear-gradient(150deg, var(--blue), #19c8ff) border-box;
+    box-shadow: 0 12px 30px rgba(15, 53, 103, 0.32);
+  }
+  .bb-day.is-picked .bb-day-dow, .bb-day.is-picked .bb-day-mon { color: #8ec9ff; }
+  .bb-day.is-picked .bb-day-num { color: #fff; }
+  .bb-day.is-picked .bb-day-meter i { background: rgba(255, 255, 255, 0.28); }
+  .bb-day.is-picked .bb-day-meter i.on { background: #fff; }
+
+  /* time grid */
+  .bb-times { animation: bb-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bb-part { margin-bottom: 18px; }
+  .bb-part-label {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px; color: var(--muted);
+  }
+  .bb-part-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(15, 53, 103, 0.14), transparent); }
+  .bb-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 9px; }
+  .bb-slot {
+    cursor: pointer; padding: 13px 8px; border-radius: 11px; font-family: var(--font);
+    font-size: 0.98rem; font-weight: 800; color: var(--navy);
+    background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, rgba(15, 53, 103, 0.14), rgba(15, 53, 103, 0.06)) border-box;
+    border: 1.5px solid transparent;
+    transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.2s, background 0.2s, color 0.2s;
+  }
+  .bb-slot:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(25, 123, 255, 0.2); }
+  .bb-slot.is-picked {
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue), #19c8ff) padding-box, linear-gradient(135deg, var(--blue), #19c8ff) border-box;
+    box-shadow: 0 10px 26px rgba(25, 123, 255, 0.4);
+  }
+
+  /* ---- sticky dock ---- */
+  .bb-dock { position: sticky; bottom: 14px; margin-top: 18px; z-index: 3; animation: bb-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bb-dock-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 13px 14px 13px 22px; border-radius: 999px;
+    background: linear-gradient(150deg, var(--navy), var(--navy-2)) padding-box,
+      linear-gradient(120deg, rgba(25, 123, 255, 0.8), rgba(25, 200, 255, 0.4)) border-box;
+    border: 1.5px solid transparent;
+    box-shadow: 0 16px 40px rgba(15, 53, 103, 0.34);
+  }
+  .bb-dock-label { display: block; font-size: 0.68rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #8ec9ff; }
+  .bb-dock-when { color: #fff; font-family: var(--font-display); font-size: 1.02rem; font-weight: 700; }
+
+  /* ---- details ---- */
+  .bb-selected {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 15px 20px; border-radius: 15px; margin: 18px 0 22px;
+    background: linear-gradient(rgba(25, 123, 255, 0.06), rgba(25, 123, 255, 0.06)) padding-box,
+      linear-gradient(135deg, var(--blue), rgba(25, 200, 255, 0.5)) border-box;
+    border: 1.5px solid transparent;
+  }
+  .bb-selected-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; }
+  .bb-selected-when { font-family: var(--font-display); color: var(--navy); font-size: 1.05rem; font-weight: 800; }
+  .bb-selected > div, .bb-selected > strong { flex: 1 1 auto; }
+  .bb-change {
+    margin-left: auto; background: none; border: none; cursor: pointer; font-family: var(--font);
+    font-size: 0.84rem; font-weight: 800; color: var(--accent); text-decoration: underline; padding: 4px;
+  }
+
+  .bb-form { display: grid; gap: 15px; }
+  .bb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .bb-field { display: grid; gap: 6px; }
+  .bb-field > span { font-size: 0.8rem; font-weight: 800; color: var(--navy); letter-spacing: 0.2px; }
+  .bb-field > span i { font-style: normal; font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 1.5px; margin-left: 5px; }
+  .bb-field input, .bb-field textarea {
+    width: 100%; font-family: var(--font); font-size: 1rem; color: var(--ink);
+    padding: 12px 15px; border-radius: 11px; background: #fff;
+    border: 1.5px solid var(--line); transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .bb-field input:focus, .bb-field textarea:focus {
+    outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(25, 123, 255, 0.13);
+  }
+  .bb-field.is-bad input, .bb-field.is-bad textarea { border-color: #d64545; }
+  .bb-err { color: #d64545; font-size: 0.88rem; font-weight: 700; min-height: 1.2em; margin: 0; }
+  .bb-submit { justify-self: start; }
+  .bb-submit[disabled] { opacity: 0.6; pointer-events: none; }
+  .bb-fineprint { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin: 2px 0 0; }
+
+  /* ---- done ---- */
+  .bb-done { text-align: center; padding: 14px 0 6px; }
+  .bb-done-mark { width: 64px; height: 64px; margin: 0 auto 18px; }
+  .bb-done-mark svg { width: 100%; height: 100%; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .bb-done-mark circle { stroke: var(--blue); stroke-width: 2.5; stroke-dasharray: 151; stroke-dashoffset: 151; animation: bb-draw 0.6s 0.1s cubic-bezier(0.5, 0, 0.3, 1) forwards; }
+  .bb-done-mark path { stroke: var(--accent); stroke-width: 3.5; stroke-dasharray: 36; stroke-dashoffset: 36; animation: bb-draw 0.35s 0.6s cubic-bezier(0.5, 0, 0.3, 1) forwards; }
+  @keyframes bb-draw { to { stroke-dashoffset: 0; } }
+  .bb-done-copy { color: var(--muted); max-width: 560px; margin: 14px auto 0; font-size: 0.96rem; line-height: 1.7; }
+  .bb-done-sub { font-size: 0.87rem; }
+
+  /* ---- nav ---- */
+  .bb-nav { margin-top: 20px; }
+  .bb-back {
+    background: none; border: none; cursor: pointer; font-family: var(--font);
+    font-size: 0.86rem; font-weight: 800; color: var(--muted); padding: 6px 2px;
+    transition: color 0.2s;
+  }
+  .bb-back:hover { color: var(--blue); }
+
+  @media (max-width: 640px) {
+    .bb { padding: 24px 16px 28px; }
+    .bb-row { grid-template-columns: 1fr; }
+    .bb-day { width: 78px; }
+    .bb-slots { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+    .bb-rail-step { font-size: 0.7rem; padding: 6px 11px 6px 6px; }
+    /* Stack the dock rather than letting a full-width button fight the
+       label inside a flex row. */
+    .bb-dock-inner { flex-direction: column; align-items: stretch; gap: 11px; padding: 14px 16px; border-radius: 22px; }
+    .bb-dock-go { width: 100%; justify-content: center; }
+    .bb-dock-when { font-size: 0.96rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bb-stage, .bb-q.is-active, .bb-times, .bb-dock { animation: none; }
+    .bb-choice:hover, .bb-day:hover, .bb-slot:hover { transform: none; }
+    .bb-skel-rail i, .bb-skel-grid i { animation: none; }
+    .bb-done-mark circle, .bb-done-mark path { animation: none; stroke-dashoffset: 0; }
+    .bb-days { scroll-behavior: auto; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.querySelector('.bb');
+    if (!root) return;
+
+    const SLOT_MINUTES = Number(root.getAttribute('data-slot-minutes')) || 20;
+    const STAGES = ['qualify', 'time', 'details', 'done'];
+
+    const answers = {};
+    let days = [];
+    let tz = 'America/Los_Angeles';
+    let pickedDay = null;
+    let pickedSlot = null;
+    let loaded = false;
+    let submitting = false;
+
+    const $ = (sel) => root.querySelector(sel);
+    const $$ = (sel) => Array.from(root.querySelectorAll(sel));
+    const stageEl = (name) => root.querySelector(`.bb-stage[data-stage="${name}"]`);
+
+    const cal = $('.bb-cal');
+    const daysEl = $('.bb-days');
+    const timesEl = $('.bb-times');
+    const dock = $('.bb-dock');
+    const form = $('.bb-form');
+    const errEl = $('.bb-err');
+    const submitBtn = $('.bb-submit');
+
+    // ---------- formatting ----------
+    const fmtWhen = (iso) =>
+      new Date(iso).toLocaleString('en-US', {
+        timeZone: tz, weekday: 'long', month: 'long', day: 'numeric',
+        hour: 'numeric', minute: '2-digit',
+      });
+
+    const fmtTime = (iso) =>
+      new Date(iso).toLocaleTimeString('en-US', {
+        timeZone: tz, hour: 'numeric', minute: '2-digit',
+      }).replace(':00', '');
+
+    const hourIn = (iso) =>
+      Number(new Date(iso).toLocaleString('en-US', { timeZone: tz, hour: '2-digit', hour12: false }));
+
+    // ---------- stage machine ----------
+    function go(name) {
+      STAGES.forEach((s) => stageEl(s)?.classList.toggle('is-active', s === name));
+
+      const railIndex = { qualify: 0, time: 1, details: 2, done: 3 }[name];
+      $$('.bb-rail-step').forEach((step, i) => {
+        step.classList.toggle('is-current', i === railIndex);
+        step.classList.toggle('is-done', i < railIndex);
+      });
+
+      dock.hidden = !(name === 'time' && pickedSlot);
+
+      // Keep the panel in view without yanking the whole page around.
+      const top = root.getBoundingClientRect().top + window.scrollY - 90;
+      if (window.scrollY > top + 40) window.scrollTo({ top, behavior: 'smooth' });
+
+      if (name === 'time' && !loaded) loadSlots();
+      if (name === 'done') dock.hidden = true;
+    }
+
+    // ---------- stage 1: qualify ----------
+    const questions = $$('.bb-q');
+    let qIndex = 0;
+
+    function showQuestion(i) {
+      qIndex = Math.max(0, Math.min(i, questions.length - 1));
+      questions.forEach((q, n) => q.classList.toggle('is-active', n === qIndex));
+      const cur = $('.bb-q-cur');
+      if (cur) cur.textContent = String(qIndex + 1);
+      stageEl('qualify').querySelector('.bb-back').hidden = qIndex === 0;
+    }
+
+    $$('.bb-choice').forEach((choice) => {
+      choice.addEventListener('click', () => {
+        const q = choice.closest('.bb-q');
+        const key = q.getAttribute('data-q');
+        answers[key] = choice.getAttribute('data-value');
+        q.querySelectorAll('.bb-choice').forEach((c) => c.classList.remove('is-picked'));
+        choice.classList.add('is-picked');
+
+        // Small beat so the selection registers visually before advancing.
+        window.setTimeout(() => {
+          if (qIndex < questions.length - 1) showQuestion(qIndex + 1);
+          else go('time');
+        }, 260);
+      });
+    });
+
+    // ---------- stage 2: availability ----------
+    async function loadSlots() {
+      cal.setAttribute('data-state', 'loading');
+      try {
+        tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz;
+      } catch { /* keep the default */ }
+
+      const label = $('[data-tz-label]');
+      if (label) label.textContent = `Times shown in ${tz.split('/').pop().replace(/_/g, ' ')} time`;
+
+      try {
+        const res = await fetch(`/api/slots?days=21&tz=${encodeURIComponent(tz)}`, {
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(`slots ${res.status}`);
+        const data = await res.json();
+        tz = data.timezone || tz;
+        days = Array.isArray(data.days) ? data.days : [];
+        loaded = true;
+
+        if (!days.length) { cal.setAttribute('data-state', 'empty'); return; }
+        renderDays();
+        pickDay(0);
+        cal.setAttribute('data-state', 'ready');
+      } catch (err) {
+        console.error('availability load failed:', err);
+        cal.setAttribute('data-state', 'error');
+      }
+    }
+
+    function renderDays() {
+      daysEl.innerHTML = '';
+      days.forEach((day, i) => {
+        // Noon anchor so the date label can't drift across a timezone boundary.
+        const d = new Date(`${day.date}T12:00:00`);
+        const filled = Math.min(4, Math.ceil(day.slots.length / 3));
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bb-day spot';
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('data-index', String(i));
+        btn.setAttribute('aria-label', `${d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}, ${day.slots.length} times open`);
+        btn.innerHTML =
+          `<span class="bb-day-dow">${d.toLocaleDateString('en-US', { weekday: 'short' })}</span>` +
+          `<span class="bb-day-num">${d.getDate()}</span>` +
+          `<span class="bb-day-mon">${d.toLocaleDateString('en-US', { month: 'short' })}</span>` +
+          `<span class="bb-day-meter">${[0, 1, 2, 3].map((n) => `<i class="${n < filled ? 'on' : ''}"></i>`).join('')}</span>`;
+        btn.addEventListener('click', () => pickDay(i));
+        daysEl.appendChild(btn);
+      });
+      updateArrows();
+    }
+
+    function pickDay(index) {
+      pickedDay = index;
+      pickedSlot = null;
+      dock.hidden = true;
+      $$('.bb-day').forEach((d, i) => {
+        d.classList.toggle('is-picked', i === index);
+        d.setAttribute('aria-selected', String(i === index));
+      });
+      renderTimes(days[index]);
+    }
+
+    function renderTimes(day) {
+      timesEl.innerHTML = '';
+      if (!day) return;
+
+      const morning = day.slots.filter((s) => hourIn(s) < 12);
+      const afternoon = day.slots.filter((s) => hourIn(s) >= 12);
+
+      [['Morning', morning], ['Afternoon', afternoon]].forEach(([label, list]) => {
+        if (!list.length) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'bb-part';
+        const head = document.createElement('div');
+        head.className = 'bb-part-label';
+        head.textContent = label;
+        const grid = document.createElement('div');
+        grid.className = 'bb-slots';
+        list.forEach((iso) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'bb-slot';
+          btn.textContent = fmtTime(iso);
+          btn.setAttribute('aria-label', `${fmtWhen(iso)}, ${SLOT_MINUTES} minutes`);
+          btn.addEventListener('click', () => pickSlot(iso, btn));
+          grid.appendChild(btn);
+        });
+        wrap.appendChild(head);
+        wrap.appendChild(grid);
+        timesEl.appendChild(wrap);
+      });
+
+      // Re-render wiped the animation trigger; nudge it back.
+      timesEl.style.animation = 'none';
+      void timesEl.offsetHeight;
+      timesEl.style.animation = '';
+    }
+
+    function pickSlot(iso, btn) {
+      pickedSlot = iso;
+      $$('.bb-slot').forEach((s) => s.classList.remove('is-picked'));
+      btn.classList.add('is-picked');
+      $('.bb-dock-when').textContent = fmtWhen(iso);
+      dock.hidden = false;
+    }
+
+    function updateArrows() {
+      const prev = $('.bb-days-prev');
+      const next = $('.bb-days-next');
+      const max = daysEl.scrollWidth - daysEl.clientWidth;
+      prev.disabled = daysEl.scrollLeft <= 2;
+      next.disabled = daysEl.scrollLeft >= max - 2;
+    }
+    daysEl.addEventListener('scroll', updateArrows, { passive: true });
+    $('.bb-days-prev').addEventListener('click', () => { daysEl.scrollLeft -= 300; });
+    $('.bb-days-next').addEventListener('click', () => { daysEl.scrollLeft += 300; });
+    $('.bb-retry').addEventListener('click', () => { loaded = false; loadSlots(); });
+
+    $('.bb-dock-go').addEventListener('click', () => {
+      if (!pickedSlot) return;
+      $('.bb-selected-when').textContent = fmtWhen(pickedSlot);
+      go('details');
+    });
+    $('.bb-change').addEventListener('click', () => go('time'));
+
+    // ---------- back ----------
+    $$('.bb-back').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const stage = btn.closest('.bb-stage').getAttribute('data-stage');
+        if (stage === 'qualify') showQuestion(qIndex - 1);
+        else if (stage === 'time') go('qualify');
+        else if (stage === 'details') go('time');
+      });
+    });
+
+    // ---------- stage 3: submit ----------
+    function fieldError(name, message) {
+      const field = form.querySelector(`[name="${name}"]`)?.closest('.bb-field');
+      field?.classList.add('is-bad');
+      errEl.textContent = message;
+      form.querySelector(`[name="${name}"]`)?.focus();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (submitting) return;
+
+      errEl.textContent = '';
+      form.querySelectorAll('.bb-field').forEach((f) => f.classList.remove('is-bad'));
+
+      const value = (n) => String(form.querySelector(`[name="${n}"]`)?.value || '').trim();
+      const first = value('first_name');
+      const email = value('email');
+      const phone = value('phone');
+
+      if (!first) return fieldError('first_name', 'We need a first name.');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fieldError('email', 'That email does not look right.');
+      if (phone.replace(/\D/g, '').length < 10) return fieldError('phone', 'A 10-digit phone number, please.');
+      if (!pickedSlot) { go('time'); return; }
+
+      submitting = true;
+      submitBtn.disabled = true;
+      const original = submitBtn.textContent;
+      submitBtn.textContent = 'Booking…';
+
+      try {
+        const res = await fetch('/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...answers,
+            first_name: first,
+            last_name: value('last_name'),
+            email,
+            phone,
+            notes: value('notes'),
+            startTime: pickedSlot,
+            timezone: tz,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 409) {
+          // Somebody else took it between render and submit.
+          errEl.textContent = data.message || 'That time was just booked. Pick another.';
+          loaded = false;
+          pickedSlot = null;
+          go('time');
+          return;
+        }
+        if (!res.ok) throw new Error(data.message || 'booking failed');
+
+        $('.bb-done-when').textContent = fmtWhen(pickedSlot);
+        go('done');
+      } catch (err) {
+        console.error('booking failed:', err);
+        errEl.textContent =
+          'Something went wrong on our end. Call 800-240-8185 and a broker will lock the time in.';
+      } finally {
+        submitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = original;
+      }
+    });
+
+    showQuestion(0);
+
+    // Arriving from a campaign form that already collected the qualifying
+    // answers (see LeadForm.astro): skip straight to the time picker instead of
+    // asking the same four questions twice.
+    if (new URLSearchParams(location.search).get('skip') === 'qualify') {
+      root.querySelector('.bb-rail-step[data-step="qualify"]')?.classList.add('is-done');
+      go('time');
+    }
+  })();
+</script>
