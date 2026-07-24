@@ -25,7 +25,7 @@ const SLOT_MINUTES = 20;
 
   <!-- ══ STAGE 1 — QUALIFY ══ -->
   <section class="bb-stage is-active" data-stage="qualify" aria-label="A few questions first">
-    <div class="bb-q-count"><b class="bb-q-cur">1</b> of 4</div>
+    <div class="bb-q-count"><b class="bb-q-cur">1</b> of <b class="bb-q-total">4</b></div>
 
     <div class="bb-q is-active" data-q="role" data-required="1">
       <h3 class="bb-q-title">Which best describes you?</h3>
@@ -35,11 +35,15 @@ const SLOT_MINUTES = 20;
         <button type="button" class="bb-choice spot" data-value="1099 contractor"><i>B</i><span>1099 contractor</span></button>
         <button type="button" class="bb-choice spot" data-value="Self-employed"><i>C</i><span>Self-employed</span></button>
         <button type="button" class="bb-choice spot" data-value="Small business owner with a team"><i>D</i><span>Small business owner with a team</span></button>
-        <button type="button" class="bb-choice spot" data-value="Other"><i>E</i><span>Other</span></button>
+        <button type="button" class="bb-choice spot" data-value="Individual or family"><i>E</i><span>Individual or family</span></button>
+        <button type="button" class="bb-choice spot" data-value="Other"><i>F</i><span>Other</span></button>
       </div>
     </div>
 
-    <div class="bb-q" data-q="structure" data-required="1">
+    <!-- Skipped for anyone without a business. Asking an individual or a W-2
+         employee how their company is structured reads as a form that wasn't
+         built for them, and the answer would be noise on the contact record. -->
+    <div class="bb-q" data-q="structure" data-required="1" data-skip-when-role="Individual or family|Other">
       <h3 class="bb-q-title">How is your business currently structured?</h3>
       <p class="bb-q-help">"Not sure" is a real answer. Most people pick it.</p>
       <div class="bb-choices" role="radiogroup" aria-label="How is your business currently structured?">
@@ -559,25 +563,64 @@ const SLOT_MINUTES = 20;
     const questions = $$('.bb-q');
     let qIndex = 0;
 
+    // A question is skipped when the role already answered makes it nonsense —
+    // e.g. business structure for someone who doesn't have a business.
+    function isSkipped(q) {
+      const rule = q.getAttribute('data-skip-when-role');
+      if (!rule) return false;
+      return rule.split('|').includes(answers.role);
+    }
+
+    // Questions the visitor will actually see, given what they've answered.
+    const visible = () => questions.filter((q) => !isSkipped(q));
+
     function showQuestion(i) {
       qIndex = Math.max(0, Math.min(i, questions.length - 1));
       questions.forEach((q, n) => q.classList.toggle('is-active', n === qIndex));
+
+      // Count against the visible set so a skipped question doesn't leave a
+      // gap in the numbering ("2 of 4" followed by "4 of 4").
+      const list = visible();
       const cur = $('.bb-q-cur');
-      if (cur) cur.textContent = String(qIndex + 1);
+      const total = $('.bb-q-total');
+      if (cur) cur.textContent = String(Math.max(1, list.indexOf(questions[qIndex]) + 1));
+      if (total) total.textContent = String(list.length);
+
       stageEl('qualify').querySelector('.bb-back').hidden = qIndex === 0;
+    }
+
+    // Walks forward or backward past any question the current answers skip.
+    function step(from, dir) {
+      let i = from + dir;
+      while (i >= 0 && i < questions.length && isSkipped(questions[i])) i += dir;
+      return i;
     }
 
     $$('.bb-choice').forEach((choice) => {
       choice.addEventListener('click', () => {
         const q = choice.closest('.bb-q');
         const key = q.getAttribute('data-q');
-        answers[key] = choice.getAttribute('data-value');
+        const value = choice.getAttribute('data-value');
+
+        // Changing the role changes which questions apply, so drop anything
+        // answered after it rather than carrying a stale business structure
+        // onto someone who just said they're an individual.
+        if (key === 'role' && answers.role && answers.role !== value) {
+          questions.forEach((other, n) => {
+            if (n <= qIndex) return;
+            delete answers[other.getAttribute('data-q')];
+            other.querySelectorAll('.bb-choice').forEach((c) => c.classList.remove('is-picked'));
+          });
+        }
+
+        answers[key] = value;
         q.querySelectorAll('.bb-choice').forEach((c) => c.classList.remove('is-picked'));
         choice.classList.add('is-picked');
 
         // Small beat so the selection registers visually before advancing.
         window.setTimeout(() => {
-          if (qIndex < questions.length - 1) showQuestion(qIndex + 1);
+          const next = step(qIndex, 1);
+          if (next < questions.length) showQuestion(next);
           else go('time');
         }, 260);
       });
@@ -714,7 +757,7 @@ const SLOT_MINUTES = 20;
     $$('.bb-back').forEach((btn) => {
       btn.addEventListener('click', () => {
         const stage = btn.closest('.bb-stage').getAttribute('data-stage');
-        if (stage === 'qualify') showQuestion(qIndex - 1);
+        if (stage === 'qualify') showQuestion(Math.max(0, step(qIndex, -1)));
         else if (stage === 'time') go('qualify');
         else if (stage === 'details') go('time');
       });
