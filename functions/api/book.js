@@ -150,7 +150,8 @@ async function slotStillFree(token, startTime, timezone) {
 }
 
 export async function onRequestPost(context) {
-  const token = context.env.GHL_API_TOKEN;
+  const env = context.env;
+  const token = env.GHL_API_TOKEN;
   if (!token) return json({ error: 'GHL_API_TOKEN not configured' }, 500);
 
   let data;
