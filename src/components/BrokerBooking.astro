@@ -497,6 +497,8 @@ const SLOT_MINUTES = 20;
 </style>
 
 <script>
+  import { fireConfetti } from '../lib/confetti';
+
   (() => {
     const root = document.querySelector('.bb');
     if (!root) return;
@@ -822,6 +824,9 @@ const SLOT_MINUTES = 20;
 
         $('.bb-done-when').textContent = fmtWhen(pickedSlot);
         go('done');
+        // Fires only once the appointment is actually on a broker's calendar,
+        // never on a 409 or a failed write.
+        fireConfetti();
       } catch (err) {
         console.error('booking failed:', err);
         errEl.textContent =
