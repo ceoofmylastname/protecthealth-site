@@ -46,6 +46,9 @@ const ROLE_TAGS = {
   '1099 contractor': 'campaign:ichra',
   'Self-employed': 'campaign:ichra',
   'Small business owner with a team': 'campaign:paychex',
+  // Individuals belong to neither campaign. Tagging them into ICHRA or
+  // Paychex reporting would inflate both and mis-route their follow-up.
+  'Individual or family': 'audience:individual',
 };
 
 function json(body, status = 200) {
