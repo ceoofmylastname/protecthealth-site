@@ -51,6 +51,26 @@ const ROLE_TAGS = {
   'Individual or family': 'audience:individual',
 };
 
+// Supabase (ProtectHealth Ticketing System) — mirrors leads into ph_leads and
+// queues the confirmation + reminder emails. Requires env var PH_HOOK_SECRET.
+const PH_HOOK = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-booking-emails';
+
+// Deliberately non-fatal. A reporting or email failure must never cost us a
+// booking that GoHighLevel has already accepted, so this logs and moves on.
+async function recordLead(secret, payload) {
+  if (!secret) return;
+  try {
+    const res = await fetch(PH_HOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-ph-secret': secret },
+      body: JSON.stringify({ action: 'record', ...payload }),
+    });
+    if (!res.ok) console.error('ph record failed:', res.status, (await res.text()).slice(0, 200));
+  } catch (err) {
+    console.error('ph record error:', err.message);
+  }
+}
+
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -228,9 +248,33 @@ export async function onRequestPost(context) {
       status: 'open',
     });
 
+    const appointmentId = appointment?.id || appointment?.appointment?.id || null;
+
+    // 6. Mirror to Supabase, which sends the confirmation now and queues the
+    //    24-hour and 1-hour reminders.
+    await recordLead(env.PH_HOOK_SECRET, {
+      kind: 'booking',
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      phone,
+      role: data.role ?? null,
+      structure: data.structure ?? null,
+      coverage: data.coverage ?? null,
+      priority: data.priority ?? null,
+      notes: data.notes ?? null,
+      source_form: 'talk-to-a-broker',
+      page: data.page ?? '/talk-to-a-broker',
+      appointment_start: startTime,
+      appointment_end: endTime,
+      timezone,
+      ghl_contact_id: contactId,
+      ghl_appointment_id: appointmentId,
+    });
+
     return json({
       ok: true,
-      appointmentId: appointment?.id || appointment?.appointment?.id || null,
+      appointmentId,
       startTime,
       endTime,
       timezone,
