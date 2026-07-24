@@ -820,7 +820,16 @@ const SLOT_MINUTES = 20;
           go('time');
           return;
         }
-        if (!res.ok) throw new Error(data.message || 'booking failed');
+        // Surface what the server actually said. The generic fallback below is
+        // for network failures, where we genuinely don't know what happened —
+        // using it here once hid a booking that had in fact been created, and
+        // told the visitor to call and rebook a slot they already held.
+        if (!res.ok) {
+          errEl.textContent =
+            data.message ||
+            'Something went wrong on our end. Call 800-240-8185 and a broker will lock the time in.';
+          return;
+        }
 
         $('.bb-done-when').textContent = fmtWhen(pickedSlot);
         go('done');
