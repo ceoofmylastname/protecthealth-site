@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import BrokerBooking from '../components/BrokerBooking.astro';
+import ReviewBadge from '../components/ReviewBadge.astro';
+import { SITE, breadcrumbSchema } from '../lib/site';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Talk To A Broker', url: `${SITE.domain}/talk-to-a-broker` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ReserveAction',
+    name: 'Book a strategy conversation with a ProtectHealth broker',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE.domain}/talk-to-a-broker`,
+      actionPlatform: [
+        'https://schema.org/DesktopWebPlatform',
+        'https://schema.org/MobileWebPlatform',
+      ],
+    },
+    result: {
+      '@type': 'Reservation',
+      name: '20-minute strategy conversation',
+      provider: { '@id': `${SITE.domain}/#organization` },
+    },
+  },
+];
+
+// Kept deliberately short. This page has one job.
+const expectations = [
+  {
+    n: '01',
+    h: 'How your business is actually structured',
+    p: 'Sole proprietor, LLC, S-corp, or somewhere in between. Structure changes which options exist before premium ever enters the conversation.',
+  },
+  {
+    n: '02',
+    h: 'What you need coverage to do',
+    p: 'Doctors you want to keep, prescriptions you fill, family you cover, and the financial exposure you can actually absorb.',
+  },
+  {
+    n: '03',
+    h: 'Which options fit, and which do not',
+    p: 'Individual coverage, a genuine PPO, a small-group opportunity, or a tax-advantaged structure. Some will fit. Some will not. You will know which and why.',
+  },
+];
+---
+
+<Base
+  title="Talk To A Broker | 20 Minutes, No Pitch | ProtectHealth Las Vegas"
+  description="Book a 20-minute strategy conversation with a ProtectHealth broker in Las Vegas. No pitch, no quote-blasting. Walk away knowing which coverage options fit your business structure and which do not."
+  schemas={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Talk To A Broker</div>
+      <h1>20 minutes.<br />No pitch. Just clarity.</h1>
+      <p class="lead">
+        Answer four questions, pick a time, and a ProtectHealth broker walks into the
+        conversation already knowing your situation. If what you have now is right for
+        you, you'll hear that too.
+      </p>
+      <div class="tab-strip">
+        <span class="tab-pill">No quote-blasting</span>
+        <span class="tab-pill">No pressure</span>
+        <span class="tab-pill">Real availability, live</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section booking-section">
+    <div class="container booking-grid">
+      <div class="booking-main" id="book">
+        <BrokerBooking />
+      </div>
+
+      <aside class="booking-aside">
+        <div class="aside-card spot">
+          <span class="section-label">What the 20 minutes covers</span>
+          {expectations.map((item) => (
+            <div class="expect">
+              <span class="expect-n">{item.n}</span>
+              <div>
+                <h3>{item.h}</h3>
+                <p>{item.p}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="aside-card aside-trust spot">
+          <h3>We're insurance nerds, not tax professionals.</h3>
+          <p>
+            When business or tax structure becomes part of the discussion, we'll
+            recommend a brief conversation with your tax professional as a make-sense
+            next step. The right answer usually comes from your insurance advisor and
+            your tax pro working from the same page.
+          </p>
+          <ReviewBadge variant="inline" />
+        </div>
+
+        <div class="aside-card aside-call spot">
+          <span class="section-label">Rather just call?</span>
+          <a class="aside-phone" href={`tel:${SITE.phone.replace(/\D/g, '')}`}>{SITE.phone}</a>
+          <p>2915 W. Charleston Blvd, Suite 170, Las Vegas, NV 89102</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container anchor-band">
+      <p class="anchor-line">
+        The product should serve the strategy &mdash; not become the strategy.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tab-strip { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 26px; }
+  .tab-pill {
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 0.3px;
+    padding: 8px 16px; border-radius: 999px; color: #d9e6f7;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+
+  .booking-section { padding-top: 56px; }
+  .booking-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 34px; align-items: start; }
+
+  .booking-aside { display: grid; gap: 16px; position: sticky; top: 96px; }
+  .aside-card {
+    padding: 24px 24px 22px; border-radius: var(--radius-lg);
+    background: linear-gradient(#fff, #fff) padding-box,
+      linear-gradient(150deg, rgba(25, 123, 255, 0.32), rgba(15, 53, 103, 0.1)) border-box;
+    border: 1.5px solid transparent;
+    box-shadow: var(--shadow-sm);
+  }
+  .aside-card h3 { margin: 0 0 6px; font-size: 1.02rem; }
+  .aside-card p { font-size: 0.9rem; color: var(--muted); margin: 0; line-height: 1.65; }
+
+  .expect { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .expect:first-of-type { border-top: none; padding-top: 8px; }
+  .expect-n {
+    flex: none; font-family: var(--font-display); font-size: 0.82rem; font-weight: 800;
+    letter-spacing: 1px; padding-top: 3px;
+    background: linear-gradient(135deg, var(--blue), #19c8ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .aside-trust { background: linear-gradient(155deg, #f7fbff, #fff) padding-box, linear-gradient(150deg, rgba(245, 185, 66, 0.55), rgba(25, 123, 255, 0.2)) border-box; }
+  .aside-trust :global(.proof-inline) { margin-top: 16px; }
+
+  .aside-call { text-align: center; }
+  .aside-phone {
+    display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
+    color: var(--navy); text-decoration: none; letter-spacing: -0.02em; margin: 2px 0 8px;
+  }
+  .aside-phone:hover { color: var(--blue); }
+
+  .anchor-band { text-align: center; }
+  .anchor-line {
+    font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em;
+    font-size: clamp(1.2rem, 2.6vw, 1.85rem); line-height: 1.3;
+    max-width: 780px; margin: 0 auto; color: var(--navy);
+  }
+
+  @media (max-width: 980px) {
+    .booking-grid { grid-template-columns: 1fr; }
+    .booking-aside { position: static; }
+  }
+</style>

@@ -33,6 +33,25 @@ const CAMPAIGNS = {
   },
 };
 
+// Supabase (ProtectHealth Ticketing System) — mirrors form submissions into
+// ph_leads so they show up in the admin dashboard alongside real bookings.
+// Requires env var PH_HOOK_SECRET. Non-fatal by design.
+const PH_HOOK = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-booking-emails';
+
+async function recordLead(secret, payload) {
+  if (!secret) return;
+  try {
+    const res = await fetch(PH_HOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-ph-secret': secret },
+      body: JSON.stringify({ action: 'record', kind: 'form', ...payload }),
+    });
+    if (!res.ok) console.error('ph record failed:', res.status, (await res.text()).slice(0, 200));
+  } catch (err) {
+    console.error('ph record error:', err.message);
+  }
+}
+
 async function ghl(path, method, token, body) {
   const res = await fetch(`${GHL_BASE}${path}`, {
     method,
@@ -119,6 +138,22 @@ export default async (req) => {
       contactId,
       name: `${campaign.oppPrefix} — ${fullName || email || phone}`,
       status: 'open',
+    });
+
+    // Mirror to Supabase for the admin dashboard. No emails are queued for a
+    // form submission — there is no appointment to remind anyone about.
+    await recordLead(process.env.PH_HOOK_SECRET, {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      phone,
+      role: data.interest ?? null,
+      structure: data.structure ?? null,
+      coverage: data.coverage ?? null,
+      priority: data.priority ?? null,
+      notes: data.notes ?? null,
+      source_form: formId,
+      page: data.page ?? null,
     });
 
     return new Response(JSON.stringify({ ok: true }), {

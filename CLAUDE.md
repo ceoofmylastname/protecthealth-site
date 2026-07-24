@@ -4,12 +4,25 @@ Context for Claude Code sessions working in this repo.
 
 ## What this is
 
-Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Cloudflare Pages (Netlify legacy supported). Lead capture: GoHighLevel via serverless function at `/api/lead` — Cloudflare version in `functions/api/*.js` (Pages Functions, env via context.env), Netlify mirror in `netlify/functions/*.mjs`. Keep BOTH in sync when editing. Lead magnet delivery at `/api/lead-magnet` (Resend; env RESEND_API_KEY, RESEND_FROM) — upserts contact + tags by campaign + note with form answers + opportunity in the "ProtectHealth New Lead/Client" pipeline (location nF7RwerbB5hn27XaM9D2). Requires `GHL_API_TOKEN` env var in Netlify (Private Integration token, contacts.write + opportunities.write). Thank-you state embeds the GHL "ProtectHealth Consultation" booking calendar (naoB13PMLUxH7fAcVXg0). The site operationalizes two confirmed marketing campaigns:
+Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Cloudflare Pages (Netlify legacy supported). Lead capture: GoHighLevel via serverless function at `/api/lead` — Cloudflare version in `functions/api/*.js` (Pages Functions, env via context.env), Netlify mirror in `netlify/functions/*.mjs`. Keep BOTH in sync when editing. Lead magnet delivery at `/api/lead-magnet` (Resend; env RESEND_API_KEY, RESEND_FROM) — upserts contact + tags by campaign + note with form answers + opportunity in the "ProtectHealth New Lead/Client" pipeline (location nF7RwerbB5hn27XaM9D2). Requires `GHL_API_TOKEN` env var in Netlify (Private Integration token, contacts.write + opportunities.write). Booking runs on a CUSTOM calendar at `/talk-to-a-broker`, not the GHL iframe — `/api/slots` (GET, proxies GHL free-slots, needs `calendars.readonly`) feeds it and `/api/book` (POST, needs `calendars/events.write`) upserts the contact + writes the real appointment on calendar naoB13PMLUxH7fAcVXg0 + note + opportunity. Every form thank-you state links to `/talk-to-a-broker?skip=qualify#book` (skips the four qualifying questions because /api/lead already captured them). The GHL booking iframe is GONE site-wide — do not reintroduce it, the calendar allows 100 appointments per slot so the iframe can double-book brokers. The site operationalizes two confirmed marketing campaigns:
 
 1. **ICHRA campaign** ("Strategy Over Product") — Realtors, 1099s, self-employed → `/self-employed`
 2. **Paychex campaign** ("More Than Your Group Plan") — business owners with employees → `/employers`
 
 Campaign briefs and launch kits live in the claude.ai project "Strategy Over Product — ICHRA & 1099 Campaign" under `Protect Health 2.0/`.
+
+## Booking flow (`/talk-to-a-broker`)
+
+Every "Talk To A Broker" CTA site-wide points here. Four qualifying questions (from the ICHRA launch kit — friction is intentional) → custom slot picker on live GHL availability → contact details → confirmed. `src/components/BrokerBooking.astro` holds the whole state machine; its styles are `is:global` namespaced under `.bb` because day cards and time pills are built at runtime, so Astro's scoped attributes would never land on them.
+
+- Slots are fetched and displayed in the VISITOR's timezone (`Intl` detected, server-validated), not Las Vegas time. The chip states which zone is being shown. `/api/book` records both.
+- `/api/book` sets `endTime` explicitly to start + 20 min. The GHL calendar's own `slotDuration` is 1 minute, so without this the broker's calendar blocks one minute instead of twenty.
+- `/api/book` re-checks free-slots before writing. Required, not belt-and-braces: `appoinmentPerSlot` on that calendar is 100, so GHL will NOT reject a collision. A 409 bounces the visitor back to a refreshed calendar.
+- Confirmations/reminders/pipeline automation hang off the GHL native "Appointment Booked" trigger, NOT an inbound webhook — the appointment is real calendar state.
+- `/contact-us` stays live (indexed Webflow URL) as general contact. It is no longer the booking destination.
+
+### Known GHL config debt on calendar naoB13PMLUxH7fAcVXg0
+Flagged July 2026, owner decision pending: `slotDuration` 1 min (should be 20), `appoinmentPerSlot` 100 (should be 1), round robin contains only office@protecthealth.com rather than the brokers, `lookBusyConfig` hides 20% of real availability, `allowBookingAfter` 2 days blocks same-week booking, `allowBookingFor` 10 days caps the window below the 21 days the page requests.
 
 ## Non-negotiable content rules
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.0",
+    "@supabase/supabase-js": "^2.110.8",
     "astro": "^5.0.0"
   }
 }

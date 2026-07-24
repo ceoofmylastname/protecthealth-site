@@ -69,7 +69,7 @@ const orgSchema = organizationSchema();
             <a href="/blog">Blog</a>
             <a href="/about-us">About</a>
             <a href={SITE.phoneHref} class="nav-phone">{SITE.phone}</a>
-            <a href="/contact-us" class="btn">Talk To A Broker</a>
+            <a href="/talk-to-a-broker" class="btn">Talk To A Broker</a>
           </nav>
           <button type="button" class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mnav">
             <span class="nb-text"><i>Menu</i><i>Close</i></span>
@@ -100,7 +100,7 @@ const orgSchema = organizationSchema();
               ))}
             </ul>
             <div class="mnav-foot">
-              <a href="/contact-us" class="btn big no-arrow">Talk To A Broker</a>
+              <a href="/talk-to-a-broker" class="btn big no-arrow">Talk To A Broker</a>
               <a href={SITE.phoneHref} class="mnav-phone">{SITE.phone}</a>
               <p>2915 W Charleston Blvd Ste 170, Las Vegas</p>
             </div>
@@ -224,6 +224,11 @@ const orgSchema = organizationSchema();
         </div>
         <div class="footer-legal">
           <p>© {new Date().getFullYear()} ProtectHealth. Insurance products and availability vary by individual situation, business structure, and eligibility. ProtectHealth brokers are insurance professionals, not tax professionals. For tax or business-structure decisions, a conversation with a licensed tax professional is a make-sense next step.</p>
+          <p class="footer-legal-links">
+            <a href="/privacy-policy">Privacy Policy</a>
+            <span aria-hidden="true">·</span>
+            <a href="/terms-and-conditions">Terms &amp; Conditions</a>
+          </p>
         </div>
       </div>
       <div class="footer-mark" aria-hidden="true">

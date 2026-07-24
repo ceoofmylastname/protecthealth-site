@@ -4,7 +4,9 @@
 // Env vars (Netlify → Site configuration → Environment variables):
 //   GHL_API_TOKEN  - existing GHL Private Integration token
 //   RESEND_API_KEY - Resend API key
-//   RESEND_FROM    - optional, e.g. "ProtectHealth <guides@protecthealth.com>"
+//   RESEND_FROM    - optional. Defaults to the verified insure.protecthealth.com
+//                    subdomain. Only verified domains can send; the bare
+//                    protecthealth.com is NOT verified in Resend.
 //                    (domain must be verified in Resend; defaults below)
 
 const GHL_BASE = 'https://services.leadconnectorhq.com';
@@ -117,7 +119,7 @@ export async function onRequestPost(context) {
     }
 
     // 3. Email the PDF via Resend
-    const from = env.RESEND_FROM || 'ProtectHealth <onboarding@resend.dev>';
+    const from = env.RESEND_FROM || 'ProtectHealth <guides@insure.protecthealth.com>';
     const rres = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },

@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { SITE, breadcrumbSchema } from '../lib/site';
+
+// Copy ported verbatim from the Webflow original at /privacy-policy (effective
+// 2024). Wording is unchanged on purpose — this is a legal document, not
+// marketing copy, so only the structure and presentation were rebuilt. The
+// Webflow page had the entire policy inside a single <h1>, which is why the
+// headings here are reconstructed rather than copied.
+//
+// NOTE FOR WHOEVER EDITS THIS NEXT: the 2024 text predates the current data
+// flows. The site now passes personal data to GoHighLevel, Supabase and Resend,
+// and none of those are named below. That gap needs a lawyer, not a rewrite.
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Privacy Policy', url: `${SITE.domain}/privacy-policy` },
+  ]),
+];
+
+const sections = [
+  {
+    id: 'what-we-collect',
+    label: 'What we collect',
+    title: 'What we collect (and why it matters to you)',
+    blocks: [
+      { type: 'p', text: "Here's the lowdown: we collect just what we need to give you better health insurance. No unnecessary extras. Here's what we gather:" },
+      {
+        type: 'defs',
+        items: [
+          { term: 'Basic info', text: "Name, contact info, address — y'know, the usual. This helps us tailor plans and make sure we can communicate with you directly." },
+          { term: 'Health and financial stuff', text: "Your medical history, income, or anything that's essential to getting you the best insurance. No fluff, just facts." },
+          { term: 'Online activity', text: "Your IP address, device info, and site behavior. This keeps things smooth and secure when you're using our website or app." },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'how-we-use-it',
+    label: 'How we use your data',
+    title: 'How we use your data (to put you first)',
+    blocks: [
+      { type: 'p', text: "We take your data seriously because, hey, it's your data. Here's how we make sure it works for you:" },
+      {
+        type: 'defs',
+        items: [
+          { term: 'Personalized insurance offers', text: 'We use your info to craft custom plans that actually make sense for your needs.' },
+          { term: 'Customer support', text: "Whether it's claims, updates, or questions, your data helps us serve you faster and better." },
+          { term: 'Security', text: 'We use your info to beef up security, keeping your data safe from hackers and bad actors.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'who-sees-it',
+    label: 'Who sees your info',
+    title: 'Who sees your info (hint: only the essentials)',
+    blocks: [
+      { type: 'p', text: "We're not here to play fast and loose with your information. Here's how we share it:" },
+      { type: 'callout', title: 'No selling. Ever.', text: 'Your data is never for sale. Full stop.' },
+      {
+        type: 'defs',
+        items: [
+          { term: 'Trusted third parties', text: 'We might share with partners like underwriters, or tech folks if it helps get you better coverage or smooth out service.' },
+          { term: 'Service providers', text: 'Sometimes we need help, so we share with third-party services (think tech support or billing) but only the info they need to do their job.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'your-control',
+    label: 'Your control',
+    title: "Your data, your call",
+    blocks: [
+      { type: 'p', text: "You're in the driver's seat when it comes to your personal info. Here's how you control it:" },
+      {
+        type: 'defs',
+        items: [
+          { term: 'Access and review', text: 'Want to know what we have on file? Just ask.' },
+          { term: 'Fix it', text: 'See something wrong? You can update or correct your info anytime.' },
+          { term: 'Delete', text: "Want it gone? We'll respect your request where legally possible." },
+          { term: 'Opt out', text: "Don't want marketing emails? You can opt out at any time without the hassle." },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'security',
+    label: 'Security',
+    title: "Security (aka your data's bodyguard)",
+    blocks: [
+      { type: 'p', text: "We don't mess around when it comes to security. We've got advanced tech in place to protect your data from unauthorized access, breaches, and leaks. It's like a virtual vault for your most personal info." },
+    ],
+  },
+  {
+    id: 'cookies',
+    label: 'Cookies and tracking',
+    title: 'Cookies and tracking (because we love a good cookie)',
+    blocks: [
+      { type: 'p', text: 'Yep, we use cookies to make your online experience smoother and smarter. Cookies help us remember your preferences, keep things fast, and show you relevant offers. Not into cookies? You can block them in your browser, but heads-up, it might mess with your ProtectHealth experience.' },
+    ],
+  },
+  {
+    id: 'changes',
+    label: 'Policy changes',
+    title: 'Policy changes (keeping you in the loop)',
+    blocks: [
+      { type: 'p', text: "We're always evolving. If we change this privacy policy, you'll know. We'll update it right here, and if it's a big change, we'll make sure you get a heads-up." },
+    ],
+  },
+  {
+    id: 'contact',
+    label: 'Got questions?',
+    title: "Got questions? Let's talk",
+    blocks: [
+      { type: 'p', text: "We're here for you, just like our coverage. Got a question about this policy or anything else? Reach out at 800-240-8185, or write to ProtectHealth, 2915 W. Charleston Blvd Ste 170, Las Vegas, NV 89102." },
+    ],
+  },
+];
+---
+
+<Base
+  title="Privacy Policy | Your Data Security & Privacy Rights | ProtectHealth"
+  description="How ProtectHealth collects, uses and protects your personal information. What we gather, who sees it, how you control it, and our commitment never to sell your data."
+  schemas={schemas}
+>
+  <LegalDoc
+    kicker="Legal"
+    title="Your privacy, in plain English."
+    effective="2024"
+    intro="Let's be real: your privacy matters. At ProtectHealth, we're not just shaking up health insurance, we're making sure your personal info stays locked up tighter than Fort Knox. This policy breaks down what we collect, how we use it, and most importantly, how we never sell it."
+    sections={sections}
+    updatedNote="This policy is presented as published. If anything here is unclear, or you want to know exactly what we hold on you, call 800-240-8185 and ask. You will get a straight answer."
+  />
+</Base>

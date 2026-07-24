@@ -1,0 +1,411 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Internal tool. Static page — every byte of data is fetched in the browser
+// through Supabase with the anon key, and Row Level Security decides whether
+// the signed-in user sees anything at all. No service key ever ships here.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base
+  title="Admin — ProtectHealth"
+  description="Internal dashboard."
+  noindex={true}
+>
+  <section class="ad" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <!-- boot -->
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <!-- signed out -->
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link. No password to remember or lose.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- signed in but not on the allowlist -->
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list for this dashboard.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- dashboard -->
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Appointments &amp; enquiries</h1>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="upcoming">—</b><span>Upcoming conversations</span></div>
+          <div class="ad-stat spot"><b data-stat="bookings">—</b><span>Bookings all time</span></div>
+          <div class="ad-stat spot"><b data-stat="forms">—</b><span>Form enquiries</span></div>
+          <div class="ad-stat spot"><b data-stat="emails">—</b><span>Emails sent</span></div>
+          <div class="ad-stat spot"><b data-stat="queued">—</b><span>Emails queued</span></div>
+        </div>
+
+        <div class="ad-toolbar">
+          <input type="search" class="ad-search" placeholder="Search name, email or phone…" aria-label="Search" />
+          <div class="ad-filters" role="group" aria-label="Filter">
+            <button type="button" class="ad-chip is-on" data-filter="all">All</button>
+            <button type="button" class="ad-chip" data-filter="booking">Bookings</button>
+            <button type="button" class="ad-chip" data-filter="form">Enquiries</button>
+            <button type="button" class="ad-chip" data-filter="upcoming">Upcoming</button>
+          </div>
+          <button type="button" class="ad-refresh" title="Refresh">↻</button>
+        </div>
+
+        <div class="ad-split">
+          <div class="ad-list" role="list"></div>
+          <aside class="ad-detail">
+            <div class="ad-detail-empty ad-muted">Pick someone on the left to see everything they told us and every email they've been sent.</div>
+            <div class="ad-detail-body" hidden></div>
+          </aside>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .ad { padding: 40px 0 80px; min-height: 70vh; background: var(--bg-soft); }
+  .ad-center { display: grid; place-items: center; min-height: 60vh; }
+  .ad-muted { color: var(--muted); font-size: 0.92rem; }
+
+  .ad-card {
+    background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  .ad-login { max-width: 430px; width: 100%; padding: 34px; text-align: center; }
+  .ad-login h1 { font-size: 1.9rem; margin: 4px 0 10px; }
+  .ad-login-form { display: grid; gap: 11px; margin-top: 20px; }
+  .ad-login-form input {
+    width: 100%; padding: 13px 16px; border-radius: 11px; border: 1.5px solid var(--line);
+    font-family: var(--font); font-size: 1rem; text-align: center;
+  }
+  .ad-login-form input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(25,123,255,0.13); }
+  .ad-login-form .btn { justify-content: center; }
+  .ad-status { margin-top: 14px; font-size: 0.9rem; font-weight: 700; color: var(--accent); min-height: 1.2em; }
+  .ad-status.is-bad { color: #c0392b; }
+
+  .ad-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+  .ad-head h1 { font-size: clamp(1.5rem, 3vw, 2.1rem); margin: 2px 0 0; }
+  .ad-head-right { display: flex; align-items: center; gap: 14px; }
+  .ad-who { font-weight: 700; }
+
+  .ad-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .ad-stat {
+    background: linear-gradient(#fff, #fff) padding-box, linear-gradient(150deg, rgba(25,123,255,0.3), rgba(15,53,103,0.1)) border-box;
+    border: 1.5px solid transparent; border-radius: 15px; padding: 16px 18px;
+  }
+  .ad-stat b { display: block; font-family: var(--font-display); font-size: 1.8rem; color: var(--navy); line-height: 1.1; }
+  .ad-stat span { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+
+  .ad-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .ad-search { flex: 1 1 240px; padding: 11px 15px; border-radius: 11px; border: 1.5px solid var(--line); font-family: var(--font); font-size: 0.95rem; }
+  .ad-search:focus { outline: none; border-color: var(--blue); }
+  .ad-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ad-chip {
+    padding: 9px 15px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff;
+    font-family: var(--font); font-size: 0.82rem; font-weight: 800; color: var(--muted); cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+  }
+  .ad-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .ad-chip.is-on { background: linear-gradient(120deg, var(--blue), #19c8ff); border-color: transparent; color: #fff; }
+  .ad-refresh { width: 40px; height: 40px; border-radius: 11px; border: 1.5px solid var(--line); background: #fff; color: var(--navy); font-size: 1.1rem; cursor: pointer; }
+  .ad-refresh:hover { border-color: var(--blue); color: var(--blue); }
+
+  .ad-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .ad-list { display: grid; gap: 9px; max-height: 74vh; overflow-y: auto; padding-right: 4px; }
+
+  .ad-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; text-align: left; font-family: var(--font);
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+  }
+  .ad-row:hover { border-color: var(--blue); box-shadow: 0 8px 22px rgba(25,123,255,0.14); transform: translateX(2px); }
+  .ad-row.is-on { border-color: var(--blue); box-shadow: 0 8px 22px rgba(25,123,255,0.2); }
+  .ad-row-name { font-weight: 800; color: var(--navy); font-size: 1rem; }
+  .ad-row-sub { color: var(--muted); font-size: 0.84rem; margin-top: 2px; }
+  .ad-row-when { text-align: right; font-size: 0.84rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .ad-row-when small { display: block; font-weight: 700; color: var(--muted); font-size: 0.74rem; }
+
+  .ad-tag {
+    display: inline-block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 9px; border-radius: 999px; margin-right: 6px;
+  }
+  .ad-tag.booking { background: rgba(25,123,255,0.12); color: var(--blue); }
+  .ad-tag.form { background: rgba(90,111,133,0.12); color: var(--muted); }
+  .ad-tag.past { background: rgba(15,53,103,0.09); color: var(--navy); }
+
+  .ad-detail { position: sticky; top: 90px; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg); padding: 24px; max-height: 74vh; overflow-y: auto; }
+  .ad-detail h2 { font-size: 1.3rem; margin: 0 0 2px; }
+  .ad-detail-empty { padding: 30px 6px; text-align: center; }
+  .ad-kv { display: grid; grid-template-columns: minmax(120px, 40%) 1fr; gap: 7px 14px; margin: 16px 0 4px; font-size: 0.9rem; }
+  .ad-kv dt { color: var(--muted); }
+  .ad-kv dd { margin: 0; color: var(--ink); font-weight: 700; word-break: break-word; }
+  .ad-sec { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .ad-sec h3 { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 0 0 12px; }
+
+  .ad-mail { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 0.86rem; }
+  .ad-mail:last-child { border-bottom: none; }
+  .ad-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; }
+  .ad-dot.sent { background: #1e9e5a; }
+  .ad-dot.pending { background: var(--gold); }
+  .ad-dot.failed { background: #d64545; }
+  .ad-dot.skipped { background: #9ab0c6; }
+  .ad-mail-kind { font-weight: 800; color: var(--navy); }
+  .ad-mail-sub { color: var(--muted); font-size: 0.8rem; margin-top: 1px; }
+  .ad-mail-when { text-align: right; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+
+  .ad-empty { padding: 40px; text-align: center; }
+
+  @media (max-width: 940px) {
+    .ad-split { grid-template-columns: 1fr; }
+    .ad-detail { position: static; max-height: none; }
+    .ad-list { max-height: none; }
+  }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.ad');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (name) =>
+      $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== name));
+
+    let leads = [];
+    let emailsByLead = new Map();
+    let selected = null;
+    let filter = 'all';
+    let query = '';
+
+    const TZ = 'America/Los_Angeles';
+    const fmtDateTime = (iso) =>
+      new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const fmtFull = (iso) =>
+      new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const nameOf = (l) => [l.first_name, l.last_name].filter(Boolean).join(' ') || l.email || l.phone || 'Unknown';
+
+    const MAIL_LABEL = {
+      confirmation: 'Booking confirmation',
+      reminder_24h: '24-hour reminder',
+      reminder_1h: '1-hour reminder',
+    };
+
+    // ---------- auth ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      const email = e.target.email.value.trim();
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${location.origin}/admin` },
+      });
+      if (error) {
+        status.classList.add('is-bad');
+        status.textContent = error.message;
+      } else {
+        status.textContent = 'Check your inbox. The link signs you straight in.';
+      }
+    });
+
+    $$('.ad-signout').forEach((b) =>
+      b.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        location.reload();
+      }),
+    );
+
+    // ---------- data ----------
+    async function load() {
+      // RLS returns rows only for allowlisted emails, so an empty ph_admins
+      // read is the authorisation signal — not an error we need to interpret.
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+
+      view('app');
+      const [{ data: l }, { data: e }] = await Promise.all([
+        sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(1000),
+        sb.from('ph_emails').select('*').order('scheduled_for', { ascending: true }).limit(4000),
+      ]);
+      leads = l ?? [];
+      emailsByLead = new Map();
+      for (const row of e ?? []) {
+        if (!emailsByLead.has(row.lead_id)) emailsByLead.set(row.lead_id, []);
+        emailsByLead.get(row.lead_id).push(row);
+      }
+      renderStats(e ?? []);
+      renderList();
+    }
+
+    function renderStats(allEmails) {
+      const now = Date.now();
+      const set = (k, v) => ($(`[data-stat="${k}"]`).textContent = String(v));
+      set('upcoming', leads.filter((l) => l.appointment_start && new Date(l.appointment_start) > now).length);
+      set('bookings', leads.filter((l) => l.kind === 'booking').length);
+      set('forms', leads.filter((l) => l.kind === 'form').length);
+      set('emails', allEmails.filter((e) => e.status === 'sent').length);
+      set('queued', allEmails.filter((e) => e.status === 'pending').length);
+    }
+
+    function visible() {
+      const now = Date.now();
+      return leads.filter((l) => {
+        if (filter === 'booking' && l.kind !== 'booking') return false;
+        if (filter === 'form' && l.kind !== 'form') return false;
+        if (filter === 'upcoming' && !(l.appointment_start && new Date(l.appointment_start) > now)) return false;
+        if (!query) return true;
+        return [l.first_name, l.last_name, l.email, l.phone].join(' ').toLowerCase().includes(query);
+      });
+    }
+
+    function renderList() {
+      const list = $('.ad-list');
+      const rows = visible();
+      if (!rows.length) {
+        list.innerHTML = '<div class="ad-empty ad-muted">Nothing here yet.</div>';
+        return;
+      }
+      const now = Date.now();
+      list.innerHTML = rows
+        .map((l) => {
+          const upcoming = l.appointment_start && new Date(l.appointment_start) > now;
+          const tag = l.kind === 'booking'
+            ? `<span class="ad-tag ${upcoming ? 'booking' : 'past'}">${upcoming ? 'Upcoming' : 'Booking'}</span>`
+            : '<span class="ad-tag form">Enquiry</span>';
+          const when = l.appointment_start
+            ? `${fmtDateTime(l.appointment_start)}<small>appointment</small>`
+            : `${fmtDateTime(l.created_at)}<small>enquired</small>`;
+          return `<button type="button" class="ad-row${selected === l.id ? ' is-on' : ''}" role="listitem" data-id="${l.id}">
+            <span>
+              <span class="ad-row-name">${tag}${esc(nameOf(l))}</span>
+              <span class="ad-row-sub">${esc(l.email || '')}${l.phone ? ' · ' + esc(l.phone) : ''}</span>
+            </span>
+            <span class="ad-row-when">${when}</span>
+          </button>`;
+        })
+        .join('');
+      list.querySelectorAll('.ad-row').forEach((b) =>
+        b.addEventListener('click', () => { selected = b.getAttribute('data-id'); renderList(); renderDetail(); }),
+      );
+    }
+
+    function renderDetail() {
+      const lead = leads.find((l) => l.id === selected);
+      const empty = $('.ad-detail-empty');
+      const body = $('.ad-detail-body');
+      if (!lead) { empty.hidden = false; body.hidden = true; return; }
+      empty.hidden = true; body.hidden = false;
+
+      const answers = [
+        ['Which best describes you', lead.role],
+        ['Business structure', lead.structure],
+        ['Current coverage', lead.coverage],
+        ['What matters most', lead.priority],
+        ['Notes', lead.notes],
+      ].filter(([, v]) => v);
+
+      const mails = emailsByLead.get(lead.id) ?? [];
+
+      body.innerHTML = `
+        <h2>${esc(nameOf(lead))}</h2>
+        <p class="ad-muted">${lead.kind === 'booking' ? 'Booked a conversation' : 'Form enquiry'} · ${fmtFull(lead.created_at)}</p>
+
+        <dl class="ad-kv">
+          ${lead.email ? `<dt>Email</dt><dd><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></dd>` : ''}
+          ${lead.phone ? `<dt>Phone</dt><dd><a href="tel:${esc(String(lead.phone).replace(/\D/g, ''))}">${esc(lead.phone)}</a></dd>` : ''}
+          ${lead.appointment_start ? `<dt>Appointment</dt><dd>${fmtFull(lead.appointment_start)}</dd>` : ''}
+          ${lead.timezone ? `<dt>Their timezone</dt><dd>${esc(lead.timezone)}</dd>` : ''}
+          ${lead.source_form ? `<dt>Source</dt><dd>${esc(lead.source_form)}</dd>` : ''}
+        </dl>
+
+        ${answers.length ? `<div class="ad-sec"><h3>What they told us</h3>
+          <dl class="ad-kv">${answers.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+        </div>` : ''}
+
+        <div class="ad-sec">
+          <h3>Emails (${mails.length})</h3>
+          ${mails.length ? mails.map((m) => `
+            <div class="ad-mail">
+              <span class="ad-dot ${m.status}"></span>
+              <span>
+                <span class="ad-mail-kind">${MAIL_LABEL[m.kind] ?? m.kind}</span>
+                <span class="ad-mail-sub">${m.status === 'sent' ? 'Delivered to Resend' : m.status === 'pending' ? 'Queued' : m.status === 'failed' ? esc(m.error || 'Failed') : esc(m.error || 'Skipped')}</span>
+              </span>
+              <span class="ad-mail-when">${fmtDateTime(m.sent_at || m.scheduled_for)}</span>
+            </div>`).join('')
+            : '<p class="ad-muted">No emails for this person.</p>'}
+        </div>`;
+    }
+
+    // ---------- controls ----------
+    $('.ad-search').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); renderList(); });
+    $$('.ad-chip').forEach((c) =>
+      c.addEventListener('click', () => {
+        $$('.ad-chip').forEach((x) => x.classList.toggle('is-on', x === c));
+        filter = c.getAttribute('data-filter');
+        renderList();
+      }),
+    );
+    $('.ad-refresh').addEventListener('click', load);
+
+    // ---------- boot ----------
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        $$('[data-who]').forEach((n) => (n.textContent = data.session.user.email));
+        load();
+      } else {
+        view('signin');
+      }
+    });
+
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        $$('[data-who]').forEach((n) => (n.textContent = session.user.email));
+        load();
+      }
+    });
+  }
+</script>

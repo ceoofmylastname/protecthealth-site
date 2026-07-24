@@ -259,6 +259,10 @@ p { margin: 0.7rem 0; }
 .footer-sitemap details summary { cursor: pointer; font-weight: 700; color: #fff; }
 .footer-sitemap ul { list-style: none; columns: 2; margin-top: 10px; }
 .footer-legal { border-top: 1px solid #2a4d7d; margin-top: 28px; padding-top: 20px; font-size: 0.82rem; color: #8ba5c4; }
+.footer-legal-links { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-weight: 700; }
+.footer-legal-links a { color: #8ec9ff; text-decoration: none; }
+.footer-legal-links a:hover { text-decoration: underline; }
+.footer-legal-links span { color: #2a4d7d; }
 
 /* Giant ghost wordmark, faded toward the bottom, with floating logo badge */
 .footer-mark { position: relative; margin-top: 26px; padding: 30px 0 46px; }

@@ -19,7 +19,11 @@ interface Props {
 }
 import ReviewBadge from './ReviewBadge.astro';
 const { formId, heading, fields, submitLabel, confirmation, showBooking = true } = Astro.props;
-const BOOKING_URL = 'https://api.leadconnectorhq.com/widget/booking/naoB13PMLUxH7fAcVXg0';
+// Routes into the custom calendar on /talk-to-a-broker rather than the GHL
+// booking iframe. skip=qualify jumps straight to the time picker, because this
+// lead already answered the qualifying questions on the form above and /api/lead
+// has already written them to the contact.
+const BOOKING_URL = '/talk-to-a-broker?skip=qualify#book';
 const total = fields.length;
 ---
 <div class="lead-form tf" id={`form-${formId}`} data-total={total}>
@@ -78,23 +82,15 @@ const total = fields.length;
     <p class="form-confirmation">{confirmation}</p>
     {showBooking && (
       <div class="booking-embed">
-        <p class="booking-lead">Grab a time that works while you're here:</p>
-        <iframe
-          src={BOOKING_URL}
-          title="Book your ProtectHealth conversation"
-          loading="lazy"
-          style="width:100%;min-height:720px;border:none;border-radius:14px;overflow:hidden;"
-          scrolling="no"
-        ></iframe>
+        <p class="booking-lead">Want to lock the time in right now? Pick your twenty minutes:</p>
+        <a href={BOOKING_URL} class="btn big no-arrow">Pick My Time &rarr;</a>
         <p class="booking-fallback">
-          Calendar not loading? <a href={BOOKING_URL} target="_blank" rel="noopener">Open the booking page in a new tab</a>
-          or call <a href="tel:8002408185">800-240-8185</a>.
+          Rather talk to someone? Call <a href="tel:8002408185">800-240-8185</a>.
         </p>
       </div>
     )}
   </div>
 
-  <canvas class="tf-confetti" aria-hidden="true"></canvas>
 </div>
 
 <style>
@@ -156,7 +152,6 @@ const total = fields.length;
   .booking-lead { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
   .booking-fallback { font-size: 0.88rem; color: var(--muted); margin-top: 10px; }
 
-  .tf-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9; }
 
   @media (max-width: 560px) {
     .tf-viewport { min-height: 340px; }
@@ -167,6 +162,13 @@ const total = fields.length;
     .tf-step, .tf-fill, .tf-option, .tf-ok, .tf-arrow { transition: none; }
   }
 </style>
+
+<script>
+  // Bundled (not define:vars) so it can import. Exposes the shared confetti
+  // to the inline script below.
+  import { fireConfetti } from '../lib/confetti';
+  window.__phConfetti = fireConfetti;
+</script>
 
 <script define:vars={{ formId, total }}>
   const wrap = document.getElementById(`form-${formId}`);
@@ -229,51 +231,10 @@ const total = fields.length;
     return true;
   };
 
-  // ===== confetti: two side cannons =====
-  const confetti = () => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const cv = wrap.querySelector('.tf-confetti');
-    const ctx = cv.getContext('2d');
-    const r = wrap.getBoundingClientRect();
-    cv.width = r.width; cv.height = r.height;
-    const colors = ['#197bff', '#19c8ff', '#f5b942', '#0f3567', '#66e0ff', '#ffffff'];
-    const parts = [];
-    const spawn = (side) => {
-      for (let i = 0; i < 70; i++) {
-        const angle = (side === 0 ? -0.25 : Math.PI + 0.25) + (Math.random() - 0.5) * 0.9;
-        const speed = 7 + Math.random() * 9;
-        parts.push({
-          x: side === 0 ? -6 : cv.width + 6,
-          y: cv.height * (0.35 + Math.random() * 0.4),
-          vx: Math.cos(angle) * speed * (side === 0 ? 1 : 1),
-          vy: Math.sin(angle) * speed - 5 - Math.random() * 3,
-          w: 6 + Math.random() * 6, h: 4 + Math.random() * 5,
-          rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
-          c: colors[(Math.random() * colors.length) | 0],
-          life: 130 + Math.random() * 60,
-        });
-      }
-    };
-    spawn(0); spawn(1);
-    setTimeout(() => { spawn(0); spawn(1); }, 350);
-    let frames = 0;
-    const tick = () => {
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      parts.forEach((p) => {
-        p.x += p.vx; p.y += p.vy; p.vy += 0.28; p.vx *= 0.985; p.rot += p.vr; p.life--;
-        ctx.save();
-        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-        ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 40));
-        ctx.fillStyle = p.c;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        ctx.restore();
-      });
-      for (let i = parts.length - 1; i >= 0; i--) if (parts[i].life <= 0 || parts[i].y > cv.height + 30) parts.splice(i, 1);
-      if (parts.length && frames++ < 480) requestAnimationFrame(tick);
-      else ctx.clearRect(0, 0, cv.width, cv.height);
-    };
-    requestAnimationFrame(tick);
-  };
+  // Shared branded confetti (src/lib/confetti.ts), fired from the screen
+  // edges rather than inside this card. Registered on window by the module
+  // script below, because a define:vars script is inlined and cannot import.
+  const confetti = () => window.__phConfetti && window.__phConfetti();
 
   const submit = async () => {
     if (busy) return;

@@ -8,3 +8,26 @@
 /team-members/jason           /team-members/jason-vasquez     301
 /team-members/chris           /team-members/chris-bridgeforth 301
 /blog-posts-categories/guide  /blog                           301
+
+# Webflow URLs found in the live sitemap during the pre-cutover audit (Jul 2026).
+# The /projects/* rules above covered the old project pages but missed the
+# /services/* renames and the blog posts, which would have 404'd on cutover.
+/services/healthinsurance     /services/health-insurance      301
+/services/gap-insurance       /services/gap-health-insurance  301
+# dentalvision was one combined page; it is now two. Dental leads the old name.
+/services/dentalvision        /services/dental-insurance      301
+/blog-post/gap-health-insurance  /blog-post/what-is-gap-health-insurance  301
+# Life-insurance explainer, retired. Closest live equivalent by intent.
+/blog-post/securing-the-financial-well-being-of-your-loved-ones  /blog-post/how-much-life-insurance-do-i-need  301
+/blog-posts-categories/news   /blog                           301
+# No fraud article on the new site yet; the blog index is the honest home.
+/protect-yourself-from-health-insurance-fraud  /blog          301
+# Webflow template leftovers.
+/coming-soon                  /                               301
+# High-intent enrolment CTA — send it to the booking page, not a generic form.
+/enroll-now                   /talk-to-a-broker               301
+# No dedicated testimonials page; social proof lives on the about page.
+/testimonials                 /about-us                       301
+# Legal pages ported from Webflow. /privacy-policy keeps its URL; the
+# cryptic /t-c becomes a readable slug.
+/t-c                          /terms-and-conditions           301
