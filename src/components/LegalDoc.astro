@@ -1,0 +1,344 @@
+---
+// Shared shell for the legal pages. Both documents have the same shape —
+// a preamble then numbered sections — so they share one layout rather than
+// drifting apart the first time either is edited.
+//
+// Legal copy is a liability surface, so the structure here is deliberately
+// boring to read and easy to scan: a sticky contents rail, generous measure,
+// real anchors on every section so a specific clause can be linked to.
+
+export interface Block {
+  type: 'p' | 'defs' | 'list' | 'callout';
+  text?: string;
+  title?: string;
+  items?: ({ term: string; text: string } | string)[];
+}
+export interface Section {
+  id: string;
+  label: string;   // short, for the contents rail
+  title: string;   // full heading
+  blocks: Block[];
+}
+interface Props {
+  kicker: string;
+  title: string;
+  effective: string;
+  intro: string;
+  sections: Section[];
+  updatedNote?: string;
+}
+const { kicker, title, effective, intro, sections, updatedNote } = Astro.props;
+
+const words =
+  intro.split(/\s+/).length +
+  sections.reduce(
+    (n, s) =>
+      n +
+      s.title.split(/\s+/).length +
+      s.blocks.reduce((m, b) => {
+        const own = (b.text ?? '').split(/\s+/).length + (b.title ?? '').split(/\s+/).length;
+        const items = (b.items ?? []).reduce(
+          (k, i) => k + (typeof i === 'string' ? i : `${i.term} ${i.text}`).split(/\s+/).length,
+          0,
+        );
+        return m + own + items;
+      }, 0),
+    0,
+  );
+const readMins = Math.max(1, Math.round(words / 220));
+---
+
+<div class="lg">
+  <i class="lg-progress" aria-hidden="true"></i>
+
+  <section class="lg-hero">
+    <div class="lg-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <span class="lg-kicker">{kicker}</span>
+      <h1>{title}</h1>
+      <div class="lg-chips">
+        <span class="lg-chip lg-chip-solid">Effective {effective}</span>
+        <span class="lg-chip">{readMins} min read</span>
+        <span class="lg-chip">{sections.length} sections</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section lg-body">
+    <div class="container lg-grid">
+
+      <aside class="lg-toc" aria-label="On this page">
+        <p class="lg-toc-head">On this page</p>
+        <nav>
+          <ol>
+            {sections.map((s) => (
+              <li><a href={`#${s.id}`} data-toc={s.id}><span>{s.label}</span></a></li>
+            ))}
+          </ol>
+        </nav>
+        <a href="/talk-to-a-broker" class="lg-toc-cta">Questions? Talk to a broker &rarr;</a>
+      </aside>
+
+      <article class="lg-doc">
+        <p class="lg-intro">{intro}</p>
+
+        {sections.map((s, i) => (
+          <section class="lg-sec" id={s.id} data-sec={s.id}>
+            <header class="lg-sec-head">
+              <span class="lg-sec-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <h2>
+                {s.title}
+                <a class="lg-anchor" href={`#${s.id}`} aria-label={`Link to ${s.label}`}>#</a>
+              </h2>
+            </header>
+
+            {s.blocks.map((b) => (
+              b.type === 'p' ? <p>{b.text}</p>
+              : b.type === 'callout' ? (
+                <div class="lg-callout">
+                  {b.title && <strong>{b.title}</strong>}
+                  <p>{b.text}</p>
+                </div>
+              )
+              : b.type === 'defs' ? (
+                <dl class="lg-defs">
+                  {(b.items ?? []).map((it) => typeof it === 'string' ? null : (
+                    <div class="lg-def">
+                      <dt>{it.term}</dt>
+                      <dd>{it.text}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )
+              : (
+                <ul class="lg-list">
+                  {(b.items ?? []).map((it) => (
+                    <li>{typeof it === 'string' ? it : it.text}</li>
+                  ))}
+                </ul>
+              )
+            ))}
+          </section>
+        ))}
+
+        {updatedNote && <p class="lg-note">{updatedNote}</p>}
+
+        <div class="lg-foot">
+          <div>
+            <span class="section-label">Still have questions?</span>
+            <p>Call <a href="tel:8002408185">800-240-8185</a> or book a 20-minute conversation. No pitch, just clarity.</p>
+          </div>
+          <a href="/talk-to-a-broker" class="btn">Talk To A Broker</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+</div>
+
+<style is:global>
+  /* ============ Legal documents ============ */
+  .lg { position: relative; }
+
+  .lg-progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0;
+    background: linear-gradient(90deg, var(--blue), #19c8ff 60%, var(--gold));
+    z-index: 60; transition: width 0.1s linear; border-radius: 0 3px 3px 0;
+  }
+
+  .lg-hero {
+    position: relative; overflow: hidden; padding: 84px 0 72px;
+    background: linear-gradient(125deg, #081d3d 0%, var(--navy) 55%, var(--navy-2) 100%);
+    color: #fff;
+  }
+  .lg-hero-glow {
+    position: absolute; inset: -60% -20% auto -20%; height: 520px; pointer-events: none;
+    background: radial-gradient(45% 55% at 30% 50%, rgba(25,123,255,0.42), transparent 70%),
+                radial-gradient(35% 45% at 78% 40%, rgba(245,185,66,0.18), transparent 70%);
+  }
+  .lg-hero .container { position: relative; z-index: 1; }
+  .lg-kicker {
+    display: inline-block; text-transform: uppercase; letter-spacing: 3px;
+    font-size: 0.72rem; font-weight: 800; color: #8ec9ff; margin-bottom: 14px;
+  }
+  .lg-hero h1 { color: #fff; max-width: 15ch; font-size: clamp(2.2rem, 5.5vw, 3.6rem); }
+  .lg-chips { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 26px; }
+  .lg-chip {
+    font-size: 0.76rem; font-weight: 800; padding: 8px 16px; border-radius: 999px;
+    color: #d9e6f7; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .lg-chip-solid {
+    background: linear-gradient(120deg, var(--blue), #19c8ff); border-color: transparent; color: #fff;
+    box-shadow: 0 8px 22px rgba(25,123,255,0.34);
+  }
+
+  .lg-body { padding-top: 54px; }
+  .lg-grid { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 52px; align-items: start; }
+
+  /* contents rail */
+  .lg-toc { position: sticky; top: 96px; }
+  .lg-toc-head {
+    font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  .lg-toc ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+  .lg-toc li { counter-increment: lgtoc; }
+  .lg-toc a {
+    display: block; padding: 8px 0 8px 16px; margin-left: -2px;
+    border-left: 2px solid transparent; color: var(--muted); text-decoration: none;
+    font-size: 0.87rem; font-weight: 700; line-height: 1.35;
+    transition: color 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .lg-toc a:hover { color: var(--blue); transform: translateX(2px); }
+  .lg-toc a.is-on { color: var(--navy); border-left-color: var(--blue); }
+  .lg-toc-cta {
+    display: inline-block; margin-top: 22px; font-size: 0.84rem; font-weight: 800;
+    color: var(--accent); text-decoration: none;
+  }
+  .lg-toc-cta:hover { text-decoration: underline; }
+
+  /* document */
+  .lg-doc { max-width: 68ch; }
+  .lg-intro {
+    font-size: clamp(1.06rem, 1.7vw, 1.22rem); line-height: 1.7; color: var(--ink);
+    padding: 22px 26px; border-radius: var(--radius-lg); margin: 0 0 12px;
+    background: linear-gradient(#fff, #fff) padding-box,
+      linear-gradient(135deg, var(--blue), rgba(25,200,255,0.45)) border-box;
+    border: 1.5px solid transparent; box-shadow: var(--shadow-sm);
+  }
+
+  .lg-sec { scroll-margin-top: 100px; padding-top: 34px; }
+  .lg-sec-head { display: flex; gap: 16px; align-items: baseline; margin-bottom: 4px; }
+  .lg-sec-n {
+    flex: none; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; line-height: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--blue), #19c8ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lg-sec h2 { margin: 0; font-size: clamp(1.24rem, 2.3vw, 1.6rem); scroll-margin-top: 100px; }
+  .lg-anchor {
+    margin-left: 10px; color: var(--line); text-decoration: none; font-weight: 800;
+    opacity: 0; transition: opacity 0.2s, color 0.2s;
+  }
+  .lg-sec:hover .lg-anchor { opacity: 1; }
+  .lg-anchor:hover { color: var(--blue); }
+
+  .lg-doc p { color: var(--muted); line-height: 1.75; font-size: 1rem; }
+  .lg-doc .lg-intro { color: var(--ink); }
+
+  .lg-defs { margin: 16px 0 4px; display: grid; gap: 10px; }
+  .lg-def {
+    padding: 15px 18px; border-radius: 14px; background: var(--bg-soft);
+    border: 1px solid var(--line); border-left: 3px solid var(--blue);
+  }
+  .lg-def dt { font-weight: 800; color: var(--navy); font-size: 0.95rem; margin-bottom: 3px; }
+  .lg-def dd { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.65; }
+
+  .lg-list { margin: 12px 0 4px; padding-left: 0; list-style: none; display: grid; gap: 8px; }
+  .lg-list li {
+    position: relative; padding-left: 26px; color: var(--muted); line-height: 1.7; font-size: 1rem;
+  }
+  .lg-list li::before {
+    content: ""; position: absolute; left: 6px; top: 0.62em; width: 7px; height: 7px;
+    border-radius: 2px; transform: rotate(45deg);
+    background: linear-gradient(135deg, var(--blue), #19c8ff);
+  }
+
+  .lg-callout {
+    margin: 18px 0 6px; padding: 18px 22px; border-radius: 15px;
+    background: linear-gradient(150deg, rgba(245,185,66,0.09), rgba(255,255,255,0)) padding-box,
+      linear-gradient(150deg, rgba(245,185,66,0.7), rgba(25,123,255,0.28)) border-box;
+    border: 1.5px solid transparent;
+  }
+  .lg-callout strong { display: block; color: var(--navy); font-family: var(--font-display); font-size: 1.02rem; margin-bottom: 5px; }
+  .lg-callout p { margin: 0; }
+
+  .lg-note {
+    margin-top: 34px; padding: 16px 20px; border-radius: 13px; background: var(--bg-soft);
+    border: 1px dashed var(--line); font-size: 0.88rem !important; color: var(--muted);
+  }
+
+  .lg-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 22px; flex-wrap: wrap;
+    margin-top: 44px; padding: 26px 28px; border-radius: var(--radius-lg);
+    background: linear-gradient(150deg, var(--navy), var(--navy-2));
+  }
+  .lg-foot .section-label { margin-bottom: 4px; }
+  .lg-foot p { margin: 0; color: #d9e6f7 !important; }
+  .lg-foot a { color: #8ec9ff; }
+  .lg-foot .btn { color: #fff; }
+
+  @media (max-width: 900px) {
+    .lg-grid { grid-template-columns: 1fr; gap: 30px; }
+    .lg-toc {
+      position: static; background: #fff; border: 1.5px solid var(--line);
+      border-radius: 15px; padding: 18px 20px;
+    }
+    .lg-doc { max-width: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lg-progress { transition: none; }
+    .lg-toc a:hover { transform: none; }
+  }
+
+  @media print {
+    .lg-progress, .lg-toc, .lg-foot, .site-header, .site-footer, .floating-magnet { display: none !important; }
+    .lg-hero { background: none; color: #000; padding: 0 0 18px; }
+    .lg-hero h1, .lg-kicker { color: #000; }
+    .lg-grid { display: block; }
+    .lg-doc { max-width: none; }
+    .lg-sec { page-break-inside: avoid; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.querySelector('.lg');
+    if (!root) return;
+
+    const bar = root.querySelector('.lg-progress');
+    const links = Array.from(root.querySelectorAll('[data-toc]'));
+    const secs = Array.from(root.querySelectorAll('[data-sec]'));
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Reading progress across the document, not the whole page, so the bar
+    // reflects how much of the actual policy is left.
+    const doc = root.querySelector('.lg-doc');
+    let ticking = false;
+    function paint() {
+      ticking = false;
+      if (bar && doc) {
+        const r = doc.getBoundingClientRect();
+        const total = r.height - window.innerHeight;
+        const done = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : (r.top < 0 ? 1 : 0);
+        bar.style.width = `${done * 100}%`;
+      }
+      // Highlight the section whose top has most recently passed the fold.
+      let current = secs[0];
+      for (const s of secs) {
+        if (s.getBoundingClientRect().top <= 120) current = s;
+      }
+      const id = current?.getAttribute('data-sec');
+      links.forEach((a) => a.classList.toggle('is-on', a.getAttribute('data-toc') === id));
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(paint); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    paint();
+
+    // Smooth anchor jumps that still leave a usable URL to share.
+    root.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const target = document.getElementById(a.getAttribute('href').slice(1));
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        history.replaceState(null, '', a.getAttribute('href'));
+      });
+    });
+  })();
+</script>
