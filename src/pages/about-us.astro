@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+import ReviewBadge from '../components/ReviewBadge.astro';
+import { SITE, TEAM, breadcrumbSchema, speakableSchema } from '../lib/site';
 
 const pageUrl = `${SITE.domain}/about-us`;
 const schemas = [
@@ -10,39 +11,122 @@ const schemas = [
     { name: 'About Us', url: pageUrl },
   ]),
 ];
+
+// Named team members surfaced on this page. Bios live in src/lib/site.ts (TEAM)
+// and render in full at /team-members/[slug] — this is a strip, not a duplicate.
+const LEADS = TEAM.filter((m) => ['brian-douglas', 'robert-morgen', 'jason-vasquez', 'janet-nevarez'].includes(m.slug));
 ---
 <Base
-  title="About ProtectHealth | Strategy-First Insurance In Las Vegas"
-  description="ProtectHealth is a Las Vegas insurance brokerage built on one idea: the product should serve the strategy, not become the strategy. Meet the approach behind the agency."
+  title="About ProtectHealth | Las Vegas Insurance Brokers, Strategy First"
+  description="ProtectHealth is an owner-operated Las Vegas insurance brokerage and one of Nevada's largest individual health agencies. Meet the people, the approach, and why local knowledge of Nevada Health Link and valley provider networks changes the answer."
   schemas={schemas}
 >
   <section class="hero">
     <div class="container">
       <div class="kicker">About Us</div>
       <h1>The product should serve the strategy — not become the strategy.</h1>
+      <p class="lead">A Las Vegas brokerage, owned and run by licensed brokers who live here. We start with how you are built, not with what we have to sell.</p>
+      <div class="hero-ctas">
+        <a href="/talk-to-a-broker" class="btn big">Talk To A Broker</a>
+        <a href={SITE.phoneHref} class="btn big glass no-arrow">{SITE.phone}</a>
+      </div>
     </div>
   </section>
+
+  <ReviewBadge variant="band" />
+
   <section class="section">
     <div class="container article">
       <div id="ai-summary">
-        ProtectHealth is a Las Vegas, Nevada insurance brokerage founded on a strategy-first approach. Instead of leading with a product, ProtectHealth brokers start with how a person or business is structured, what coverage needs actually exist, and what options are accessible — then match the right coverage. ProtectHealth serves individuals, families, Realtors, 1099 contractors, self-employed professionals, and small businesses across Nevada.
+        ProtectHealth is an owner-operated insurance brokerage headquartered in Las Vegas, Nevada, and one of the largest individual health insurance agencies in the state. ProtectHealth operates a statewide network of more than 40 licensed brokers and works extensively with Nevada Health Link, the state-based marketplace run by the Silver State Health Insurance Exchange. Rather than leading with a product, ProtectHealth brokers begin with household structure, business structure, provider access, prescriptions, expected usage, and total financial exposure, then match coverage to that picture. ProtectHealth serves individuals, families, Realtors, 1099 contractors, self-employed professionals, Medicare-eligible Nevadans, and small businesses with employees across Clark County and the rest of Nevada.
       </div>
+
+      <h2>Who is ProtectHealth?</h2>
+      <p>ProtectHealth is a licensed insurance brokerage based in Las Vegas, owned and operated by three working brokers rather than by an out-of-state parent company. The agency has grown into one of Nevada's largest individual health insurance agencies, with a statewide network of more than 40 licensed brokers and a Google rating of {SITE.reviews.rating} across {SITE.reviews.count}+ reviews.</p>
+      <p>The office sits at 2915 W. Charleston Blvd, Suite 170, on the stretch of Charleston between downtown and the west side of the valley. That matters more than it sounds like it should. The people answering the phone know the difference between a plan that works well in Summerlin and one that leaves a Henderson family driving across town for a specialist. They know which weeks of the year a Realtor's income spikes and which months it disappears. That is not information you can get from a call center in another state.</p>
+
       <h2>Why does ProtectHealth work differently?</h2>
-      <p>Much of the insurance industry is still focused on selling a particular product. ProtectHealth's approach is different: start with the person, understand how they're structured and what they actually need, and then build the appropriate strategy around them. Age, household income, tax-credit eligibility, provider networks, prescriptions, expected healthcare usage, and total financial exposure can completely change what "good coverage" looks like from one person to the next.</p>
+      <p>Most of the insurance industry leads with a product and works backward to justify it. ProtectHealth reverses the order: understand the person first, then find the coverage that fits.</p>
+      <p>The reason is practical, not philosophical. Two neighbors on the same street, earning within a few thousand dollars of each other, can need completely different coverage. Age, household size, tax-credit eligibility, which doctors they already see, which prescriptions they take, how much care they expect to use in the next twelve months, and how much financial exposure they can absorb if something goes wrong all move the answer. A product-first conversation cannot account for any of that, because the conclusion was decided before the conversation started.</p>
+      <p>So a ProtectHealth conversation is mostly questions. Some of them are the ones people expect. Several are not.</p>
+
+      <h2>What does a strategy-first conversation actually cover?</h2>
+      <p>A first conversation covers six areas before any plan is named. The point is to eliminate options that were never going to work, so the remaining choice is short and defensible.</p>
+      <table>
+        <thead>
+          <tr><th>What gets asked</th><th>Why it changes the answer</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>How you are paid</td><td>W-2, 1099, commission, or owner draw changes which structures are even available to you.</td></tr>
+          <tr><td>Household and income picture</td><td>Determines tax-credit eligibility and whether a marketplace plan or an off-marketplace plan is the stronger buy.</td></tr>
+          <tr><td>Doctors you already use</td><td>Networks in the valley are not interchangeable. Keeping a specialist you trust is often the deciding factor.</td></tr>
+          <tr><td>Prescriptions</td><td>Two plans with identical premiums can differ by thousands of dollars a year on one drug.</td></tr>
+          <tr><td>Expected usage</td><td>A planned surgery, a pregnancy, or a chronic condition inverts the math on deductibles.</td></tr>
+          <tr><td>Financial exposure</td><td>The real question is not the premium, it is what a bad year would cost you in total.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Why does being local matter for health insurance in Las Vegas?</h2>
+      <p>Nevada does not run on the federal system, and the Las Vegas Valley does not have one interchangeable network. Both facts change the answer, and both are easy to get wrong from out of state.</p>
+      <p><strong>Nevada runs its own marketplace.</strong> Coverage here is bought through Nevada Health Link, operated by the Silver State Health Insurance Exchange, not through healthcare.gov. Nevada moved to its own state-based exchange, and its enrollment calendar has not always matched the federal one. Deadlines have shifted between plan years and have been the subject of active rule changes and litigation. A broker who tracks Nevada's dates specifically is worth more here than one working from a national script.</p>
+      <p><strong>Southern Nevada has more than 40 hospitals, and networks differ between them.</strong> The valley grew fast and unevenly. Where you live, whether that is Summerlin, Henderson, North Las Vegas, Spring Valley, or Enterprise, affects which facilities are realistically reachable and which networks make sense. The question that actually matters is never "is this a good plan." It is "does this plan include the people I already trust with my care."</p>
+      <p><strong>Las Vegas is a 1099 town, and 1099 income is lumpy.</strong> Realtors, hospitality workers, entertainers, tipped employees, rideshare drivers, trainers, and contractors make up an enormous share of this economy. That creates a problem the marketplace was not really designed for: to get an accurate subsidy, you have to estimate annual income in advance. When your income depends on convention season, commission closings, or how many shifts you picked up, that estimate is a guess, and guessing badly gets reconciled at tax time. Getting that estimate right is a skill, and it is one of the most common reasons people here end up owing money they did not expect.</p>
+      <p><strong>Nevada has no state income tax.</strong> For self-employed clients weighing how to structure benefits, the tax picture here is not the same as it is in California or Arizona. That is a conversation worth having with your tax professional, and one we will tell you to have.</p>
+
       <h2>What does "insurance nerds, not tax professionals" mean?</h2>
-      <p>ProtectHealth brokers are insurance professionals. When business or tax structure becomes part of a coverage discussion — as it often does for self-employed clients exploring tax-advantaged health-benefit structures — ProtectHealth recommends a brief conversation with the client's tax professional as a make-sense next step. Good strategy comes from the insurance advisor and the tax professional working from the same page.</p>
+      <p>ProtectHealth brokers are licensed insurance professionals, not CPAs or tax attorneys. The line exists because it gets crossed constantly in this industry.</p>
+      <p>Tax and business structure come up in almost every self-employed conversation, especially around tax-advantaged health-benefit arrangements. When it does, ProtectHealth brokers explain how the coverage side works and then recommend a short conversation with the client's own tax professional before anything is finalized. Nothing about these structures is universal, and eligibility depends on business structure, income, and household situation. Good strategy happens when the insurance advisor and the tax professional are working from the same page. It falls apart when one of them pretends to be the other.</p>
+
       <h2>Who does ProtectHealth serve?</h2>
+      <p>Five groups, each with a different starting question. The coverage lines overlap; the strategy rarely does.</p>
       <ul>
-        <li>Individuals and families comparing health, life, dental, and vision coverage</li>
-        <li>Realtors, 1099 contractors, and self-employed professionals — see the <a href="/self-employed">self-employed strategy page</a></li>
-        <li>Medicare-eligible Nevadans navigating Parts A through D and Medigap</li>
-        <li>Business owners with employees — including payroll, HR, and benefits administration support through the official <a href="/employers">ProtectHealth × Paychex partnership</a></li>
+        <li><strong>Individuals and families</strong> comparing health, life, dental, and vision coverage, including families who have been quoted a number that felt wrong and want a second read.</li>
+        <li><strong>Realtors, 1099 contractors, and self-employed professionals</strong> who lost group coverage when they went independent, or never had it. Commission income and variable months are the norm here, not the exception. See the <a href="/self-employed">self-employed strategy page</a>.</li>
+        <li><strong>Medicare-eligible Nevadans</strong> working through Parts A through D, Medigap, and the timing rules that create lifelong penalties when missed.</li>
+        <li><strong>Small business owners with employees</strong> weighing whether a traditional group plan is still the right instrument, with payroll, HR, and benefits administration support available through the <a href="/employers">ProtectHealth and Paychex partnership</a>.</li>
+        <li><strong>People who already have coverage</strong> and want to know whether they are overpaying, under-covered, or in a network that no longer includes their doctor.</li>
       </ul>
-      <div class="cta-band">
-        <h2>Meet the team behind the strategy</h2>
-        <p>Real brokers, real conversations, zero pressure.</p>
-        <a href="/our-team" class="btn big" style="background:#fff;color:var(--navy);">View Our Team</a>
+
+      <h2>Who are the people behind ProtectHealth?</h2>
+      <p>Licensed brokers who live in the valley, several of them for decades. The agency is owner-operated, and the owners still take client conversations.</p>
+      <div class="team-strip">
+        {LEADS.map((m) => (
+          <a class="ts-card" href={`/team-members/${m.slug}`}>
+            <img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} width="120" height="120" loading="lazy" />
+            <div>
+              <strong>{m.name}</strong>
+              <span>{m.role}</span>
+            </div>
+          </a>
+        ))}
       </div>
+      <p><strong>Brian D. Douglas</strong> is the Owner and CEO, a licensed broker and benefits advisor who leads the statewide broker network and has built the agency around education and service rather than volume. <strong>Robert Morgen</strong> is an Owner and COO, a Las Vegas-based licensed Life and Health broker with more than a decade serving Nevada families and small businesses, who runs employer group services and trains the agency's brokers. <strong>Jason Vasquez</strong> is a licensed broker with over sixteen years in the financial industry who was raised in Las Vegas and treats insurance as one component of a larger financial plan. <strong>Janet Nevarez</strong> is Director of Administration and Operations, and the reason licensing, compliance, and follow-through actually happen on schedule.</p>
+      <p>Full bios, credentials, and the rest of the team are on the <a href="/our-team">our team page</a>.</p>
+
+      <h2>What happens in the first conversation?</h2>
+      <p>Twenty minutes, no pitch. A broker asks questions, explains what the options are and are not, and tells you plainly if the smartest move is to keep what you already have.</p>
+      <p>There is no obligation attached and no follow-up campaign waiting on the other side of it. Some conversations end with an enrollment. A fair number end with "your current plan is fine, do nothing." Both are good outcomes, because the point of the call is to give you a decision you can defend, not to move a product.</p>
+      <p>You can <a href="/talk-to-a-broker">book that conversation directly on the calendar</a> and pick a time that works, or call <a href={SITE.phoneHref}>{SITE.phone}</a> and talk to someone now.</p>
+
+      <div class="cta-band">
+        <h2>Twenty minutes, no pitch, just clarity.</h2>
+        <p>Pick a time with a licensed Nevada broker. Bring your current plan, your doctors, and your questions.</p>
+        <a href="/talk-to-a-broker" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
+      </div>
+
+      <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. Nothing on this page implies that every self-employed person or business qualifies for any specific structure — eligibility for coverage and for tax-advantaged health-benefit arrangements depends on business structure, income, and household situation. Plan availability, provider networks, and enrollment deadlines change; confirm current details with a licensed broker before making a decision. When tax or business structure enters the conversation, a brief chat with a licensed tax professional is a make-sense next step.</p>
     </div>
   </section>
 </Base>
+
+<style>
+  /* Two even columns so four cards read as a deliberate 2x2 block rather than 3+1. */
+  .team-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 26px 0 30px; }
+  @media (max-width: 560px) { .team-strip { grid-template-columns: 1fr; } }
+  .ts-card { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; text-decoration: none; color: inherit; box-shadow: var(--shadow-sm); transition: 0.2s; }
+  .ts-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .ts-card img { width: 62px; height: 62px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+  .ts-card div { display: flex; flex-direction: column; min-width: 0; }
+  .ts-card strong { color: var(--navy); font-size: 0.98rem; line-height: 1.25; }
+  .ts-card span { color: var(--muted); font-size: 0.8rem; line-height: 1.3; margin-top: 2px; }
+</style>
