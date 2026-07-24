@@ -28,3 +28,6 @@
 /enroll-now                   /talk-to-a-broker               301
 # No dedicated testimonials page; social proof lives on the about page.
 /testimonials                 /about-us                       301
+# Legal pages ported from Webflow. /privacy-policy keeps its URL; the
+# cryptic /t-c becomes a readable slug.
+/t-c                          /terms-and-conditions           301
