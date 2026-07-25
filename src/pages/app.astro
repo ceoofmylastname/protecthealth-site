@@ -63,6 +63,12 @@ const SUPABASE_ANON =
           <div class="ag-stat spot"><b data-stat="week">—</b><span>New this week</span></div>
         </div>
 
+        <div class="ag-tabs" role="tablist">
+          <button type="button" class="ag-tab is-on" data-tab="leads">Leads</button>
+          <button type="button" class="ag-tab" data-tab="contacts">Contacts</button>
+        </div>
+
+        <div data-pane="leads">
         <div class="ag-toolbar">
           <input type="search" class="ag-search" placeholder="Search name, email or phone…" aria-label="Search" />
           <div class="ag-filters" role="group" aria-label="Filter">
@@ -80,6 +86,31 @@ const SUPABASE_ANON =
             <div class="ag-detail-empty ag-muted">Pick a lead on the left to see everything they told us and every email they've been sent.</div>
             <div class="ag-detail-body" hidden></div>
           </aside>
+        </div>
+        </div>
+
+        <!-- The full contact book, mirrored from GoHighLevel every 5 minutes.
+             Same page for admins and agents: RLS decides whether "everything"
+             means the whole book or just the contacts assigned to you. -->
+        <div data-pane="contacts" hidden>
+          <div class="ag-toolbar">
+            <input type="search" class="ag-csearch" placeholder="Search name, email or phone…" aria-label="Search contacts" />
+            <span class="ag-muted" data-ccount>Loading…</span>
+          </div>
+          <div class="ag-split">
+            <div>
+              <div class="ag-clist" role="list"></div>
+              <div class="ag-pager">
+                <button type="button" class="ag-chip ag-cprev">&larr; Prev</button>
+                <span class="ag-muted ag-cpage"></span>
+                <button type="button" class="ag-chip ag-cnext">Next &rarr;</button>
+              </div>
+            </div>
+            <aside class="ag-detail">
+              <div class="ag-cdetail-empty ag-muted">Pick a contact to see their full record.</div>
+              <div class="ag-cdetail-body" hidden></div>
+            </aside>
+          </div>
         </div>
       </div>
 
@@ -108,6 +139,12 @@ const SUPABASE_ANON =
   .ag-stat { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 14px; padding: 16px 18px; }
   .ag-stat b { display: block; font-size: 1.7rem; color: var(--navy); font-family: var(--font-display); }
   .ag-stat span { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+
+  .ag-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid rgba(15, 53, 103, 0.08); }
+  .ag-tab { border: none; background: none; padding: 10px 16px 12px; font-family: var(--font); font-size: 0.95rem; font-weight: 800; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .ag-tab.is-on { color: var(--blue); border-bottom-color: var(--blue); }
+  .ag-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+  .ag-ctag { display: inline-block; background: rgba(25,123,255,0.09); color: var(--blue); border-radius: 99px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700; margin: 0 4px 4px 0; }
 
   .ag-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   .ag-search { flex: 1; min-width: 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
@@ -348,6 +385,116 @@ const SUPABASE_ANON =
             : '<p class="ag-muted">No emails for this person.</p>'}
         </div>`;
     }
+
+    // ---------- contacts pane ----------
+    // 8k+ rows, so unlike leads this is paged server-side. RLS scopes the
+    // query identically for both roles: an admin pages through the whole
+    // book, an agent pages through only their own, same code path.
+    const CPAGE = 50;
+    let cPage = 0;
+    let cQuery = '';
+    let cTotal = 0;
+    let cRows = [];
+    let cSelected = null;
+    let cLoaded = false;
+    let roster = new Map(); // agent_id -> full_name (admins get all rows, agents their own)
+
+    const fmtDob = (d) => d
+      ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' })
+      : null;
+
+    async function loadContacts() {
+      if (!roster.size) {
+        const { data: ags } = await sb.from('ph_agents').select('id, full_name');
+        (ags ?? []).forEach((a) => roster.set(a.id, a.full_name));
+      }
+      let q = sb.from('ph_contacts')
+        .select('*', { count: 'exact' })
+        .order('last_name', { ascending: true, nullsFirst: false })
+        .range(cPage * CPAGE, cPage * CPAGE + CPAGE - 1);
+      if (cQuery) {
+        // Characters with meaning in PostgREST or-filters are stripped rather
+        // than escaped; nobody's name needs a comma or paren to be findable.
+        const s = cQuery.replace(/[,()%]/g, '');
+        q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`);
+      }
+      const { data, count, error } = await q;
+      if (error) { $('[data-ccount]').textContent = 'Could not load contacts.'; return; }
+      cRows = data ?? [];
+      cTotal = count ?? 0;
+      renderContacts();
+    }
+
+    function renderContacts() {
+      $('[data-ccount]').textContent = `${cTotal.toLocaleString()} contact${cTotal === 1 ? '' : 's'}`;
+      const pages = Math.max(1, Math.ceil(cTotal / CPAGE));
+      $('.ag-cpage').textContent = `Page ${cPage + 1} of ${pages}`;
+      $('.ag-cprev').disabled = cPage === 0;
+      $('.ag-cnext').disabled = cPage >= pages - 1;
+
+      const list = $('.ag-clist');
+      if (!cRows.length) {
+        list.innerHTML = '<p class="ag-muted" style="padding:14px;">No contacts match.</p>';
+        return;
+      }
+      list.innerHTML = cRows.map((c) => {
+        const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || c.phone || 'Unknown';
+        const owner = c.agent_id ? (roster.get(c.agent_id) || 'Assigned') : 'Unassigned';
+        return `<button type="button" class="ag-row${cSelected === c.ghl_contact_id ? ' is-on' : ''}" role="listitem" data-cid="${c.ghl_contact_id}">
+          <span>
+            <span class="ag-row-name">${esc(name)}</span>
+            <span class="ag-row-sub">${esc(c.email || '')}${c.phone ? ' · ' + esc(c.phone) : ''}</span>
+          </span>
+          <span class="ag-row-when">${esc(owner)}${c.date_of_birth ? `<small>b. ${esc(fmtDob(c.date_of_birth))}</small>` : ''}</span>
+        </button>`;
+      }).join('');
+      list.querySelectorAll('.ag-row').forEach((b) =>
+        b.addEventListener('click', () => { cSelected = b.getAttribute('data-cid'); renderContacts(); renderContactDetail(); }),
+      );
+    }
+
+    function renderContactDetail() {
+      const c = cRows.find((x) => x.ghl_contact_id === cSelected);
+      const empty = $('.ag-cdetail-empty');
+      const body = $('.ag-cdetail-body');
+      if (!c) { empty.hidden = false; body.hidden = true; return; }
+      empty.hidden = true; body.hidden = false;
+
+      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || 'Unknown';
+      const place = [c.city, c.state, c.postal_code].filter(Boolean).join(', ');
+      body.innerHTML = `
+        <h2>${esc(name)}</h2>
+        <p class="ag-muted">Synced from the book · updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : '—'}</p>
+        <dl class="ag-kv">
+          ${c.email ? `<dt>Email</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>` : ''}
+          ${c.phone ? `<dt>Phone</dt><dd><a href="tel:${esc(String(c.phone).replace(/\D/g, ''))}">${esc(c.phone)}</a></dd>` : ''}
+          ${c.date_of_birth ? `<dt>Birthday</dt><dd>${esc(fmtDob(c.date_of_birth))}</dd>` : ''}
+          <dt>Assigned to</dt><dd>${c.agent_id ? esc(roster.get(c.agent_id) || 'Assigned') : 'Unassigned'}</dd>
+          ${place ? `<dt>Location</dt><dd>${esc(place)}</dd>` : ''}
+          ${c.source ? `<dt>Source</dt><dd>${esc(c.source)}</dd>` : ''}
+          ${c.dnd ? `<dt>DND</dt><dd>Do not disturb — excluded from sends</dd>` : ''}
+        </dl>
+        ${(c.tags ?? []).length ? `<div class="ag-sec"><h3>Tags</h3>
+          <div>${c.tags.map((t) => `<span class="ag-ctag">${esc(t)}</span>`).join('')}</div>
+        </div>` : ''}`;
+    }
+
+    $$('.ag-tab').forEach((t) =>
+      t.addEventListener('click', () => {
+        $$('.ag-tab').forEach((x) => x.classList.remove('is-on'));
+        t.classList.add('is-on');
+        const tab = t.getAttribute('data-tab');
+        $$('[data-pane]').forEach((p) => (p.hidden = p.getAttribute('data-pane') !== tab));
+        if (tab === 'contacts' && !cLoaded) { cLoaded = true; loadContacts(); }
+      }),
+    );
+    let cTimer;
+    $('.ag-csearch').addEventListener('input', (e) => {
+      clearTimeout(cTimer);
+      cTimer = setTimeout(() => { cQuery = e.target.value.trim(); cPage = 0; loadContacts(); }, 300);
+    });
+    $('.ag-cprev').addEventListener('click', () => { if (cPage > 0) { cPage--; loadContacts(); } });
+    $('.ag-cnext').addEventListener('click', () => { cPage++; loadContacts(); });
 
     // ---------- toolbar ----------
     $('.ag-search').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); renderList(); });
