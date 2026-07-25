@@ -13,7 +13,7 @@ export async function onRequestGet(context) {
 
   // Bumped by hand whenever something lands that is worth confirming reached
   // production. If the deployed build is stale, this string is how you know.
-  const BUILD = 'booking-2026-07-24-e';
+  const BUILD = 'intake-fields-2026-07-25-a';
 
   const has = (name) => Boolean(env[name] && String(env[name]).length > 0);
 

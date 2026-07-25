@@ -201,6 +201,10 @@ export async function onRequestPost(context) {
     // Mirror to Supabase for the admin dashboard. No emails are queued for a
     // form submission — there is no appointment to remind anyone about.
     await recordLead(env.PH_HOOK_SECRET, {
+      // The owner-sync sweep in Supabase matches on this. Without it a form
+      // lead has no join key and its assigned broker never reaches the
+      // dashboard, however long it waits.
+      ghl_contact_id: contactId,
       first_name: firstName,
       last_name: lastName,
       email,
