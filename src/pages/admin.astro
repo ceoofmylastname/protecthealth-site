@@ -156,6 +156,12 @@ const SUPABASE_ANON =
   .ad-row.is-on { border-color: var(--blue); box-shadow: 0 8px 22px rgba(25,123,255,0.2); }
   .ad-row-name { font-weight: 800; color: var(--navy); font-size: 1rem; }
   .ad-row-sub { color: var(--muted); font-size: 0.84rem; margin-top: 2px; }
+  /* Owner is read back from GoHighLevel by the sync sweep, so it can lag a
+     lead by up to a minute. Its own line rather than appended to the contact
+     details, because "who has this" is what you scan the list for. */
+  .ad-row-owner { display: block; margin-top: 3px; font-size: 0.78rem; font-weight: 700; color: var(--blue); }
+  .ad-row-owner.none { color: var(--muted); font-weight: 600; }
+  .ad-synced { display: block; margin-top: 1px; color: var(--muted); font-size: 0.74rem; font-weight: 500; }
   .ad-row-when { text-align: right; font-size: 0.84rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
   .ad-row-when small { display: block; font-weight: 700; color: var(--muted); font-size: 0.74rem; }
 
@@ -225,6 +231,17 @@ const SUPABASE_ANON =
       new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const nameOf = (l) => [l.first_name, l.last_name].filter(Boolean).join(' ') || l.email || l.phone || 'Unknown';
+
+    // Three states worth telling apart, because they mean different things to
+    // whoever is looking. A name means GoHighLevel has assigned it. Unassigned
+    // means we asked and GHL genuinely has nobody on it, which is a problem to
+    // chase. Never synced means we have not looked yet, which usually resolves
+    // itself within a minute and is not worth chasing.
+    const ownerLabel = (l) => {
+      if (l.assigned_user_name) return esc(l.assigned_user_name);
+      if (l.owner_synced_at) return 'Unassigned';
+      return l.ghl_contact_id ? 'Assigning…' : 'Not in GoHighLevel';
+    };
 
     const MAIL_LABEL = {
       confirmation: 'Booking confirmation',
@@ -322,6 +339,7 @@ const SUPABASE_ANON =
             <span>
               <span class="ad-row-name">${tag}${esc(nameOf(l))}</span>
               <span class="ad-row-sub">${esc(l.email || '')}${l.phone ? ' · ' + esc(l.phone) : ''}</span>
+              <span class="ad-row-owner${l.assigned_user_name ? '' : ' none'}">${ownerLabel(l)}</span>
             </span>
             <span class="ad-row-when">${when}</span>
           </button>`;
@@ -359,6 +377,10 @@ const SUPABASE_ANON =
           ${lead.appointment_start ? `<dt>Appointment</dt><dd>${fmtFull(lead.appointment_start)}</dd>` : ''}
           ${lead.timezone ? `<dt>Their timezone</dt><dd>${esc(lead.timezone)}</dd>` : ''}
           ${lead.source_form ? `<dt>Source</dt><dd>${esc(lead.source_form)}</dd>` : ''}
+          <dt>Assigned to</dt><dd>${lead.assigned_user_email
+            ? `<a href="mailto:${esc(lead.assigned_user_email)}">${ownerLabel(lead)}</a>`
+            : ownerLabel(lead)}${lead.owner_synced_at
+            ? `<small class="ad-synced">checked ${fmtDateTime(lead.owner_synced_at)}</small>` : ''}</dd>
         </dl>
 
         ${answers.length ? `<div class="ad-sec"><h3>What they told us</h3>
