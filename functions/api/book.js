@@ -51,6 +51,61 @@ const ROLE_TAGS = {
   'Individual or family': 'audience:individual',
 };
 
+// ── Website Intake custom fields ─────────────────────────────────────────────
+// Created in GHL on 2026-07-25 under the "Website Intake" folder. Ids rather
+// than keys, because /contacts/upsert resolves ids without a second lookup.
+// Keep this block byte-identical in lead.js, book.js, lead-magnet.js and their
+// netlify/functions mirrors.
+const CF = {
+  role:        'KFgNfn7tOxlTCmvjvTNj', // Website Intake: Which Best Describes You
+  structure:   'hN30YvoSCFjYZyl2WYzc', // Website Intake: Business Structure
+  coverage:    'j39bQETsnhN3IHgHl6eA', // Website Intake: Current Coverage
+  priority:    'XAWgGwWLHnw4qQLUNAVv', // Website Intake: What Matters Most
+  notes:       'p9xHNA0ev7CyVgwriRXU', // Website Intake: Notes From Lead
+  timezone:    '2zyAtyCO5Xd1QKfRLCVI', // Website Intake: Visitor Timezone
+  industry:    'wDaeieEvNZtIDU419r2T', // Website Intake: Industry
+  employees:   'lecOVPOTtfw5PLObZjYQ', // Website Intake: Employee Count
+  friction:    '5P4t9QZM7l2nVSf2N1m6', // Website Intake: Biggest Friction
+  payroll:     'ioUxcZEZUtWdOrNcGN7z', // Website Intake: Payroll Provider
+  sourceForm:  '2u611YcsKF5hCczUvpMw', // Website Intake: Source Form
+  page:        'gz9zZmpnqjpJYm6ig9nU', // Website Intake: Landing Page
+  appointment: 'TkMZgKyFxOvXOpJZ0Jji', // Website Intake: Appointment Time
+  magnet:      'ES17xjYL7S5hOepLnXGj', // Website Intake: Lead Magnet
+};
+
+// Every form asks "which best describes you" under a different key: the ICHRA
+// page calls it profile, the quote and contact pages call it interest, the
+// booking page calls it role. One column, three spellings.
+const ROLE_KEYS = ['role', 'profile', 'interest'];
+
+// Builds the customFields array for an upsert. Blank answers are dropped rather
+// than sent as '', because /contacts/upsert merges what it receives — a lead who
+// books after filling a shorter form keeps the answers the longer form captured.
+function intakeFields(data, extra = {}) {
+  const merged = { ...data, ...extra };
+  const clean = (v) => String(v ?? '').trim();
+  const role = ROLE_KEYS.map((k) => clean(merged[k])).find((v) => v !== '');
+  return [
+    [CF.role, role],
+    [CF.structure, merged.structure],
+    [CF.coverage, merged.coverage],
+    [CF.priority, merged.priority],
+    [CF.notes, merged.notes],
+    [CF.timezone, merged.timezone],
+    [CF.industry, merged.industry],
+    [CF.employees, merged.employees],
+    [CF.friction, merged.friction],
+    [CF.payroll, merged.payroll],
+    [CF.sourceForm, merged.sourceForm],
+    [CF.page, merged.page],
+    [CF.appointment, merged.appointmentTime],
+    [CF.magnet, merged.magnet],
+  ]
+    .filter(([, value]) => clean(value) !== '')
+    .map(([id, value]) => ({ id, field_value: clean(value) }));
+}
+
+
 // Supabase (ProtectHealth Ticketing System) — mirrors leads into ph_leads and
 // queues the confirmation + reminder emails. Requires env var PH_HOOK_SECRET.
 const PH_HOOK = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-booking-emails';
@@ -176,6 +231,13 @@ export async function onRequestPost(context) {
   }
 
   const endTime = addMinutes(startTime, SLOT_MINUTES);
+  // Human-readable appointment time in Las Vegas hours. Written to the
+  // contact as well as the note so workflows and SMS can merge it.
+  const when = new Date(startTime).toLocaleString('en-US', {
+    timeZone: BUSINESS_TZ,
+    dateStyle: 'full',
+    timeStyle: 'short',
+  });
   const roleTag = ROLE_TAGS[String(data.role || '').trim()];
   const tags = roleTag ? [...BASE_TAGS, roleTag] : BASE_TAGS;
 
@@ -202,6 +264,12 @@ export async function onRequestPost(context) {
       tags,
       timezone,
       source: 'website:talk-to-a-broker',
+      customFields: intakeFields(data, {
+        sourceForm: 'talk-to-a-broker',
+        timezone,
+        page: data.page || '/talk-to-a-broker',
+        appointmentTime: `${when} (Las Vegas)`,
+      }),
     });
     contactId = upsert?.contact?.id;
     if (!contactId) throw new Error('No contact id returned from upsert');
@@ -224,11 +292,6 @@ export async function onRequestPost(context) {
     const answers = INTAKE_FIELDS
       .map(([key, label]) => [label, String(data[key] || '').trim()])
       .filter(([, value]) => value !== '');
-    const when = new Date(startTime).toLocaleString('en-US', {
-      timeZone: BUSINESS_TZ,
-      dateStyle: 'full',
-      timeStyle: 'short',
-    });
     await ghl(`/contacts/${contactId}/notes`, 'POST', token, {
       body:
         `Talk To A Broker — booked online\n` +

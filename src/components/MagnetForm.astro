@@ -56,7 +56,7 @@ const { magnet, buttonLabel = 'Email Me The Free PDF' } = Astro.props;
       const res = await fetch('/api/lead-magnet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...fd, magnet }),
+        body: JSON.stringify({ ...fd, magnet, page: location.pathname + location.search }),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       form.hidden = true;

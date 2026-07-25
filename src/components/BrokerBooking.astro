@@ -808,6 +808,7 @@ const SLOT_MINUTES = 20;
             notes: value('notes'),
             startTime: pickedSlot,
             timezone: tz,
+            page: location.pathname + location.search,
           }),
         });
         const data = await res.json().catch(() => ({}));

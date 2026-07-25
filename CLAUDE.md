@@ -11,6 +11,35 @@ Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokera
 
 Campaign briefs and launch kits live in the claude.ai project "Strategy Over Product — ICHRA & 1099 Campaign" under `Protect Health 2.0/`.
 
+## GHL custom fields (Website Intake)
+
+Every form answer is written to a purpose-built contact field, not just the note. The `CF` map + `intakeFields()` helper is duplicated byte-identically in `functions/api/{lead,book,lead-magnet}.js` and their `netlify/functions/*.mjs` mirrors — when you change one, change all six. Ids are hardcoded rather than looked up by key, because `/contacts/upsert` resolves ids directly and a key lookup would cost a round trip on every submission.
+
+| Form key(s) | GHL field | Id |
+|---|---|---|
+| `role` / `profile` / `interest` | Website Intake: Which Best Describes You | `KFgNfn7tOxlTCmvjvTNj` |
+| `structure` | Website Intake: Business Structure | `hN30YvoSCFjYZyl2WYzc` |
+| `coverage` | Website Intake: Current Coverage | `j39bQETsnhN3IHgHl6eA` |
+| `priority` | Website Intake: What Matters Most | `XAWgGwWLHnw4qQLUNAVv` |
+| `notes` | Website Intake: Notes From Lead | `p9xHNA0ev7CyVgwriRXU` |
+| `timezone` | Website Intake: Visitor Timezone | `2zyAtyCO5Xd1QKfRLCVI` |
+| `industry` | Website Intake: Industry | `wDaeieEvNZtIDU419r2T` |
+| `employees` | Website Intake: Employee Count | `lecOVPOTtfw5PLObZjYQ` |
+| `friction` | Website Intake: Biggest Friction | `5P4t9QZM7l2nVSf2N1m6` |
+| `payroll` | Website Intake: Payroll Provider | `ioUxcZEZUtWdOrNcGN7z` |
+| form id | Website Intake: Source Form | `2u611YcsKF5hCczUvpMw` |
+| `page` | Website Intake: Landing Page | `gz9zZmpnqjpJYm6ig9nU` |
+| booked slot | Website Intake: Appointment Time | `TkMZgKyFxOvXOpJZ0Jji` |
+| `magnet` | Website Intake: Lead Magnet | `ES17xjYL7S5hOepLnXGj` |
+
+Three rules that are easy to break:
+
+- **The role question has three spellings.** `/self-employed` sends `profile`, `/free-quote` and `/contact-us` send `interest`, `/talk-to-a-broker` sends `role`. All three land in one column via `ROLE_KEYS`. A new form must reuse one of those keys or add itself to that array.
+- **Never send an empty value.** `intakeFields()` drops blanks, because `/contacts/upsert` merges what it receives. A lead who fills the long ICHRA form and later books through the short path keeps every answer the long form captured; sending `''` would erase them.
+- **`GHL_API_TOKEN` needs `locations/customFields.readonly`** if you ever resolve fields by key at runtime. The current id-based approach does not, so `contacts.write` still covers it.
+
+Requires `locations/customFields.write` only for creating new fields (done via MCP at build time, not at runtime).
+
 ## Booking flow (`/talk-to-a-broker`)
 
 Every "Talk To A Broker" CTA site-wide points here. Four qualifying questions (from the ICHRA launch kit — friction is intentional) → custom slot picker on live GHL availability → contact details → confirmed. `src/components/BrokerBooking.astro` holds the whole state machine; its styles are `is:global` namespaced under `.bb` because day cards and time pills are built at runtime, so Astro's scoped attributes would never land on them.
