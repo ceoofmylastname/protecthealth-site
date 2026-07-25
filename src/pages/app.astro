@@ -206,6 +206,9 @@ const SUPABASE_ANON =
   .ag-drawer-x:hover { color: var(--navy); }
 
   .ag-modal { position: fixed; inset: 0; background: rgba(8, 29, 61, 0.45); z-index: 70; display: grid; place-items: center; padding: 24px; }
+  /* display:grid on the class outranks the UA stylesheet's [hidden] rule, so
+     without this the empty card shell shows the moment the tab opens. */
+  .ag-modal[hidden] { display: none; }
   .ag-modal-card { position: relative; background: #f7fafd; border-radius: 20px; width: min(1480px, 96vw); height: min(860px, 92vh); box-shadow: 0 30px 80px rgba(8, 29, 61, 0.35); overflow: hidden; }
   .ag-card-cols { display: grid; grid-template-columns: 300px minmax(0, 1fr) 330px; gap: 0; height: 100%; }
   .ag-col { overflow-y: auto; padding: 26px 22px; }
