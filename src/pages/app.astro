@@ -121,10 +121,31 @@ const SUPABASE_ANON =
             <span class="ag-muted ag-cpage"></span>
             <button type="button" class="ag-chip ag-cnext">Next &rarr;</button>
           </div>
-          <aside class="ag-drawer" hidden>
-            <button type="button" class="ag-drawer-x" aria-label="Close">&times;</button>
-            <div class="ag-cdetail-body"></div>
-          </aside>
+          <!-- Contact card: the whole record on one screen. Left = who they
+               are, middle = everything the system has done, right = what is
+               scheduled and what humans have written down. -->
+          <div class="ag-modal" hidden>
+            <div class="ag-modal-card">
+              <button type="button" class="ag-drawer-x" aria-label="Close">&times;</button>
+              <div class="ag-card-cols">
+                <div class="ag-col ag-col-left"></div>
+                <div class="ag-col ag-col-mid">
+                  <h3 class="ag-colh">Activity</h3>
+                  <div class="ag-timeline"><p class="ag-muted">Loading…</p></div>
+                </div>
+                <div class="ag-col ag-col-right">
+                  <h3 class="ag-colh">Appointments</h3>
+                  <div class="ag-appts"></div>
+                  <h3 class="ag-colh" style="margin-top:18px;">Notes</h3>
+                  <div class="ag-notes"></div>
+                  <form class="ag-note-form">
+                    <textarea rows="3" placeholder="Add a note…" required></textarea>
+                    <button type="submit" class="btn no-arrow">Add Note</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -181,9 +202,47 @@ const SUPABASE_ANON =
   .ag-towner.none { color: var(--muted); font-weight: 500; }
   .ag-towner { font-weight: 700; color: var(--blue); }
 
-  .ag-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 92vw); background: #fff; box-shadow: -18px 0 44px rgba(8, 29, 61, 0.16); z-index: 60; padding: 54px 28px 28px; overflow: auto; }
-  .ag-drawer-x { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 1.7rem; color: var(--muted); cursor: pointer; line-height: 1; }
+  .ag-drawer-x { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 1.7rem; color: var(--muted); cursor: pointer; line-height: 1; z-index: 2; }
   .ag-drawer-x:hover { color: var(--navy); }
+
+  .ag-modal { position: fixed; inset: 0; background: rgba(8, 29, 61, 0.45); z-index: 70; display: grid; place-items: center; padding: 24px; }
+  .ag-modal-card { position: relative; background: #f7fafd; border-radius: 20px; width: min(1480px, 96vw); height: min(860px, 92vh); box-shadow: 0 30px 80px rgba(8, 29, 61, 0.35); overflow: hidden; }
+  .ag-card-cols { display: grid; grid-template-columns: 300px minmax(0, 1fr) 330px; gap: 0; height: 100%; }
+  .ag-col { overflow-y: auto; padding: 26px 22px; }
+  .ag-col-left { background: #fff; border-right: 1px solid rgba(15, 53, 103, 0.08); }
+  .ag-col-right { background: #fff; border-left: 1px solid rgba(15, 53, 103, 0.08); }
+  .ag-colh { margin: 0 0 12px; font-size: 0.74rem; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); }
+
+  .ag-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #19c8ff); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; margin-bottom: 10px; }
+  .ag-cardname { margin: 0 0 2px; font-size: 1.25rem; color: var(--navy); }
+  .ag-cardsub { color: var(--muted); font-size: 0.84rem; margin: 0 0 16px; }
+  .ag-kvline { padding: 7px 0; border-bottom: 1px solid rgba(15, 53, 103, 0.06); font-size: 0.88rem; }
+  .ag-kvline b { display: block; font-size: 0.7rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 1px; }
+  .ag-kvline span, .ag-kvline a { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+
+  .ag-tl-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(15, 53, 103, 0.06); }
+  .ag-tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex: none; background: var(--blue); }
+  .ag-tl-dot.sent { background: #27ae60; }
+  .ag-tl-dot.pending { background: #f39c12; }
+  .ag-tl-dot.failed, .ag-tl-dot.skipped { background: #c0392b; }
+  .ag-tl-dot.event { background: #0f3567; }
+  .ag-tl-title { font-weight: 700; color: var(--navy); font-size: 0.92rem; }
+  .ag-tl-sub { color: var(--muted); font-size: 0.8rem; }
+  .ag-tl-when { margin-left: auto; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+
+  .ag-appt { background: #f2f7fb; border: 1px solid #e2e9f1; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; }
+  .ag-appt b { color: var(--navy); display: block; }
+  .ag-note { background: #fffbea; border: 1px solid #f3e8b8; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; white-space: pre-wrap; }
+  .ag-note small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.74rem; }
+  .ag-note-form { display: grid; gap: 8px; margin-top: 10px; }
+  .ag-note-form textarea { border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 11px; padding: 10px 12px; font-family: var(--font); font-size: 0.9rem; resize: vertical; }
+  .ag-note-form textarea:focus { outline: none; border-color: var(--blue); }
+
+  @media (max-width: 1000px) {
+    .ag-card-cols { grid-template-columns: 1fr; overflow-y: auto; }
+    .ag-col { overflow: visible; }
+    .ag-modal-card { height: 94vh; }
+  }
 
   .ag-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   .ag-search { flex: 1; min-width: 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
@@ -304,6 +363,7 @@ const SUPABASE_ANON =
         .ilike('email', sessionEmail)
         .limit(1);
       if (!me || !me.length || !me[0].is_active) { view('denied'); return; }
+      myName = me[0].full_name || sessionEmail;
 
       view('app');
       // No .eq('agent_id', ...) anywhere — RLS already restricts this query to
@@ -437,6 +497,7 @@ const SUPABASE_ANON =
     let cSelected = null;
     let cLoaded = false;
     let roster = new Map(); // agent_id -> full_name (admins get all rows, agents their own)
+    let myName = ''; // signed-in agent's display name, stamped onto notes
 
     const fmtDob = (d) => d
       ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' })
@@ -526,35 +587,134 @@ const SUPABASE_ANON =
       );
     }
 
-    function renderContactDetail() {
-      const c = cRows.find((x) => x.ghl_contact_id === cSelected);
-      const drawer = $('.ag-drawer');
-      const body = $('.ag-cdetail-body');
-      if (!c) { drawer.hidden = true; return; }
-      drawer.hidden = false;
+    // ---------- contact card ----------
+    let fieldDefs = null; // id -> {name, data_type}
 
-      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || 'Unknown';
-      const place = [c.city, c.state, c.postal_code].filter(Boolean).join(', ');
-      body.innerHTML = `
-        <h2>${esc(name)}</h2>
-        <p class="ag-muted">Synced from the book · updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : '—'}</p>
-        <dl class="ag-kv">
-          ${c.email ? `<dt>Email</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>` : ''}
-          ${c.phone ? `<dt>Phone</dt><dd><a href="tel:${esc(String(c.phone).replace(/\D/g, ''))}">${esc(c.phone)}</a></dd>` : ''}
-          ${c.date_of_birth ? `<dt>Birthday</dt><dd>${esc(fmtDob(c.date_of_birth))}</dd>` : ''}
-          <dt>Assigned to</dt><dd>${c.agent_id ? esc(roster.get(c.agent_id) || 'Assigned') : 'Unassigned'}</dd>
-          ${place ? `<dt>Location</dt><dd>${esc(place)}</dd>` : ''}
-          ${c.source ? `<dt>Source</dt><dd>${esc(c.source)}</dd>` : ''}
-          ${c.dnd ? `<dt>DND</dt><dd>Do not disturb — excluded from sends</dd>` : ''}
-        </dl>
-        ${(c.tags ?? []).length ? `<div class="ag-sec"><h3>Tags</h3>
-          <div>${c.tags.map((t) => `<span class="ag-ctag">${esc(t)}</span>`).join('')}</div>
-        </div>` : ''}`;
+    const kv = (label, value) => value
+      ? `<div class="ag-kvline"><b>${esc(label)}</b><span>${value}</span></div>` : '';
+
+    // Custom field values arrive raw from the mirror. Dates render as dates,
+    // arrays join, and anything unreadable is skipped rather than shown ugly.
+    function fieldValue(v, type) {
+      if (v === null || v === undefined || v === '') return null;
+      if (Array.isArray(v)) return v.map((x) => esc(String(x))).join(', ');
+      const s = String(v);
+      if (type === 'DATE' || /^\d{4}-\d{2}-\d{2}T/.test(s)) {
+        const d = new Date(s);
+        if (!Number.isNaN(d.getTime())) return esc(d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }));
+      }
+      return esc(s.length > 300 ? s.slice(0, 300) + '…' : s);
     }
 
-    $('.ag-drawer-x').addEventListener('click', () => { cSelected = null; $('.ag-drawer').hidden = true; renderContacts(); });
+    async function renderContactDetail() {
+      const c = cRows.find((x) => x.ghl_contact_id === cSelected);
+      const modal = $('.ag-modal');
+      if (!c) { modal.hidden = true; return; }
+      modal.hidden = false;
+
+      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || 'Unknown';
+      const initials = ((c.first_name?.[0] ?? '') + (c.last_name?.[0] ?? '')).toUpperCase() || '?';
+      const place = [c.city, c.state, c.postal_code].filter(Boolean).join(', ');
+      const owner = c.agent_id ? (roster.get(c.agent_id) || 'Assigned') : 'Unassigned';
+
+      if (!fieldDefs) {
+        const { data: defs } = await sb.from('ph_field_defs').select('id, name, data_type');
+        fieldDefs = new Map((defs ?? []).map((d) => [d.id, d]));
+      }
+      const customRows = (c.custom_fields ?? [])
+        .map((f) => {
+          const def = fieldDefs.get(f.id);
+          const val = fieldValue(f.value ?? f.field_value, def?.data_type);
+          return def && val ? kv(def.name, val) : '';
+        })
+        .join('');
+
+      $('.ag-col-left').innerHTML = `
+        <div class="ag-avatar">${esc(initials)}</div>
+        <h2 class="ag-cardname">${esc(name)}</h2>
+        <p class="ag-cardsub">Updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : '—'} · syncs every 5 min</p>
+        <h3 class="ag-colh">Owner</h3>
+        <div class="ag-kvline"><span class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</span></div>
+        <h3 class="ag-colh" style="margin-top:16px;">Tags</h3>
+        <div>${(c.tags ?? []).length ? c.tags.map((t) => `<span class="ag-ctag">${esc(t)}</span>`).join('') : '<span class="ag-muted">None</span>'}</div>
+        <h3 class="ag-colh" style="margin-top:16px;">Contact info</h3>
+        ${kv('Email', c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '')}
+        ${kv('Phone', c.phone ? `<a href="tel:${esc(String(c.phone).replace(/\D/g, ''))}">${esc(c.phone)}</a>` : '')}
+        ${kv('Birthday', c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : '')}
+        ${kv('Location', place ? esc(place) : '')}
+        ${kv('Source', c.source ? esc(c.source) : '')}
+        ${c.dnd ? kv('DND', 'Do not disturb — excluded from sends') : ''}
+        ${customRows ? `<h3 class="ag-colh" style="margin-top:16px;">Custom fields</h3>${customRows}` : ''}`;
+
+      $('.ag-timeline').innerHTML = '<p class="ag-muted">Loading…</p>';
+      $('.ag-appts').innerHTML = '<p class="ag-muted">Loading…</p>';
+      $('.ag-notes').innerHTML = '';
+
+      // Everything our system knows about this person, merged into one feed.
+      // GHL-side conversation history is not mirrored (yet) — this shows what
+      // OUR stack has done, which after cutover is everything.
+      const { data: contactLeads } = await sb.from('ph_leads').select('*').eq('ghl_contact_id', c.ghl_contact_id);
+      const leadIds = (contactLeads ?? []).map((l) => l.id);
+      const [{ data: mails }, { data: notes }] = await Promise.all([
+        leadIds.length
+          ? sb.from('ph_emails').select('*').in('lead_id', leadIds).order('scheduled_for')
+          : Promise.resolve({ data: [] }),
+        sb.from('ph_notes').select('*').eq('contact_id', c.ghl_contact_id).order('created_at', { ascending: false }),
+      ]);
+
+      const events = [];
+      if (c.ghl_date_added) events.push({ at: c.ghl_date_added, dot: 'event', title: 'Contact created', sub: c.source || 'GoHighLevel' });
+      for (const l of contactLeads ?? []) {
+        events.push({ at: l.created_at, dot: 'event',
+          title: l.kind === 'booking' ? 'Booked a conversation online' : 'Submitted a website form',
+          sub: l.source_form || '' });
+      }
+      for (const m of mails ?? []) {
+        events.push({ at: m.sent_at || m.scheduled_for, dot: m.status,
+          title: `Email: ${MAIL_LABEL[m.kind] ?? m.kind}`,
+          sub: m.status === 'sent' ? 'Delivered to Resend' : m.status === 'pending' ? 'Queued' : (m.error || m.status) });
+      }
+      events.sort((a, b) => new Date(b.at) - new Date(a.at));
+      $('.ag-timeline').innerHTML = events.length
+        ? events.map((e) => `<div class="ag-tl-item"><span class="ag-tl-dot ${e.dot}"></span>
+            <span><span class="ag-tl-title">${esc(e.title)}</span><br><span class="ag-tl-sub">${esc(e.sub)}</span></span>
+            <span class="ag-tl-when">${e.at ? fmtDateTime(e.at) : ''}</span></div>`).join('')
+        : '<p class="ag-muted">No activity in our system yet. Texts and automations will land here as those pieces come online.</p>';
+
+      const appts = (contactLeads ?? []).filter((l) => l.appointment_start);
+      $('.ag-appts').innerHTML = appts.length
+        ? appts.map((l) => `<div class="ag-appt"><b>${fmtFull(l.appointment_start)}</b>
+            <span class="ag-muted">${new Date(l.appointment_start) > Date.now() ? 'Upcoming' : 'Past'} · booked ${fmtDateTime(l.created_at)}</span></div>`).join('')
+        : '<p class="ag-muted">No appointments on file.</p>';
+
+      renderNotes(notes ?? []);
+    }
+
+    function renderNotes(notes) {
+      $('.ag-notes').innerHTML = notes.length
+        ? notes.map((n) => `<div class="ag-note">${esc(n.body)}<small>${esc(n.author_name || n.author_email || '')} · ${fmtDateTime(n.created_at)}</small></div>`).join('')
+        : '<p class="ag-muted">No notes yet.</p>';
+    }
+
+    $('.ag-note-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ta = e.target.querySelector('textarea');
+      const body = ta.value.trim();
+      if (!body || !cSelected) return;
+      const { error } = await sb.from('ph_notes').insert({ contact_id: cSelected, body, author_name: myName });
+      if (!error) {
+        ta.value = '';
+        const { data: notes } = await sb.from('ph_notes').select('*').eq('contact_id', cSelected).order('created_at', { ascending: false });
+        renderNotes(notes ?? []);
+      }
+    });
+
+    $('.ag-drawer-x').addEventListener('click', () => { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); });
+    $('.ag-modal').addEventListener('click', (e) => {
+      if (e.target === $('.ag-modal')) { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); }
+    });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !$('.ag-drawer').hidden) { cSelected = null; $('.ag-drawer').hidden = true; renderContacts(); }
+      if (e.key === 'Escape' && !$('.ag-modal').hidden) { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); }
     });
 
     $$('.ag-table thead th[data-sort]').forEach((th) =>
