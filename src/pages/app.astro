@@ -91,26 +91,40 @@ const SUPABASE_ANON =
 
         <!-- The full contact book, mirrored from GoHighLevel every 5 minutes.
              Same page for admins and agents: RLS decides whether "everything"
-             means the whole book or just the contacts assigned to you. -->
-        <div data-pane="contacts" hidden>
+             means the whole book or just the contacts assigned to you.
+             Airtable-shaped: full-bleed sortable table, tag filter, and a
+             slide-over drawer for the record instead of a fixed side panel. -->
+        <div data-pane="contacts" hidden class="ag-full">
           <div class="ag-toolbar">
             <input type="search" class="ag-csearch" placeholder="Search name, email or phone…" aria-label="Search contacts" />
+            <input type="search" class="ag-ctagf" list="ag-taglist" placeholder="Filter by tag…" aria-label="Filter by tag" />
+            <datalist id="ag-taglist"></datalist>
+            <button type="button" class="ag-chip ag-cnewest" title="Reset to newest first">&darr; Newest</button>
             <span class="ag-muted" data-ccount>Loading…</span>
           </div>
-          <div class="ag-split">
-            <div>
-              <div class="ag-clist" role="list"></div>
-              <div class="ag-pager">
-                <button type="button" class="ag-chip ag-cprev">&larr; Prev</button>
-                <span class="ag-muted ag-cpage"></span>
-                <button type="button" class="ag-chip ag-cnext">Next &rarr;</button>
-              </div>
-            </div>
-            <aside class="ag-detail">
-              <div class="ag-cdetail-empty ag-muted">Pick a contact to see their full record.</div>
-              <div class="ag-cdetail-body" hidden></div>
-            </aside>
+          <div class="ag-tablewrap">
+            <table class="ag-table">
+              <thead><tr>
+                <th data-sort="last_name">Name</th>
+                <th data-sort="email">Email</th>
+                <th>Phone</th>
+                <th data-sort="date_of_birth">Birthday</th>
+                <th>Tags</th>
+                <th>Assigned to</th>
+                <th data-sort="ghl_date_added">Added</th>
+              </tr></thead>
+              <tbody class="ag-tbody"></tbody>
+            </table>
           </div>
+          <div class="ag-pager">
+            <button type="button" class="ag-chip ag-cprev">&larr; Prev</button>
+            <span class="ag-muted ag-cpage"></span>
+            <button type="button" class="ag-chip ag-cnext">Next &rarr;</button>
+          </div>
+          <aside class="ag-drawer" hidden>
+            <button type="button" class="ag-drawer-x" aria-label="Close">&times;</button>
+            <div class="ag-cdetail-body"></div>
+          </aside>
         </div>
       </div>
 
@@ -144,7 +158,32 @@ const SUPABASE_ANON =
   .ag-tab { border: none; background: none; padding: 10px 16px 12px; font-family: var(--font); font-size: 0.95rem; font-weight: 800; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
   .ag-tab.is-on { color: var(--blue); border-bottom-color: var(--blue); }
   .ag-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
-  .ag-ctag { display: inline-block; background: rgba(25,123,255,0.09); color: var(--blue); border-radius: 99px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700; margin: 0 4px 4px 0; }
+  .ag-ctag { display: inline-block; background: rgba(25,123,255,0.09); color: var(--blue); border-radius: 99px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700; margin: 0 4px 4px 0; cursor: pointer; border: none; font-family: var(--font); }
+  .ag-ctag:hover { background: rgba(25,123,255,0.18); }
+
+  /* Contacts pane breaks out of the site container: a table earns its width. */
+  .ag-full { position: relative; left: 50%; transform: translateX(-50%); width: min(96vw, 1680px); }
+  .ag-ctagf { flex: 0 1 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
+  .ag-ctagf:focus { outline: none; border-color: var(--blue); }
+  .ag-tablewrap { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 14px; overflow: auto; max-height: 72vh; }
+  .ag-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 960px; }
+  .ag-table thead th { position: sticky; top: 0; z-index: 2; background: #f7fafd; text-align: left; padding: 12px 14px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid rgba(15, 53, 103, 0.12); white-space: nowrap; }
+  .ag-table thead th[data-sort] { cursor: pointer; user-select: none; }
+  .ag-table thead th[data-sort]:hover { color: var(--blue); }
+  .ag-table thead th.is-sorted { color: var(--blue); }
+  .ag-table thead th.is-sorted::after { content: ' ↓'; }
+  .ag-table thead th.is-sorted.asc::after { content: ' ↑'; }
+  .ag-table tbody td { padding: 10px 14px; border-bottom: 1px solid rgba(15, 53, 103, 0.06); color: var(--ink); vertical-align: middle; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ag-table tbody tr { cursor: pointer; }
+  .ag-table tbody tr:hover td { background: rgba(25, 123, 255, 0.045); }
+  .ag-table tbody tr.is-on td { background: rgba(25, 123, 255, 0.09); }
+  .ag-tname { font-weight: 700; color: var(--navy); }
+  .ag-towner.none { color: var(--muted); font-weight: 500; }
+  .ag-towner { font-weight: 700; color: var(--blue); }
+
+  .ag-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 92vw); background: #fff; box-shadow: -18px 0 44px rgba(8, 29, 61, 0.16); z-index: 60; padding: 54px 28px 28px; overflow: auto; }
+  .ag-drawer-x { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 1.7rem; color: var(--muted); cursor: pointer; line-height: 1; }
+  .ag-drawer-x:hover { color: var(--navy); }
 
   .ag-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   .ag-search { flex: 1; min-width: 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
@@ -403,15 +442,26 @@ const SUPABASE_ANON =
       ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' })
       : null;
 
+    // Sort state lives server-side in the query, Airtable-style: click a
+    // column header to sort the whole book by it, not just the visible page.
+    let cSort = { field: 'ghl_date_added', dir: 'desc' };
+    let cTag = '';
+
     async function loadContacts() {
       if (!roster.size) {
         const { data: ags } = await sb.from('ph_agents').select('id, full_name');
         (ags ?? []).forEach((a) => roster.set(a.id, a.full_name));
+        // Tag autocomplete. The RPC runs with the caller's rights, so an
+        // agent's suggestion list is built only from their own book.
+        const { data: tags } = await sb.rpc('ph_contact_tags');
+        const dl = root.querySelector('#ag-taglist');
+        if (dl) dl.innerHTML = (tags ?? []).map((t) => `<option value="${esc(t.tag)}">`).join('');
       }
       let q = sb.from('ph_contacts')
         .select('*', { count: 'exact' })
-        .order('last_name', { ascending: true, nullsFirst: false })
+        .order(cSort.field, { ascending: cSort.dir === 'asc', nullsFirst: false })
         .range(cPage * CPAGE, cPage * CPAGE + CPAGE - 1);
+      if (cTag) q = q.contains('tags', [cTag]);
       if (cQuery) {
         // Characters with meaning in PostgREST or-filters are stripped rather
         // than escaped; nobody's name needs a comma or paren to be findable.
@@ -426,39 +476,62 @@ const SUPABASE_ANON =
     }
 
     function renderContacts() {
-      $('[data-ccount]').textContent = `${cTotal.toLocaleString()} contact${cTotal === 1 ? '' : 's'}`;
+      $('[data-ccount]').textContent = `${cTotal.toLocaleString()} contact${cTotal === 1 ? '' : 's'}${cTag ? ` tagged “${cTag}”` : ''}`;
       const pages = Math.max(1, Math.ceil(cTotal / CPAGE));
       $('.ag-cpage').textContent = `Page ${cPage + 1} of ${pages}`;
       $('.ag-cprev').disabled = cPage === 0;
       $('.ag-cnext').disabled = cPage >= pages - 1;
 
-      const list = $('.ag-clist');
+      $$('.ag-table thead th[data-sort]').forEach((th) => {
+        th.classList.toggle('is-sorted', th.getAttribute('data-sort') === cSort.field);
+        th.classList.toggle('asc', th.getAttribute('data-sort') === cSort.field && cSort.dir === 'asc');
+      });
+
+      const tbody = $('.ag-tbody');
       if (!cRows.length) {
-        list.innerHTML = '<p class="ag-muted" style="padding:14px;">No contacts match.</p>';
+        tbody.innerHTML = '<tr><td colspan="7" class="ag-muted" style="padding:20px;">No contacts match.</td></tr>';
         return;
       }
-      list.innerHTML = cRows.map((c) => {
+      tbody.innerHTML = cRows.map((c) => {
         const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || c.phone || 'Unknown';
         const owner = c.agent_id ? (roster.get(c.agent_id) || 'Assigned') : 'Unassigned';
-        return `<button type="button" class="ag-row${cSelected === c.ghl_contact_id ? ' is-on' : ''}" role="listitem" data-cid="${c.ghl_contact_id}">
-          <span>
-            <span class="ag-row-name">${esc(name)}</span>
-            <span class="ag-row-sub">${esc(c.email || '')}${c.phone ? ' · ' + esc(c.phone) : ''}</span>
-          </span>
-          <span class="ag-row-when">${esc(owner)}${c.date_of_birth ? `<small>b. ${esc(fmtDob(c.date_of_birth))}</small>` : ''}</span>
-        </button>`;
+        const tags = (c.tags ?? []).slice(0, 3).map((t) => `<button type="button" class="ag-ctag" data-tag="${esc(t)}">${esc(t)}</button>`).join('')
+          + ((c.tags ?? []).length > 3 ? `<span class="ag-muted">+${c.tags.length - 3}</span>` : '');
+        return `<tr class="${cSelected === c.ghl_contact_id ? 'is-on' : ''}" data-cid="${c.ghl_contact_id}">
+          <td class="ag-tname" title="${esc(name)}">${esc(name)}</td>
+          <td title="${esc(c.email || '')}">${esc(c.email || '—')}</td>
+          <td>${esc(c.phone || '—')}</td>
+          <td>${c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : '—'}</td>
+          <td>${tags || '—'}</td>
+          <td class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</td>
+          <td>${c.ghl_date_added ? fmtDateTime(c.ghl_date_added) : '—'}</td>
+        </tr>`;
       }).join('');
-      list.querySelectorAll('.ag-row').forEach((b) =>
-        b.addEventListener('click', () => { cSelected = b.getAttribute('data-cid'); renderContacts(); renderContactDetail(); }),
+
+      tbody.querySelectorAll('tr[data-cid]').forEach((tr) =>
+        tr.addEventListener('click', (ev) => {
+          // A click on a tag chip filters by that tag instead of opening the row.
+          const chip = ev.target.closest('.ag-ctag');
+          if (chip) {
+            cTag = chip.getAttribute('data-tag');
+            $('.ag-ctagf').value = cTag;
+            cPage = 0;
+            loadContacts();
+            return;
+          }
+          cSelected = tr.getAttribute('data-cid');
+          renderContacts();
+          renderContactDetail();
+        }),
       );
     }
 
     function renderContactDetail() {
       const c = cRows.find((x) => x.ghl_contact_id === cSelected);
-      const empty = $('.ag-cdetail-empty');
+      const drawer = $('.ag-drawer');
       const body = $('.ag-cdetail-body');
-      if (!c) { empty.hidden = false; body.hidden = true; return; }
-      empty.hidden = true; body.hidden = false;
+      if (!c) { drawer.hidden = true; return; }
+      drawer.hidden = false;
 
       const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || 'Unknown';
       const place = [c.city, c.state, c.postal_code].filter(Boolean).join(', ');
@@ -478,6 +551,36 @@ const SUPABASE_ANON =
           <div>${c.tags.map((t) => `<span class="ag-ctag">${esc(t)}</span>`).join('')}</div>
         </div>` : ''}`;
     }
+
+    $('.ag-drawer-x').addEventListener('click', () => { cSelected = null; $('.ag-drawer').hidden = true; renderContacts(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !$('.ag-drawer').hidden) { cSelected = null; $('.ag-drawer').hidden = true; renderContacts(); }
+    });
+
+    $$('.ag-table thead th[data-sort]').forEach((th) =>
+      th.addEventListener('click', () => {
+        const f = th.getAttribute('data-sort');
+        // Same column toggles direction; a new column starts descending,
+        // which is the useful default for dates and the harmless one for text.
+        cSort = { field: f, dir: cSort.field === f && cSort.dir === 'desc' ? 'asc' : 'desc' };
+        cPage = 0;
+        loadContacts();
+      }),
+    );
+
+    $('.ag-cnewest').addEventListener('click', () => {
+      cSort = { field: 'ghl_date_added', dir: 'desc' };
+      cQuery = ''; cTag = ''; cPage = 0; cSelected = null;
+      $('.ag-csearch').value = ''; $('.ag-ctagf').value = '';
+      $('.ag-drawer').hidden = true;
+      loadContacts();
+    });
+
+    let cTagTimer;
+    $('.ag-ctagf').addEventListener('input', (e) => {
+      clearTimeout(cTagTimer);
+      cTagTimer = setTimeout(() => { cTag = e.target.value.trim(); cPage = 0; loadContacts(); }, 300);
+    });
 
     $$('.ag-tab').forEach((t) =>
       t.addEventListener('click', () => {
