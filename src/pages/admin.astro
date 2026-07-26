@@ -56,6 +56,11 @@ const SUPABASE_ANON =
           <div>
             <span class="section-label">ProtectHealth Admin</span>
             <h1>Appointments &amp; enquiries</h1>
+            <nav class="ad-nav">
+              <a href="/admin" class="is-on">Leads</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+            </nav>
           </div>
           <div class="ad-head-right">
             <span class="ad-muted ad-who" data-who></span>
@@ -117,6 +122,9 @@ const SUPABASE_ANON =
   .ad-status.is-bad { color: #c0392b; }
 
   .ad-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+  .ad-nav { display: flex; gap: 18px; margin-top: 10px; }
+  .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .ad-nav a.is-on, .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
   .ad-head h1 { font-size: clamp(1.5rem, 3vw, 2.1rem); margin: 2px 0 0; }
   .ad-head-right { display: flex; align-items: center; gap: 14px; }
   .ad-who { font-weight: 700; }

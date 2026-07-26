@@ -1,0 +1,325 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Internal tool. The staff roster, pulled from GoHighLevel nightly by
+// ph-sync-staff. This is where a broker's phone number and booking link get
+// attached, which is what decides where the campaign button sends their clients.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+// GoHighLevel's white-label domain for this sub-account. Personal booking
+// widgets live under it. Kept here rather than in the database so a broken
+// custom domain is one edit, not a migration.
+const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
+---
+
+<Base title="Staff — ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad st" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON} data-cal-base={CAL_BASE}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Staff</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff" class="is-on">Staff</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="total">—</b><span>On the roster</span></div>
+          <div class="ad-stat spot"><b data-stat="phone">—</b><span>With a direct phone</span></div>
+          <div class="ad-stat spot"><b data-stat="cal">—</b><span>With a booking link live</span></div>
+          <div class="ad-stat spot"><b data-stat="owned">—</b><span>Contacts they own</span></div>
+          <div class="ad-stat spot"><b data-stat="house">—</b><span>Still falling back to house</span></div>
+        </div>
+
+        <p class="st-note ad-muted">
+          The campaign button follows this order for every client: the broker's booking link, then their
+          direct phone, then the site's booking page. Set a booking link below and every future birthday
+          and holiday email to that broker's clients starts pointing at their own calendar.
+        </p>
+
+        <div class="ad-toolbar">
+          <input type="search" class="st-search" placeholder="Search name, email or phone…" aria-label="Search" />
+          <div class="ad-filters" role="group" aria-label="Filter">
+            <button type="button" class="ad-chip is-on" data-filter="all">All</button>
+            <button type="button" class="ad-chip" data-filter="owners">Owns clients</button>
+            <button type="button" class="ad-chip" data-filter="cal">Has a calendar</button>
+            <button type="button" class="ad-chip" data-filter="house">Falls back to house</button>
+            <button type="button" class="ad-chip" data-filter="off">Switched off</button>
+          </div>
+          <button type="button" class="cm-btn st-resync">Re-sync from GoHighLevel</button>
+        </div>
+        <p class="st-synced ad-muted"></p>
+
+        <div class="st-list"></div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .st .ad-nav { display: flex; gap: 18px; margin-top: 10px; }
+  .st .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .st .ad-nav a.is-on, .st .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .st-note { margin: -10px 0 20px; font-size: 0.86rem; max-width: 76ch; line-height: 1.65; }
+  .st-synced { font-size: 0.8rem; margin: 6px 0 16px; }
+
+  .st-list { display: grid; gap: 12px; }
+  .st-card { background: #fff; border: 1.5px solid var(--line); border-radius: 15px; padding: 16px 18px; }
+  .st-card.is-off { opacity: .62; }
+  .st-top { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; }
+  .st-name { font-weight: 800; font-size: 1.04rem; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .st-sub { color: var(--muted); font-size: 0.85rem; line-height: 1.7; margin-top: 3px; }
+  .st-sub a { color: var(--blue); text-decoration: none; }
+
+  .st-tag { font-size: 0.66rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #eef3f8; color: #5a6f85; }
+  .st-tag.cal { background: #e6f7ed; color: #16803c; }
+  .st-tag.phone { background: #eaf3ff; color: #0f3567; }
+  .st-tag.house { background: #fdf3e3; color: #96690d; }
+  .st-tag.admin { background: #f1ecfd; color: #5b3fc4; }
+
+  .st-counts { text-align: right; color: var(--muted); font-size: 0.82rem; line-height: 1.7; white-space: nowrap; }
+  .st-counts b { color: var(--ink); font-size: 1rem; }
+
+  .st-cta { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+  .st-cta code { background: #eef3f8; padding: 2px 7px; border-radius: 5px; font-size: 0.78rem; color: var(--ink); }
+
+  .st-edit { display: grid; grid-template-columns: 1fr auto auto; gap: 9px; align-items: center; margin-top: 11px; }
+  @media (max-width: 780px) { .st-edit { grid-template-columns: 1fr; } .st-top { grid-template-columns: 1fr; } .st-counts { text-align: left; } }
+  .st-edit input, .st-edit select {
+    padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line);
+    font-family: var(--font); font-size: 0.88rem; width: 100%; background: #fff;
+  }
+  .st-edit input:focus, .st-edit select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .st-cands { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+  .st-cand {
+    font-size: 0.78rem; padding: 6px 11px; border-radius: 999px; border: 1.5px solid var(--line);
+    background: #fff; cursor: pointer; font-family: var(--font); font-weight: 700; color: var(--ink);
+  }
+  .st-cand:hover { border-color: var(--blue); color: var(--blue); }
+  .st-test { font-size: 0.78rem; color: var(--blue); text-decoration: underline; margin-left: 8px; }
+  .st-saved { font-size: 0.8rem; font-weight: 700; color: #16803c; }
+  .st-saved.is-bad { color: #b3261e; }
+  .st-empty { padding: 26px; text-align: center; }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.st');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+    const CAL_BASE = root.getAttribute('data-cal-base');
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    let roster = [];
+    let calsByAgent = new Map();
+    let filter = 'all';
+    let query = '';
+
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/staff` },
+      });
+      if (error) { status.classList.add('is-bad'); status.textContent = error.message; }
+      else status.textContent = 'Check your inbox. The link signs you straight in.';
+    });
+
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => {
+      await sb.auth.signOut(); location.reload();
+    }));
+
+    async function load() {
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+
+      const [{ data: r }, { data: c }] = await Promise.all([
+        sb.rpc('ph_agent_roster'),
+        sb.from('ph_agent_calendars').select('*').order('name'),
+      ]);
+      roster = r ?? [];
+      calsByAgent = new Map();
+      for (const cal of c ?? []) {
+        if (!calsByAgent.has(cal.agent_id)) calsByAgent.set(cal.agent_id, []);
+        calsByAgent.get(cal.agent_id).push(cal);
+      }
+      renderStats();
+      renderList();
+
+      const newest = roster.map((a) => a.synced_at).filter(Boolean).sort().pop();
+      $('.st-synced').textContent = newest
+        ? `Roster last pulled from GoHighLevel ${new Date(newest).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}. Refreshes nightly.`
+        : 'Roster has not been synced yet.';
+    }
+
+    function renderStats() {
+      const set = (k, v) => ($(`[data-stat="${k}"]`).textContent = String(v));
+      set('total', roster.length);
+      set('phone', roster.filter((a) => a.phone).length);
+      set('cal', roster.filter((a) => a.cta_kind === 'calendar').length);
+      set('owned', roster.reduce((n, a) => n + (a.contacts_owned ?? 0), 0));
+      // The number that matters: brokers whose clients still get a generic
+      // button because we have neither a link nor a number for them.
+      set('house', roster.filter((a) => a.cta_kind === 'house' && a.contacts_owned > 0).length);
+    }
+
+    function visible() {
+      return roster.filter((a) => {
+        if (filter === 'owners' && !(a.contacts_owned > 0)) return false;
+        if (filter === 'cal' && !(calsByAgent.get(a.id) || []).length) return false;
+        if (filter === 'house' && a.cta_kind !== 'house') return false;
+        if (filter === 'off' && a.is_active) return false;
+        if (!query) return true;
+        return [a.full_name, a.email, a.phone].join(' ').toLowerCase().includes(query);
+      });
+    }
+
+    function ctaLine(a) {
+      if (a.cta_kind === 'calendar') return `<span class="st-tag cal">Books their calendar</span> <code>${esc(a.cta_url)}</code>`;
+      if (a.cta_kind === 'phone') return `<span class="st-tag phone">Dials them</span> <code>${esc(a.cta_url)}</code> · button reads “${esc(a.cta_label)}”`;
+      return `<span class="st-tag house">House page</span> no link and no number on file, so their clients get the generic button`;
+    }
+
+    function renderList() {
+      const list = $('.st-list');
+      const rows = visible();
+      if (!rows.length) { list.innerHTML = '<div class="ad-card st-empty ad-muted">Nobody matches.</div>'; return; }
+
+      list.innerHTML = rows.map((a) => {
+        const cands = calsByAgent.get(a.id) || [];
+        return `<div class="ad-card st-card${a.is_active ? '' : ' is-off'}" data-id="${a.id}">
+          <div class="st-top">
+            <div>
+              <div class="st-name">${esc(a.full_name)}
+                ${a.ghl_role === 'admin' ? '<span class="st-tag admin">Admin</span>' : ''}
+                ${a.is_active ? '' : '<span class="st-tag">Switched off</span>'}</div>
+              <div class="st-sub">
+                ${a.email ? `<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>` : '<i>no email</i>'}
+                ${a.phone_pretty ? ` · <a href="tel:${esc(String(a.phone).replace(/\D/g, ''))}">${esc(a.phone_pretty)}</a>` : ' · <i>no phone</i>'}
+              </div>
+            </div>
+            <div class="st-counts"><b>${a.contacts_owned}</b> contacts<br><b>${a.leads_owned}</b> leads</div>
+          </div>
+
+          <div class="st-cta">Campaign button: ${ctaLine(a)}</div>
+
+          <div class="st-edit">
+            <input type="url" class="st-url" value="${esc(a.booking_url ?? '')}" placeholder="Booking link — leave blank to dial their phone instead" />
+            <select class="st-active">
+              <option value="1"${a.is_active ? ' selected' : ''}>Active</option>
+              <option value="0"${!a.is_active ? ' selected' : ''}>Off</option>
+            </select>
+            <button type="button" class="cm-btn primary st-save">Save</button>
+          </div>
+          ${cands.length ? `<div class="st-cands">${cands.map((c) => {
+            const url = CAL_BASE + c.ghl_calendar_id;
+            return `<button type="button" class="st-cand" data-url="${esc(url)}">Use “${esc(c.name)}”</button>
+              <a class="st-test" href="${esc(url)}" target="_blank" rel="noopener">test it ↗</a>`;
+          }).join('')}</div>` : ''}
+          <p class="st-saved"></p>
+        </div>`;
+      }).join('');
+
+      list.querySelectorAll('.st-card').forEach((card) => {
+        const id = card.getAttribute('data-id');
+        const note = card.querySelector('.st-saved');
+
+        card.querySelectorAll('.st-cand').forEach((b) =>
+          b.addEventListener('click', () => { card.querySelector('.st-url').value = b.getAttribute('data-url'); }));
+
+        card.querySelector('.st-save').addEventListener('click', async (e) => {
+          const btn = e.target; btn.disabled = true;
+          note.classList.remove('is-bad'); note.textContent = 'Saving…';
+          const { error } = await sb.from('ph_agents').update({
+            booking_url: card.querySelector('.st-url').value.trim() || null,
+            is_active: card.querySelector('.st-active').value === '1',
+          }).eq('id', id);
+          btn.disabled = false;
+          if (error) { note.classList.add('is-bad'); note.textContent = error.message; return; }
+          note.textContent = 'Saved.';
+          await load();
+        });
+      });
+    }
+
+    $('.st-search').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); renderList(); });
+    $$('.ad-chip').forEach((c) => c.addEventListener('click', () => {
+      $$('.ad-chip').forEach((x) => x.classList.toggle('is-on', x === c));
+      filter = c.getAttribute('data-filter');
+      renderList();
+    }));
+
+    // The sync itself runs server-side on a nightly cron. This is only here for
+    // when somebody has just added a broker in GHL and does not want to wait.
+    $('.st-resync').addEventListener('click', () => {
+      $('.st-synced').textContent =
+        'The roster refreshes itself nightly at 4:35am Vegas. To pull it right now, run the ph-sync-staff function from Supabase.';
+    });
+
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) { $$('[data-who]').forEach((n) => (n.textContent = data.session.user.email)); load(); }
+      else view('signin');
+    });
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        $$('[data-who]').forEach((n) => (n.textContent = session.user.email));
+        load();
+      }
+    });
+  }
+</script>
