@@ -205,6 +205,11 @@ const SUPABASE_ANON =
     let upcoming = [];
     let sends = [];
     let previewContact = null;
+    // Supabase caps a single response at 1000 rows, so the audience size has to
+    // come from a COUNT and the table has to page. Measuring upcoming.length
+    // would under-report any audience bigger than a page.
+    let upcomingTotal = 0;
+    const PAGE = 1000;
 
     // ---------- auth ----------
     $('.ad-login-form').addEventListener('submit', async (e) => {
@@ -322,12 +327,22 @@ const SUPABASE_ANON =
 
     async function refreshTabData(c) {
       const [from, to] = monthBounds(month);
-      const [{ data: u }, { data: s }] = await Promise.all([
-        sb.rpc('ph_campaign_recipients', { p_campaign: c.id, p_from: from, p_to: to }),
+      const [{ data: n }, { data: u }, { data: s }] = await Promise.all([
+        sb.rpc('ph_campaign_recipient_count', { p_campaign: c.id, p_from: from, p_to: to }),
+        sb.rpc('ph_campaign_recipients', { p_campaign: c.id, p_from: from, p_to: to }).range(0, PAGE - 1),
         sb.from('ph_campaign_sends').select('*').eq('campaign_id', c.id).order('sent_at', { ascending: false }).limit(500),
       ]);
+      upcomingTotal = typeof n === 'number' ? n : 0;
       upcoming = u ?? [];
       sends = s ?? [];
+    }
+
+    async function loadMoreUpcoming(c) {
+      const [from, to] = monthBounds(month);
+      const { data } = await sb
+        .rpc('ph_campaign_recipients', { p_campaign: c.id, p_from: from, p_to: to })
+        .range(upcoming.length, upcoming.length + PAGE - 1);
+      upcoming = upcoming.concat(data ?? []);
     }
 
     // ---------- email rendering ----------
@@ -489,7 +504,10 @@ const SUPABASE_ANON =
           <div class="cm-field" style="max-width:280px;margin-bottom:16px;">
             <label>Month</label><select class="cm-month">${opts}</select>
           </div>
-          <p class="ad-muted" style="margin:0 0 12px;">${upcoming.length} ${upcoming.length === 1 ? 'person' : 'people'} scheduled this month.</p>
+          <p class="ad-muted" style="margin:0 0 12px;"><b>${upcomingTotal.toLocaleString()}</b> ${upcomingTotal === 1 ? 'person' : 'people'} scheduled this month.${
+            upcoming.length < upcomingTotal
+              ? ` Showing the first ${upcoming.length.toLocaleString()} below — the send itself is not limited.`
+              : ''}</p>
           <div class="cm-scroll">${upcoming.length ? `<table class="cm-table">
             <thead><tr><th>Date</th><th>Who</th><th>Email</th><th>Broker</th><th>Button</th><th>Status</th></tr></thead>
             <tbody>${upcoming.map((p) => `<tr>
@@ -500,9 +518,17 @@ const SUPABASE_ANON =
               <td><span class="cm-pill ${p.agent_cta_kind === 'house' ? '' : 'sent'}" title="${esc(p.agent_cta_url || '')}">${esc(p.agent_cta_label || 'Book a coverage review')}</span></td>
               <td><span class="cm-pill${p.already_sent ? ' sent' : ''}">${p.already_sent ? 'Sent' : 'Scheduled'}</span></td>
             </tr>`).join('')}</tbody></table>`
-            : '<p class="ad-muted">Nobody this month.</p>'}</div>`;
+            : '<p class="ad-muted">Nobody this month.</p>'}</div>
+          ${upcoming.length < upcomingTotal
+            ? `<p style="margin:14px 0 0;"><button type="button" class="cm-btn cm-load-more">Load ${Math.min(PAGE, upcomingTotal - upcoming.length).toLocaleString()} more</button></p>`
+            : ''}`;
         pane.querySelector('.cm-month').addEventListener('change', async (e) => {
           month = e.target.value; await refreshTabData(c); renderPane(c, tpl);
+        });
+        const more = pane.querySelector('.cm-load-more');
+        if (more) more.addEventListener('click', async (e) => {
+          e.target.disabled = true; e.target.textContent = 'Loading…';
+          await loadMoreUpcoming(c); renderPane(c, tpl);
         });
 
       } else if (tab === 'sent') {
