@@ -1,0 +1,617 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Internal tool. Same trust model as /admin: static page, anon key only, Row
+// Level Security decides what comes back. Campaign copy and schedules live in
+// ph_campaigns / ph_email_templates so nothing here needs a deploy to change.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="Campaigns — ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad cm" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Email campaigns</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/campaigns" class="is-on">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="active">—</b><span>Campaigns running</span></div>
+          <div class="ad-stat spot"><b data-stat="due30">—</b><span>Emails due next 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="sent30">—</b><span>Sent in the last 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="failed">—</b><span>Failed</span></div>
+          <div class="ad-stat spot"><b data-stat="lifetime">—</b><span>Sent all time</span></div>
+        </div>
+
+        <p class="cm-note ad-muted">
+          The send log erases itself 30 days after each email goes out. The all-time counter is what survives.
+        </p>
+
+        <div class="ad-split cm-split">
+          <div class="cm-list" role="list"></div>
+          <aside class="ad-detail cm-detail">
+            <div class="ad-detail-empty ad-muted">Pick a campaign to see who is getting it, what has already gone out, and the email itself.</div>
+            <div class="cm-body" hidden></div>
+          </aside>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .cm .ad-nav { display: flex; gap: 18px; margin-top: 10px; }
+  .cm .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .cm .ad-nav a.is-on, .cm .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .cm-note { margin: -10px 0 20px; font-size: 0.85rem; }
+
+  .cm-split { display: grid; grid-template-columns: 330px 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 900px) { .cm-split { grid-template-columns: 1fr; } }
+
+  .cm-list { display: grid; gap: 10px; }
+  .cm-row {
+    width: 100%; text-align: left; background: #fff; border: 1.5px solid var(--line);
+    border-radius: 14px; padding: 14px 16px; cursor: pointer; display: grid; gap: 5px;
+    font-family: var(--font); transition: border-color .15s, box-shadow .15s;
+  }
+  .cm-row:hover { border-color: #b9cde4; }
+  .cm-row.is-on { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.12); }
+  .cm-row-top { display: flex; align-items: center; gap: 8px; }
+  .cm-row-name { font-weight: 800; color: var(--ink); font-size: 1rem; }
+  .cm-dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd6e3; flex: none; }
+  .cm-dot.on { background: #16a34a; }
+  .cm-dot.warn { background: #e0a800; }
+  .cm-row-sub { color: var(--muted); font-size: 0.83rem; line-height: 1.5; }
+  .cm-row-sub b { color: var(--ink); }
+
+  .cm-detail { padding: 26px 28px; }
+  .cm-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 2px; }
+  .cm-title h2 { margin: 0; font-size: 1.55rem; }
+  .cm-badge { font-size: 0.68rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: #eaf3ff; color: #0f3567; }
+
+  .cm-next { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin: 18px 0 20px; }
+  .cm-next b { display: block; font-size: 1.15rem; color: #0f3567; }
+  .cm-next span { color: var(--muted); font-size: 0.88rem; }
+
+  .cm-controls { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; margin-bottom: 22px; }
+  @media (max-width: 700px) { .cm-controls { grid-template-columns: 1fr; } }
+  .cm-field { display: grid; gap: 5px; }
+  .cm-field label { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+  .cm-field input, .cm-field select, .cm-edit textarea, .cm-edit input {
+    padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line);
+    font-family: var(--font); font-size: 0.94rem; background: #fff; width: 100%;
+  }
+  .cm-field input:focus, .cm-field select:focus, .cm-edit textarea:focus, .cm-edit input:focus {
+    outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13);
+  }
+  .cm-btn {
+    padding: 10px 18px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
+    font-family: var(--font); font-weight: 700; font-size: 0.9rem; cursor: pointer; color: var(--ink);
+  }
+  .cm-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .cm-btn:disabled { opacity: .5; cursor: default; }
+
+  .cm-tabs { display: flex; gap: 6px; border-bottom: 1.5px solid var(--line); margin-bottom: 18px; }
+  .cm-tab {
+    background: none; border: none; border-bottom: 2px solid transparent; padding: 9px 12px;
+    font-family: var(--font); font-weight: 700; font-size: 0.9rem; color: var(--muted); cursor: pointer;
+  }
+  .cm-tab.is-on { color: var(--blue); border-color: var(--blue); }
+
+  .cm-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .cm-table th { text-align: left; font-size: 0.7rem; letter-spacing: 1.3px; text-transform: uppercase; color: var(--muted); padding: 0 10px 8px 0; font-weight: 800; }
+  .cm-table td { padding: 9px 10px 9px 0; border-top: 1px solid var(--line); color: var(--ink); vertical-align: top; }
+  .cm-table td.dim { color: var(--muted); }
+  .cm-pill { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #eef3f8; color: #5a6f85; white-space: nowrap; }
+  .cm-pill.sent { background: #e6f7ed; color: #16803c; }
+  .cm-pill.failed { background: #fdeaea; color: #b3261e; }
+  .cm-scroll { max-height: 60vh; overflow: auto; }
+
+  /* Tall enough to show a whole email with no inner scrolling. Measured: the
+     longest campaign renders 1370px at the 600px width the iframe gives it. */
+  .cm-preview { width: 100%; height: 1440px; border: 1.5px solid var(--line); border-radius: 14px; background: #eef4fa; }
+  .cm-preview-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 10px; }
+  .cm-preview-bar .ad-muted { font-size: 0.82rem; }
+  .cm-subject { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 11px; padding: 11px 14px; margin-bottom: 14px; font-size: 0.92rem; }
+  .cm-subject small { display: block; font-size: 0.68rem; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); font-weight: 800; margin-bottom: 3px; }
+
+  .cm-edit { display: grid; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .cm-edit textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
+  .cm-tokens { font-size: 0.78rem; color: var(--muted); line-height: 1.8; }
+  .cm-tokens code { background: #eef3f8; padding: 2px 6px; border-radius: 5px; font-size: 0.75rem; }
+  .cm-saved { font-size: 0.85rem; font-weight: 700; color: #16803c; }
+  .cm-saved.is-bad { color: #b3261e; }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.cm');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+
+    const TZ = 'America/Los_Angeles';
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    // Dates coming out of Postgres are calendar dates with no timezone. Parsing
+    // them with the Date constructor would drag them a day backwards in Vegas,
+    // so they are split by hand and rendered as the plain dates they are.
+    const parseDay = (d) => { const [y, m, dd] = String(d).split('-').map(Number); return new Date(y, m - 1, dd); };
+    const fmtDay = (d, opts) => d ? parseDay(d).toLocaleDateString('en-US', opts ?? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtStamp = (iso) => new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+    let campaigns = [];
+    let templates = [];
+    let shell = null;
+    let settings = null;
+    let summary = new Map();
+    let selected = null;
+    let tab = 'upcoming';
+    let month = null;       // 'YYYY-MM'
+    let upcoming = [];
+    let sends = [];
+    let previewContact = null;
+
+    // ---------- auth ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/campaigns` },
+      });
+      if (error) { status.classList.add('is-bad'); status.textContent = error.message; }
+      else status.textContent = 'Check your inbox. The link signs you straight in.';
+    });
+
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => {
+      await sb.auth.signOut(); location.reload();
+    }));
+
+    // ---------- month helpers ----------
+    function monthBounds(ym) {
+      const [y, m] = ym.split('-').map(Number);
+      const first = `${y}-${String(m).padStart(2, '0')}-01`;
+      const lastDay = new Date(y, m, 0).getDate();
+      return [first, `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`];
+    }
+    function monthOptions() {
+      const now = new Date();
+      const out = [];
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+          + (i === 0 ? ' (this month)' : i === 1 ? ' (next month)' : '');
+        out.push([ym, label]);
+      }
+      return out;
+    }
+
+    // ---------- data ----------
+    async function load() {
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+
+      const today = new Date();
+      const from = today.toISOString().slice(0, 10);
+      const to = new Date(today.getTime() + 30 * 86400000).toISOString().slice(0, 10);
+
+      const [{ data: c }, { data: t }, { data: s }, { data: cfg }] = await Promise.all([
+        sb.from('ph_campaigns').select('*').order('sort_order'),
+        sb.from('ph_email_templates').select('*'),
+        sb.rpc('ph_campaign_summary', { p_from: from, p_to: to }),
+        sb.from('ph_settings').select('*').eq('id', true).maybeSingle(),
+      ]);
+
+      campaigns = c ?? [];
+      templates = (t ?? []).filter((x) => !x.is_shell);
+      shell = (t ?? []).find((x) => x.is_shell) ?? null;
+      settings = cfg ?? null;
+      summary = new Map((s ?? []).map((r) => [r.campaign_id, r]));
+
+      if (!month) month = monthOptions()[0][0];
+      renderStats();
+      renderList();
+      if (selected) await openCampaign(selected);
+    }
+
+    function renderStats() {
+      const set = (k, v) => ($(`[data-stat="${k}"]`).textContent = String(v));
+      const rows = [...summary.values()];
+      set('active', campaigns.filter((c) => c.is_active).length + ' / ' + campaigns.length);
+      set('due30', rows.reduce((n, r) => n + (r.window_count ?? 0), 0));
+      set('sent30', rows.reduce((n, r) => n + (r.sent_30d ?? 0), 0));
+      set('failed', rows.reduce((n, r) => n + (r.failed_30d ?? 0), 0));
+      set('lifetime', campaigns.reduce((n, c) => n + (c.sent_lifetime ?? 0), 0));
+    }
+
+    function statusOf(c) {
+      if (!c.is_active) return ['', 'Paused'];
+      if (c.type === 'holiday' && !(c.audience_tag || '').trim()) return ['warn', 'Needs a tag'];
+      return ['on', 'Running'];
+    }
+
+    function renderList() {
+      const list = $('.cm-list');
+      list.innerHTML = campaigns.map((c) => {
+        const s = summary.get(c.id) ?? {};
+        const [dot, label] = statusOf(c);
+        const when = c.type === 'birthday'
+          ? 'Every day at ' + (c.send_hour_local % 12 || 12) + (c.send_hour_local < 12 ? 'am' : 'pm')
+          : 'Next: <b>' + fmtDay(s.next_date, { month: 'short', day: 'numeric', year: 'numeric' }) + '</b>';
+        const who = c.type === 'birthday'
+          ? `<b>${s.next_count ?? 0}</b> today · <b>${s.window_count ?? 0}</b> in the next 30 days`
+          : `<b>${s.next_count ?? 0}</b> people on that day`;
+        return `<button type="button" class="cm-row${selected === c.id ? ' is-on' : ''}" role="listitem" data-id="${c.id}">
+          <span class="cm-row-top"><i class="cm-dot ${dot}"></i><span class="cm-row-name">${esc(c.name)}</span></span>
+          <span class="cm-row-sub">${when}</span>
+          <span class="cm-row-sub">${who} · ${label}</span>
+        </button>`;
+      }).join('');
+      list.querySelectorAll('.cm-row').forEach((b) =>
+        b.addEventListener('click', () => { selected = b.getAttribute('data-id'); renderList(); openCampaign(selected); }));
+    }
+
+    async function openCampaign(id) {
+      const c = campaigns.find((x) => x.id === id);
+      if (!c) return;
+      $('.ad-detail-empty').hidden = true;
+      $('.cm-body').hidden = false;
+      previewContact = null;
+      await refreshTabData(c);
+      renderDetail(c);
+    }
+
+    async function refreshTabData(c) {
+      const [from, to] = monthBounds(month);
+      const [{ data: u }, { data: s }] = await Promise.all([
+        sb.rpc('ph_campaign_recipients', { p_campaign: c.id, p_from: from, p_to: to }),
+        sb.from('ph_campaign_sends').select('*').eq('campaign_id', c.id).order('sent_at', { ascending: false }).limit(500),
+      ]);
+      upcoming = u ?? [];
+      sends = s ?? [];
+    }
+
+    // ---------- email rendering ----------
+    // Deliberately the same two-pass substitution the sender edge function runs:
+    // template parts into the shell, then tokens across the whole document. What
+    // shows here is what lands in the inbox.
+    // Mirrors buildCtx in the ph-send-campaigns edge function. Branding and the
+    // no-owner fallback come from ph_settings rather than being written twice.
+    function ctxFor(p) {
+      const s = settings ?? {};
+      const first = (p?.first_name ?? '').trim();
+      const last = (p?.last_name ?? '').trim();
+      const agentName = (p?.agent_name ?? '').trim() || s.house_name || 'The ProtectHealth Team';
+      const agentEmail = (p?.agent_email ?? '').trim() || s.house_email || 'info@protecthealth.com';
+      const agentPhone = (p?.agent_phone ?? '').trim() || s.house_phone || '800-240-8185';
+      const book = s.book_url || 'https://www.protecthealth.com/talk-to-a-broker';
+      return {
+        first_name: first || 'Sample', last_name: last || 'Client',
+        full_name: [first || 'Sample', last || 'Client'].join(' '),
+        email: p?.email ?? 'sample@example.com', phone: p?.phone ?? '',
+        city: p?.city ?? '', state: p?.state ?? '',
+        agent_name: agentName, agent_first_name: agentName.split(' ')[0],
+        agent_email: agentEmail, agent_phone: agentPhone,
+        agent_phone_href: agentPhone.replace(/\D/g, ''),
+        // Resolved server-side by ph_agent_cta and carried on the recipient row,
+        // so the preview button points exactly where the sent one will.
+        agent_cta_url: p?.agent_cta_url || book,
+        agent_cta_label: p?.agent_cta_label || 'Book a coverage review',
+        book_url: book,
+        company_phone: s.company_phone || '800-240-8185',
+        company_phone_href: String(s.company_phone || '800-240-8185').replace(/\D/g, ''),
+        company_address: s.company_address || '2915 W Charleston Blvd Ste 170, Las Vegas, NV 89102',
+        tagline: s.tagline || '',
+        logo_url: s.logo_url || '',
+        year: String(new Date().getFullYear()),
+        unsubscribe_url: '#',
+      };
+    }
+
+    const fill = (s, ctx, escape) =>
+      String(s ?? '').replace(/\{\{(\w+)\}\}/g, (m, k) => (k in ctx ? (escape ? esc(ctx[k]) : ctx[k]) : m));
+
+    function renderEmail(tpl, p) {
+      if (!shell || !tpl) return { subject: '', html: '' };
+      const ctx = ctxFor(p);
+      const paras = String(tpl.body ?? '').split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean)
+        .map((x) => `<p style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:15.5px;line-height:1.72;color:#4d6273;">${esc(x).replace(/\n/g, '<br>')}</p>`)
+        .join('\n      ');
+      const hero = tpl.hero_url
+        ? `<tr><td style="padding:0;font-size:0;line-height:0;"><img src="${esc(tpl.hero_url)}" alt="${esc(tpl.hero_alt ?? '')}" width="600" height="338" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none;background:#0b2a51;color:#8ec9ff;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;text-align:center;"></td></tr>`
+        : '';
+      const cta = tpl.cta_label
+        ? '<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:26px 0 6px;"><tr>'
+          + '<td align="center" bgcolor="#197bff" style="border-radius:12px;">'
+          + `<a href="${esc(tpl.cta_url || '{{agent_cta_url}}')}" style="display:inline-block;padding:15px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15.5px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:12px;">${esc(tpl.cta_label)}</a>`
+          + '</td></tr></table>'
+        : '';
+      let html = String(shell.html ?? '')
+        .replace('{{preheader}}', esc(tpl.preheader ?? ''))
+        .replace('{{eyebrow}}', esc(tpl.eyebrow ?? ''))
+        .replace('{{hero_html}}', hero)
+        .replace('{{headline}}', esc(tpl.headline ?? ''))
+        .replace('{{intro}}', esc(tpl.intro ?? ''))
+        .replace('{{body_html}}', paras)
+        .replace('{{cta_html}}', cta)
+        .replace('{{signoff}}', esc(tpl.signoff ?? ''));
+      return { subject: fill(tpl.subject ?? '', ctx, false), html: fill(html, ctx, true) };
+    }
+
+    // ---------- detail ----------
+    function renderDetail(c) {
+      const s = summary.get(c.id) ?? {};
+      const tpl = templates.find((t) => t.id === c.template_id);
+      const isHoliday = c.type === 'holiday';
+      const nextLine = isHoliday
+        ? `<b>${fmtDay(s.next_date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</b><span>${s.next_count ?? 0} ${s.next_count === 1 ? 'person has' : 'people have'} this tag and will get the email that morning.</span>`
+        : `<b>Every morning at ${(c.send_hour_local % 12 || 12)}${c.send_hour_local < 12 ? 'am' : 'pm'} Vegas</b><span>${s.next_count ?? 0} today · ${s.window_count ?? 0} in the next 30 days.</span>`;
+
+      const opts = monthOptions().map(([v, l]) => `<option value="${v}"${v === month ? ' selected' : ''}>${esc(l)}</option>`).join('');
+
+      $('.cm-body').innerHTML = `
+        <div class="cm-title"><h2>${esc(c.name)}</h2>
+          <span class="cm-badge">${isHoliday ? 'Tag triggered' : 'Birthday triggered'}</span></div>
+        <p class="ad-muted">${isHoliday
+          ? 'Everyone carrying the tag below receives this on the holiday.'
+          : 'Every contact with a date of birth receives this on their birthday. Add a tag to narrow it to part of the book.'}</p>
+
+        <div class="cm-next">${nextLine}</div>
+
+        <div class="cm-controls">
+          <div class="cm-field">
+            <label>${isHoliday ? 'Audience tag (required)' : 'Audience tag (optional filter)'}</label>
+            <input type="text" class="cm-tag" value="${esc(c.audience_tag ?? '')}" placeholder="${isHoliday ? 'e.g. client' : 'blank = everyone with a birthday'}" list="cm-taglist" />
+          </div>
+          <div class="cm-field">
+            <label>Send at</label>
+            <select class="cm-hour">${Array.from({ length: 14 }, (_, i) => i + 6).map((h) =>
+              `<option value="${h}"${h === c.send_hour_local ? ' selected' : ''}>${h % 12 || 12}${h < 12 ? 'am' : 'pm'}</option>`).join('')}</select>
+          </div>
+          <div class="cm-field">
+            <label>Status</label>
+            <select class="cm-active">
+              <option value="1"${c.is_active ? ' selected' : ''}>Running</option>
+              <option value="0"${!c.is_active ? ' selected' : ''}>Paused</option>
+            </select>
+          </div>
+        </div>
+        <p style="margin:-12px 0 22px;"><button type="button" class="cm-btn primary cm-save-campaign">Save settings</button>
+          <span class="cm-saved cm-campaign-saved"></span></p>
+
+        <div class="cm-tabs">
+          <button type="button" class="cm-tab${tab === 'upcoming' ? ' is-on' : ''}" data-tab="upcoming">Who's getting it</button>
+          <button type="button" class="cm-tab${tab === 'sent' ? ' is-on' : ''}" data-tab="sent">Already sent</button>
+          <button type="button" class="cm-tab${tab === 'template' ? ' is-on' : ''}" data-tab="template">The email</button>
+        </div>
+        <div class="cm-pane"></div>
+        <datalist id="cm-taglist"></datalist>`;
+
+      $('.cm-body').querySelectorAll('.cm-tab').forEach((b) =>
+        b.addEventListener('click', () => { tab = b.getAttribute('data-tab'); renderDetail(c); }));
+
+      $('.cm-save-campaign').addEventListener('click', async (e) => {
+        const btn = e.target; btn.disabled = true;
+        const note = $('.cm-campaign-saved'); note.classList.remove('is-bad'); note.textContent = 'Saving…';
+        const patch = {
+          audience_tag: $('.cm-tag').value.trim() || null,
+          send_hour_local: Number($('.cm-hour').value),
+          is_active: $('.cm-active').value === '1',
+          updated_at: new Date().toISOString(),
+        };
+        const { error } = await sb.from('ph_campaigns').update(patch).eq('id', c.id);
+        btn.disabled = false;
+        if (error) { note.classList.add('is-bad'); note.textContent = error.message; return; }
+        note.textContent = 'Saved.';
+        Object.assign(c, patch);
+        await load();
+      });
+
+      renderPane(c, tpl);
+      loadTags();
+    }
+
+    async function loadTags() {
+      const dl = $('#cm-taglist');
+      if (!dl || dl.dataset.filled) return;
+      // A flat list of the tags actually in use, so the field is a pick rather
+      // than a guess. Typos here are the difference between an email going to
+      // 900 people and going to nobody.
+      const { data } = await sb.rpc('ph_contact_tags');
+      if (data) { dl.innerHTML = data.map((t) => `<option value="${esc(t.tag)}">${esc(t.tag)} (${t.uses})</option>`).join(''); dl.dataset.filled = '1'; }
+    }
+
+    function renderPane(c, tpl) {
+      const pane = $('.cm-pane');
+      const opts = monthOptions().map(([v, l]) => `<option value="${v}"${v === month ? ' selected' : ''}>${esc(l)}</option>`).join('');
+
+      if (tab === 'upcoming') {
+        pane.innerHTML = `
+          <div class="cm-field" style="max-width:280px;margin-bottom:16px;">
+            <label>Month</label><select class="cm-month">${opts}</select>
+          </div>
+          <p class="ad-muted" style="margin:0 0 12px;">${upcoming.length} ${upcoming.length === 1 ? 'person' : 'people'} scheduled this month.</p>
+          <div class="cm-scroll">${upcoming.length ? `<table class="cm-table">
+            <thead><tr><th>Date</th><th>Who</th><th>Email</th><th>Broker</th><th>Button</th><th>Status</th></tr></thead>
+            <tbody>${upcoming.map((p) => `<tr>
+              <td>${fmtDay(p.send_date, { month: 'short', day: 'numeric' })}</td>
+              <td>${esc([p.first_name, p.last_name].filter(Boolean).join(' '))}</td>
+              <td class="dim">${esc(p.email)}</td>
+              <td class="dim">${esc(p.agent_name || 'House')}</td>
+              <td><span class="cm-pill ${p.agent_cta_kind === 'house' ? '' : 'sent'}" title="${esc(p.agent_cta_url || '')}">${esc(p.agent_cta_label || 'Book a coverage review')}</span></td>
+              <td><span class="cm-pill${p.already_sent ? ' sent' : ''}">${p.already_sent ? 'Sent' : 'Scheduled'}</span></td>
+            </tr>`).join('')}</tbody></table>`
+            : '<p class="ad-muted">Nobody this month.</p>'}</div>`;
+        pane.querySelector('.cm-month').addEventListener('change', async (e) => {
+          month = e.target.value; await refreshTabData(c); renderPane(c, tpl);
+        });
+
+      } else if (tab === 'sent') {
+        pane.innerHTML = `
+          <p class="ad-muted" style="margin:0 0 12px;">Erases itself 30 days after each send. ${c.sent_lifetime ?? 0} sent all time.</p>
+          <div class="cm-scroll">${sends.length ? `<table class="cm-table">
+            <thead><tr><th>Sent</th><th>Who</th><th>Email</th><th>Broker</th><th>Status</th></tr></thead>
+            <tbody>${sends.map((r) => `<tr>
+              <td>${fmtStamp(r.sent_at)}</td>
+              <td>${esc(r.contact_name || '—')}</td>
+              <td class="dim">${esc(r.to_email)}</td>
+              <td class="dim">${esc(r.agent_name || 'House')}</td>
+              <td><span class="cm-pill ${r.status}">${r.status}</span>${r.error ? `<br><small class="ad-muted">${esc(r.error)}</small>` : ''}</td>
+            </tr>`).join('')}</tbody></table>`
+            : '<p class="ad-muted">Nothing sent in the last 30 days.</p>'}</div>`;
+
+      } else {
+        const people = upcoming.slice(0, 200);
+        const pick = previewContact ?? people[0] ?? null;
+        const { subject, html } = renderEmail(tpl, pick);
+        pane.innerHTML = `
+          <div class="cm-field" style="max-width:440px;margin-bottom:14px;">
+            <label>Preview as</label>
+            <select class="cm-person">
+              <option value="">No assigned broker — ProtectHealth house version</option>
+              ${people.map((p, i) => `<option value="${i}"${pick && pick.contact_id === p.contact_id ? ' selected' : ''}>${esc([p.first_name, p.last_name].filter(Boolean).join(' '))} — broker: ${esc(p.agent_name || 'none')}</option>`).join('')}
+            </select>
+          </div>
+          <div class="cm-subject"><small>Subject line</small>${esc(subject)}</div>
+          <div class="cm-preview-bar">
+            <button type="button" class="cm-btn cm-open-full">Open full size in a new tab</button>
+            <span class="ad-muted">This is the whole email, rendered the same way the sender renders it.</span>
+          </div>
+          <iframe class="cm-preview" title="Email preview" sandbox=""></iframe>
+          <div class="cm-edit">
+            <p class="cm-tokens">Merge fields: <code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{full_name}}</code> <code>{{city}}</code> <code>{{state}}</code> <code>{{agent_name}}</code> <code>{{agent_first_name}}</code> <code>{{agent_email}}</code> <code>{{agent_phone}}</code> <code>{{book_url}}</code></p>
+            <div class="cm-field"><label>Subject</label><input type="text" data-f="subject" value="${esc(tpl?.subject ?? '')}"></div>
+            <div class="cm-field"><label>Preheader</label><input type="text" data-f="preheader" value="${esc(tpl?.preheader ?? '')}"></div>
+            <div class="cm-field"><label>Eyebrow</label><input type="text" data-f="eyebrow" value="${esc(tpl?.eyebrow ?? '')}"></div>
+            <div class="cm-field"><label>Headline</label><input type="text" data-f="headline" value="${esc(tpl?.headline ?? '')}"></div>
+            <div class="cm-field"><label>Opening line</label><textarea data-f="intro">${esc(tpl?.intro ?? '')}</textarea></div>
+            <div class="cm-field"><label>Body (blank line between paragraphs)</label><textarea data-f="body" style="min-height:160px;">${esc(tpl?.body ?? '')}</textarea></div>
+            <div class="cm-field"><label>Button label</label><input type="text" data-f="cta_label" value="${esc(tpl?.cta_label ?? '')}"></div>
+            <div class="cm-field"><label>Button link</label><input type="text" data-f="cta_url" value="${esc(tpl?.cta_url ?? '')}"></div>
+            <div class="cm-field"><label>Sign-off</label><input type="text" data-f="signoff" value="${esc(tpl?.signoff ?? '')}"></div>
+            <div class="cm-field"><label>Hero image URL</label><input type="url" data-f="hero_url" value="${esc(tpl?.hero_url ?? '')}"></div>
+            <div class="cm-field"><label>Hero image description (shown when images are blocked)</label><input type="text" data-f="hero_alt" value="${esc(tpl?.hero_alt ?? '')}"></div>
+            <p><button type="button" class="cm-btn primary cm-save-tpl">Save email</button>
+              <button type="button" class="cm-btn cm-refresh-preview">Refresh preview</button>
+              <span class="cm-saved cm-tpl-saved"></span></p>
+          </div>`;
+
+        pane.querySelector('.cm-preview').srcdoc = html;
+
+        pane.querySelector('.cm-person').addEventListener('change', (e) => {
+          previewContact = e.target.value === '' ? null : people[Number(e.target.value)];
+          renderPane(c, tpl);
+        });
+
+        const draft = () => {
+          const d = { ...tpl };
+          pane.querySelectorAll('[data-f]').forEach((el) => { d[el.getAttribute('data-f')] = el.value; });
+          return d;
+        };
+        // A blob URL rather than a data URL: Chrome blocks data URLs as top-level
+        // navigation, and this has to open in a real tab so the whole email can be
+        // zoomed, printed or forwarded to whoever needs to approve the copy.
+        pane.querySelector('.cm-open-full').addEventListener('click', () => {
+          const out = renderEmail(draft(), previewContact ?? people[0] ?? null);
+          const url = URL.createObjectURL(new Blob([out.html], { type: 'text/html' }));
+          window.open(url, '_blank', 'noopener');
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        });
+
+        pane.querySelector('.cm-refresh-preview').addEventListener('click', () => {
+          const d = draft();
+          const out = renderEmail(d, previewContact ?? people[0] ?? null);
+          pane.querySelector('.cm-preview').srcdoc = out.html;
+          pane.querySelector('.cm-subject').innerHTML = '<small>Subject line</small>' + esc(out.subject);
+        });
+        pane.querySelector('.cm-save-tpl').addEventListener('click', async (e) => {
+          const btn = e.target; btn.disabled = true;
+          const note = pane.querySelector('.cm-tpl-saved');
+          note.classList.remove('is-bad'); note.textContent = 'Saving…';
+          const d = draft();
+          const { error } = await sb.from('ph_email_templates').update({
+            subject: d.subject, preheader: d.preheader, eyebrow: d.eyebrow, headline: d.headline,
+            intro: d.intro, body: d.body, cta_label: d.cta_label, cta_url: d.cta_url,
+            signoff: d.signoff, hero_url: d.hero_url || null, hero_alt: d.hero_alt || null,
+            updated_at: new Date().toISOString(),
+          }).eq('id', tpl.id);
+          btn.disabled = false;
+          if (error) { note.classList.add('is-bad'); note.textContent = error.message; return; }
+          note.textContent = 'Saved. This is what goes out from now on.';
+          Object.assign(tpl, d);
+        });
+      }
+    }
+
+    // ---------- boot ----------
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) { $$('[data-who]').forEach((n) => (n.textContent = data.session.user.email)); load(); }
+      else view('signin');
+    });
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        $$('[data-who]').forEach((n) => (n.textContent = session.user.email));
+        load();
+      }
+    });
+  }
+</script>
