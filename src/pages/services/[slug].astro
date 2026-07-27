@@ -1,9 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
 import { SERVICES } from '../../lib/services';
 import { RICH } from '../../lib/services-content';
+import { getCollection } from 'astro:content';
 
 export function getStaticPaths() {
   return SERVICES.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
@@ -11,6 +12,44 @@ export function getStaticPaths() {
 const { service } = Astro.props;
 const rich = RICH[service.slug];
 const pageUrl = `${SITE.domain}/services/${service.slug}`;
+
+// Which content cluster each service page is the hub for.
+//
+// WHY THIS EXISTS: the Search Console coverage export on Jul 27 2026 showed 12
+// live pages as "Crawled - currently not indexed", and every blog post and Q&A
+// among them belonged to a PRODUCT cluster (medicare, life, dental-vision) —
+// not one came from ichra or employers. The reason is structural. The campaign
+// landing pages carry a dynamic reading library that links every post and Q&A
+// in their cluster, so those pages accumulate internal links. The product
+// clusters terminated at these service pages, which linked back with only a
+// short hand-curated pill list. Orphaned pages do not get indexed.
+//
+// dental-insurance and vision-insurance intentionally share one cluster.
+const SERVICE_CLUSTER: Record<string, string> = {
+  'health-insurance': 'nevada-core',
+  'gap-health-insurance': 'nevada-core',
+  'life-insurance': 'life',
+  'medicare': 'medicare',
+  'dental-insurance': 'dental-vision',
+  'vision-insurance': 'dental-vision',
+};
+const cluster = SERVICE_CLUSTER[service.slug];
+
+// TOFU first, same ordering the campaign landing pages use.
+const clusterPosts = cluster
+  ? (await getCollection('blog'))
+      .filter((p) => p.data.cluster === cluster)
+      .sort((a, b) => (a.data.funnelStage === b.data.funnelStage ? 0 : a.data.funnelStage === 'TOFU' ? -1 : 1))
+  : [];
+
+// Skip anything the hand-curated `rich.reading` list already links, so a page
+// never shows the same pill twice.
+const curated = new Set((rich?.reading ?? []).map((r) => r.href));
+const clusterQa = cluster
+  ? (await getCollection('qa'))
+      .filter((q) => q.data.cluster === cluster && !curated.has(`/qa/${q.id}`))
+      .sort((a, b) => a.data.question.localeCompare(b.data.question))
+  : [];
 
 const schemas = [
   {
@@ -121,6 +160,42 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
         </div>
       )}
 
+      {/* Cluster library. Below the CTA band on purpose — conversion first,
+          education after, same rule the campaign landing pages follow. */}
+      {clusterPosts.length > 0 && (
+        <div class="svc-lib">
+          <h2>The full {service.name.toLowerCase()} library</h2>
+          <p class="reading-sub">Every guide ProtectHealth has written on this coverage, newest thinking first.</p>
+          <div class="grid cols-3" style="margin-top:20px;">
+            {clusterPosts.map((p) => (
+              <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
+                <div class="thumb">
+                  {BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}
+                </div>
+                <div class="body-pad">
+                  <span class="badge">{p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper'}</span>
+                  <h3>{p.data.title}</h3>
+                  <p>{p.data.description}</p>
+                  <span class="more">Read The Guide →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {clusterQa.length > 0 && (
+        <div class="svc-lib">
+          <h3>Quick answers on {service.name.toLowerCase()}</h3>
+          <div class="lp-qa-grid" style="margin-top:14px;">
+            {clusterQa.map((q) => (
+              <a class="qa-pill" href={`/qa/${q.id}`}>{q.data.question}<i>→</i></a>
+            ))}
+          </div>
+          <p style="margin-top:22px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
+        </div>
+      )}
+
       <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure becomes part of the discussion, a brief conversation with a licensed tax professional is a make-sense next step.</p>
     </div>
   </section>
@@ -147,4 +222,6 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
   .svc-resources li { margin: 7px 0; font-size: 0.95rem; }
   .svc-reading { margin-top: 34px; }
   .reading-sub { color: var(--muted); margin-top: -4px; }
+  .svc-lib { margin-top: 40px; padding-top: 34px; border-top: 1px solid var(--line); }
+  .svc-lib h2, .svc-lib h3 { margin-top: 0; }
 </style>
