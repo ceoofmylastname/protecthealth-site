@@ -433,7 +433,11 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
   .nav-shell { padding: 8px 10px 8px 16px; }
   .logo img { height: 38px; }
   /* min-height 44px: the primary mobile nav control computed to 39.3px. */
-  .nav-burger { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; border: none; cursor: pointer; font-family: var(--font); font-weight: 800; font-size: 0.9rem; color: #fff; padding: 11px 16px 11px 20px; border-radius: 999px; background: linear-gradient(120deg, var(--blue), var(--accent)); box-shadow: 0 8px 22px rgba(25, 123, 255, 0.3); position: relative; z-index: 210; }
+  /* touch-action: manipulation removes the ~300ms delay iOS holds before firing
+     click, in case the tap turns out to be a double-tap zoom. Without it the
+     menu feels laggy no matter how fast the animation is, because nothing starts
+     until that timer expires. */
+  .nav-burger { touch-action: manipulation; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; border: none; cursor: pointer; font-family: var(--font); font-weight: 800; font-size: 0.9rem; color: #fff; padding: 11px 16px 11px 20px; border-radius: 999px; background: linear-gradient(120deg, var(--blue), var(--accent)); box-shadow: 0 8px 22px rgba(25, 123, 255, 0.3); position: relative; z-index: 210; }
   .nb-text { position: relative; height: 1.2em; overflow: hidden; display: block; }
   .nb-text i { display: block; font-style: normal; line-height: 1.2; transition: transform 0.4s cubic-bezier(0.65, 0.05, 0, 1); }
   .nav-burger.open .nb-text i { transform: translateY(-100%); }
@@ -474,20 +478,34 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 .mnav-list { list-style: none; margin: 0; padding: 0; }
 .mnav-clip { display: block; overflow: hidden; }
 .mnav-list a { display: flex; align-items: baseline; gap: 14px; color: #fff; text-decoration: none; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 6.5vw, 2.3rem); line-height: 1.35; padding: 4px 0; transform: translateY(140%) rotate(6deg); transform-origin: left top; transition: transform 0.45s cubic-bezier(0.65, 0.05, 0, 1), color 0.2s ease; transition-delay: 0s; }
-/* 55ms apart, starting at 160ms. Close enough to read as one motion, far enough
-   apart that you can see each item arrive in order. */
-.mnav.open .mnav-list a { transform: translateY(0) rotate(0deg); transition-duration: 0.5s; }
-.mnav.open .mnav-list li:nth-child(1) a { transition-delay: 0.16s; }
-.mnav.open .mnav-list li:nth-child(2) a { transition-delay: 0.215s; }
-.mnav.open .mnav-list li:nth-child(3) a { transition-delay: 0.27s; }
-.mnav.open .mnav-list li:nth-child(4) a { transition-delay: 0.325s; }
-.mnav.open .mnav-list li:nth-child(5) a { transition-delay: 0.38s; }
-.mnav.open .mnav-list li:nth-child(6) a { transition-delay: 0.435s; }
+/* KEYFRAMES, not transitions, for the item reveal.
+   A transition needs the browser to have painted a start frame. These elements
+   sit inside a panel that was `visibility: hidden` a frame ago, and iOS Safari
+   frequently has no start frame to interpolate from, so it jumps to the end
+   value and the stagger is never seen. An animation has its own start keyframe
+   and always plays. This is the fix for "they all appear at once".
+   Timing: the dark panel lands at ~0.44s; items start at 0.26s and continue
+   past that, so the stagger happens while the panel is settling and remains
+   visible after it lands. */
+@keyframes mnavItemIn {
+  from { transform: translateY(140%) rotate(6deg); }
+  to   { transform: translateY(0) rotate(0deg); }
+}
+.mnav.open .mnav-list a {
+  animation: mnavItemIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition: color 0.2s ease;
+}
+.mnav.open .mnav-list li:nth-child(1) a { animation-delay: 0.26s; }
+.mnav.open .mnav-list li:nth-child(2) a { animation-delay: 0.315s; }
+.mnav.open .mnav-list li:nth-child(3) a { animation-delay: 0.37s; }
+.mnav.open .mnav-list li:nth-child(4) a { animation-delay: 0.425s; }
+.mnav.open .mnav-list li:nth-child(5) a { animation-delay: 0.48s; }
+.mnav.open .mnav-list li:nth-child(6) a { animation-delay: 0.535s; }
 .mnav-list a:active, .mnav-list a:hover { color: #66e0ff; }
 .mnav-list em { font-style: normal; font-size: 0.8rem; font-weight: 800; letter-spacing: 1px; background: linear-gradient(120deg, #19c8ff, #f5b942); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .mnav-foot { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; opacity: 0; transform: translateY(30px); transition: opacity 0.3s ease 0s, transform 0.3s ease 0s; margin-top: 30px; }
 .mnav.open .mnav-foot { opacity: 1; transform: none; transition: opacity 0.4s ease 0.44s, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) 0.44s; }
-.mnav-x { position: absolute; top: 16px; right: 16px; z-index: 5; width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 1.15rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transform: rotate(-90deg) scale(0.6); transition: opacity 0.3s ease 0s, transform 0.3s ease 0s, background 0.2s; display: grid; place-items: center; }
+.mnav-x { touch-action: manipulation; position: absolute; top: 16px; right: 16px; z-index: 5; width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 1.15rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transform: rotate(-90deg) scale(0.6); transition: opacity 0.3s ease 0s, transform 0.3s ease 0s, background 0.2s; display: grid; place-items: center; }
 .mnav.open .mnav-x { opacity: 1; transform: rotate(0deg) scale(1); transition: opacity 0.3s ease 0.34s, transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) 0.34s, background 0.2s; }
 .mnav-x:active { background: rgba(255, 255, 255, 0.22); }
 .mnav-foot .btn { width: 100%; justify-content: center; }
@@ -496,6 +514,9 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 @media (min-width: 1024px) { .mnav { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .mnav-layer, .mnav-list a, .mnav-foot, .mnav-scrim { transition: none; }
+  /* Kill the keyframe reveal too, and restore the end state in the same rule —
+     otherwise the items keep the translateY(140%) start value and stay hidden. */
+  .mnav.open .mnav-list a { animation: none !important; transform: translateY(0) rotate(0deg); }
 }
 
 /* ============ Mobile performance tier: static decor on touch devices ============ */
