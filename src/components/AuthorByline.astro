@@ -41,7 +41,12 @@ const photo = authorPhoto(author);
     </p>
     <p class="by-cred">{author.credential}</p>
     <p class="by-bio">{author.short}</p>
-    {date && <p class="by-date">{mode === 'reviewer' ? 'Answer reviewed' : 'Published'} {date}</p>}
+    {/* Author mode only, and it prints datePublished — never dateModified.
+        Reviewer mode prints NO date on purpose: we have no record of when the
+        review actually happened, and "Answer reviewed <publish date>" would be
+        asserting an event that may not have occurred on that day. The real
+        dates live in the JSON-LD, which is what Google reads. */}
+    {date && mode === 'author' && <p class="by-date">Published {date}</p>}
   </div>
 </aside>
 

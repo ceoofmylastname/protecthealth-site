@@ -98,7 +98,7 @@ const schemas = [
       <h1>{d.title}</h1>
       <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
 
-      <AuthorByline author={byline} mode="author" date={d.dateModified ?? d.datePublished} />
+      <AuthorByline author={byline} mode="author" date={d.datePublished} />
 
       {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].webp} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
 
