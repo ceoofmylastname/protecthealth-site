@@ -32,20 +32,38 @@ const orgSchema = organizationSchema();
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     {noindex && <meta name="robots" content="noindex" />}
-    <link rel="icon" href="/favicon.png" />
+    {/* Icons, generated from the real ProtectHealth mark in
+        public/assets/icon-source.png via scripts/make-icons.py.
+        No SVG: the source is raster, and a link to a non-existent favicon.svg
+        would just 404 on every page load.
+        The tab favicons keep transparency. The apple-touch-icon does NOT —
+        iOS renders a transparent home-screen icon on black, and this mark is
+        grey and mid-blue, so it would all but vanish. */}
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0f3567" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImg} />
+    {/* Dimensions let a platform reserve the card before the image downloads,
+        which is the difference between a card that renders instantly and one
+        that pops in. Alt text is read by screen readers on the unfurled card. */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ProtectHealth, Las Vegas insurance brokerage. Strategy first, insurance second." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImg} />
+    <meta name="twitter:image:alt" content="ProtectHealth, Las Vegas insurance brokerage. Strategy first, insurance second." />
 
     <!-- Fonts: preconnect + swap (wiki: core-web-vitals-blog-template) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
