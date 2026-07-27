@@ -45,13 +45,17 @@ Requires `locations/customFields.write` only for creating new fields (done via M
 Every "Talk To A Broker" CTA site-wide points here. Four qualifying questions (from the ICHRA launch kit — friction is intentional) → custom slot picker on live GHL availability → contact details → confirmed. `src/components/BrokerBooking.astro` holds the whole state machine; its styles are `is:global` namespaced under `.bb` because day cards and time pills are built at runtime, so Astro's scoped attributes would never land on them.
 
 - Slots are fetched and displayed in the VISITOR's timezone (`Intl` detected, server-validated), not Las Vegas time. The chip states which zone is being shown. `/api/book` records both.
-- `/api/book` sets `endTime` explicitly to start + 20 min. The GHL calendar's own `slotDuration` is 1 minute, so without this the broker's calendar blocks one minute instead of twenty.
-- `/api/book` re-checks free-slots before writing. Required, not belt-and-braces: `appoinmentPerSlot` on that calendar is 100, so GHL will NOT reject a collision. A 409 bounces the visitor back to a refreshed calendar.
+- `/api/book` sets `endTime` explicitly to start + 20 min, matching the calendar's 20-minute meeting duration. Kept explicit so appointment length never silently depends on someone editing a calendar setting.
+- `/api/book` re-checks free-slots before writing and 409s on a collision, bouncing the visitor back to a refreshed calendar. Max bookings per slot is 1, so GHL would also reject a true double-book; the re-check closes the race between rendering the picker and submitting it.
 - Confirmations/reminders/pipeline automation hang off the GHL native "Appointment Booked" trigger, NOT an inbound webhook — the appointment is real calendar state.
 - `/contact-us` stays live (indexed Webflow URL) as general contact. It is no longer the booking destination.
 
-### Known GHL config debt on calendar naoB13PMLUxH7fAcVXg0
-Flagged July 2026, owner decision pending: `slotDuration` 1 min (should be 20), `appoinmentPerSlot` 100 (should be 1), round robin contains only office@protecthealth.com rather than the brokers, `lookBusyConfig` hides 20% of real availability, `allowBookingAfter` 2 days blocks same-week booking, `allowBookingFor` 10 days caps the window below the 21 days the page requests.
+### Calendar naoB13PMLUxH7fAcVXg0 — verified config (July 27, 2026)
+Checked against the live GHL booking-rules screen: meeting interval 30 min, meeting duration 20 min, minimum scheduling notice 1 day, date range 21 days (matches what the page requests), max bookings per slot 1, look busy OFF, no pre/post buffer, no daily cap.
+
+An earlier revision of this file listed six config problems on this calendar as "owner decision pending." **All six were either already fixed or were misreadings of the API field names. That section was wrong and has been deleted.** Do not resurrect those claims from older docs or from the claude.ai project notes, both of which still carry the stale version. Read the live calendar before asserting anything about its settings.
+
+Still unverified: round robin membership (Staff & location tab). The staff roster notes describe this calendar as having 4 members, which is why `ph-sync-staff` deliberately skips linking it as a personal calendar.
 
 ## Non-negotiable content rules
 
@@ -78,19 +82,27 @@ Flagged July 2026, owner decision pending: `slotDuration` 1 min (should be 20), 
 
 ## Current content inventory
 
-Blog (10): 3 rewritten legacy posts (nevada-open-enrollment…, silver-state…, small-business-health-insurance) + ICHRA cluster (what-is-an-ichra, realtor-health-insurance-guide, health-insurance-options-self-employed-nevada [TOFU]; ichra-vs-marketplace…, tax-advantaged-health-benefits… [MOFU]) + employers cluster (signs-your-business-needs-hr-support [TOFU]; employee-benefits-guide-small-business [MOFU]).
-Q&A (6): 3 per campaign, parents = what-is-an-ichra and signs-your-business-needs-hr-support.
+**Blog: 22 posts. Q&A: 88 pages (exactly 4 children per post). 147 pages built.** Verified against `src/content/` on July 27, 2026 — an earlier revision of this file said 10 and 6, which was three build waves out of date.
+
+Clusters: ICHRA (what-is-an-ichra, realtor-health-insurance-guide, health-insurance-options-self-employed-nevada, health-insurance-for-freelancers-and-gig-workers [TOFU]; ichra-vs-marketplace-health-insurance, tax-advantaged-health-benefits-self-employed [MOFU]) → BOFU `/self-employed`. Employers (small-business-health-insurance, signs-your-business-needs-hr-support, tipped-payroll-mistakes-las-vegas [TOFU]; employee-benefits-guide-small-business, peo-vs-payroll-service-vs-diy [MOFU]) → BOFU `/employers`. Product clusters: life, dental-vision, medicare, nevada-core.
+
+Campaign creative: `/campaign-gallery` (noindex, no auth) indexes 100 hotlinked ad images + 12 videos from `src/lib/campaign-gallery.json`, plus 15 vertical video scripts and 17 local post cards from `src/lib/campaign-scripts.ts`. That scripts file is client-safe on purpose — Fred, targeting and paid-spend notes are excluded and must stay excluded.
 
 ## Content roadmap (build next, in order)
 
-1. **Team member bios + photos** — `src/lib/site.ts` TEAM array + `/team-members/[slug].astro` placeholders. Get real bios/credentials from Rob (E-E-A-T).
-2. Employers cluster 3rd TOFU: "Tipped Payroll: What Vegas Restaurants, Bars & Salons Get Wrong" + 3 child Q&As (tipped tax credits, tip credit vs minimum wage, FICA tip credit).
-3. Employers 2nd MOFU: "PEO vs. Payroll Service vs. DIY: Total Cost Comparison".
-4. ICHRA 3rd QA wave: "how much does health insurance cost for realtors in nevada", "can an s-corp owner use an ichra", "what happens to my ichra if I leave my job".
-5. **Localize hotlinked images (HIGH PRIORITY before launch).** All photos (logo, hero, team, services, blog, avatars) currently hotlink to the live Webflow CDN — URLs centralized in `src/lib/site.ts` (ASSETS, TEAM) and `src/lib/services.ts` (image). Download each, convert to WebP, place in `public/assets/`, swap the constants. Do this before the Webflow site is decommissioned or the images 404.
-6. Real og-default.webp (current file is a generated placeholder).
-7. `llms-full.txt` generation script once content >25 pages.
-8. Wire Google Search Console + submit sitemap after DNS cutover.
+Items 2, 3 and 4 of the previous list are DONE (tipped-payroll post + child Q&As, PEO vs payroll MOFU, ICHRA 3rd QA wave). Remaining, reordered by what costs money if skipped:
+
+1. **UTM capture.** No handler reads UTM params. `/api/lead` records only `source` form + landing `page`, so 100 ad creatives and 15 scripts are about to run with no way to attribute a lead to one. Needs a 15th custom field and a change to all six handler files. Cheap now, expensive to retrofit.
+2. **Nurture sequences.** A magnet download gets its PDF and nothing else; a booking gets confirmation + 24h + 1h reminders. There is no drip for the lead who downloads and goes quiet, which is most of them. Both campaigns need one. Email infrastructure already exists (`ph_email_templates`, `ph-booking-emails`).
+3. **Localize hotlinked images (HIGH PRIORITY before Webflow decommission).** Webflow CDN photo suite + 111 Higgsfield art pieces + 100 campaign ad creatives + intro video + Google reviewer avatars. URLs centralized in `src/lib/site.ts` (ASSETS, TEAM, BLOG_ART, QA_ART, HF_ASSETS), `src/lib/services.ts`, `src/lib/reviews.ts`, `src/lib/campaign-gallery.json`. Both campaign landing-page heroes depend on CloudFront URLs nobody here owns.
+4. **Four lead-capture defects.** Paychex answers dropped from the Supabase mirror (needs a `ph_leads` migration + `ph-booking-emails` v7 + 4 handler files, ship together or nothing shows); `book.js` `INTAKE_FIELDS` note labels are ICHRA-only; `BrokerBooking.astro` asks employer leads ICHRA-shaped questions; `business` has no custom field (native `companyName` only — decide and document).
+5. **Team member bios + photos** — 2 of 6 TEAM entries have no bio at all. Real bios/credentials from Rob (E-E-A-T), plus team approval of the AI-re-rendered headshots before cutover.
+6. Real og-default.webp. Campaign OG images are done (`og-self-employed.webp`, `og-employers.webp`); the site-wide default is still a generated placeholder.
+7. `llms-full.txt` generation script. The >25-page trigger fired long ago; content is at 147 pages.
+8. DNS cutover from Webflow, then wire Google Search Console + submit sitemap.
+9. Optional: monthly Apify review re-pull as a scheduled task.
+
+Blocked on Rob, not buildable: whether the Paychex arrangement limits CTA/ad-copy language and whether creative needs carrier compliance review (together these gate all paid spend), which platforms launch first, and the Fred handoff mechanics.
 
 ## Conventions
 
