@@ -133,8 +133,18 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   <!-- ============ SERVICES ============ -->
   <!-- ============ COVERAGE, sticky stacking deck ============ -->
   <section class="stackzone" id="coverage">
-    <div class="sz-gridbg" aria-hidden="true"></div>
-    <div class="sz-glow" aria-hidden="true"></div>
+    {/* Decorative layers live in their own clipped box. They used to sit
+        directly in .stackzone and rely on its `overflow: clip` — but `clip`
+        needs Safari 16+, and on older iOS the declaration is dropped, so
+        .sz-glow (50vw wide at right: -14vw) escaped the right edge, widened the
+        document, and made Safari zoom the whole page out to fit.
+        .stackzone cannot use `overflow: hidden` instead, because it is the
+        ancestor of the sticky deck and hidden would make it a scroll container
+        and kill the pinning. Clipping the decoration separately solves both. */}
+    <div class="sz-decor" aria-hidden="true">
+      <div class="sz-gridbg"></div>
+      <div class="sz-glow"></div>
+    </div>
     <div class="container sz-cols">
       <div class="sz-left">
         <div class="sz-pinhead">
@@ -601,6 +611,10 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
 
   /* ===== v8.1: sticky stacking coverage deck ===== */
   .stackzone { position: relative; background: linear-gradient(160deg, #081d3d 0%, var(--navy) 50%, #0d2a52 100%); border-radius: 34px; margin: 40px 14px; padding: 30px 0 60px; overflow: clip; }
+  /* Clips the decoration without making .stackzone a scroll container, so the
+     sticky deck still pins. overflow: hidden here is safe: nothing sticky lives
+     inside this box. */
+  .sz-decor { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; z-index: 0; }
   .sz-gridbg { position: absolute; inset: 0; background: linear-gradient(to right, rgba(142, 201, 255, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(142, 201, 255, 0.07) 1px, transparent 1px); background-size: 54px 54px; -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%); }
   .sz-glow { position: absolute; width: 50vw; height: 50vw; top: -20vw; right: -14vw; border-radius: 50%; background: radial-gradient(circle, rgba(25, 200, 255, 0.13), transparent 62%); filter: blur(70px); }
   .sz-cols { position: relative; z-index: 2; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(30px, 5vw, 80px); align-items: stretch; }
