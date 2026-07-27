@@ -4,7 +4,7 @@ Context for Claude Code sessions working in this repo.
 
 ## What this is
 
-Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Cloudflare Pages (Netlify legacy supported). Lead capture: GoHighLevel via serverless function at `/api/lead` — Cloudflare version in `functions/api/*.js` (Pages Functions, env via context.env), Netlify mirror in `netlify/functions/*.mjs`. Keep BOTH in sync when editing. Lead magnet delivery at `/api/lead-magnet` (Resend; env RESEND_API_KEY, RESEND_FROM) — upserts contact + tags by campaign + note with form answers + opportunity in the "ProtectHealth New Lead/Client" pipeline (location nF7RwerbB5hn27XaM9D2). Requires `GHL_API_TOKEN` env var in Netlify (Private Integration token, contacts.write + opportunities.write). Booking runs on a CUSTOM calendar at `/talk-to-a-broker`, not the GHL iframe — `/api/slots` (GET, proxies GHL free-slots, needs `calendars.readonly`) feeds it and `/api/book` (POST, needs `calendars/events.write`) upserts the contact + writes the real appointment on calendar naoB13PMLUxH7fAcVXg0 + note + opportunity. Every form thank-you state links to `/talk-to-a-broker?skip=qualify#book` (skips the four qualifying questions because /api/lead already captured them). The GHL booking iframe is GONE site-wide — do not reintroduce it, the calendar allows 100 appointments per slot so the iframe can double-book brokers. The site operationalizes two confirmed marketing campaigns:
+Full rebuild of protecthealth.com for ProtectHealth (Las Vegas insurance brokerage — Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez). Static Astro site, GitHub → Cloudflare Pages (Netlify legacy supported). Lead capture: GoHighLevel via serverless function at `/api/lead` — Cloudflare version in `functions/api/*.js` (Pages Functions, env via context.env), Netlify mirror in `netlify/functions/*.mjs`. Keep BOTH in sync when editing. Lead magnet delivery at `/api/lead-magnet` (Resend; env RESEND_API_KEY, RESEND_FROM) — upserts contact + tags by campaign + note with form answers + opportunity in the "ProtectHealth New Lead/Client" pipeline (location nF7RwerbB5hn27XaM9D2). Requires `GHL_API_TOKEN` (Private Integration token, contacts.write + opportunities.write) — set in Cloudflare Pages on BOTH Production and Preview as of Jul 27 2026, alongside `PH_HOOK_SECRET` and `RESEND_API_KEY`. Cloudflare only injects env vars into NEW deployments, so adding a variable without redeploying leaves every handler 500ing. Booking runs on a CUSTOM calendar at `/talk-to-a-broker`, not the GHL iframe — `/api/slots` (GET, proxies GHL free-slots, needs `calendars.readonly`) feeds it and `/api/book` (POST, needs `calendars/events.write`) upserts the contact + writes the real appointment on calendar naoB13PMLUxH7fAcVXg0 + note + opportunity. Every form thank-you state links to `/talk-to-a-broker?skip=qualify#book` (skips the four qualifying questions because /api/lead already captured them). The GHL booking iframe is GONE site-wide — do not reintroduce it; the custom picker exists so slot availability, timezone display and the collision re-check stay under our control. The site operationalizes two confirmed marketing campaigns:
 
 1. **ICHRA campaign** ("Strategy Over Product") — Realtors, 1099s, self-employed → `/self-employed`
 2. **Paychex campaign** ("More Than Your Group Plan") — business owners with employees → `/employers`
@@ -57,6 +57,37 @@ An earlier revision of this file listed six config problems on this calendar as 
 
 Still unverified: round robin membership (Staff & location tab). The staff roster notes describe this calendar as having 4 members, which is why `ph-sync-staff` deliberately skips linking it as a personal calendar.
 
+## Mobile (90% of traffic) — stage 1 landed Jul 27 2026
+
+**The CSS is still desktop-first: 35 `max-width` queries against 2 `min-width`.** Base styles are desktop and get collapsed downward, and the touch tier is a hand-maintained list of selectors under `@media (pointer: coarse), (max-width: 1023px)` in `global.css`. That is why `.lp-photo`, `.lp-aurora`, `.lp-grad`, the marquees and the spotlight were all animating on phones until Jul 27 — each one has to be added by hand. **Adding any new animation means adding it to that block too.** A full mobile-first inversion is planned but NOT done.
+
+Rules that came out of the stage-1 audit and must hold going forward:
+
+- **Every `auto-fit`/`auto-fill` grid uses `minmax(min(Npx, 100%), 1fr)`.** A bare `minmax(330px, 1fr)` track cannot shrink below its floor, so it punches out of a 360px container and scrolls the whole document sideways. `.grid.cols-2` did this on four pages.
+- `body { overflow-x: clip }` is the safety net, deliberately `clip` and not `hidden` — `hidden` on body creates a scroll container and silently kills every `position: sticky` on the page. It is a net, not a licence to ship overflowing layout.
+- **Never put `overflow: hidden` on an ancestor of a `position: sticky` element.** `.bb` did, which made the booking Continue dock inert for months. Clip decorative pseudo-elements by drawing them inside the box instead.
+- Markdown tables are `display: block; overflow-x: auto` below 700px and real tables above it. 37 content files contain tables.
+- `.article .hero-img` carries `aspect-ratio: 16/9`. Without it 118 pages shift their whole body on image load.
+- Tap targets: 44px floor, enforced for text links under `@media (pointer: coarse)` at the bottom of `global.css`. `min-height` does nothing on an inline element — use `inline-flex`.
+- `viewport-fit=cover` is in the viewport meta. Without it every `env(safe-area-inset-*)` in the codebase resolves to 0px on iOS.
+- `LeadForm` focuses inputs **synchronously**. iOS only raises the keyboard for a `focus()` inside the user-gesture window; a `setTimeout` version silently never opened it.
+- `FloatingMagnet` yields via IntersectionObserver when `.lead-form`, `.lp-formwrap`, `.bb` or the footer is in view. It used to sit over the bottom ~81px of the viewport during the entire form interaction and steal submit taps.
+
+**Not yet done:** responsive images. Zero `srcset`, `sizes`, `image-set()` or `astro:assets` anywhere — a 360px phone downloads the same 2K asset a desktop does, and six landing-page heroes are CSS `background-image` so they cannot be responsive without media queries. Blocked on localizing the hotlinked art first (roadmap item 3).
+
+## Search Console / indexing (state as of Jul 27 2026)
+
+Domain property `protecthealth.com` is verified. `sitemap-index.xml` submitted and reading Success. `robots.txt` allows Google plus GPTBot, ClaudeBot, PerplexityBot, CCBot and Google-Extended, and points at the sitemap. Sitemap URLs are extensionless and match canonicals exactly; `/admin` and `/campaign-gallery` are filtered out.
+
+The Jul 27 coverage export showed **zero 404s and zero 403s** after the migration. Everything flagged was either expected (redirects, proper canonicals) or stale Webflow-era URLs. Two things worth carrying forward:
+
+- **`news.protecthealth.com` is a dormant beehiiv newsletter** with one post from Oct 2024. A Domain property pulls it into coverage reports alongside the real site, so some flagged URLs are not this repo at all.
+- **"Crawled - currently not indexed" diagnoses internal linking, not content quality.** All 12 flagged pages belonged to product clusters, none to ichra or employers — because the campaign landing pages carry cluster reading libraries and the product clusters did not. Fixed by giving service pages the same treatment (see below). If pages go un-indexed again, check inbound internal links before rewriting anything.
+
+## Service pages hub their cluster
+
+`services/[slug].astro` carries a `SERVICE_CLUSTER` map and renders every post in its cluster as a card plus every cluster Q&A as a pill, below the CTA band. health-insurance and gap-health-insurance hub `nevada-core`; life-insurance hubs `life`; medicare hubs `medicare`; dental-insurance and vision-insurance share `dental-vision`. It de-duplicates against the hand-curated `rich.reading` list. Same conversion-first-education-after rule as the BOFU pages: never above the CTA.
+
 ## Non-negotiable content rules
 
 - Anchor line: "The product should serve the strategy — not become the strategy."
@@ -99,8 +130,10 @@ Items 2, 3 and 4 of the previous list are DONE (tipped-payroll post + child Q&As
 5. **Team member bios + photos** — 2 of 6 TEAM entries have no bio at all. Real bios/credentials from Rob (E-E-A-T), plus team approval of the AI-re-rendered headshots before cutover.
 6. Real og-default.webp. Campaign OG images are done (`og-self-employed.webp`, `og-employers.webp`); the site-wide default is still a generated placeholder.
 7. `llms-full.txt` generation script. The >25-page trigger fired long ago; content is at 147 pages.
-8. DNS cutover from Webflow, then wire Google Search Console + submit sitemap.
+8. **Mobile-first inversion (stage 2).** Stage 1 shipped Jul 27 — see the Mobile section. The inversion itself, flipping 35 `max-width` queries so base styles are mobile, is not started. Do it in reviewable chunks: a green build proves nothing about whether it still looks right, so each section needs eyeballing at 360px on a real phone.
 9. Optional: monthly Apify review re-pull as a scheduled task.
+
+**DONE, do not re-plan:** DNS cutover (the domain has served the Cloudflare build since before Jul 27 — `robots.txt` on the live domain is this repo's file), Search Console wired and sitemap submitted, campaign OG images, `/campaign-gallery` script + post-card tabs, service-page cluster hubs, mobile stage 1.
 
 Blocked on Rob, not buildable: whether the Paychex arrangement limits CTA/ad-copy language and whether creative needs carrier compliance review (together these gate all paid spend), which platforms launch first, and the Fred handoff mechanics.
 
