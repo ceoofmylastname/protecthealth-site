@@ -236,14 +236,21 @@ const SLOT_MINUTES = 20;
     backdrop-filter: blur(16px) saturate(1.3);
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
     box-shadow: var(--shadow);
-    overflow: hidden;
+    /* NOT overflow: hidden, and not clip-path either.
+       overflow: hidden made .bb the nearest scrollport for .bb-dock, which made
+       the sticky Continue bar inert: on a phone you tapped a time near the top
+       of a 40-slot grid, nothing appeared, and you had to scroll past every
+       remaining slot to find the button. clip-path would fix the clipping but
+       also clips the card's own box-shadow. So instead the glow below is drawn
+       INSIDE the box and needs no clipping at all. */
   }
   .bb::after {
     content: "";
     position: absolute;
-    inset: -40% -10% auto -10%;
-    height: 320px;
-    background: radial-gradient(60% 60% at 50% 50%, rgba(25, 123, 255, 0.13), transparent 70%);
+    inset: 0 0 auto 0;
+    height: 260px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: radial-gradient(75% 100% at 50% 0%, rgba(25, 123, 255, 0.15), transparent 72%);
     pointer-events: none;
   }
   .bb > * { position: relative; z-index: 1; }
@@ -348,10 +355,15 @@ const SLOT_MINUTES = 20;
   .bb-days {
     display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth;
     padding: 3px 1px 10px; flex: 1; scrollbar-width: none;
+    /* Stops the day rail from chaining its scroll to the page on Android. */
+    overscroll-behavior-x: contain;
+    /* Snap so a flick always lands on a whole day card, never half of one. */
+    scroll-snap-type: x proximity;
   }
+  .bb-day { scroll-snap-align: start; }
   .bb-days::-webkit-scrollbar { display: none; }
   .bb-days-arrow {
-    flex: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    flex: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
     border: 1.5px solid var(--line); background: #fff; color: var(--navy);
     font-size: 1.15rem; line-height: 1; display: grid; place-items: center;
     transition: background 0.2s, color 0.2s, opacity 0.2s;
@@ -433,7 +445,9 @@ const SLOT_MINUTES = 20;
   .bb-selected > div, .bb-selected > strong { flex: 1 1 auto; }
   .bb-change {
     margin-left: auto; background: none; border: none; cursor: pointer; font-family: var(--font);
-    font-size: 0.84rem; font-weight: 800; color: var(--accent); text-decoration: underline; padding: 4px;
+    font-size: 0.84rem; font-weight: 800; color: var(--accent); text-decoration: underline;
+    /* was padding: 4px → ~30px tall. */
+    padding: 4px 8px; min-height: 44px; display: inline-flex; align-items: center;
   }
 
   .bb-form { display: grid; gap: 15px; }
@@ -469,7 +483,9 @@ const SLOT_MINUTES = 20;
   .bb-nav { margin-top: 20px; }
   .bb-back {
     background: none; border: none; cursor: pointer; font-family: var(--font);
-    font-size: 0.86rem; font-weight: 800; color: var(--muted); padding: 6px 2px;
+    font-size: 0.86rem; font-weight: 800; color: var(--muted);
+    /* was padding: 6px 2px → ~34.7px tall. */
+    padding: 6px 8px 6px 2px; min-height: 44px; display: inline-flex; align-items: center;
     transition: color 0.2s;
   }
   .bb-back:hover { color: var(--blue); }
@@ -734,6 +750,17 @@ const SLOT_MINUTES = 20;
       btn.classList.add('is-picked');
       $('.bb-dock-when').textContent = fmtWhen(iso);
       dock.hidden = false;
+
+      // The dock is sticky, so on a tall slot grid it can reveal itself below
+      // the fold. Bring it into view once, after the reveal has laid out.
+      // scrollIntoView with block:'nearest' is a no-op when it is already
+      // visible, so this never fights the user on a short list.
+      requestAnimationFrame(() => {
+        dock.scrollIntoView({
+          block: 'nearest',
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        });
+      });
     }
 
     function updateArrows() {
