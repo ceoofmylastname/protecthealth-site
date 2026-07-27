@@ -2,14 +2,22 @@
 // Internal campaign creative library. Unlisted: noindex, excluded from sitemap, not in nav.
 import Base from '../layouts/Base.astro';
 import data from '../lib/campaign-gallery.json';
+import { ICHRA_SCRIPTS, PAYCHEX_SCRIPTS, OG_CARDS } from '../lib/campaign-scripts';
 
 const tabs = [
   { id: 'ichra-vid', label: 'ICHRA Videos' },
   { id: 'ichra-img', label: 'ICHRA Images' },
   { id: 'paychex-vid', label: 'Paychex Videos' },
   { id: 'paychex-img', label: 'Paychex Images' },
+  { id: 'cards', label: 'Post Cards' },
+  { id: 'scripts', label: 'Video Scripts' },
   { id: 'concepts', label: 'New Concepts' },
   { id: 'magnets', label: 'Lead Magnets' },
+];
+
+const allScripts = [
+  { label: 'ICHRA — Strategy Over Product', items: ICHRA_SCRIPTS, landing: 'protecthealth.com/self-employed' },
+  { label: 'Paychex — More Than Your Group Plan', items: PAYCHEX_SCRIPTS, landing: 'protecthealth.com/employers' },
 ];
 ---
 <Base
@@ -22,8 +30,9 @@ const tabs = [
       <span class="cg-kicker">Internal Creative Review</span>
       <h1>Campaign <span class="cg-grad">Creative Library</span></h1>
       <p class="cg-sub">
-        Two campaigns, 102 ad creatives, 12 animated video ads. Every asset is labeled with its
-        exact filename from the campaign folders. Click any image for full resolution.
+        Two campaigns, 102 ad creatives, 12 animated video ads, 17 typographic post cards and 15
+        vertical video scripts. Every asset is labeled with its exact filename from the campaign
+        folders. Click any image for full resolution.
       </p>
       <nav class="cg-tabs" id="cgTabs">
         {tabs.map((t, i) => (
@@ -127,6 +136,107 @@ const tabs = [
     </div>
   </section>
 
+  <section id="cards" class="cg-panel">
+    <div class="container">
+      <span class="section-label">Typographic Post Cards</span>
+      <h2>Post Cards — 17 Creatives</h2>
+      <p class="cg-count">
+        Brand-as-the-face cards in the site palette. Fifteen 1080&times;1350 feed cards, one per post
+        in the two approved sequences and one per video script, plus the two link-preview cards.
+        No faces, no stock photography, no carrier or product named.
+      </p>
+      {allScripts.map((group) => (
+        <>
+          <h3 class="cg-sub-h">{group.label}</h3>
+          <p class="cg-count">Landing: {group.landing}</p>
+          <div class="cg-grid">
+            {group.items.map((s) => (
+              <article class="cg-card spot">
+                <a href={s.card} target="_blank" rel="noopener">
+                  <img loading="lazy" src={s.card} alt={`ProtectHealth post card: ${s.title}`} class="card45" />
+                </a>
+                <div class="cg-meta">
+                  <span class="cg-filetag">{s.card.split('/').pop()}</span>
+                  <h3>{s.title}</h3>
+                  <p class="cg-pairs">Pairs with {s.pairs} &middot; script {s.id}</p>
+                  <button class="cg-copy" data-copy={s.caption}>Copy caption</button>
+                  <a class="cg-landing" href={s.landing} target="_blank" rel="noopener">{s.landing.replace('https://www.', '')}</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
+      ))}
+      <h3 class="cg-sub-h">Link Previews</h3>
+      <p class="cg-count">What unfurls when either campaign page is pasted into a feed or a message.</p>
+      <div class="cg-grid wide">
+        {OG_CARDS.map((c) => (
+          <article class="cg-card spot">
+            <a href={c.img} target="_blank" rel="noopener">
+              <img loading="lazy" src={c.img} alt={`ProtectHealth link preview: ${c.hook}`} class="cardog" />
+            </a>
+            <div class="cg-meta">
+              <span class="cg-filetag">{c.file}</span>
+              <h3>{c.hook}</h3>
+              <p>{c.note}</p>
+              <a class="cg-landing" href={c.landing} target="_blank" rel="noopener">{c.landing.replace('https://www.', '')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="scripts" class="cg-panel soft">
+    <div class="container">
+      <span class="section-label">Vertical Video Scripts</span>
+      <h2>Video Scripts — 15 Shoots</h2>
+      <p class="cg-count">
+        9:16, 30 to 45 seconds, one per post in the two approved sequences. Each beat carries the
+        voiceover, the on-screen burn-in and the shot. Captions are ready to paste. Hook lands inside
+        the first three seconds on every one of them.
+      </p>
+      {allScripts.map((group) => (
+        <>
+          <h3 class="cg-sub-h">{group.label}</h3>
+          <p class="cg-count">Landing: {group.landing}</p>
+          {group.items.map((s) => (
+            <article class="cg-script spot">
+              <header class="cg-shead">
+                <div>
+                  <span class="cg-filetag">{s.file}</span>
+                  <h3>{s.title}</h3>
+                  <p class="cg-pairs">{s.runtime} &middot; {s.hookType} hook &middot; pairs with {s.pairs}</p>
+                </div>
+                <a class="cg-thumb" href={s.card} target="_blank" rel="noopener">
+                  <img loading="lazy" src={s.card} alt={`Post card for ${s.title}`} />
+                </a>
+              </header>
+              <div class="cg-beats">
+                <div class="cg-beat cg-bhead">
+                  <span>Time</span><span>Voiceover</span><span>On screen</span><span>Shot</span>
+                </div>
+                {s.beats.map((b) => (
+                  <div class="cg-beat">
+                    <span class="cg-t">{b.t}</span>
+                    <span class="cg-vo">{b.vo}</span>
+                    <span class="cg-burn">{b.text}</span>
+                    <span class="cg-shot">{b.shot}</span>
+                  </div>
+                ))}
+              </div>
+              <div class="cg-caption">
+                <p class="cg-clabel">Caption</p>
+                <p>{s.caption}</p>
+                <button class="cg-copy" data-copy={s.caption}>Copy caption</button>
+              </div>
+            </article>
+          ))}
+        </>
+      ))}
+    </div>
+  </section>
+
   <section id="concepts" class="cg-panel">
     <div class="container">
       <span class="section-label">New Format</span>
@@ -216,6 +326,54 @@ const tabs = [
   .cg-filetag { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; color: var(--accent); background: rgba(0,125,179,0.08); border: 1px solid rgba(0,125,179,0.18); border-radius: 999px; padding: 3px 12px; margin-bottom: 10px; }
   .cg-landing { font-size: 0.85rem; font-weight: 700; color: var(--blue); text-decoration: none; }
   .cg-landing:hover { text-decoration: underline; }
+
+  /* --- Post cards + video scripts ------------------------------------- */
+  .cg-sub-h { font-size: 1.35rem; margin: 44px 0 4px; }
+  .cg-sub-h:first-of-type { margin-top: 8px; }
+  .cg-card img.card45 { aspect-ratio: 4 / 5; }
+  .cg-card img.cardog { aspect-ratio: 1200 / 630; }
+  .cg-pairs { color: var(--muted); font-size: 0.85rem; margin: 0 0 12px; }
+
+  .cg-copy { display: inline-block; font-family: var(--font); font-size: 0.8rem; font-weight: 700;
+    color: var(--navy); background: var(--bg-soft); border: 1.5px solid var(--line);
+    border-radius: 999px; padding: 7px 15px; margin: 0 10px 4px 0; cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s; }
+  .cg-copy:hover { border-color: rgba(25,123,255,0.5); color: var(--blue); }
+  .cg-copy.done { background: rgba(0,125,179,0.09); border-color: rgba(0,125,179,0.35); color: var(--accent); }
+
+  .cg-script { background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm); padding: 24px 26px 26px; margin-bottom: 22px; }
+  .cg-shead { display: flex; gap: 20px; align-items: flex-start; justify-content: space-between; }
+  .cg-shead h3 { font-size: 1.2rem; margin: 0 0 4px; }
+  .cg-thumb { flex: 0 0 84px; }
+  .cg-thumb img { width: 84px; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg-soft); display: block; }
+
+  .cg-beats { margin: 18px 0 4px; border-top: 1px solid var(--line); }
+  .cg-beat { display: grid; grid-template-columns: 92px minmax(0, 2.1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; line-height: 1.55; }
+  .cg-bhead { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); padding: 10px 0; }
+  .cg-t { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .cg-vo { color: var(--ink); }
+  .cg-burn { color: var(--navy); font-weight: 700; }
+  .cg-shot { color: var(--muted); font-size: 0.83rem; }
+
+  .cg-caption { margin-top: 18px; background: var(--bg-soft); border: 1px solid var(--line);
+    border-radius: 14px; padding: 16px 18px; }
+  .cg-clabel { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 6px; }
+  .cg-caption p { color: var(--ink); font-size: 0.9rem; line-height: 1.6; margin: 0 0 12px; white-space: pre-line; }
+
+  @media (max-width: 780px) {
+    .cg-beat { grid-template-columns: 1fr; gap: 4px; }
+    .cg-bhead { display: none; }
+    .cg-t { font-size: 0.8rem; }
+    .cg-burn::before { content: 'On screen: '; color: var(--muted); font-weight: 600; }
+    .cg-shot::before { content: 'Shot: '; font-weight: 600; }
+    .cg-thumb { flex-basis: 64px; }
+    .cg-thumb img { width: 64px; }
+  }
 </style>
 
 <script>
@@ -226,6 +384,38 @@ const tabs = [
       b.classList.add('active');
       const target = document.getElementById(b.getAttribute('data-t'));
       if (target) target.classList.add('show');
+    });
+  });
+
+  // Copy caption. execCommand is the fallback because the Clipboard API needs a
+  // secure context, and this page gets reviewed over plain http on the office
+  // network often enough to matter.
+  document.querySelectorAll('.cg-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.getAttribute('data-copy') || '';
+      const label = btn.textContent;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        btn.textContent = 'Copied';
+        btn.classList.add('done');
+      } catch {
+        btn.textContent = 'Press Ctrl+C';
+      }
+      setTimeout(() => {
+        btn.textContent = label;
+        btn.classList.remove('done');
+      }, 1800);
     });
   });
 </script>
