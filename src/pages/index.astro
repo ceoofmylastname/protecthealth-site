@@ -784,6 +784,14 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* mobile performance tier (homepage decor), keep last so it wins the cascade */
   @media (pointer: coarse), (max-width: 1023px) {
     .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip { animation: none !important; }
+
+    /* CRITICAL: .hw starts at opacity 0 and the wordUp animation is what reveals
+       it. Killing the animation above without restoring opacity left "Insurance
+       second." — half the homepage h1 — completely invisible on every phone and
+       tablet. The reduced-motion block does this correctly; this tier did not.
+       Any future rule that disables an animation on .hw or .grad-anim MUST
+       restore opacity and transform in the same breath. */
+    .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .rv-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: #fff !important; }
     .glass-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(10, 34, 70, 0.78) !important; }
     .kicker-chip, .lp-kick, .hs-panel { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }

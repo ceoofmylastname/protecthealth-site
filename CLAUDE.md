@@ -72,6 +72,7 @@ Rules that came out of the stage-1 audit and must hold going forward:
 - `viewport-fit=cover` is in the viewport meta. Without it every `env(safe-area-inset-*)` in the codebase resolves to 0px on iOS.
 - `LeadForm` focuses inputs **synchronously**. iOS only raises the keyboard for a `focus()` inside the user-gesture window; a `setTimeout` version silently never opened it.
 - `FloatingMagnet` yields via IntersectionObserver when `.lead-form`, `.lp-formwrap`, `.bb` or the footer is in view. It used to sit over the bottom ~81px of the viewport during the entire form interaction and steal submit taps.
+- **Disabling an animation that reveals an element must restore `opacity` and `transform` in the same rule.** `.hw` on the homepage h1 starts at `opacity: 0` and `wordUp` is what reveals it; the mobile tier killed the animation without restoring opacity, so "Insurance second." — half the homepage headline — was invisible on every phone and tablet until Jul 27. The `prefers-reduced-motion` block had it right and the mobile tier did not. Check both blocks whenever you touch a reveal animation.
 
 **Not yet done:** responsive images. Zero `srcset`, `sizes`, `image-set()` or `astro:assets` anywhere — a 360px phone downloads the same 2K asset a desktop does, and six landing-page heroes are CSS `background-image` so they cannot be responsive without media queries. Blocked on localizing the hotlinked art first (roadmap item 3).
 
