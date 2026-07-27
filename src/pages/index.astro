@@ -661,7 +661,13 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .mhead { text-align: center; padding: 16px 16px 6px; }
   .mhead h2 { margin: 0 0 4px; }
   .mhead p { color: var(--muted); margin: 0; }
-  .mcarousel { position: relative; padding: 22px 0 10px; }
+  /* The JS parks side cards at up to ±2 × min(250px, 28vw) via translateX. On a
+     390px phone that puts the outer card ~170px past the viewport edge, which
+     widened the document and made Safari scale the whole page down — the "site
+     gets thinner on scroll" bug. Clip it here at the source rather than relying
+     on the body-level net. overflow-x only, so the card shadows still breathe
+     vertically. */
+  .mcarousel { position: relative; padding: 22px 0 10px; overflow-x: hidden; }
   .mtrack { position: relative; height: 460px; perspective: 1100px; }
   .mcard { position: absolute; left: 50%; top: 8px; width: min(300px, 78vw); margin-left: max(-150px, -39vw); background: linear-gradient(165deg, #0f3567, #17457e); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 53, 103, 0.3); transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s ease; will-change: transform; }
   .mcard-img { aspect-ratio: 1 / 1; max-height: 240px; width: 100%; overflow: hidden; }

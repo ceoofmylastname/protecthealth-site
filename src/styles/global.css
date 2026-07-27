@@ -29,6 +29,14 @@ body { font-family: var(--font); color: var(--ink); background: var(--bg); line-
    silently kills every position: sticky on the page. clip does not. This is a
    safety net for decorative overflow, NOT a licence to ship overflowing layout. */
 body { overflow-x: clip; }
+/* `overflow: clip` needs Safari 16+. On older iOS the declaration above is
+   dropped entirely, horizontal overflow escapes to the document, and Safari
+   scales the whole page down to fit, so the site appears to get narrower as you
+   scroll. Fall back to hidden on the ROOT element, not body: html is already the
+   scroll container, so sticky positioning survives. */
+@supports not (overflow: clip) {
+  html { overflow-x: hidden; }
+}
 img, video, iframe, canvas, svg { max-width: 100%; }
 img, video { height: auto; }
 img { display: block; }
