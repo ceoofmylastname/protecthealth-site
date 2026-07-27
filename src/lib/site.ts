@@ -235,7 +235,24 @@ export const TEAM = [
       `Whether he's helping a business build a sustainable benefits package or guiding a household through Nevada Health Link options, Robert's approach is rooted in straight answers, strong education, and long-term client relationships.`,
     ],
   },
-  { slug: 'brenda-morgen', name: 'Brenda Morgen', role: 'Broker', photo: `${HF}/hf_20260722_061526_8d8ff14f-d71b-427c-9658-63597f3d0b6c_min.webp` },
+  {
+    slug: 'brenda-morgen',
+    name: 'Brenda Morgen',
+    role: 'Broker',
+    photo: `${HF}/hf_20260722_061526_8d8ff14f-d71b-427c-9658-63597f3d0b6c_min.webp`,
+    // ⚠️ DRAFT — PENDING BRENDA'S APPROVAL (written Jul 27 2026).
+    // Deliberately asserts nothing that is not already true on the record: her
+    // role, her agency, her city, and ProtectHealth's stated approach. It claims
+    // NO years of experience, NO license number, NO carrier appointments and no
+    // specialism she has not confirmed. She carries the byline on the life and
+    // dental-vision content, so she needs to read and correct this before it
+    // ships. If she wants it shorter or different, hers wins.
+    bio: [
+      `Brenda Morgen is a licensed insurance broker with ProtectHealth in Las Vegas, working with Nevada individuals and families on the coverage decisions that tend to get made last and matter more than people expect.`,
+      `Her focus is the coverage that sits alongside a health plan rather than inside it: dental, vision, and life insurance. These are the lines where the math is genuinely personal — whether a dental plan pays for itself depends on what the next two years actually look like, and how much life insurance is enough depends on who is counting on the income. Brenda's approach is to run those numbers with a client rather than at them.`,
+      `That fits how ProtectHealth works generally. The product should serve the strategy, not become the strategy, and if what someone already has is right for them, the honest answer is to say so.`,
+    ],
+  },
   {
     slug: 'jason-vasquez',
     name: 'Jason Vasquez',
@@ -261,6 +278,127 @@ export const TEAM = [
   },
   { slug: 'chris-bridgeforth', name: 'Chris Bridgeforth', role: 'Broker', photo: `${HF}/hf_20260722_060925_8d3e3ee0-ceaa-4bba-8c6b-93d9257a7032_min.webp` },
 ];
+
+// ============ E-E-A-T: bylines and expert review ============
+//
+// Three licensed brokers carry the content: author on the blog pillars they own,
+// named reviewer on the Q&A and FAQ layer. Assignment is by SUBJECT EXPERTISE,
+// not round-robin — a broker credited on a topic outside their stated specialty
+// is a weaker signal than no byline at all.
+//
+// TRUTHFULNESS RULES, do not break these:
+//   - Nothing here may claim a credential the person does not hold. Every line
+//     below traces to their own bio in TEAM or to their job title.
+//   - `licenseNumber` and `sameAs` are intentionally empty. They are the two
+//     strongest author-authority signals in a licensed industry and they are
+//     the two we do not have yet. Fill them, never invent them. The schema
+//     helper omits empty values so a blank stays out of the JSON-LD entirely.
+//   - Blog frontmatter still carries `author` (the Organization). The Person
+//     byline is additive: the org publishes, the broker authors or reviews.
+
+export type Author = {
+  slug: string;          // resolves to /team-members/{slug}
+  name: string;
+  role: string;          // jobTitle
+  credential: string;    // one line under the name, must be verifiable
+  specialties: string[]; // knowsAbout
+  short: string;         // byline bio, 1-2 sentences
+  licenseNumber?: string;
+  sameAs?: string[];
+};
+
+const teamPhoto = (slug: string) => TEAM.find((t) => t.slug === slug)?.photo ?? '';
+
+export const AUTHORS: Record<string, Author> = {
+  'robert-morgen': {
+    slug: 'robert-morgen',
+    name: 'Robert Morgen',
+    role: 'Owner / COO & Group Services Director',
+    credential: 'Licensed Life & Health insurance broker · Las Vegas',
+    specialties: [
+      'ICHRA', 'Section 105 arrangements', 'QSEHRA', 'small group health insurance',
+      'employer benefits strategy', 'self-employed coverage', 'Nevada Health Link',
+    ],
+    short: 'Robert is an owner of ProtectHealth and a licensed Life & Health broker with more than a decade serving Nevada families and small businesses. As Director of Employer Group Services he designs benefit strategies for small employers and leads the agency’s agent training.',
+    licenseNumber: '',
+    sameAs: [],
+  },
+  'brian-douglas': {
+    slug: 'brian-douglas',
+    name: 'Brian Douglas',
+    role: 'Owner / CEO',
+    credential: 'Licensed insurance broker & benefits advisor · Las Vegas',
+    specialties: [
+      'individual health insurance', 'ACA marketplace coverage', 'premium tax credits',
+      'Nevada Health Link', 'Medicare', 'open enrollment', 'gap health insurance',
+    ],
+    short: 'Brian is the Owner and CEO of ProtectHealth, one of Nevada’s largest individual health insurance agencies, and a licensed broker and benefits advisor. He leads a statewide network of more than 40 licensed brokers and works extensively with Nevada Health Link.',
+    licenseNumber: '',
+    sameAs: [],
+  },
+  'brenda-morgen': {
+    slug: 'brenda-morgen',
+    name: 'Brenda Morgen',
+    role: 'Broker',
+    credential: 'Licensed insurance broker · Las Vegas',
+    specialties: [
+      'dental insurance', 'vision insurance', 'life insurance',
+      'term life', 'whole life', 'ancillary coverage',
+    ],
+    // PENDING BRENDA'S APPROVAL — drafted Jul 27 2026 from her role and the
+    // agency context only. It asserts no years of experience, no license number
+    // and no specialisms she has not confirmed. She must sign off before this
+    // is treated as final.
+    short: 'Brenda is a licensed broker at ProtectHealth in Las Vegas, working with Nevada individuals and families on the coverage that sits alongside a health plan — dental, vision and life.',
+    licenseNumber: '',
+    sameAs: [],
+  },
+};
+
+// Cluster → byline. Robert owns the employer and self-employed strategy content
+// because he runs Employer Group Services and drove the ICHRA campaign. Brian
+// owns individual health, the Nevada marketplace and Medicare as the agency
+// lead. Brenda owns the ancillary lines.
+export const CLUSTER_AUTHOR: Record<string, string> = {
+  ichra: 'robert-morgen',
+  employers: 'robert-morgen',
+  'nevada-core': 'brian-douglas',
+  medicare: 'brian-douglas',
+  life: 'brenda-morgen',
+  'dental-vision': 'brenda-morgen',
+};
+
+export const authorFor = (cluster: string): Author =>
+  AUTHORS[CLUSTER_AUTHOR[cluster] ?? 'brian-douglas'];
+
+export const authorPhoto = (a: Author) => teamPhoto(a.slug);
+
+export const personId = (slug: string) => `${SITE.domain}/team-members/${slug}#person`;
+
+// Person node for JSON-LD. Empty licenseNumber / sameAs are dropped rather than
+// emitted blank, so the schema never asserts a credential we cannot back up.
+export function personSchema(a: Author) {
+  const node: Record<string, unknown> = {
+    '@type': 'Person',
+    '@id': personId(a.slug),
+    name: a.name,
+    jobTitle: a.role,
+    description: a.short,
+    url: `${SITE.domain}/team-members/${a.slug}`,
+    image: teamPhoto(a.slug),
+    worksFor: { '@id': ORG_ID },
+    knowsAbout: a.specialties,
+  };
+  if (a.licenseNumber) {
+    node.hasCredential = {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: 'Nevada insurance producer license',
+      identifier: a.licenseNumber,
+    };
+  }
+  if (a.sameAs && a.sameAs.length) node.sameAs = a.sameAs;
+  return node;
+}
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
   return {

@@ -88,6 +88,23 @@ The Jul 27 coverage export showed **zero 404s and zero 403s** after the migratio
 
 `services/[slug].astro` carries a `SERVICE_CLUSTER` map and renders every post in its cluster as a card plus every cluster Q&A as a pill, below the CTA band. health-insurance and gap-health-insurance hub `nevada-core`; life-insurance hubs `life`; medicare hubs `medicare`; dental-insurance and vision-insurance share `dental-vision`. It de-duplicates against the hand-curated `rich.reading` list. Same conversion-first-education-after rule as the BOFU pages: never above the CTA.
 
+## E-E-A-T bylines (added Jul 27 2026)
+
+Three licensed brokers carry the content. `AUTHORS` + `CLUSTER_AUTHOR` + `personSchema()` live in `src/lib/site.ts`; the visible half is `src/components/AuthorByline.astro`.
+
+**Author on the blog pillars, reviewer on the Q&A and FAQ layer.** That split is a truthfulness decision, not a design one. A named broker as `author` is publicly standing behind the words; on agency-written Q&A the accurate claim is that a licensed broker checked the answer, so those pages use `reviewedBy` with the answer still attributed to the Organization.
+
+Assignment is by **subject expertise**, never round-robin — a broker credited outside their stated specialty is a weaker signal than no byline. Robert Morgen: ichra + employers. Brian Douglas: nevada-core + medicare + the site-wide FAQ. Brenda Morgen: life + dental-vision.
+
+One `Person` node per page, emitted standalone and referenced by `@id` (`{domain}/team-members/{slug}#person`) from `BlogPosting.author` or `QAPage.reviewedBy`. Never inline a second Person.
+
+**Two things are deliberately incomplete and must not be faked:**
+
+- `licenseNumber` and `sameAs` are empty strings/arrays on all three. Nevada producer license number + LinkedIn URL are the strongest author-authority signals in a licensed industry and they are the two we do not have. `personSchema()` omits empty values so nothing false reaches the JSON-LD. Fill them when Rob supplies them; never invent them.
+- **Brenda Morgen's bio is a DRAFT pending her approval.** She had no bio at all before Jul 27. What is there now asserts only her role, agency and city — no years of experience, no license number, no carrier appointments. She carries the byline on 4 posts and their Q&A children, so she must read and correct it. Her wording wins.
+
+Also unresolved: the site spells them **Morgen**; they have been referred to as Morgan elsewhere. Confirm which is correct, because inconsistent name spelling actively harms entity recognition.
+
 ## Non-negotiable content rules
 
 - Anchor line: "The product should serve the strategy — not become the strategy."
@@ -142,4 +159,11 @@ Blocked on Rob, not buildable: whether the Paychex arrangement limits CTA/ad-cop
 - Content: `src/content/blog/*.md`, `src/content/qa/*.md` (frontmatter schemas in `src/content.config.ts` — zod-enforced).
 - Brand/org data: `src/lib/site.ts`. Services data: `src/lib/services.ts`.
 - URL patterns preserved from Webflow: `/blog-post/[slug]`, `/about-us`, `/our-team`, `/contact-us`, `/free-quote`, `/team-members/[slug]`. Old `/projects/*` URLs 301 via `public/_redirects`.
-- Verify after build: `grep -c 'application/ld+json' dist/blog-post/what-is-an-ichra.html` (expect 5: Org + BlogPosting + Speakable + Breadcrumb + FAQPage).
+- Verify after build — use `-o | wc -l`, NOT `-c`. `grep -c` counts matching lines and Astro minifies five of the six blocks onto one line, so `-c` returns 2 and looks broken. The correct command:
+
+  ```
+  grep -o 'application/ld+json' dist/blog-post/what-is-an-ichra.html | wc -l     # expect 6
+  grep -o '"@type":"[A-Za-z]*"' dist/blog-post/what-is-an-ichra.html | sort -u
+  ```
+
+  Expect 6 blocks on a blog post: InsuranceAgency (global org) + BlogPosting + **Person** + WebPage (speakable) + BreadcrumbList + FAQPage. Q&A pages carry QAPage + Person + WebPage + BreadcrumbList, with FAQPage nested inside QAPage via `hasPart` rather than as its own block.

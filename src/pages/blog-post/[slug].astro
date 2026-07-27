@@ -1,7 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId } from '../../lib/site';
+import AuthorByline from '../../components/AuthorByline.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -48,6 +49,10 @@ const CLUSTER_BOFU: Record<string, { url: string; label: string; line: string }>
 };
 const cta = CLUSTER_BOFU[d.cluster];
 
+// Byline is assigned by cluster, i.e. by subject expertise. See CLUSTER_AUTHOR
+// in site.ts for why it is not round-robin.
+const byline = authorFor(d.cluster);
+
 // Related Q&A pages in this post's cluster
 const allQa = await getCollection('qa');
 const childQa = allQa.filter((q) => q.data.parentPost === post.id);
@@ -61,7 +66,10 @@ const articleSchema: Record<string, unknown> = {
   mainEntityOfPage: pageUrl,
   inLanguage: 'en-US',
   datePublished: d.datePublished,
-  author: { '@type': 'Organization', name: d.author, url: SITE.domain },
+  // E-E-A-T: a named licensed broker authors the pillar, the agency publishes it.
+  // The Person is emitted once per page as its own node (see `schemas` below)
+  // and referenced here by @id, so there is exactly one Person entity to match.
+  author: { '@id': personId(byline.slug) },
   publisher: { '@id': ORG_ID },
   image: { '@type': 'ImageObject', url: BLOG_ART[post.id]?.png ?? `${SITE.domain}/assets/og-default.webp` },
 };
@@ -70,6 +78,8 @@ if (d.dateModified) articleSchema.dateModified = d.dateModified;
 
 const schemas = [
   articleSchema,
+  // Standalone Person node. BlogPosting.author points at it by @id above.
+  { '@context': 'https://schema.org', ...personSchema(byline) },
   speakableSchema(pageUrl),
   breadcrumbSchema([
     { name: 'Home', url: `${SITE.domain}/` },
@@ -87,6 +97,8 @@ const schemas = [
       <span class="badge">{d.category}</span>
       <h1>{d.title}</h1>
       <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
+
+      <AuthorByline author={byline} mode="author" date={d.dateModified ?? d.datePublished} />
 
       {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].webp} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
 

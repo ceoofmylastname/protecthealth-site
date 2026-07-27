@@ -6,7 +6,8 @@
 // fields with different content (wiki: speakable-vs-accepted-answer).
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, QA_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { SITE, ORG_ID, QA_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId } from '../../lib/site';
+import AuthorByline from '../../components/AuthorByline.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -22,6 +23,10 @@ const allQa = await getCollection('qa');
 const siblings = allQa.filter((s) => d.siblings.includes(s.id));
 const allPosts = await getCollection('blog');
 const parent = allPosts.find((p) => p.id === d.parentPost);
+
+// Reviewer, not author. These answers carry the agency's voice; the accurate
+// claim is that a licensed broker with expertise in this cluster checked them.
+const reviewer = authorFor(d.cluster);
 
 const qaPageSchema: Record<string, unknown> = {
   '@context': 'https://schema.org',
@@ -45,12 +50,19 @@ const qaPageSchema: Record<string, unknown> = {
     })),
   },
   datePublished: d.datePublished,
+  // E-E-A-T on the Q&A layer: expert-reviewed rather than expert-authored.
+  // reviewedBy sits on the QAPage; the Person node is emitted once below and
+  // referenced by @id so there is a single Person entity per page.
+  reviewedBy: { '@id': personId(reviewer.slug) },
+  // The Answer itself is attributed to the agency, which is who stands behind it.
+  author: { '@id': ORG_ID },
   image: QA_ART[qa.id] ? { '@type': 'ImageObject', url: QA_ART[qa.id].png } : undefined,
 };
 if (d.dateModified) qaPageSchema.dateModified = d.dateModified;
 
 const schemas = [
   qaPageSchema,
+  { '@context': 'https://schema.org', ...personSchema(reviewer) },
   speakableSchema(pageUrl),
   breadcrumbSchema([
     { name: 'Home', url: `${SITE.domain}/` },
@@ -85,6 +97,8 @@ const ctaUrl = QA_CTA[d.cluster] ?? '/contact-us';
       </div>
 
       <div id="ai-summary">{d.speakableText}</div>
+
+      <AuthorByline author={reviewer} mode="reviewer" date={d.dateModified ?? d.datePublished} />
 
       <Content />
 

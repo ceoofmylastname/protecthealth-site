@@ -3,9 +3,13 @@
 // FAQPage JSON-LD and the visible accordion (wiki: faq-single-source-architecture).
 import Base from '../layouts/Base.astro';
 import FAQSection from '../components/FAQSection.astro';
-import { SITE, FAQ_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
+import { SITE, FAQ_ART, AUTHORS, breadcrumbSchema, speakableSchema, personSchema, personId } from '../lib/site';
+import AuthorByline from '../components/AuthorByline.astro';
 
 const pageUrl = `${SITE.domain}/faq`;
+// Site-wide FAQ spans every line of coverage, so it carries the agency lead
+// rather than a line specialist. Reviewer, not author — this is agency copy.
+const reviewer = AUTHORS['brian-douglas'];
 const faq = [
   { q: 'Does ProtectHealth charge for consultations?', a: 'No. ProtectHealth consultations are free. Brokers are compensated by insurance carriers, and plan prices are identical whether a person enrolls through a broker or directly.' },
   { q: 'What areas does ProtectHealth serve?', a: 'ProtectHealth is based in Las Vegas and serves individuals, families, self-employed professionals, and small businesses across Nevada.' },
@@ -18,7 +22,11 @@ const faq = [
 ];
 
 const schemas = [
-  speakableSchema(pageUrl),
+  // The FAQPage node itself is emitted by FAQSection (single source of truth —
+  // do not add a second one here). reviewedBy hangs off this page's WebPage node
+  // instead, which is also what carries the speakable spec.
+  { ...speakableSchema(pageUrl), reviewedBy: { '@id': personId(reviewer.slug) } },
+  { '@context': 'https://schema.org', ...personSchema(reviewer) },
   breadcrumbSchema([
     { name: 'Home', url: `${SITE.domain}/` },
     { name: 'FAQ', url: pageUrl },
@@ -46,6 +54,7 @@ const schemas = [
       <div id="ai-summary">
         ProtectHealth is a Las Vegas insurance brokerage offering free, strategy-first consultations across health, life, GAP, Medicare, dental, vision, and employer benefits. ProtectHealth serves all of Nevada, works extensively with self-employed professionals and small businesses, and has officially partnered with Paychex for payroll and HR support solutions.
       </div>
+      <AuthorByline author={reviewer} mode="reviewer" />
       <FAQSection faq={faq} pageUrl={pageUrl} />
       <div class="cta-band">
         <h2>Question not answered here?</h2>
