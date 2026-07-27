@@ -159,13 +159,32 @@ const orgSchema = organizationSchema();
         const mnav = document.getElementById('mnav');
         if (!burger || !mnav) return;
         let open = false;
+        let hideTimer = null;
         const set = (v) => {
           open = v;
-          mnav.classList.toggle('open', open);
           burger.classList.toggle('open', open);
           burger.setAttribute('aria-expanded', String(open));
           mnav.setAttribute('aria-hidden', String(!open));
           document.documentElement.style.overflow = open ? 'hidden' : '';
+
+          if (open) {
+            clearTimeout(hideTimer);
+            // Two steps, one frame apart. `is-open` makes the panel visible
+            // while it is still off-canvas; `open` runs the transforms.
+            // Doing both in one recalculation leaves the browser with no start
+            // frame, and iOS Safari skips straight to the end state, which is
+            // why this used to hang and then pop.
+            mnav.classList.add('is-open');
+            void mnav.offsetHeight;                 // flush layout
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => mnav.classList.add('open'));
+            });
+          } else {
+            mnav.classList.remove('open');
+            // Hold visibility until the slide-out finishes, or the panel would
+            // vanish mid-animation. 480ms covers the longest exit transition.
+            hideTimer = setTimeout(() => mnav.classList.remove('is-open'), 480);
+          }
         };
         burger.addEventListener('click', () => set(!open));
         mnav.querySelectorAll('a, [data-mnav-close]').forEach((el) =>
