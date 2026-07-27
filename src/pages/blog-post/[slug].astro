@@ -96,9 +96,14 @@ const schemas = [
       </nav>
       <span class="badge">{d.category}</span>
       <h1>{d.title}</h1>
-      <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''} · {d.author}</p>
+      {/* Dates here, authorship in the byline card below. The meta line used to
+          also print d.author ("ProtectHealth Team"), which read as a second,
+          contradictory answer to who wrote the page now that a named broker
+          carries the byline. The Organization is still the publisher in the
+          JSON-LD — that is where the agency attribution belongs. */}
+      <p class="meta">Published {d.datePublished}{d.dateModified ? ` · Updated ${d.dateModified}` : ''}</p>
 
-      <AuthorByline author={byline} mode="author" date={d.datePublished} />
+      <AuthorByline author={byline} mode="author" />
 
       {BLOG_ART[post.id] && <div class="hero-img"><img src={BLOG_ART[post.id].webp} alt={BLOG_ART[post.id].alt} loading="eager" /></div>}
 

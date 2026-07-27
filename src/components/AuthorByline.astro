@@ -13,6 +13,10 @@
 // This component is the visible half only. Do not add a second JSON-LD block.
 import { authorPhoto, type Author } from '../lib/site';
 
+// `date` is optional and currently unused by both callers: the blog template
+// prints Published/Updated in its own meta line, and the reviewer mode must not
+// assert a review date we have no record of. Kept in the interface so a page
+// that genuinely has a review date can pass one without a component rewrite.
 interface Props {
   author: Author;
   mode?: 'author' | 'reviewer';
