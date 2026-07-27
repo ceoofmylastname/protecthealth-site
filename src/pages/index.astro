@@ -142,6 +142,25 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
           <h2>Six lines of coverage.<br /><span class="hs-grad">One strategy.</span></h2>
           <p>Whether you're covering a family, a business, or just yourself, the process starts with you, not a plan brochure. Keep scrolling and watch the deck stack up.</p>
           <a href="/buyers-guide" class="btn big glass no-arrow" style="margin-top:8px;">Read The Buyer's Guide</a>
+
+          {/* Scroll-synced index of the deck. Fills the pinned column, which is
+              otherwise empty for most of a 6-card section, and gives the
+              homepage six direct links to the service pages. Those pages showed
+              up as "Crawled - currently not indexed" in Search Console, and
+              inbound links from the strongest page on the site is the fix.
+              Desktop only: below 900px the deck flattens and the gap does not
+              exist, so there is nothing to fill. */}
+          <ol class="sz-index" aria-label="Lines of coverage">
+            {SERVICES.map((s, i) => (
+              <li>
+                <a href={`/services/${s.slug}`} data-szi={i}>
+                  <span class="szi-n">0{i + 1}</span>
+                  <span class="szi-name">{s.name}</span>
+                  <span class="szi-bar" aria-hidden="true"></span>
+                </a>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
       <div class="sz-right">
@@ -599,12 +618,35 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .sz-card h3 { color: var(--navy); font-size: 1.35rem; margin: 0 0 8px; }
   .sz-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.65; margin: 0 0 14px; }
   .sz-more { color: var(--blue); font-weight: 800; font-size: 0.95rem; }
+  /* Deck index, pinned column only. */
+  .sz-index { list-style: none; margin: 34px 0 0; padding: 0; max-width: 420px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+  .sz-index li { border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
+  .sz-index a {
+    position: relative; display: flex; align-items: center; gap: 14px;
+    min-height: 48px; padding: 4px 2px; text-decoration: none;
+    color: #9fc0e4; transition: color 0.3s ease, padding-left 0.3s ease;
+  }
+  .szi-n { font-family: var(--font-display); font-weight: 800; font-size: 0.86rem; letter-spacing: 0.06em; color: #5f86b4; transition: color 0.3s ease; }
+  .szi-name { font-weight: 700; font-size: 0.98rem; }
+  /* The fill bar reads as progress through the deck rather than decoration. */
+  .szi-bar { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: linear-gradient(90deg, var(--blue), #19c8ff); transition: width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .sz-index a:hover { color: #fff; padding-left: 6px; }
+  .sz-index a.on { color: #fff; }
+  .sz-index a.on .szi-n { color: #19c8ff; }
+  .sz-index a.on .szi-bar { width: 100%; }
+
   @media (max-width: 900px) {
     .sz-cols { grid-template-columns: 1fr; }
     .sz-pinhead { position: static; padding: 30px 0 6px; text-align: center; }
     .sz-pinhead p { margin: 0 auto; }
     .sz-pin { position: static; height: auto; margin: 14px 0; }
     .sz-card, .sz-card.r0, .sz-card.r2 { transform: none; width: 100%; }
+    /* The deck is flat here and every card is already a link, so the index
+       would just be a duplicate list of the same six destinations. */
+    .sz-index { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .szi-bar, .sz-index a { transition: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sz-pin { position: static; height: auto; margin: 14px 0; }
@@ -838,6 +880,40 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     addEventListener('resize', render, { passive: true });
     render();
     start();
+  })();
+
+  // Deck index: highlight the coverage line whose card is currently front of
+  // the stack. IntersectionObserver rather than a scroll handler, so it costs
+  // nothing per frame. The -45% margins collapse the viewport to a thin band at
+  // the centre, and whichever sticky pin is crossing that band is the card the
+  // visitor is actually looking at.
+  (() => {
+    const links = [...document.querySelectorAll('.sz-index a')];
+    const pins = [...document.querySelectorAll('.sz-pin')];
+    if (!links.length || !pins.length) return;
+
+    const setActive = (i) => {
+      links.forEach((a, n) => {
+        const on = n === i;
+        a.classList.toggle('on', on);
+        if (on) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        // Cards stack, so more than one pin can be in the band. The last one is
+        // the one drawn on top.
+        const hit = entries.filter((e) => e.isIntersecting);
+        if (!hit.length) return;
+        const idx = Math.max(...hit.map((e) => pins.indexOf(e.target)));
+        if (idx >= 0) setActive(idx);
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: 0 },
+    );
+    pins.forEach((p) => io.observe(p));
+    setActive(0);
   })();
 
   // v5: scroll progress bar + parallax (skipped under reduced motion)
