@@ -907,7 +907,24 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     wrap.addEventListener('mouseleave', start);
     addEventListener('resize', render, { passive: true });
     render();
-    start();
+
+    // Only run while actually on screen, and never in a background tab.
+    // This used to autoplay from page load regardless of visibility, writing
+    // inline styles to eight cards every 3.2s for the entire session. On a phone
+    // that is continuous main-thread work competing with the visitor's first tap,
+    // which is why opening the menu on a fresh homepage felt unresponsive.
+    let inView = false;
+    const sync = () => { (inView && !document.hidden) ? restart() : stop(); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        inView = entries[0].isIntersecting;
+        sync();
+      }, { threshold: 0.15 }).observe(wrap);
+    } else {
+      inView = true;
+      sync();
+    }
+    document.addEventListener('visibilitychange', sync);
   })();
 
   // Deck index: highlight the coverage line whose card is currently front of

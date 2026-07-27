@@ -457,9 +457,12 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
    snapping straight to the end state. That was the "delay, then it pops" bug. */
 .mnav { position: fixed; inset: 0; z-index: 200; visibility: hidden; pointer-events: none; }
 .mnav.is-open { visibility: visible; pointer-events: auto; }
-/* will-change only while the menu is on screen. Leaving it on permanently would
-   hold three full-height composited layers for the life of every page. */
-.mnav.is-open .mnav-layer, .mnav.is-open .mnav-list a { will-change: transform; }
+/* will-change on the three sliding layers only, and only while the menu is on
+   screen. Leaving it on permanently would hold three full-height composited
+   layers for the life of every page. It is deliberately NOT on the six links:
+   promoting them at tap time meant creating nine layers in the same frame as the
+   tap, on the slowest moment of the page's life. */
+.mnav.is-open .mnav-layer { will-change: transform; }
 .mnav-scrim { position: absolute; inset: 0; background: rgba(4, 14, 30, 0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.35s ease; }
 .mnav.open .mnav-scrim { opacity: 1; }
 .mnav-panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(440px, 100%); }

@@ -173,24 +173,31 @@ const orgSchema = organizationSchema();
           if (open) {
             clearTimeout(hideTimer);
             clearTimeout(itemTimer);
-            // Step 1: visible but still off-canvas.
-            mnav.classList.add('is-open');
-            void mnav.offsetHeight;
-            // Step 2, next frame: slide the panels. Splitting these gives the
-            // browser a start frame to animate from; doing both in one style
-            // recalculation makes iOS jump to the end state.
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => mnav.classList.add('open'));
-            });
+            // Both classes in the SAME tick, deliberately.
+            //
+            // This used to add `open` inside a double requestAnimationFrame to
+            // guarantee a start frame for the transition. That was a bad trade:
+            // on first landing the homepage is still initialising the hero
+            // background, Ken Burns, mesh layers, the carousel and several
+            // observers, and rAF callbacks get starved for seconds. Until the
+            // second frame arrived, `open` was never added, so the panel sat at
+            // translateX(101%) while the burger already read "Close" — open in
+            // state, invisible on screen. Never gate a user-initiated animation
+            // on rAF landing promptly.
+            mnav.classList.add('is-open', 'open');
             // Step 3: stagger the links only once the panel has STOPPED.
             // .mnav-layer.l3 scrolls and is transformed, so iOS composites its
             // subtree into one texture while it slides. Anything animating in
             // there during the slide is invisible. transitionend is the accurate
             // signal; the timeout is the fallback for when it does not fire
             // (interrupted transition, background tab, reduced motion).
-            const start = () => { mnav.classList.add('items-in'); };
+            // Items wait for the panel to stop moving. transitionend is the
+            // accurate signal; the timer is the fallback for a starved frame
+            // budget, an interrupted transition, or reduced motion. Whichever
+            // fires first wins and the other is a no-op.
+            const start = () => { if (open) mnav.classList.add('items-in'); };
             if (panel) panel.addEventListener('transitionend', start, { once: true });
-            itemTimer = setTimeout(start, 520);
+            itemTimer = setTimeout(start, 460);
           } else {
             clearTimeout(itemTimer);
             mnav.classList.remove('open', 'items-in');
