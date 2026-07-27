@@ -8,13 +8,13 @@ import AuthorByline from '../components/AuthorByline.astro';
 
 const pageUrl = `${SITE.domain}/faq`;
 // Site-wide FAQ spans every line of coverage, so it carries the agency lead
-// rather than a line specialist. Reviewer, not author — this is agency copy.
+// rather than a line specialist. Reviewer, not author. This is agency copy.
 const reviewer = AUTHORS['brian-douglas'];
 const faq = [
   { q: 'Does ProtectHealth charge for consultations?', a: 'No. ProtectHealth consultations are free. Brokers are compensated by insurance carriers, and plan prices are identical whether a person enrolls through a broker or directly.' },
   { q: 'What areas does ProtectHealth serve?', a: 'ProtectHealth is based in Las Vegas and serves individuals, families, self-employed professionals, and small businesses across Nevada.' },
   { q: 'What types of insurance does ProtectHealth offer?', a: 'ProtectHealth builds strategies across health, life, GAP, Medicare, dental, and vision coverage, plus employer benefits for businesses with employees.' },
-  { q: 'What does "strategy first" actually mean?', a: 'ProtectHealth starts with how a person or business is structured, what coverage needs exist, and what options are accessible — then matches coverage. The product should serve the strategy, not become the strategy.' },
+  { q: 'What does "strategy first" actually mean?', a: 'ProtectHealth starts with how a person or business is structured, what coverage needs exist, and what options are accessible, then matches coverage. The product should serve the strategy, not become the strategy.' },
   { q: 'What is the ProtectHealth and Paychex partnership?', a: 'ProtectHealth has officially partnered with Paychex to help small businesses explore payroll, HR, compliance, benefits administration, and employer-support solutions alongside their insurance strategy.' },
   { q: 'Can ProtectHealth help self-employed people and 1099 contractors?', a: 'Yes. Realtors, 1099 contractors, and self-employed professionals are a core focus. Depending on business structure, options may include marketplace plans, PPO access, small-group opportunities, and tax-advantaged structures.' },
   { q: 'Why does ProtectHealth recommend talking to a tax professional?', a: 'ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure enters the conversation, a brief chat with a licensed tax professional is a make-sense next step.' },
@@ -22,8 +22,7 @@ const faq = [
 ];
 
 const schemas = [
-  // The FAQPage node itself is emitted by FAQSection (single source of truth —
-  // do not add a second one here). reviewedBy hangs off this page's WebPage node
+  // The FAQPage node itself is emitted by FAQSection (single source of truth, // do not add a second one here). reviewedBy hangs off this page's WebPage node
   // instead, which is also what carries the speakable spec.
   { ...speakableSchema(pageUrl), reviewedBy: { '@id': personId(reviewer.slug) } },
   { '@context': 'https://schema.org', ...personSchema(reviewer) },
@@ -48,7 +47,7 @@ const schemas = [
   <section class="section">
     <div class="container article">
       {/* .webp, not .png. This was the only rendered <img> on the site still
-          pointing at the full-res 2K PNG — every sibling article template uses
+          pointing at the full-res 2K PNG, every sibling article template uses
           the compressed variant. It was also eager and above the fold. */}
       <div class="hero-img"><img src={FAQ_ART.webp} alt={FAQ_ART.alt} width="1456" height="816" loading="eager" fetchpriority="high" /></div>
       <div id="ai-summary">

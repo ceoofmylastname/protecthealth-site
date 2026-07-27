@@ -18,25 +18,25 @@ faq:
   - q: "What are the options before a term policy expires?"
     a: "Three main paths: buy a new term policy with fresh medical underwriting, convert to permanent coverage under the conversion rider before the deadline, or let coverage lapse if the obligations the policy covered no longer exist."
   - q: "Is expiring without a payout a flaw in term insurance?"
-    a: "No. Term is designed to cover the years when a death would be financially catastrophic — the mortgage and child-raising years. Outliving the policy means the risk passed without the catastrophe."
+    a: "No. Term is designed to cover the years when a death would be financially catastrophic, the mortgage and child-raising years. Outliving the policy means the risk passed without the catastrophe."
 ---
 
 Every term policy carries a built-in ending, and the ending surprises people who never read past the premium. Knowing the three exits in advance turns an expiration date into a plan.
 
 ## What actually happens on the expiration date?
 
-The coverage stops and nothing is paid out. No refund, no residual value — the premiums purchased protection for the years the household carried the risk, the same way auto premiums buy nothing back after a claim-free year. That is the design, not a defect: term exists to cover the window when a death would have been financially catastrophic, and the design is exactly why it costs 5x to 15x less than whole life, as broken down in [the term versus whole life comparison](/blog-post/term-vs-whole-life-insurance).
+The coverage stops and nothing is paid out. No refund, no residual value, the premiums purchased protection for the years the household carried the risk, the same way auto premiums buy nothing back after a claim-free year. That is the design, not a defect: term exists to cover the window when a death would have been financially catastrophic, and the design is exactly why it costs 5x to 15x less than whole life, as broken down in [the term versus whole life comparison](/blog-post/term-vs-whole-life-insurance).
 
 ## Can coverage continue after the term ends?
 
-Often yes, through annual renewal — but the price curve is brutal. Most policies convert to annually renewable term after the level period, with no new medical exam but a premium repriced at the current age every single year. A premium that was affordable at 40 can multiply within a few renewal years at 60-plus. Renewal works as a short bridge — covering the final two years of a mortgage, for example — and fails as a long-term strategy.
+Often yes, through annual renewal. But the price curve is brutal. Most policies convert to annually renewable term after the level period, with no new medical exam but a premium repriced at the current age every single year. A premium that was affordable at 40 can multiply within a few renewal years at 60-plus. Renewal works as a short bridge, covering the final two years of a mortgage, for example, and fails as a long-term strategy.
 
 ## What should happen before the expiration date?
 
 A decision, ideally years early. The realistic checklist:
 
-1. **Reassess the need** — if the mortgage is gone and the kids are independent, lapsing may be the right answer.
-2. **Check the conversion deadline** — converting to permanent coverage requires no new exam but must happen before the window closes.
-3. **Shop a new policy while healthy** — fresh underwriting beats renewal rates for anyone in good health.
+1. **Reassess the need**. If the mortgage is gone and the kids are independent, lapsing may be the right answer.
+2. **Check the conversion deadline**, converting to permanent coverage requires no new exam but must happen before the window closes.
+3. **Shop a new policy while healthy**, fresh underwriting beats renewal rates for anyone in good health.
 
 The worst outcome is the default one: letting the deadline pass unexamined and renting coverage year to year at panic prices.

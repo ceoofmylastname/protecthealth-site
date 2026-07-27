@@ -20,9 +20,9 @@ const clusterQa = (await getCollection('qa'))
   .sort((a, b) => a.data.question.localeCompare(b.data.question));
 const faq = [
   { q: 'Does every self-employed person qualify for an ICHRA or Section 105 arrangement?', a: 'No. Eligibility for tax-advantaged health-benefit structures depends on business structure, income, and household situation. A ProtectHealth strategy conversation maps which options actually fit a specific situation.' },
-  { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation walks through business structure, household needs, and available options — individual coverage, PPO access, small-group opportunities, or tax-advantaged structures. If existing coverage is already right, ProtectHealth says so.' },
+  { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation walks through business structure, household needs, and available options, individual coverage, PPO access, small-group opportunities, or tax-advantaged structures. If existing coverage is already right, ProtectHealth says so.' },
   { q: 'Why does ProtectHealth recommend talking to a tax professional?', a: 'ProtectHealth brokers are insurance professionals, not tax professionals. When business or tax structure becomes part of the discussion, a brief conversation with a licensed tax professional is the responsible next step.' },
-  { q: 'What should a Realtor bring to a strategy conversation?', a: 'A rough idea of household income, current plan details if coverage exists, and how the business is structured — sole proprietor, LLC, or S-corp. Not sure about structure is a fine answer; that is part of the conversation.' },
+  { q: 'What should a Realtor bring to a strategy conversation?', a: 'A rough idea of household income, current plan details if coverage exists, and how the business is structured, sole proprietor, LLC, or S-corp. Not sure about structure is a fine answer; that is part of the conversation.' },
   { q: 'Does ProtectHealth only work with Realtors?', a: 'No. ProtectHealth works with Realtors, 1099 contractors, freelancers, and self-employed professionals across Nevada, plus small businesses building employee benefits.' },
 ];
 
@@ -30,7 +30,7 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'Self-Employed Health Coverage Strategy — ProtectHealth',
+    name: 'Self-Employed Health Coverage Strategy, ProtectHealth',
     description: 'Health coverage strategy for Realtors, 1099 contractors, and self-employed professionals in Nevada: individual coverage, genuine PPO options, small-group opportunities, and tax-advantaged health-benefit structures.',
     provider: { '@id': ORG_ID },
     areaServed: { '@type': 'State', name: 'Nevada' },
@@ -45,7 +45,7 @@ const schemas = [
 ---
 <Base
   title="Health Coverage Strategy For Realtors & 1099s | ProtectHealth"
-  description="Self-employed? Your health coverage should be built around your business — not somebody's product. Realtors, 1099 contractors, and self-employed professionals may have options nobody ever explained."
+  description="Self-employed? Your health coverage should be built around your business, not somebody's product. Realtors, 1099 contractors, and self-employed professionals may have options nobody ever explained."
   ogImage={`${SITE.domain}/assets/og-self-employed.webp`}
   schemas={schemas}
 >
@@ -57,7 +57,7 @@ const schemas = [
     <div class="container">
       <div class="lp-kick"><i></i> Realtors · 1099 Contractors · Self-Employed</div>
       <h1 class="lp-h1">Built around your business.<br/><span class="lp-grad">Not somebody's product.</span></h1>
-      <p class="lp-lead">Individual coverage, genuine PPO access, small-group opportunities, tax-advantaged structures — <b>most self-employed professionals have never had a single one of them properly explained.</b> That's what ProtectHealth does.</p>
+      <p class="lp-lead">Individual coverage, genuine PPO access, small-group opportunities, tax-advantaged structures, <b>most self-employed professionals have never had a single one of them properly explained.</b> That's what ProtectHealth does.</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap;">
         <a href="#talk" class="btn big">Let's Talk Through Your Situation</a>
         <a href={SITE.phoneHref} class="btn big white no-arrow">Call {SITE.phone}</a>
@@ -74,11 +74,11 @@ const schemas = [
   <section class="section">
     <div class="container">
       <div class="section-label">The Part Nobody Explains</div>
-      <p class="lp-statement">Premiums and deductibles are the beginning of the conversation — <span class="lp-mark">not the end of it.</span></p>
-      <p style="max-width:760px;color:var(--muted);">Age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure decide what "good coverage" actually looks like. Two Realtors at the same brokerage with the same premium can have completely different coverage quality. NAR data shows 10 to 15 percent of Realtors carry no coverage at all — usually because nobody ever explained the options, not because options don't exist.</p>
+      <p class="lp-statement">Premiums and deductibles are the beginning of the conversation, <span class="lp-mark">not the end of it.</span></p>
+      <p style="max-width:760px;color:var(--muted);">Age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure decide what "good coverage" actually looks like. Two Realtors at the same brokerage with the same premium can have completely different coverage quality. NAR data shows 10 to 15 percent of Realtors carry no coverage at all. Usually because nobody ever explained the options, not because options don't exist.</p>
 
       <div id="ai-summary" style="margin-top:26px;">
-        ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how their business is structured. Depending on structure, options may include individual marketplace coverage, genuine PPO access, small-group plans, or tax-advantaged health-benefit structures such as ICHRA and Section 105 arrangements. National Association of Realtors data shows 10 to 15 percent of Realtors remain uninsured — usually because nobody ever explained the options, not because options don't exist.
+        ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how their business is structured. Depending on structure, options may include individual marketplace coverage, genuine PPO access, small-group plans, or tax-advantaged health-benefit structures such as ICHRA and Section 105 arrangements. National Association of Realtors data shows 10 to 15 percent of Realtors remain uninsured, usually because nobody ever explained the options, not because options don't exist.
       </div>
     </div>
   </section>
@@ -92,10 +92,10 @@ const schemas = [
         <p style="color:var(--muted);">Which doors are open depends on how your business is structured. That's exactly what the conversation figures out.</p>
       </div>
       <div class="lp-cards">
-        <div class="lp-card spot"><span class="n">01</span><h3>Individual Coverage, Done Right</h3><p>Marketplace plans with the subsidy math actually run — net self-employment income, tax credits, and the deduction most 1099s never claim.</p></div>
-        <div class="lp-card spot"><span class="n">02</span><h3>Genuine PPO Access</h3><p>Real PPO options with real networks — checked against your actual doctors before anything gets signed.</p></div>
+        <div class="lp-card spot"><span class="n">01</span><h3>Individual Coverage, Done Right</h3><p>Marketplace plans with the subsidy math actually run, net self-employment income, tax credits, and the deduction most 1099s never claim.</p></div>
+        <div class="lp-card spot"><span class="n">02</span><h3>Genuine PPO Access</h3><p>Real PPO options with real networks, checked against your actual doctors before anything gets signed.</p></div>
         <div class="lp-card spot"><span class="n">03</span><h3>Small-Group Opportunities</h3><p>Some business setups unlock group coverage most self-employed people assume they can't have.</p></div>
-        <div class="lp-card spot"><span class="n">04</span><h3>Tax-Advantaged Structures</h3><p>ICHRA and Section 105 arrangements — small-employer ICHRA adoption grew 52% last year. Eligibility depends on structure, which is the whole point of the conversation.</p></div>
+        <div class="lp-card spot"><span class="n">04</span><h3>Tax-Advantaged Structures</h3><p>ICHRA and Section 105 arrangements, small-employer ICHRA adoption grew 52% last year. Eligibility depends on structure, which is the whole point of the conversation.</p></div>
       </div>
       <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:22px;">Not every option fits every person. That's the point of having a strategy.</p>
     </div>
@@ -118,7 +118,7 @@ const schemas = [
   <section class="section" style="padding-top:20px;">
     <div class="container">
       <div class="lp-quote">
-        <p>"The product should serve the strategy — <em>not become the strategy.</em>"</p>
+        <p>"The product should serve the strategy, <em>not become the strategy.</em>"</p>
       </div>
     </div>
   </section>
@@ -142,9 +142,9 @@ const schemas = [
         <h2 style="margin-top:0;">20 minutes, start to clarity</h2>
       </div>
       <div class="lp-steps">
-        <div class="lp-step spot"><h3>Tell us your situation</h3><p>Two minutes on the form below — how you work, how the business is set up, what you have now.</p></div>
+        <div class="lp-step spot"><h3>Tell us your situation</h3><p>Two minutes on the form below, how you work, how the business is set up, what you have now.</p></div>
         <div class="lp-step spot"><h3>The strategy conversation</h3><p>Structure, doctors, prescriptions, subsidy math, total exposure. Which doors are open for you, which aren't, and why.</p></div>
-        <div class="lp-step spot"><h3>Walk away with the map</h3><p>Zero dollars, zero obligation. If what you already have is right, ProtectHealth tells you that too. When tax structure enters the picture, a licensed tax professional joins the conversation — we're insurance nerds, not tax professionals.</p></div>
+        <div class="lp-step spot"><h3>Walk away with the map</h3><p>Zero dollars, zero obligation. If what you already have is right, ProtectHealth tells you that too. When tax structure enters the picture, a licensed tax professional joins the conversation. We're insurance nerds, not tax professionals.</p></div>
       </div>
       <div class="lp-team">
         <div class="faces">
@@ -218,13 +218,13 @@ const schemas = [
     </div>
   </section>
 
-  <!-- READING LIBRARY — the education path for the not-ready-yet visitor -->
+  <!-- READING LIBRARY. The education path for the not-ready-yet visitor -->
   <section class="section lp-read">
     <div class="container">
       <div class="section-head center">
         <div class="section-label">Not Ready To Talk Yet?</div>
         <h2>Read your way in</h2>
-        <p style="color:var(--muted);max-width:600px;margin:8px auto 0;">Every guide and answer below was written for Realtors, 1099s, and the self-employed. Start anywhere — the strategy will make sense by the end.</p>
+        <p style="color:var(--muted);max-width:600px;margin:8px auto 0;">Every guide and answer below was written for Realtors, 1099s, and the self-employed. Start anywhere, the strategy will make sense by the end.</p>
       </div>
       <div class="grid cols-3">
         {clusterPosts.map((p) => (

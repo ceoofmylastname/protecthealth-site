@@ -21,20 +21,20 @@ faq:
     a: "The window opens 3 months before the month of the 65th birthday and closes 3 months after the birthday month, for 7 months total."
 ---
 
-Nobody goes to jail for skipping Medicare. But the government designed the incentives so that skipping it without a qualifying reason costs money every month for the rest of a life — which makes the practical answer closer to yes than the legal one.
+Nobody goes to jail for skipping Medicare. But the government designed the incentives so that skipping it without a qualifying reason costs money every month for the rest of a life, which makes the practical answer closer to yes than the legal one.
 
 ## Who has to act at 65, and who doesn't?
 
-People already drawing Social Security are enrolled in Parts A and B automatically — the card arrives in the mail. Everyone else must sign up through Social Security, and no reminder comes. The window is the 7-month Initial Enrollment Period laid out in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist): 3 months before the birthday month, the birthday month, and 3 months after.
+People already drawing Social Security are enrolled in Parts A and B automatically, the card arrives in the mail. Everyone else must sign up through Social Security, and no reminder comes. The window is the 7-month Initial Enrollment Period laid out in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist): 3 months before the birthday month, the birthday month, and 3 months after.
 
 ## What happens if someone just doesn't enroll?
 
 A permanent penalty starts accruing. Part B premiums rise 10% for every full 12-month period of delay without qualifying coverage, and that surcharge never expires. Delay three years and every Part B premium for life costs 30% more. Part D drug coverage carries its own smaller permanent penalty that builds monthly. The order of consequences:
 
-1. Coverage gap — no Medicare protection during the delay.
+1. Coverage gap, no Medicare protection during the delay.
 2. Waiting for a general enrollment window to get back in.
 3. The lifetime Part B penalty stacked on every future premium.
 
 ## Who can legitimately say no at 65?
 
-Someone still working — or covered by a working spouse — with employer coverage from active employment at a company with 20 or more employees can usually delay Part B without penalty, then enroll later through a Special Enrollment Period when the job ends. The word qualifying does the heavy lifting: COBRA and retiree coverage do not count, and that distinction catches people every single year. Anyone unsure whether current coverage qualifies should confirm before the window closes, not after.
+Someone still working, or covered by a working spouse, with employer coverage from active employment at a company with 20 or more employees can usually delay Part B without penalty, then enroll later through a Special Enrollment Period when the job ends. The word qualifying does the heavy lifting: COBRA and retiree coverage do not count, and that distinction catches people every single year. Anyone unsure whether current coverage qualifies should confirm before the window closes, not after.

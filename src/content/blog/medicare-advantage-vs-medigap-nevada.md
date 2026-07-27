@@ -35,15 +35,15 @@ Advantage or Medigap is the biggest coverage decision most people make after 60,
 
 ## How do the costs compare over time?
 
-Think of it as prepaying versus pay-as-you-go. Medigap front-loads the cost into predictable premiums. Advantage back-loads it: cheap in healthy years, expensive in the year that matters. A healthy 68-year-old on Advantage pockets the premium difference for years. The same person at 74 with a serious diagnosis can pay several thousand dollars out of pocket that a Medigap holder never sees — potentially in consecutive years.
+Think of it as prepaying versus pay-as-you-go. Medigap front-loads the cost into predictable premiums. Advantage back-loads it: cheap in healthy years, expensive in the year that matters. A healthy 68-year-old on Advantage pockets the premium difference for years. The same person at 74 with a serious diagnosis can pay several thousand dollars out of pocket that a Medigap holder never sees, potentially in consecutive years.
 
 Neither structure is "cheaper." They distribute the same risk differently, and the honest question is which distribution a household can absorb.
 
 ## What matters specifically in Nevada?
 
-Las Vegas has a deep Advantage market with heavy competition, which produces genuinely rich $0-premium plans — and network friction that shifts year to year as contracts between plans and provider groups change. Anyone attached to specific doctors or specialty groups needs to verify network status annually, not once. Rural Nevada flips the calculus: thinner networks make Original Medicare's any-doctor access worth more. And travelers — snowbirds, grandkid circuits, RV retirements — lean Medigap, because networks stay home and Original Medicare doesn't.
+Las Vegas has a deep Advantage market with heavy competition, which produces genuinely rich $0-premium plans, and network friction that shifts year to year as contracts between plans and provider groups change. Anyone attached to specific doctors or specialty groups needs to verify network status annually, not once. Rural Nevada flips the calculus: thinner networks make Original Medicare's any-doctor access worth more. And travelers, snowbirds, grandkid circuits, RV retirements, lean Medigap, because networks stay home and Original Medicare doesn't.
 
-The structural point that outranks all of it: the move from Advantage to Medigap generally requires medical underwriting in Nevada after the initial 6-month window closes. Healthy applicants pass. The people who most want to switch — after a diagnosis, when networks start to chafe — often can't. The full timeline lives in the [turning-65 checklist](/blog-post/turning-65-in-nevada-medicare-checklist). Advantage stays available every year for life. Medigap may only be fully available once.
+The structural point that outranks all of it: the move from Advantage to Medigap generally requires medical underwriting in Nevada after the initial 6-month window closes. Healthy applicants pass. The people who most want to switch, after a diagnosis, when networks start to chafe, often can't. The full timeline lives in the [turning-65 checklist](/blog-post/turning-65-in-nevada-medicare-checklist). Advantage stays available every year for life. Medigap may only be fully available once.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Take The Next Step</span>
@@ -53,6 +53,6 @@ The structural point that outranks all of it: the move from Advantage to Medigap
 
 ## How should a Nevadan actually decide?
 
-Four questions carry most of the weight. Would losing access to a specific doctor or medical group be a dealbreaker? Predictable-premium person or pay-when-sick person — which describes the household budget honestly? How much of the year is spent outside Nevada? And could the household absorb a several-thousand-dollar out-of-pocket year, twice in a row, without distress?
+Four questions carry most of the weight. Would losing access to a specific doctor or medical group be a dealbreaker? Predictable-premium person or pay-when-sick person, which describes the household budget honestly? How much of the year is spent outside Nevada? And could the household absorb a several-thousand-dollar out-of-pocket year, twice in a row, without distress?
 
-Strong attachments to doctors, heavy travel, or low tolerance for surprise bills point toward Medigap, bought inside the protected window. Budget-first, Vegas-anchored, flexible-on-providers points toward Advantage, re-shopped every October. What the decision should never be is defaulted — because with this one, the default gets locked in by underwriting later.
+Strong attachments to doctors, heavy travel, or low tolerance for surprise bills point toward Medigap, bought inside the protected window. Budget-first, Vegas-anchored, flexible-on-providers points toward Advantage, re-shopped every October. What the decision should never be is defaulted. Because with this one, the default gets locked in by underwriting later.

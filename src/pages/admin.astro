@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 
-// Internal tool. Static page — every byte of data is fetched in the browser
+// Internal tool. Static page. Every byte of data is fetched in the browser
 // through Supabase with the anon key, and Row Level Security decides whether
 // the signed-in user sees anything at all. No service key ever ships here.
 const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
@@ -10,7 +10,7 @@ const SUPABASE_ANON =
 ---
 
 <Base
-  title="Admin — ProtectHealth"
+  title="Admin, ProtectHealth"
   description="Internal dashboard."
   noindex={true}
 >
@@ -69,11 +69,11 @@ const SUPABASE_ANON =
         </header>
 
         <div class="ad-stats">
-          <div class="ad-stat spot"><b data-stat="upcoming">—</b><span>Upcoming conversations</span></div>
-          <div class="ad-stat spot"><b data-stat="bookings">—</b><span>Bookings all time</span></div>
-          <div class="ad-stat spot"><b data-stat="forms">—</b><span>Form enquiries</span></div>
-          <div class="ad-stat spot"><b data-stat="emails">—</b><span>Emails sent</span></div>
-          <div class="ad-stat spot"><b data-stat="queued">—</b><span>Emails queued</span></div>
+          <div class="ad-stat spot"><b data-stat="upcoming">, </b><span>Upcoming conversations</span></div>
+          <div class="ad-stat spot"><b data-stat="bookings">, </b><span>Bookings all time</span></div>
+          <div class="ad-stat spot"><b data-stat="forms">, </b><span>Form enquiries</span></div>
+          <div class="ad-stat spot"><b data-stat="emails">, </b><span>Emails sent</span></div>
+          <div class="ad-stat spot"><b data-stat="queued">, </b><span>Emails queued</span></div>
         </div>
 
         <div class="ad-toolbar">
@@ -286,7 +286,7 @@ const SUPABASE_ANON =
     // ---------- data ----------
     async function load() {
       // RLS returns rows only for allowlisted emails, so an empty ph_admins
-      // read is the authorisation signal — not an error we need to interpret.
+      // read is the authorisation signal, not an error we need to interpret.
       const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
       if (!admin || !admin.length) { view('denied'); return; }
 

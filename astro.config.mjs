@@ -9,7 +9,7 @@ export default defineConfig({
     sitemap({
       // Internal pages stay out of the sitemap.
       filter: (page) => !page.includes('/campaign-gallery') && !page.includes('/admin'),
-      // Clean URLs in the XML sitemap — Cloudflare Pages serves /page from /page.html.
+      // Clean URLs in the XML sitemap, Cloudflare Pages serves /page from /page.html.
       serialize(item) {
         item.url = item.url.replace(/index\.html$/, '').replace(/\.html$/, '');
         return item;

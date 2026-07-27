@@ -6,7 +6,7 @@ funnelStage: "MOFU"
 cluster: "life"
 datePublished: "2026-07-22"
 quickAnswer:
-  - "Term life insurance covers a set period (10 to 30 years) at the lowest cost per dollar of coverage — often 5x to 15x cheaper than whole life for the same death benefit."
+  - "Term life insurance covers a set period (10 to 30 years) at the lowest cost per dollar of coverage. Often 5x to 15x cheaper than whole life for the same death benefit."
   - "Whole life insurance lasts a lifetime, builds cash value, and costs significantly more per month."
   - "Term fits temporary obligations like mortgages and child-raising years; whole life fits permanent needs like estate planning and final expenses."
   - "Many households use a blend: a large term policy for the heavy-obligation years plus a smaller permanent policy."
@@ -29,11 +29,11 @@ Term versus whole life is the most argued question in life insurance, and most o
 
 ## What does term life insurance actually do?
 
-Term covers a fixed window — commonly 10, 20, or 30 years — for the lowest cost per dollar of coverage available anywhere in insurance. A healthy 35-year-old can often buy a substantial six-figure or seven-figure death benefit for roughly the cost of a streaming bundle. The trade: when the term ends, the coverage ends, and nothing is paid out if the insured outlives the policy. That is not a flaw. It is the design. The policy existed to cover the years when a death would have been financially catastrophic.
+Term covers a fixed window, commonly 10, 20, or 30 years, for the lowest cost per dollar of coverage available anywhere in insurance. A healthy 35-year-old can often buy a substantial six-figure or seven-figure death benefit for roughly the cost of a streaming bundle. The trade: when the term ends, the coverage ends, and nothing is paid out if the insured outlives the policy. That is not a flaw. It is the design. The policy existed to cover the years when a death would have been financially catastrophic.
 
 ## What does whole life actually do?
 
-Whole life never expires, and part of each premium builds **cash value** that grows tax-deferred and can be borrowed against. The cost of those guarantees is real: the same death benefit typically runs 5x to 15x the monthly premium of term. Whole life earns its keep for permanent needs — estate liquidity, final expenses, special-needs dependents, business succession — where the payout is a certainty the strategy depends on, not a hedge against bad timing.
+Whole life never expires, and part of each premium builds **cash value** that grows tax-deferred and can be borrowed against. The cost of those guarantees is real: the same death benefit typically runs 5x to 15x the monthly premium of term. Whole life earns its keep for permanent needs, estate liquidity, final expenses, special-needs dependents, business succession, where the payout is a certainty the strategy depends on, not a hedge against bad timing.
 
 ## Which one fits which situation?
 
@@ -41,7 +41,7 @@ Match the policy duration to the obligation duration:
 
 | Obligation | Duration | Fit |
 |---|---|---|
-| Mortgage payoff | 15–30 years | Term |
+| Mortgage payoff | 15-30 years | Term |
 | Income replacement while raising kids | ~20 years | Term |
 | Final expenses | Permanent | Whole life (small policy) |
 | Estate planning / legacy | Permanent | Whole life |
@@ -51,12 +51,12 @@ A common blended structure: a large term policy sized by the [DIME math](/blog-p
 
 <div class="funnel-cta">
   <span class="fc-kicker">Take The Next Step</span>
-  <p>The right structure depends on your income, debts, business setup, and the people counting on you. ProtectHealth builds the strategy first, then matches the policy — the product should serve the strategy, not become the strategy.</p>
+  <p>The right structure depends on your income, debts, business setup, and the people counting on you. ProtectHealth builds the strategy first, then matches the policy. The product should serve the strategy, not become the strategy.</p>
   <a class="fc-btn" href="/services/life-insurance">Build My Life Insurance Strategy</a>
 </div>
 
 ## What mistakes cost people the most?
 
-Three patterns show up constantly. Buying whole life when the budget only stretches far enough to cover a fraction of the actual need — a small permanent policy that leaves a family 80% underinsured is worse than a large term policy that covers the whole risk. Waiting, because premiums are priced on age and health at application and only move one direction. And letting a workplace policy stand in for a plan, since employer coverage rarely follows anyone out the door.
+Three patterns show up constantly. Buying whole life when the budget only stretches far enough to cover a fraction of the actual need, a small permanent policy that leaves a family 80% underinsured is worse than a large term policy that covers the whole risk. Waiting, because premiums are priced on age and health at application and only move one direction. And letting a workplace policy stand in for a plan, since employer coverage rarely follows anyone out the door.
 
 The pattern behind all three mistakes is the same: product first, strategy never. Reverse the order and the right answer usually becomes obvious.

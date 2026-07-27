@@ -1,6 +1,6 @@
 ---
 question: "What Does Dental Insurance Actually Cover?"
-description: "What dental insurance covers under the standard 100-80-50 structure — preventive, basic, and major work — plus the annual maximum and common exclusions."
+description: "What dental insurance covers under the standard 100-80-50 structure, preventive, basic, and major work, plus the annual maximum and common exclusions."
 cluster: "dental-vision"
 parentPost: "is-dental-insurance-worth-it"
 siblings:
@@ -37,8 +37,8 @@ The structure deliberately rewards showing up twice a year. Preventive visits ge
 
 ## What limits the coverage?
 
-Two mechanisms cap what the plan actually pays. First, the annual maximum — commonly $1,000 to $2,000 — is the most the plan will pay in a year across all tiers combined. Second, waiting periods of 6 to 12 months commonly apply to basic and major work on individual plans, so a crown needed next month may not be covered at all. Preventive care typically skips both hurdles.
+Two mechanisms cap what the plan actually pays. First, the annual maximum, commonly $1,000 to $2,000, is the most the plan will pay in a year across all tiers combined. Second, waiting periods of 6 to 12 months commonly apply to basic and major work on individual plans, so a crown needed next month may not be covered at all. Preventive care typically skips both hurdles.
 
 ## What is usually excluded entirely?
 
-Cosmetic dentistry — whitening, veneers done for appearance — is almost universally excluded. Implants are frequently excluded or only partially covered. Orthodontics is often a separate rider rather than standard coverage. Whether the covered layers justify the premium comes down to arithmetic on expected usage, and that math is worked through in [the full breakdown of whether dental insurance is worth it](/blog-post/is-dental-insurance-worth-it). The short version: households that actually use the 100% preventive tier are close to break-even before anything goes wrong.
+Cosmetic dentistry, whitening, veneers done for appearance, is almost universally excluded. Implants are frequently excluded or only partially covered. Orthodontics is often a separate rider rather than standard coverage. Whether the covered layers justify the premium comes down to arithmetic on expected usage, and that math is worked through in [the full breakdown of whether dental insurance is worth it](/blog-post/is-dental-insurance-worth-it). The short version: households that actually use the 100% preventive tier are close to break-even before anything goes wrong.

@@ -1,6 +1,6 @@
 ---
 question: "Does Nevada Allow A Tip Credit?"
-description: "Nevada does not allow a tip credit — tipped employees must receive the full state minimum wage before tips, unlike the federal $2.13 tipped wage model."
+description: "Nevada does not allow a tip credit. Tipped employees must receive the full state minimum wage before tips, unlike the federal $2.13 tipped wage model."
 cluster: "employers"
 parentPost: "tipped-payroll-mistakes-las-vegas"
 siblings:
@@ -8,8 +8,8 @@ siblings:
   - "are-service-charges-taxed-like-tips"
   - "who-can-legally-share-a-tip-pool"
 datePublished: "2026-07-22"
-quickAnswer: "No. Nevada does not allow a tip credit — tipped employees must receive the full state minimum wage in direct wages before any tips are counted. The federal $2.13 tipped wage model does not apply in Nevada."
-speakableText: "Nevada is one of the states that prohibits the tip credit entirely. Employers in Las Vegas and across the state must pay tipped employees the full Nevada minimum wage in direct wages, with tips earned entirely on top. Most national payroll advice assumes the federal model, where employers pay a reduced cash wage as low as $2.13 and count tips toward the minimum — a model that is simply illegal in Nevada. Payroll templates, franchise handbooks, and point-of-sale defaults built on tip-credit math create back-wage liability from the first paycheck they touch."
+quickAnswer: "No. Nevada does not allow a tip credit, tipped employees must receive the full state minimum wage in direct wages before any tips are counted. The federal $2.13 tipped wage model does not apply in Nevada."
+speakableText: "Nevada is one of the states that prohibits the tip credit entirely. Employers in Las Vegas and across the state must pay tipped employees the full Nevada minimum wage in direct wages, with tips earned entirely on top. Most national payroll advice assumes the federal model, where employers pay a reduced cash wage as low as $2.13 and count tips toward the minimum, a model that is simply illegal in Nevada. Payroll templates, franchise handbooks, and point-of-sale defaults built on tip-credit math create back-wage liability from the first paycheck they touch."
 faq:
   - q: "What is a tip credit?"
     a: "A tip credit lets an employer count a portion of employee tips toward the minimum wage obligation, paying a reduced direct cash wage. Federal law permits it; Nevada law does not."
@@ -23,9 +23,9 @@ faq:
 
 This is the single most important fact in Las Vegas tipped payroll, and most national advice gets it wrong: Nevada said no to the tip credit.
 
-## What is a tip credit — and why doesn't Nevada have one?
+## What is a tip credit. And why doesn't Nevada have one?
 
-A tip credit lets employers pay tipped workers a reduced cash wage — federally as low as $2.13 per hour — and count tips toward the minimum wage. Nevada prohibits this outright. State law requires the full minimum wage in direct wages regardless of how much an employee earns in tips, making Nevada one of the strictest states in the country on this point.
+A tip credit lets employers pay tipped workers a reduced cash wage, federally as low as $2.13 per hour, and count tips toward the minimum wage. Nevada prohibits this outright. State law requires the full minimum wage in direct wages regardless of how much an employee earns in tips, making Nevada one of the strictest states in the country on this point.
 
 ## What does Nevada require instead?
 
@@ -41,4 +41,4 @@ Tips remain the employee's on top of the wage, subject only to [valid tip poolin
 
 ## What happens when a business applies tip-credit math anyway?
 
-Back-wage liability from the first paycheck, compounding every pay period the setup runs. The usual culprits are imported payroll templates, franchise handbooks written for other states, and POS defaults — nobody decides to underpay; the software decides for them. The fix is payroll infrastructure that knows Nevada natively. Note what the rule doesn't change: federal tip taxation and the [FICA tip credit](/qa/what-is-the-fica-tip-credit) work normally here. The full list of mistakes Las Vegas businesses keep making lives in [the tipped payroll guide](/blog-post/tipped-payroll-mistakes-las-vegas).
+Back-wage liability from the first paycheck, compounding every pay period the setup runs. The usual culprits are imported payroll templates, franchise handbooks written for other states, and POS defaults. Nobody decides to underpay; the software decides for them. The fix is payroll infrastructure that knows Nevada natively. Note what the rule doesn't change: federal tip taxation and the [FICA tip credit](/qa/what-is-the-fica-tip-credit) work normally here. The full list of mistakes Las Vegas businesses keep making lives in [the tipped payroll guide](/blog-post/tipped-payroll-mistakes-las-vegas).

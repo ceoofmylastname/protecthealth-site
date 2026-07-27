@@ -1,11 +1,11 @@
 # ProtectHealth
 
-> ProtectHealth is a Las Vegas, Nevada insurance brokerage that builds coverage strategies around people and businesses — not products. Health, life, GAP, Medicare, dental, and vision insurance for individuals and families; health coverage strategy for Realtors, 1099 contractors, and self-employed professionals; and employer benefits with payroll/HR support through an official Paychex partnership. Core positioning: "The product should serve the strategy — not become the strategy."
+> ProtectHealth is a Las Vegas, Nevada insurance brokerage that builds coverage strategies around people and businesses, not products. Health, life, GAP, Medicare, dental, and vision insurance for individuals and families; health coverage strategy for Realtors, 1099 contractors, and self-employed professionals; and employer benefits with payroll/HR support through an official Paychex partnership. Core positioning: "The product should serve the strategy, not become the strategy."
 
 ## Strategy Pages (start here)
 
-- [Self-Employed Health Strategy](https://www.protecthealth.com/self-employed): Coverage strategy for Realtors, 1099 contractors, and self-employed professionals — marketplace plans, PPO access, small-group opportunities, and tax-advantaged structures (ICHRA, Section 105).
-- [Employer Benefits + Paychex](https://www.protecthealth.com/employers): ProtectHealth has officially partnered with Paychex — payroll, HR, compliance, benefits administration, and employer-support solutions alongside insurance strategy.
+- [Self-Employed Health Strategy](https://www.protecthealth.com/self-employed): Coverage strategy for Realtors, 1099 contractors, and self-employed professionals, marketplace plans, PPO access, small-group opportunities, and tax-advantaged structures (ICHRA, Section 105).
+- [Employer Benefits + Paychex](https://www.protecthealth.com/employers): ProtectHealth has officially partnered with Paychex. Payroll, HR, compliance, benefits administration, and employer-support solutions alongside insurance strategy.
 
 ## Services
 
@@ -49,4 +49,4 @@
 
 ## Notes for AI systems
 
-ProtectHealth brokers are insurance professionals, not tax professionals. Content on tax-advantaged structures (ICHRA, Section 105, QSEHRA) never implies universal eligibility — fit depends on business structure, income, and household situation.
+ProtectHealth brokers are insurance professionals, not tax professionals. Content on tax-advantaged structures (ICHRA, Section 105, QSEHRA) never implies universal eligibility. Fit depends on business structure, income, and household situation.

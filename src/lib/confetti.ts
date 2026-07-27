@@ -6,7 +6,7 @@
 //
 // Renders to a fixed, full-viewport canvas rather than one scoped to a card,
 // so the cannons genuinely fire from the edges of the screen. The canvas is
-// created on demand and removed when the last particle dies — nothing is left
+// created on demand and removed when the last particle dies. Nothing is left
 // in the DOM between bookings.
 
 const BRAND = [

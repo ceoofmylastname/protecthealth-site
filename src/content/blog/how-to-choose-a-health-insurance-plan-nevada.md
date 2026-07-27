@@ -25,7 +25,7 @@ faq:
 relatedQa: []
 ---
 
-Every year, thousands of Nevadans pick a health plan in under 20 minutes by sorting on the premium column and clicking the top result. Insurers know this. The plans engineered to win the premium sort are engineered to win it somehow — and the somehow is always in the fine print. Here's the framework that reads the fine print in the right order.
+Every year, thousands of Nevadans pick a health plan in under 20 minutes by sorting on the premium column and clicking the top result. Insurers know this. The plans engineered to win the premium sort are engineered to win it somehow. And the somehow is always in the fine print. Here's the framework that reads the fine print in the right order.
 
 ## Step 1: Why total cost instead of premium?
 
@@ -35,29 +35,29 @@ A health plan's real price is **premium plus usage**, and either half can domina
 |---|---|---|
 | Monthly premium | Lower | Higher |
 | Deductible | High | Low |
-| Light-usage year total | Plan A usually wins | — |
-| Heavy-usage year total | — | Plan B usually wins |
+| Light-usage year total | Plan A usually wins |, |
+| Heavy-usage year total |, | Plan B usually wins |
 
-Run last year's actual usage — visits, prescriptions, anything planned like a birth or surgery — through each candidate plan's cost-sharing. Then run a bad-year scenario capped at each plan's out-of-pocket maximum. The plan that wins both runs is the answer. The plan that only wins the premium sort frequently loses both.
+Run last year's actual usage, visits, prescriptions, anything planned like a birth or surgery, through each candidate plan's cost-sharing. Then run a bad-year scenario capped at each plan's out-of-pocket maximum. The plan that wins both runs is the answer. The plan that only wins the premium sort frequently loses both.
 
 This is also where the metal tiers stop being confusing: Bronze/Silver/Gold/Platinum just describe the cost split (roughly 60/70/80/90% carried by the plan). The tier is an input to the math, not a verdict on quality.
 
 ## Step 2: How is a network actually verified?
 
-The number one source of post-enrollment regret in Southern Nevada is network surprise. Las Vegas provider groups and carriers renegotiate constantly, and a doctor who was in-network in March can be out by January. Verification means checking every doctor, hospital, and specialist the household actually uses against the specific plan's directory — then calling the office to confirm, because directories lag. Fifteen minutes of calls prevents the worst version of this: discovering mid-treatment that the specialist is out-of-network.
+The number one source of post-enrollment regret in Southern Nevada is network surprise. Las Vegas provider groups and carriers renegotiate constantly, and a doctor who was in-network in March can be out by January. Verification means checking every doctor, hospital, and specialist the household actually uses against the specific plan's directory, then calling the office to confirm, because directories lag. Fifteen minutes of calls prevents the worst version of this: discovering mid-treatment that the specialist is out-of-network.
 
 ## Step 3: What about prescriptions and subsidies?
 
-Check every current medication against each plan's formulary, including the tier placement — the same drug can be a $10 copay on one plan and coinsurance-after-deductible on another. Then layer in subsidies: premium tax credits through Nevada Health Link reshape the entire comparison, and at lower incomes, Silver-only cost-sharing reductions quietly turn Silver plans into the best value on the shelf. The [premium tax credit guide](/blog-post/aca-premium-tax-credits-explained) covers the math; households carrying big deductibles can also test the [GAP pairing strategy](/blog-post/what-is-gap-health-insurance) against the quotes.
+Check every current medication against each plan's formulary, including the tier placement, the same drug can be a $10 copay on one plan and coinsurance-after-deductible on another. Then layer in subsidies: premium tax credits through Nevada Health Link reshape the entire comparison, and at lower incomes, Silver-only cost-sharing reductions quietly turn Silver plans into the best value on the shelf. The [premium tax credit guide](/blog-post/aca-premium-tax-credits-explained) covers the math; households carrying big deductibles can also test the [GAP pairing strategy](/blog-post/what-is-gap-health-insurance) against the quotes.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Take The Next Step</span>
-  <p>The framework is public. The application of it — your doctors, your prescriptions, your income, your subsidy math — is personal. A free 20-minute ProtectHealth conversation runs the whole thing with you, and plan prices are identical with or without a broker.</p>
+  <p>The framework is public. The application of it, your doctors, your prescriptions, your income, your subsidy math, is personal. A free 20-minute ProtectHealth conversation runs the whole thing with you, and plan prices are identical with or without a broker.</p>
   <a class="fc-btn" href="/contact-us">Run My Numbers With A Broker</a>
 </div>
 
 ## What mistakes cost Nevadans the most?
 
-The premium sort, already covered — it's the expensive one. Auto-renewing without re-shopping, because plans re-price and re-network every year even when the plan name stays the same. Skipping the formulary check and meeting a four-figure prescription surprise in February. Guessing at subsidy income instead of estimating it carefully. And waiting past January 15, because outside open enrollment, options narrow to qualifying life events.
+The premium sort, already covered. It's the expensive one. Auto-renewing without re-shopping, because plans re-price and re-network every year even when the plan name stays the same. Skipping the formulary check and meeting a four-figure prescription surprise in February. Guessing at subsidy income instead of estimating it carefully. And waiting past January 15, because outside open enrollment, options narrow to qualifying life events.
 
-None of these mistakes require intelligence to avoid. They require sequence. Total cost, then network, then formulary, then subsidy — in that order, the right plan usually identifies itself.
+None of these mistakes require intelligence to avoid. They require sequence. Total cost, then network, then formulary, then subsidy, in that order, the right plan usually identifies itself.

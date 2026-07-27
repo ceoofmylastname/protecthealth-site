@@ -25,19 +25,19 @@ faq:
 relatedQa: []
 ---
 
-Half the "dental insurance" sold online is not insurance at all — it's a discount membership wearing insurance's clothes. That is not automatically bad. For some situations the membership is the smarter buy. But the two structures work so differently that comparing them by monthly price alone is how people end up with the wrong one.
+Half the "dental insurance" sold online is not insurance at all. It's a discount membership wearing insurance's clothes. That is not automatically bad. For some situations the membership is the smarter buy. But the two structures work so differently that comparing them by monthly price alone is how people end up with the wrong one.
 
 ## What is the structural difference?
 
 **Dental insurance** collects a premium and then shares costs: typically 100% of preventive care, 80% of basic work, 50% of major work, up to an annual maximum of $1,000 to $2,000.
 
-**A discount plan** collects a membership fee — usually $80 to $200 per year — and unlocks negotiated rates at participating dentists, commonly 10% to 60% off. No claims, no deductible, no maximum. The member pays the whole discounted bill.
+**A discount plan** collects a membership fee, usually $80 to $200 per year, and unlocks negotiated rates at participating dentists, commonly 10% to 60% off. No claims, no deductible, no maximum. The member pays the whole discounted bill.
 
 One structure transfers risk. The other negotiates prices. That difference drives every scenario below.
 
 ## Where does insurance win?
 
-Insurance wins on routine, predictable care. Preventive visits at 100% mean a family's cleanings, exams, and X-rays generate zero bills, and the 80/50 coverage tiers turn a filling or crown into a partial expense instead of a full one. Over a normal year of family dentistry, the insured household usually comes out ahead — the full three-number math is in [Is Dental Insurance Worth It?](/blog-post/is-dental-insurance-worth-it)
+Insurance wins on routine, predictable care. Preventive visits at 100% mean a family's cleanings, exams, and X-rays generate zero bills, and the 80/50 coverage tiers turn a filling or crown into a partial expense instead of a full one. Over a normal year of family dentistry, the insured household usually comes out ahead, the full three-number math is in [Is Dental Insurance Worth It?](/blog-post/is-dental-insurance-worth-it)
 
 ## Where does the discount plan win?
 

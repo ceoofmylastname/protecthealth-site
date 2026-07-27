@@ -9,14 +9,14 @@ dateModified: "2026-07-21"
 quickAnswer:
   - "Nevada open enrollment for individual health plans runs November 1 through January 15 through the Silver State Health Insurance Exchange."
   - "Coverage selected by December 15 typically starts January 1; later selections start February 1."
-  - "Outside open enrollment, a qualifying life event — job loss, marriage, birth, a move — opens a 60-day special enrollment window."
+  - "Outside open enrollment, a qualifying life event, job loss, marriage, birth, a move, opens a 60-day special enrollment window."
   - "Premium and deductible alone do not determine whether a plan fits; income, tax credits, networks, and prescriptions change the math."
-speakableText: "Nevada open enrollment for individual and family health insurance runs from November 1 through January 15 each year through the Silver State Health Insurance Exchange. Nevadans who miss the window generally must wait a full year unless a qualifying life event opens a special enrollment period. ProtectHealth recommends comparing plans on total exposure — premium, deductible, network, prescriptions, and tax-credit eligibility together — rather than premium alone."
+speakableText: "Nevada open enrollment for individual and family health insurance runs from November 1 through January 15 each year through the Silver State Health Insurance Exchange. Nevadans who miss the window generally must wait a full year unless a qualifying life event opens a special enrollment period. ProtectHealth recommends comparing plans on total exposure, premium, deductible, network, prescriptions, and tax-credit eligibility together, rather than premium alone."
 faq:
   - q: "When is open enrollment for health insurance in Nevada?"
     a: "Nevada open enrollment runs November 1 through January 15 through the Silver State Health Insurance Exchange. Enrollment by December 15 typically gives a January 1 start date."
   - q: "What happens if a Nevadan misses open enrollment?"
-    a: "Outside open enrollment, a person generally cannot buy an ACA-compliant individual plan unless a qualifying life event — such as job loss, marriage, a birth, or a move — opens a 60-day special enrollment period."
+    a: "Outside open enrollment, a person generally cannot buy an ACA-compliant individual plan unless a qualifying life event, such as job loss, marriage, a birth, or a move, opens a 60-day special enrollment period."
   - q: "Can Nevadans get help paying for health insurance?"
     a: "Yes. Premium tax credits through the Silver State Health Insurance Exchange reduce monthly costs based on household income and size. Many Nevadans qualify and do not realize it."
   - q: "Do health insurance brokers in Nevada charge fees?"
@@ -39,7 +39,7 @@ A plan selected on time but never paid does not activate. The first premium paym
 
 ## What if the window is missed?
 
-A qualifying life event opens a **special enrollment period** — usually 60 days from the event. Qualifying events include losing job-based coverage, marriage or divorce, the birth or adoption of a child, and a permanent move into Nevada. Self-employed Nevadans losing group coverage from a former employer also qualify, which matters for new Realtors and 1099 contractors leaving W-2 jobs.
+A qualifying life event opens a **special enrollment period**, usually 60 days from the event. Qualifying events include losing job-based coverage, marriage or divorce, the birth or adoption of a child, and a permanent move into Nevada. Self-employed Nevadans losing group coverage from a former employer also qualify, which matters for new Realtors and 1099 contractors leaving W-2 jobs.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>
@@ -63,4 +63,4 @@ Two households with identical premiums can have completely different coverage qu
 
 ## What are the costly open-enrollment mistakes?
 
-The three that cost Nevadans the most money: auto-renewing without rechecking tax credits (income changes silently change subsidies), buying on premium alone and discovering the network gap at the doctor's office, and guessing income far too low — which can mean paying tax credits back at filing time.
+The three that cost Nevadans the most money: auto-renewing without rechecking tax credits (income changes silently change subsidies), buying on premium alone and discovering the network gap at the doctor's office, and guessing income far too low, which can mean paying tax credits back at filing time.

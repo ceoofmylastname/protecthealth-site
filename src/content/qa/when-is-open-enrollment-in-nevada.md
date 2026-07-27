@@ -1,6 +1,6 @@
 ---
 question: "When Is Open Enrollment In Nevada?"
-description: "Nevada open enrollment dates for individual health insurance — November 1 through January 15 — plus the December 15 deadline that decides the start date."
+description: "Nevada open enrollment dates for individual health insurance, November 1 through January 15, plus the December 15 deadline that decides the start date."
 cluster: "nevada-core"
 parentPost: "nevada-open-enrollment-health-insurance"
 siblings:
@@ -21,22 +21,22 @@ faq:
     a: "Yes, when a qualifying life event such as losing other coverage, marriage, a birth, or a permanent move opens a special enrollment period, typically lasting 60 days from the event."
 ---
 
-The dates are simple. The consequences of missing them are not — which is why this is the single most-asked question in Nevada health insurance.
+The dates are simple. The consequences of missing them are not, which is why this is the single most-asked question in Nevada health insurance.
 
 ## What are the exact open enrollment dates in Nevada?
 
-Nevada open enrollment runs November 1 through January 15, every year, through Nevada Health Link — the state-based marketplace operated by the Silver State Health Insurance Exchange. Two internal deadlines matter:
+Nevada open enrollment runs November 1 through January 15, every year, through Nevada Health Link, the state-based marketplace operated by the Silver State Health Insurance Exchange. Two internal deadlines matter:
 
 1. **Enroll by December 15** → coverage typically starts January 1.
-2. **Enroll December 16 – January 15** → coverage starts February 1.
+2. **Enroll December 16 - January 15** → coverage starts February 1.
 3. **Pay the first premium** → the selection becomes active coverage. Unpaid selections quietly expire.
 
 That February 1 start date catches people every year: a January enrollment leaves a full month without new coverage.
 
 ## Why does enrolling early in the window matter?
 
-Because the best plan takes time to find, and the window rewards the unhurried. Comparing networks, checking prescription formularies, and estimating income for tax credits is a genuine project — the kind covered step by step in the [full Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance). Households that start in November get January 1 coverage and time to verify their doctors. Households that start January 14 get whatever the premium sort shows them.
+Because the best plan takes time to find, and the window rewards the unhurried. Comparing networks, checking prescription formularies, and estimating income for tax credits is a genuine project, the kind covered step by step in the [full Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance). Households that start in November get January 1 coverage and time to verify their doctors. Households that start January 14 get whatever the premium sort shows them.
 
 ## What happens after January 15?
 
-The marketplace closes to new enrollment until the following November 1. The exceptions run through qualifying life events — losing job-based coverage, marriage, a birth or adoption, a permanent move into Nevada — each of which opens a special enrollment period, usually 60 days from the event. Medicaid and Nevada Check Up enroll year-round for those who qualify, since Nevada expanded Medicaid. For everyone else, January 15 is the real deadline, and the calendar does not negotiate.
+The marketplace closes to new enrollment until the following November 1. The exceptions run through qualifying life events, losing job-based coverage, marriage, a birth or adoption, a permanent move into Nevada, each of which opens a special enrollment period, usually 60 days from the event. Medicaid and Nevada Check Up enroll year-round for those who qualify, since Nevada expanded Medicaid. For everyone else, January 15 is the real deadline, and the calendar does not negotiate.

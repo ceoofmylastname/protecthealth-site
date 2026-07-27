@@ -21,7 +21,7 @@ faq:
     a: "Most people avoid a Part A issue because Part A is premium-free with 40 quarters of work history. The lifetime late penalty risk sits mainly with Part B, and separately with Part D drug coverage."
 ---
 
-Most Medicare mistakes can be fixed the following October. This one can't. The Part B penalty is the rare error that gets billed every month, forever — and it exists purely to stop people from waiting until sickness to enroll.
+Most Medicare mistakes can be fixed the following October. This one can't. The Part B penalty is the rare error that gets billed every month, forever, and it exists purely to stop people from waiting until sickness to enroll.
 
 ## How does the penalty actually work?
 
@@ -30,16 +30,16 @@ The math is simple and unforgiving: 10% of the Part B premium for every full 12-
 | Delay without qualifying coverage | Lifetime surcharge |
 |---|---|
 | Under 12 full months | 0% |
-| 1–2 years | 10% |
-| 2–3 years | 20% |
-| 3–4 years | 30% |
+| 1-2 years | 10% |
+| 2-3 years | 20% |
+| 3-4 years | 30% |
 
 Because the Part B premium is set federally each year and generally rises over time, the penalty's dollar amount grows with it.
 
 ## Why does the penalty exist at all?
 
-Because Part B is optional and has no health questions. Without a penalty, the rational move would be skipping premiums while healthy and enrolling after a diagnosis — which would collapse the program's funding. The surcharge makes waiting expensive enough that nearly everyone enrolls on time. The enrollment window itself, the 7-month Initial Enrollment Period around the 65th birthday, is mapped step by step in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist).
+Because Part B is optional and has no health questions. Without a penalty, the rational move would be skipping premiums while healthy and enrolling after a diagnosis, which would collapse the program's funding. The surcharge makes waiting expensive enough that nearly everyone enrolls on time. The enrollment window itself, the 7-month Initial Enrollment Period around the 65th birthday, is mapped step by step in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist).
 
 ## How does someone avoid it completely?
 
-Two clean paths exist. First: enroll during the 7-month Initial Enrollment Period, done. Second: keep qualifying employer coverage from active employment — generally at a company with 20 or more employees — and enroll later through a Special Enrollment Period when the employment ends. The trap between the paths is coverage that feels like employer insurance but doesn't qualify: COBRA and retiree plans do not count, and months spent on them can silently accrue toward a penalty. Confirming qualification before delaying is a five-minute call that protects decades of premiums.
+Two clean paths exist. First: enroll during the 7-month Initial Enrollment Period, done. Second: keep qualifying employer coverage from active employment, generally at a company with 20 or more employees, and enroll later through a Special Enrollment Period when the employment ends. The trap between the paths is coverage that feels like employer insurance but doesn't qualify: COBRA and retiree plans do not count, and months spent on them can silently accrue toward a penalty. Confirming qualification before delaying is a five-minute call that protects decades of premiums.

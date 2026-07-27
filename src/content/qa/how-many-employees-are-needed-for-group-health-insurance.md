@@ -1,6 +1,6 @@
 ---
 question: "How Many Employees Are Needed For Group Health Insurance?"
-description: "How many employees a business needs to qualify for group health insurance — generally one W-2 employee besides the owner — and who counts as eligible."
+description: "How many employees a business needs to qualify for group health insurance, generally one W-2 employee besides the owner, and who counts as eligible."
 cluster: "employers"
 parentPost: "small-business-health-insurance"
 siblings:
@@ -21,22 +21,22 @@ faq:
     a: "Individual marketplace coverage and reimbursement arrangements like QSEHRA remain available. Once a qualifying employee is hired, small-group plans and ICHRA structures open up as well."
 ---
 
-The bar for group health insurance is lower than most owners expect — and the fine print about who counts is where businesses trip.
+The bar for group health insurance is lower than most owners expect. And the fine print about who counts is where businesses trip.
 
 ## Does one employee really open the small-group market?
 
 Generally, yes. One common-law W-2 employee besides the owner or the owner's spouse is typically enough to qualify a business for small-group health insurance. The small-group market in most states runs from that first eligible employee up to 50, and carriers verify eligibility with payroll records at enrollment.
 
-## Who counts as an eligible employee — and who doesn't?
+## Who counts as an eligible employee, and who doesn't?
 
 Counting is where the surprises live:
 
 1. **Counts:** a W-2 employee working regular hours who is not the owner or the owner's spouse.
 2. **Usually doesn't count:** the owner, the owner's spouse, and in many cases certain family members, depending on entity type and carrier rules.
-3. **Never counts:** 1099 independent contractors — and reclassifying a contractor just to reach eligibility invites problems far bigger than a declined application.
+3. **Never counts:** 1099 independent contractors, and reclassifying a contractor just to reach eligibility invites problems far bigger than a declined application.
 
 Entity type matters too: how an S-corp owner or partner is treated varies, which is where a licensed tax professional belongs in the conversation alongside the insurance side.
 
-## What if the business doesn't qualify — or qualifies but shouldn't buy group?
+## What if the business doesn't qualify, or qualifies but shouldn't buy group?
 
-Owner-only businesses shop the individual market, and businesses with employees can choose reimbursement structures like ICHRA or QSEHRA instead of a traditional group plan — sometimes a better fit even when group is available. The full menu of structures, and how to pick between them, is laid out in [the small business health insurance guide](/blog-post/small-business-health-insurance). Related questions: [what group coverage costs per employee](/qa/what-does-group-health-insurance-cost-per-employee) and [whether offering coverage is required at all](/qa/are-small-businesses-required-to-offer-health-insurance).
+Owner-only businesses shop the individual market, and businesses with employees can choose reimbursement structures like ICHRA or QSEHRA instead of a traditional group plan, sometimes a better fit even when group is available. The full menu of structures, and how to pick between them, is laid out in [the small business health insurance guide](/blog-post/small-business-health-insurance). Related questions: [what group coverage costs per employee](/qa/what-does-group-health-insurance-cost-per-employee) and [whether offering coverage is required at all](/qa/are-small-businesses-required-to-offer-health-insurance).

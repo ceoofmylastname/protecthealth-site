@@ -1,4 +1,4 @@
-// Cloudflare Pages Function — mirrors netlify/functions/slots.mjs. Keep both in sync.
+// Cloudflare Pages Function, mirrors netlify/functions/slots.mjs. Keep both in sync.
 // Live availability for the Talk To A Broker booking calendar.
 //
 // GET /api/slots?days=21&tz=America/Los_Angeles
@@ -8,7 +8,7 @@
 // to the visitor's own timezone, so the calendar UI renders without further math.
 //
 // Requires env var GHL_API_TOKEN (GHL Private Integration token) with the
-// calendars.readonly scope. Same token as /api/lead — add the scope in
+// calendars.readonly scope. Same token as /api/lead, add the scope in
 // GHL → Settings → Private Integrations, then redeploy.
 
 const GHL_BASE = 'https://services.leadconnectorhq.com';

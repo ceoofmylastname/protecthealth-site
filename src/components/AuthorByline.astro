@@ -1,7 +1,7 @@
 ---
 // E-E-A-T byline. Two modes:
-//   mode="author"   → "Written by" — used on the 22 blog pillars.
-//   mode="reviewer" → "Reviewed by" — used on the 88 Q&A pages and the FAQ.
+//   mode="author"   → "Written by", used on the 22 blog pillars.
+//   mode="reviewer" → "Reviewed by", used on the 88 Q&A pages and the FAQ.
 //
 // The distinction is deliberate and it is a truthfulness decision, not a design
 // one. A named licensed broker as AUTHOR is publicly standing behind the words.
@@ -9,7 +9,7 @@
 // the answer, so the byline says exactly that and the schema uses reviewedBy.
 //
 // The Person JSON-LD is emitted by the PAGE (via personSchema in site.ts), not
-// here — one Person node per page, referenced by @id from BlogPosting/QAPage.
+// here, one Person node per page, referenced by @id from BlogPosting/QAPage.
 // This component is the visible half only. Do not add a second JSON-LD block.
 import { authorPhoto, type Author } from '../lib/site';
 
@@ -45,7 +45,7 @@ const photo = authorPhoto(author);
     </p>
     <p class="by-cred">{author.credential}</p>
     <p class="by-bio">{author.short}</p>
-    {/* Author mode only, and it prints datePublished — never dateModified.
+    {/* Author mode only, and it prints datePublished, never dateModified.
         Reviewer mode prints NO date on purpose: we have no record of when the
         review actually happened, and "Answer reviewed <publish date>" would be
         asserting an event that may not have occurred on that day. The real

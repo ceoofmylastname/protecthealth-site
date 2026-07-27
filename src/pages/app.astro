@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 
-// Agent dashboard — CRM phase 1. Static page, same trust model as /admin:
+// Agent dashboard, CRM phase 1. Static page, same trust model as /admin:
 // every byte is fetched in the browser with the anon key, and Row Level
 // Security decides what comes back. An agent's ph_leads query returns ONLY
 // rows where agent_id is theirs; the page never has to filter, because the
@@ -11,7 +11,7 @@ const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
 ---
 
-<Base title="My Leads — ProtectHealth" description="Agent dashboard." noindex={true}>
+<Base title="My Leads, ProtectHealth" description="Agent dashboard." noindex={true}>
   <section class="ag" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
     <div class="container">
 
@@ -58,9 +58,9 @@ const SUPABASE_ANON =
         </header>
 
         <div class="ag-stats">
-          <div class="ag-stat spot"><b data-stat="mine">—</b><span>My leads</span></div>
-          <div class="ag-stat spot"><b data-stat="upcoming">—</b><span>Upcoming conversations</span></div>
-          <div class="ag-stat spot"><b data-stat="week">—</b><span>New this week</span></div>
+          <div class="ag-stat spot"><b data-stat="mine">, </b><span>My leads</span></div>
+          <div class="ag-stat spot"><b data-stat="upcoming">, </b><span>Upcoming conversations</span></div>
+          <div class="ag-stat spot"><b data-stat="week">, </b><span>New this week</span></div>
         </div>
 
         <div class="ag-tabs" role="tablist">
@@ -369,7 +369,7 @@ const SUPABASE_ANON =
       myName = me[0].full_name || sessionEmail;
 
       view('app');
-      // No .eq('agent_id', ...) anywhere — RLS already restricts this query to
+      // No .eq('agent_id', ...) anywhere, RLS already restricts this query to
       // the signed-in agent's leads. The page cannot ask for more than it may
       // see, which is the entire point of doing security in the database.
       const [{ data: l }, { data: e }] = await Promise.all([
@@ -563,12 +563,12 @@ const SUPABASE_ANON =
           + ((c.tags ?? []).length > 3 ? `<span class="ag-muted">+${c.tags.length - 3}</span>` : '');
         return `<tr class="${cSelected === c.ghl_contact_id ? 'is-on' : ''}" data-cid="${c.ghl_contact_id}">
           <td class="ag-tname" title="${esc(name)}">${esc(name)}</td>
-          <td title="${esc(c.email || '')}">${esc(c.email || '—')}</td>
-          <td>${esc(c.phone || '—')}</td>
-          <td>${c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : '—'}</td>
-          <td>${tags || '—'}</td>
+          <td title="${esc(c.email || '')}">${esc(c.email || ', ')}</td>
+          <td>${esc(c.phone || ', ')}</td>
+          <td>${c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : ', '}</td>
+          <td>${tags || ', '}</td>
           <td class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</td>
-          <td>${c.ghl_date_added ? fmtDateTime(c.ghl_date_added) : '—'}</td>
+          <td>${c.ghl_date_added ? fmtDateTime(c.ghl_date_added) : ', '}</td>
         </tr>`;
       }).join('');
 
@@ -635,7 +635,7 @@ const SUPABASE_ANON =
       $('.ag-col-left').innerHTML = `
         <div class="ag-avatar">${esc(initials)}</div>
         <h2 class="ag-cardname">${esc(name)}</h2>
-        <p class="ag-cardsub">Updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : '—'} · syncs every 5 min</p>
+        <p class="ag-cardsub">Updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : ', '} · syncs every 5 min</p>
         <h3 class="ag-colh">Owner</h3>
         <div class="ag-kvline"><span class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</span></div>
         <h3 class="ag-colh" style="margin-top:16px;">Tags</h3>
@@ -646,7 +646,7 @@ const SUPABASE_ANON =
         ${kv('Birthday', c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : '')}
         ${kv('Location', place ? esc(place) : '')}
         ${kv('Source', c.source ? esc(c.source) : '')}
-        ${c.dnd ? kv('DND', 'Do not disturb — excluded from sends') : ''}
+        ${c.dnd ? kv('DND', 'Do not disturb, excluded from sends') : ''}
         ${customRows ? `<h3 class="ag-colh" style="margin-top:16px;">Custom fields</h3>${customRows}` : ''}`;
 
       $('.ag-timeline').innerHTML = '<p class="ag-muted">Loading…</p>';
@@ -654,7 +654,7 @@ const SUPABASE_ANON =
       $('.ag-notes').innerHTML = '';
 
       // Everything our system knows about this person, merged into one feed.
-      // GHL-side conversation history is not mirrored (yet) — this shows what
+      // GHL-side conversation history is not mirrored (yet). This shows what
       // OUR stack has done, which after cutover is everything.
       const { data: contactLeads } = await sb.from('ph_leads').select('*').eq('ghl_contact_id', c.ghl_contact_id);
       const leadIds = (contactLeads ?? []).map((l) => l.id);

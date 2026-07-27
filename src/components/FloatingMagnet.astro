@@ -1,5 +1,5 @@
 ---
-// Floating lead-magnet CTA — persistent PDF offer that follows the visitor down the page.
+// Floating lead-magnet CTA, persistent PDF offer that follows the visitor down the page.
 // Appears after a short scroll, stays visible everywhere, dismissible per browser session.
 interface Props {
   href: string;
@@ -39,7 +39,7 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
   .fmag.on { opacity: 1; transform: none; pointer-events: auto; }
   .fmag[hidden] { display: none; }
   /* Yields to the conversion point. When the lead form or the booking submit is
-     on screen this bar gets out of the way entirely — it used to sit over the
+     on screen this bar gets out of the way entirely. It used to sit over the
      bottom ~81px of the viewport for the whole form interaction, which on a
      phone meant a tap aimed at Submit landed on the PDF link instead. */
   .fmag.yield { opacity: 0; transform: translateY(18px) scale(0.97); pointer-events: none; }
@@ -124,7 +124,7 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
       check();
 
       // Yield to the conversion point. Watch the lead form, the booking card and
-      // the footer; whenever one is on screen, hide the bar. Cheap — an
+      // the footer; whenever one is on screen, hide the bar. Cheap. An
       // IntersectionObserver, not a scroll handler, so it costs nothing per frame.
       const rivals = document.querySelectorAll('.lead-form, .lp-formwrap, .bb, .site-footer');
       if (rivals.length && 'IntersectionObserver' in window) {

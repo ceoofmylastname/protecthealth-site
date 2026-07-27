@@ -29,19 +29,19 @@ Las Vegas runs on tips, and a shocking amount of the payroll advice floating aro
 
 ## Mistake 1: Applying the tip credit Nevada doesn't have
 
-Most states let employers pay tipped workers a reduced cash wage — federally as low as $2.13 — and count tips toward minimum wage. **Nevada does not.** Tipped employees here must receive the full state minimum wage in direct wages before a single tip lands. Any payroll setup, template, or franchise handbook built on tip-credit math is wrong in Nevada from the first paycheck, and back-wage liability compounds with every pay period it runs.
+Most states let employers pay tipped workers a reduced cash wage, federally as low as $2.13, and count tips toward minimum wage. **Nevada does not.** Tipped employees here must receive the full state minimum wage in direct wages before a single tip lands. Any payroll setup, template, or franchise handbook built on tip-credit math is wrong in Nevada from the first paycheck, and back-wage liability compounds with every pay period it runs.
 
 ## Mistake 2: Treating tip reporting as the employee's problem
 
-Tips are wages in the eyes of the IRS, and the employer is in the middle of it: collecting tip reports from employees, withholding income tax and the employee share of FICA on reported tips, and paying the **employer share of FICA** on every reported dollar. When tips go unreported, exposure lands on both sides of the paycheck. Recent federal changes to how tips are taxed at the individual level have put more scrutiny on accurate tip reporting, not less — clean records are the whole defense.
+Tips are wages in the eyes of the IRS, and the employer is in the middle of it: collecting tip reports from employees, withholding income tax and the employee share of FICA on reported tips, and paying the **employer share of FICA** on every reported dollar. When tips go unreported, exposure lands on both sides of the paycheck. Recent federal changes to how tips are taxed at the individual level have put more scrutiny on accurate tip reporting, not less, clean records are the whole defense.
 
 ## Mistake 3: Leaving the FICA tip credit on the table
 
-Now the generous direction. Food and beverage employers can claim a **federal income tax credit** roughly equal to the employer Social Security and Medicare taxes paid on tips above a minimum-wage threshold. In a high-tip market like Las Vegas, that credit can run into real money per tipped employee per year — and a remarkable number of eligible restaurants, bars, and clubs have never claimed it, usually because nobody told them it existed. A tax professional confirms eligibility and files it; the point of this section is that the conversation should happen.
+Now the generous direction. Food and beverage employers can claim a **federal income tax credit** roughly equal to the employer Social Security and Medicare taxes paid on tips above a minimum-wage threshold. In a high-tip market like Las Vegas, that credit can run into real money per tipped employee per year. And a remarkable number of eligible restaurants, bars, and clubs have never claimed it, usually because nobody told them it existed. A tax professional confirms eligibility and files it; the point of this section is that the conversation should happen.
 
 ## Mistake 4: Casual tip pools and service-charge confusion
 
-Two smaller fires that burn hot in audits. Tip pools are legal with conditions — and the condition with teeth is that **managers and supervisors never take from the pool**, full stop. And mandatory service charges (banquet fees, auto-gratuities on large parties) are not tips at all: they're regular wages, with different withholding, different overtime math, and no FICA tip credit eligibility. Venues that run heavy banquet business and code service charges as tips are building an audit finding one event at a time.
+Two smaller fires that burn hot in audits. Tip pools are legal with conditions. And the condition with teeth is that **managers and supervisors never take from the pool**, full stop. And mandatory service charges (banquet fees, auto-gratuities on large parties) are not tips at all: they're regular wages, with different withholding, different overtime math, and no FICA tip credit eligibility. Venues that run heavy banquet business and code service charges as tips are building an audit finding one event at a time.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>

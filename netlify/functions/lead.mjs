@@ -22,7 +22,7 @@ const CAMPAIGNS = {
     tags: ['campaign:paychex', 'more-than-your-group-plan', 'source:website'],
     oppPrefix: 'Employer Strategy Call',
   },
-  // Contact page — every "Talk To A Broker" button on the site lands here
+  // Contact page, every "Talk To A Broker" button on the site lands here
   general: {
     tags: ['talk-to-a-broker', 'source:website'],
     oppPrefix: 'Talk To A Broker',
@@ -61,7 +61,7 @@ const CF = {
 const ROLE_KEYS = ['role', 'profile', 'interest'];
 
 // Builds the customFields array for an upsert. Blank answers are dropped rather
-// than sent as '', because /contacts/upsert merges what it receives — a lead who
+// than sent as '', because /contacts/upsert merges what it receives, a lead who
 // books after filling a shorter form keeps the answers the longer form captured.
 function intakeFields(data, extra = {}) {
   const merged = { ...data, ...extra };
@@ -88,7 +88,7 @@ function intakeFields(data, extra = {}) {
 }
 
 
-// Supabase (ProtectHealth Ticketing System) — mirrors form submissions into
+// Supabase (ProtectHealth Ticketing System), mirrors form submissions into
 // ph_leads so they show up in the admin dashboard alongside real bookings.
 // Requires env var PH_HOOK_SECRET. Non-fatal by design.
 const PH_HOOK = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-booking-emails';
@@ -183,7 +183,7 @@ export default async (req) => {
       .map(([k, v]) => `${k}: ${String(v).trim()}`);
     if (lines.length) {
       await ghl(`/contacts/${contactId}/notes`, 'POST', token, {
-        body: `Website form (${formId}) — ${new Date().toISOString()}\n\n${lines.join('\n')}`,
+        body: `Website form (${formId}), ${new Date().toISOString()}\n\n${lines.join('\n')}`,
       });
     }
 
@@ -193,12 +193,12 @@ export default async (req) => {
       pipelineId: PIPELINE_ID,
       pipelineStageId: STAGE_NEW_LEAD,
       contactId,
-      name: `${campaign.oppPrefix} — ${fullName || email || phone}`,
+      name: `${campaign.oppPrefix}, ${fullName || email || phone}`,
       status: 'open',
     });
 
     // Mirror to Supabase for the admin dashboard. No emails are queued for a
-    // form submission — there is no appointment to remind anyone about.
+    // form submission. There is no appointment to remind anyone about.
     await recordLead(process.env.PH_HOOK_SECRET, {
       // The owner-sync sweep in Supabase matches on this. Without it a form
       // lead has no join key and its assigned broker never reaches the

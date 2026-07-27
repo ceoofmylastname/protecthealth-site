@@ -1,4 +1,4 @@
-/* ProtectHealth design system v2 — production UI */
+/* ProtectHealth design system v2. Production UI */
 :root {
   --navy: #0f3567;
   --navy-2: #17457e;
@@ -25,7 +25,7 @@
 /* font-size in rem, not px, so a user who raises their browser text size gets it.
    -webkit-text-size-adjust stops iOS inflating text on orientation change. */
 body { font-family: var(--font); color: var(--ink); background: var(--bg); line-height: 1.65; font-size: 1.0625rem; -webkit-text-size-adjust: 100%; }
-/* overflow-x: clip, not hidden — hidden on body creates a scroll container and
+/* overflow-x: clip, not hidden, hidden on body creates a scroll container and
    silently kills every position: sticky on the page. clip does not. This is a
    safety net for decorative overflow, NOT a licence to ship overflowing layout. */
 body { overflow-x: clip; }
@@ -41,12 +41,12 @@ a { color: var(--accent); }
 h1, h2, h3, h4 { color: var(--navy); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; font-family: var(--font-display); overflow-wrap: break-word; }
 h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); }
 h2 { font-size: clamp(1.55rem, 3vw, 2.3rem); margin: 2.2rem 0 0.8rem; }
-/* h3 was the one fixed heading — it compressed the h2→h3 hierarchy on phones. */
+/* h3 was the one fixed heading. It compressed the h2→h3 hierarchy on phones. */
 h3 { font-size: clamp(1.12rem, 2.2vw, 1.22rem); margin: 1.6rem 0 0.5rem; }
 p { margin: 0.7rem 0; }
 .section-label { display: inline-block; text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; font-weight: 800; margin-bottom: 10px; background: linear-gradient(90deg, var(--blue), #19c8ff 70%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-/* ============ Header v3 — floating glass pill ============ */
+/* ============ Header v3, floating glass pill ============ */
 .site-header { position: sticky; top: 0; z-index: 50; padding: 14px 0 8px; background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0)); transition: padding 0.3s ease; }
 .site-header .container { display: block; }
 .nav-shell { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 9px 12px 9px 20px;
@@ -68,7 +68,7 @@ p { margin: 0.7rem 0; }
 .nav-phone { font-weight: 800; color: var(--navy) !important; white-space: nowrap; border: 1.5px solid rgba(25,123,255,0.25); border-radius: 999px; padding: 8px 16px !important; background: rgba(25,123,255,0.05); transition: border-color 0.2s, background 0.2s; }
 .nav-phone:hover { color: var(--blue) !important; border-color: rgba(25,123,255,0.55); background: rgba(25,123,255,0.1); }
 
-/* ============ Buttons v4 — spark-ring pills (rotating conic border + sheen + press states) ============ */
+/* ============ Buttons v4, spark-ring pills (rotating conic border + sheen + press states) ============ */
 @property --ba { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 .btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 9px; color: #fff; font-weight: 800; padding: 13px 28px; border-radius: 999px; text-decoration: none; font-size: 1rem; cursor: pointer; font-family: var(--font); transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.22s ease; box-shadow: 0 8px 24px rgba(25,123,255,0.28);
   border: 1.5px solid transparent;
@@ -145,7 +145,7 @@ p { margin: 0.7rem 0; }
 .card .more { font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; }
 .card .more:hover { gap: 10px; }
 
-/* image cards (services, blog) — gradient hairline + lift */
+/* image cards (services, blog), gradient hairline + lift */
 .img-card { background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg, rgba(25,123,255,0.24), rgba(25,200,255,0.14) 50%, rgba(0,125,179,0.3)) border-box; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s; display: flex; flex-direction: column; }
 .img-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(15,53,103,0.18); }
 .img-card .thumb { aspect-ratio: 16/9; overflow: hidden; background: var(--bg-soft); }
@@ -166,7 +166,7 @@ p { margin: 0.7rem 0; }
 .feature-num h3 { margin: 0; font-size: 1.05rem; }
 
 /* team */
-/* Team cards v2 — sleek gradient-ring portrait panels */
+/* Team cards v2, sleek gradient-ring portrait panels */
 .team-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 26px; }
 @media (min-width: 1100px) { .team-grid { grid-template-columns: repeat(3, 1fr); max-width: 980px; margin-inline: auto; } }
 .team-card { position: relative; text-align: center; text-decoration: none; display: block; }
@@ -215,17 +215,17 @@ p { margin: 0.7rem 0; }
 .article .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
 .article { overflow-wrap: break-word; }
 /* aspect-ratio reserves the box before the remote hero image's headers arrive.
-   Without it every article page shifts its entire body downward on load — 118
+   Without it every article page shifts its entire body downward on load. 118
    pages of guaranteed CLS, worst on mobile where the image is full-width. */
 .article .hero-img { border-radius: var(--radius-lg); overflow: hidden; margin: 22px 0; box-shadow: var(--shadow-sm); aspect-ratio: 16 / 9; background: var(--bg-soft); }
 .article .hero-img img { width: 100%; height: 100%; object-fit: cover; }
 /* display: block + overflow-x turns a markdown table into its own scroller.
-   width: 100% is a floor, not a ceiling — a 4-column table's min-content width
+   width: 100% is a floor, not a ceiling, a 4-column table's min-content width
    wins and overflows the container, scrolling the whole page sideways. 37 pages
    of content have tables. */
 .article table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 0.95rem; }
 /* Above 700px the container is wide enough for real table layout, so hand it
-   back — display: block makes a narrow table shrink to content instead of
+   back, display: block makes a narrow table shrink to content instead of
    filling the column, which looks wrong on desktop. */
 @media (min-width: 700px) { .article table { display: table; overflow-x: visible; } }
 .article th, .article td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; }
@@ -371,7 +371,7 @@ p { margin: 0.7rem 0; }
 .lp-formwrap { border: 1.5px solid transparent; border-radius: 28px; padding: 8px; background: linear-gradient(160deg, #ffffff, #f2f8ff) padding-box, linear-gradient(130deg, rgba(25,123,255,0.5), rgba(25,200,255,0.25) 50%, rgba(0,125,179,0.5)) border-box; box-shadow: 0 20px 54px rgba(15,53,103,0.14); }
 @media (max-width: 720px) { .lp-hero { padding: 72px 0 80px; } .lp-quote { padding: 42px 28px; } }
 
-/* LP reading library (below the form — education path for the not-ready-yet visitor) */
+/* LP reading library (below the form, education path for the not-ready-yet visitor) */
 .lp-read h2 { margin-top: 0; }
 .lp-qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; margin-top: 26px; }
 .qa-pill { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 20px; border-radius: 16px; text-decoration: none; font-weight: 700; font-size: 0.93rem; color: var(--navy); border: 1.5px solid transparent; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(120deg, rgba(25,123,255,0.3), rgba(25,200,255,0.16) 60%, rgba(0,125,179,0.35)) border-box; box-shadow: var(--shadow-sm); transition: transform 0.25s ease, box-shadow 0.25s ease; }
@@ -379,7 +379,7 @@ p { margin: 0.7rem 0; }
 .qa-pill:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,53,103,0.15); }
 .qa-pill:hover i { transform: translateX(4px); }
 
-/* ============ v8 — custom-feel layer ============ */
+/* ============ v8, custom-feel layer ============ */
 /* Ambient background spotlights (whole site, light sections) */
 html { background: var(--bg); }
 body { background: transparent; }
@@ -524,7 +524,7 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 @media (max-width: 560px) { .mg-promo { grid-template-columns: 1fr; text-align: center; } .mg-promo img { margin: 0 auto; } }
 
 /* ============ Touch target floor ============
-   Text links styled with no padding computed out at 22–27px tall. On a phone
+   Text links styled with no padding computed out at 22-27px tall. On a phone
    that is a coin-flip tap. These rules raise the hit area without moving the
    text: inline-block + vertical padding grows the box, and the surrounding
    line-height absorbs it. Applied only on coarse pointers so desktop density

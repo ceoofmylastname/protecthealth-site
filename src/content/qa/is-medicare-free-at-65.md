@@ -21,23 +21,23 @@ faq:
     a: "Usually yes. Original Medicare leaves deductibles and coinsurance uncovered, so most enrollees add a Medigap supplement plus a Part D drug plan, or choose a Medicare Advantage plan with its own cost-sharing."
 ---
 
-"Free at 65" is half true, and the half that's true is the smaller half. Decades of payroll taxes prepay one piece of Medicare — the rest arrives with a monthly bill.
+"Free at 65" is half true, and the half that's true is the smaller half. Decades of payroll taxes prepay one piece of Medicare, the rest arrives with a monthly bill.
 
 ## What part of Medicare is actually free?
 
-Part A, the hospital side, carries no premium for most people with 40 quarters — roughly ten years — of Medicare-taxed work. That's the piece payroll taxes already bought. Premium-free does not mean cost-free, though: Part A still has its own deductible and cost-sharing when care actually happens.
+Part A, the hospital side, carries no premium for most people with 40 quarters, roughly ten years, of Medicare-taxed work. That's the piece payroll taxes already bought. Premium-free does not mean cost-free, though: Part A still has its own deductible and cost-sharing when care actually happens.
 
 ## What does the rest of Medicare cost?
 
-Part B, the medical side, charges everyone a monthly premium set federally each year — and higher incomes pay more:
+Part B, the medical side, charges everyone a monthly premium set federally each year, and higher incomes pay more:
 
-1. **Part B standard premium** — the same federally set base amount nationwide.
-2. **Income surcharges** — higher-income households pay income-adjusted amounts above the standard premium, based on prior tax returns.
-3. **Part D drug plan** — a separate premium when paired with Original Medicare.
-4. **Medigap premium** — real monthly money in exchange for near-elimination of surprise bills.
+1. **Part B standard premium**, the same federally set base amount nationwide.
+2. **Income surcharges**, higher-income households pay income-adjusted amounts above the standard premium, based on prior tax returns.
+3. **Part D drug plan**, a separate premium when paired with Original Medicare.
+4. **Medigap premium**, real monthly money in exchange for near-elimination of surprise bills.
 
 Skipping Part B to avoid the premium backfires: enrolling late without qualifying coverage adds a 10% surcharge per full 12-month delay, permanently.
 
 ## Why do costs continue after enrollment?
 
-Because Original Medicare was never designed to pay everything. Deductibles and coinsurance remain, with no annual cap on the Original Medicare side alone. That gap forces the real decision at 65: pay predictable Medigap premiums for near-zero surprise bills, or take a low-premium Medicare Advantage plan and accept networks plus an annual out-of-pocket maximum commonly in the several-thousand-dollar range. Neither path is free; they distribute the same costs differently. The full sequence of enrollment steps and cost decisions sits in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist) — worth reading before the 7-month window opens.
+Because Original Medicare was never designed to pay everything. Deductibles and coinsurance remain, with no annual cap on the Original Medicare side alone. That gap forces the real decision at 65: pay predictable Medigap premiums for near-zero surprise bills, or take a low-premium Medicare Advantage plan and accept networks plus an annual out-of-pocket maximum commonly in the several-thousand-dollar range. Neither path is free; they distribute the same costs differently. The full sequence of enrollment steps and cost decisions sits in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist), worth reading before the 7-month window opens.

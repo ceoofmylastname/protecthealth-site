@@ -1,6 +1,6 @@
 ---
 question: "Is Vision Insurance Worth It?"
-description: "Whether vision insurance pays for itself at $10-$20 per month — the break-even math for glasses and contact lens wearers versus people with perfect eyesight."
+description: "Whether vision insurance pays for itself at $10-$20 per month. The break-even math for glasses and contact lens wearers versus people with perfect eyesight."
 cluster: "dental-vision"
 parentPost: "is-dental-insurance-worth-it"
 siblings:
@@ -25,11 +25,11 @@ Vision insurance is the rare coverage decision that fits on a napkin. The premiu
 
 ## What does the break-even math look like?
 
-Vision plans typically cost $10 to $20 per month — $120 to $240 per year — and lens wearers generally clear that bar with routine usage alone:
+Vision plans typically cost $10 to $20 per month, $120 to $240 per year, and lens wearers generally clear that bar with routine usage alone:
 
-1. **Annual eye exam** — commonly covered for a small copay; retails for real money without coverage.
-2. **Lenses or contacts allowance** — a year of contacts or new prescription lenses typically exceeds the entire annual premium by itself.
-3. **Frames allowance** — often on a 12-or-24-month cycle, pure upside on top of the first two.
+1. **Annual eye exam**, commonly covered for a small copay; retails for real money without coverage.
+2. **Lenses or contacts allowance**, a year of contacts or new prescription lenses typically exceeds the entire annual premium by itself.
+3. **Frames allowance**, often on a 12-or-24-month cycle, pure upside on top of the first two.
 
 Exam plus lenses is the whole case. For anyone with a prescription, the plan usually pays for itself before the frames allowance even enters the conversation.
 
@@ -39,4 +39,4 @@ For people with perfect, stable eyesight who would skip the annual exam anyway, 
 
 ## How does the vision decision compare to the dental decision?
 
-Same arithmetic, smaller stakes, faster answer. Dental plans involve tiered 100-80-50 coverage, waiting periods, and annual maximums, so the analysis takes real work — the full framework is in [the three-number test for dental insurance](/blog-post/is-dental-insurance-worth-it). Vision is simpler: predictable premium, predictable usage, no waiting-period traps. Lens wearers buy it and win yearly; everyone else can reasonably pass. Many households bundle both and let the dental math carry the decision.
+Same arithmetic, smaller stakes, faster answer. Dental plans involve tiered 100-80-50 coverage, waiting periods, and annual maximums, so the analysis takes real work, the full framework is in [the three-number test for dental insurance](/blog-post/is-dental-insurance-worth-it). Vision is simpler: predictable premium, predictable usage, no waiting-period traps. Lens wearers buy it and win yearly; everyone else can reasonably pass. Many households bundle both and let the dental math carry the decision.

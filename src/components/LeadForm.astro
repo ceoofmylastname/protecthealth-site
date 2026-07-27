@@ -60,7 +60,7 @@ const total = fields.length;
             /* Values are read from the fieldset's data-name, but `name` is set
                anyway: Safari and Chrome autofill weight it far more heavily than
                autocomplete alone. inputmode is what actually switches the keypad
-               on several Android IMEs — type="tel" alone is not enough there.
+               on several Android IMEs, type="tel" alone is not enough there.
                enterkeyhint matches the Enter-to-advance handler below. */
             <input class="tf-input" name={f.name} type={f.type}
               inputmode={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : undefined}

@@ -17,8 +17,7 @@ const pageUrl = `${SITE.domain}/services/${service.slug}`;
 //
 // WHY THIS EXISTS: the Search Console coverage export on Jul 27 2026 showed 12
 // live pages as "Crawled - currently not indexed", and every blog post and Q&A
-// among them belonged to a PRODUCT cluster (medicare, life, dental-vision) —
-// not one came from ichra or employers. The reason is structural. The campaign
+// among them belonged to a PRODUCT cluster (medicare, life, dental-vision), // not one came from ichra or employers. The reason is structural. The campaign
 // landing pages carry a dynamic reading library that links every post and Q&A
 // in their cluster, so those pages accumulate internal links. The product
 // clusters terminated at these service pages, which linked back with only a
@@ -55,7 +54,7 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: `${service.name} — ProtectHealth`,
+    name: `${service.name}, ProtectHealth`,
     description: service.description,
     provider: { '@id': ORG_ID },
     areaServed: { '@type': 'State', name: 'Nevada' },
@@ -160,7 +159,7 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
         </div>
       )}
 
-      {/* Cluster library. Below the CTA band on purpose — conversion first,
+      {/* Cluster library. Below the CTA band on purpose, conversion first,
           education after, same rule the campaign landing pages follow. */}
       {clusterPosts.length > 0 && (
         <div class="svc-lib">

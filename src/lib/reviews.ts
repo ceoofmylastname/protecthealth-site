@@ -1,7 +1,7 @@
 // REAL Google reviews for ProtectHealth Insurance Agency (CID 11534166079504797199).
 // Pulled verbatim from the live Google listing via Apify compass/Google-Maps-Reviews-Scraper
 // on 2026-07-22 (290 newest scraped: 276 five-star / 4.9 overall / 703 total at pull time).
-// Display-only — intentionally NO AggregateRating/Review schema (self-serving review markup risk).
+// Display-only, intentionally NO AggregateRating/Review schema (self-serving review markup risk).
 // To refresh: re-run the scraper, regenerate this array. Dates shown as month/year so they never go stale.
 export interface GoogleReview {
   name: string;

@@ -29,15 +29,15 @@ Enormous. Group plans typically pay 1 to 2 times salary, while a household with 
 
 | Household | Employer coverage (1-2x) | Typical need (10-12x) | Gap |
 |---|---|---|---|
-| $75,000 income | $75,000–$150,000 | $750,000–$900,000 | ~$600,000+ |
-| $120,000 income | $120,000–$240,000 | $1.2M–$1.44M | ~$1M+ |
+| $75,000 income | $75,000-$150,000 | $750,000-$900,000 | ~$600,000+ |
+| $120,000 income | $120,000-$240,000 | $1.2M-$1.44M | ~$1M+ |
 
-The workplace benefit covers roughly a year or two of expenses. The obligations it leaves behind — mortgage, childcare, education — run for decades. Sizing the real number is exactly what [the coverage-calculation guide](/blog-post/how-much-life-insurance-do-i-need) walks through.
+The workplace benefit covers roughly a year or two of expenses. The obligations it leaves behind, mortgage, childcare, education, run for decades. Sizing the real number is exactly what [the coverage-calculation guide](/blog-post/how-much-life-insurance-do-i-need) walks through.
 
 ## What happens to the coverage when the job ends?
 
-It ends too, in almost every case. Group life insurance is a benefit of employment, not a personal asset — a layoff, a better offer, or a leap into self-employment cancels it. That timing is cruel: coverage disappears precisely when income is least stable, and any replacement policy gets priced at the new, older age with whatever health history has accumulated. A policy owned personally has no such off switch.
+It ends too, in almost every case. Group life insurance is a benefit of employment, not a personal asset, a layoff, a better offer, or a leap into self-employment cancels it. That timing is cruel: coverage disappears precisely when income is least stable, and any replacement policy gets priced at the new, older age with whatever health history has accumulated. A policy owned personally has no such off switch.
 
 ## What is the right way to use employer life insurance?
 
-As the bonus layer, never the base. The sturdy structure looks like this: a personally owned term policy sized to the full household need forms the foundation, and whatever the employer provides sits on top as extra cushion while the job lasts. That way a career change alters nothing that matters. Free coverage is worth taking — it is just not worth trusting.
+As the bonus layer, never the base. The sturdy structure looks like this: a personally owned term policy sized to the full household need forms the foundation, and whatever the employer provides sits on top as extra cushion while the job lasts. That way a career change alters nothing that matters. Free coverage is worth taking. It is just not worth trusting.

@@ -13,7 +13,7 @@ const SUPABASE_ANON =
 const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
 ---
 
-<Base title="Staff — ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+<Base title="Staff, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
   <section class="ad st" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON} data-cal-base={CAL_BASE}>
     <div class="container">
 
@@ -65,11 +65,11 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
         </header>
 
         <div class="ad-stats">
-          <div class="ad-stat spot"><b data-stat="total">—</b><span>On the roster</span></div>
-          <div class="ad-stat spot"><b data-stat="phone">—</b><span>With a direct phone</span></div>
-          <div class="ad-stat spot"><b data-stat="cal">—</b><span>With a booking link live</span></div>
-          <div class="ad-stat spot"><b data-stat="owned">—</b><span>Contacts they own</span></div>
-          <div class="ad-stat spot"><b data-stat="house">—</b><span>Still falling back to house</span></div>
+          <div class="ad-stat spot"><b data-stat="total">, </b><span>On the roster</span></div>
+          <div class="ad-stat spot"><b data-stat="phone">, </b><span>With a direct phone</span></div>
+          <div class="ad-stat spot"><b data-stat="cal">, </b><span>With a booking link live</span></div>
+          <div class="ad-stat spot"><b data-stat="owned">, </b><span>Contacts they own</span></div>
+          <div class="ad-stat spot"><b data-stat="house">, </b><span>Still falling back to house</span></div>
         </div>
 
         <p class="st-note ad-muted">
@@ -259,7 +259,7 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
           <div class="st-cta">Campaign button: ${ctaLine(a)}</div>
 
           <div class="st-edit">
-            <input type="url" class="st-url" value="${esc(a.booking_url ?? '')}" placeholder="Booking link — leave blank to dial their phone instead" />
+            <input type="url" class="st-url" value="${esc(a.booking_url ?? '')}" placeholder="Booking link, leave blank to dial their phone instead" />
             <select class="st-active">
               <option value="1"${a.is_active ? ' selected' : ''}>Active</option>
               <option value="0"${!a.is_active ? ' selected' : ''}>Off</option>

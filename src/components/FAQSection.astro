@@ -1,7 +1,7 @@
 ---
 // Single source of truth (wiki: faq-single-source-architecture).
 // One `faq` array produces BOTH the FAQPage JSON-LD and the visible accordion.
-// When `emitSchema` is false, only the accordion renders — used on Q&A pages
+// When `emitSchema` is false, only the accordion renders, used on Q&A pages
 // where FAQPage is nested inside QAPage via hasPart to avoid the duplicate
 // root mainEntity conflict (wiki: qapage-faqpage-mainentity-conflict).
 interface Props {

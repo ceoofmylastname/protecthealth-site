@@ -63,7 +63,7 @@ const CF = {
 const ROLE_KEYS = ['role', 'profile', 'interest'];
 
 // Builds the customFields array for an upsert. Blank answers are dropped rather
-// than sent as '', because /contacts/upsert merges what it receives — a lead who
+// than sent as '', because /contacts/upsert merges what it receives, a lead who
 // books after filling a shorter form keeps the answers the longer form captured.
 function intakeFields(data, extra = {}) {
   const merged = { ...data, ...extra };
@@ -170,7 +170,7 @@ export default async (req) => {
     if (contactId) {
       await ghl('/opportunities/', 'POST', ghlToken, {
         locationId: LOCATION_ID, pipelineId: PIPELINE_ID, pipelineStageId: STAGE_NEW_LEAD,
-        contactId, name: `${magnet.oppPrefix} — ${firstName || email}`, status: 'open',
+        contactId, name: `${magnet.oppPrefix}. ${firstName || email}`, status: 'open',
       }).catch(() => {}); // duplicate opportunities are non-fatal
     }
 

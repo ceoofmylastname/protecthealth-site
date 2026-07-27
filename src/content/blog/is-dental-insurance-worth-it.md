@@ -33,7 +33,7 @@ relatedQa: []
 
 **Number two: the annual maximum.** Most plans cap what they pay at $1,000 to $2,000 per year. This is the ceiling on the plan's value for major work.
 
-**Number three: expected usage.** Two preventive visits per year — cleanings, exams, X-rays — retail for $300 to $500 without coverage. Add a single filling and the total climbs past most annual premiums on its own.
+**Number three: expected usage.** Two preventive visits per year, cleanings, exams, X-rays, retail for $300 to $500 without coverage. Add a single filling and the total climbs past most annual premiums on its own.
 
 The honest summary: if preventive visits actually happen, the plan is close to break-even before anything goes wrong. Everything after that is upside.
 
@@ -49,10 +49,10 @@ Most dental plans pay 100% for preventive care, 80% for basic procedures like fi
 
 ## When is dental insurance clearly worth it?
 
-Three profiles almost always come out ahead. Families, because multiplying preventive visits by three or four people clears the break-even line immediately. Anyone with a dental history — previous crowns, gum issues, orthodontic-age kids — because future work is predictable and the 50% major-work coverage is real money. And anyone who skips the dentist when it costs cash, because the plan converts an avoidable $80 decision into a covered visit, and the small cavity found at that visit costs a fraction of the root canal it would have become.
+Three profiles almost always come out ahead. Families, because multiplying preventive visits by three or four people clears the break-even line immediately. Anyone with a dental history, previous crowns, gum issues, orthodontic-age kids, because future work is predictable and the 50% major-work coverage is real money. And anyone who skips the dentist when it costs cash, because the plan converts an avoidable $80 decision into a covered visit, and the small cavity found at that visit costs a fraction of the root canal it would have become.
 
 ## When is it not worth it?
 
-A person with excellent dental health, no history of work, and the discipline to pay cash for two cleanings a year can reasonably self-insure — with one caveat. Waiting periods of 6 to 12 months for major work mean coverage cannot be bought on the way to the emergency. The decision to skip dental insurance is really a bet that the next 12 months contain no surprises. Some years that bet wins. The years it loses, it loses by thousands.
+A person with excellent dental health, no history of work, and the discipline to pay cash for two cleanings a year can reasonably self-insure, with one caveat. Waiting periods of 6 to 12 months for major work mean coverage cannot be bought on the way to the emergency. The decision to skip dental insurance is really a bet that the next 12 months contain no surprises. Some years that bet wins. The years it loses, it loses by thousands.
 
 And a note on vision: the same three-number math applies, with smaller stakes. Vision plans typically run $10 to $20 per month against an annual exam plus lenses or contacts, and anyone who wears corrective lenses generally clears break-even every single year.

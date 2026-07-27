@@ -1,6 +1,6 @@
 ---
 question: "What Is An Out-Of-Pocket Maximum?"
-description: "The out-of-pocket maximum is the annual ceiling on what a member pays for covered in-network care — deductibles, copays, and coinsurance all count toward it."
+description: "The out-of-pocket maximum is the annual ceiling on what a member pays for covered in-network care. Deductibles, copays, and coinsurance all count toward it."
 cluster: "nevada-core"
 parentPost: "how-to-choose-a-health-insurance-plan-nevada"
 siblings:
@@ -21,17 +21,17 @@ faq:
     a: "The premium is the guaranteed cost; the out-of-pocket maximum is the catastrophic cost. Together they define a plan's true annual price range, and a bad year lives at the maximum."
 ---
 
-Every health plan has a worst-case number written into it. The out-of-pocket maximum is that number — and most shoppers never read it.
+Every health plan has a worst-case number written into it. The out-of-pocket maximum is that number, and most shoppers never read it.
 
 ## How does the out-of-pocket maximum work?
 
 It is the annual ceiling on member spending for covered, in-network care, and it stacks in layers:
 
-1. **Deductible** — paid first, before most coverage begins; every dollar counts toward the cap.
-2. **Copays and coinsurance** — the member's share after the deductible; these accumulate toward the cap too.
-3. **The ceiling** — once total member spending reaches the maximum, the plan pays 100% of covered in-network care through year-end.
+1. **Deductible**. Paid first, before most coverage begins; every dollar counts toward the cap.
+2. **Copays and coinsurance**, the member's share after the deductible; these accumulate toward the cap too.
+3. **The ceiling**. Once total member spending reaches the maximum, the plan pays 100% of covered in-network care through year-end.
 
-Premiums never count. Out-of-network charges and non-covered services live outside the cap entirely — which is why network discipline matters as much as the number itself.
+Premiums never count. Out-of-network charges and non-covered services live outside the cap entirely, which is why network discipline matters as much as the number itself.
 
 ## Why is this the most honest number on the plan?
 
@@ -39,4 +39,4 @@ Because it converts an open-ended fear into a fixed figure. Premium answers "wha
 
 ## How should the maximum shape plan choice?
 
-As a solvency test. A household should be able to survive its own out-of-pocket maximum — from savings, or from a strategy built to offset it, such as pairing a high-deductible plan with event-triggered GAP coverage for accident and hospitalization scenarios. Lower metal tiers carry higher caps; Silver-plan cost-sharing reductions at lower incomes shrink them substantially. Choosing a maximum the bank account can absorb is the quiet difference between a bad year and a financial emergency.
+As a solvency test. A household should be able to survive its own out-of-pocket maximum, from savings, or from a strategy built to offset it, such as pairing a high-deductible plan with event-triggered GAP coverage for accident and hospitalization scenarios. Lower metal tiers carry higher caps; Silver-plan cost-sharing reductions at lower incomes shrink them substantially. Choosing a maximum the bank account can absorb is the quiet difference between a bad year and a financial emergency.

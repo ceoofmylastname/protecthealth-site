@@ -1,4 +1,4 @@
-# ProtectHealth — robots.txt
+# ProtectHealth, robots.txt
 # Search + AI crawlers welcome (wiki: crawler-infrastructure)
 
 User-agent: *

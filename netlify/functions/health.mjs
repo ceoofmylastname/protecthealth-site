@@ -5,8 +5,7 @@
 // guessing which commit was live and which secrets had been injected. This
 // answers both in one request.
 //
-// Reports only whether each secret is PRESENT, never its value or length —
-// length alone can narrow a brute force, and there is no reason to leak it.
+// Reports only whether each secret is PRESENT, never its value or length. // length alone can narrow a brute force, and there is no reason to leak it.
 // Safe to call publicly and safe to paste into a chat.
 
 export default async () => {
@@ -35,10 +34,10 @@ export default async () => {
         bookingReady,
         config,
         notes: {
-          GHL_API_TOKEN: 'required — availability and appointment writes',
-          PH_HOOK_SECRET: 'required — records the lead in Supabase and queues the emails',
+          GHL_API_TOKEN: 'required, availability and appointment writes',
+          PH_HOOK_SECRET: 'required, records the lead in Supabase and queues the emails',
           RESEND_API_KEY: 'lead-magnet PDFs only; booking emails send from Supabase',
-          RESEND_FROM: 'optional here — defaults to the verified insure.protecthealth.com sender',
+          RESEND_FROM: 'optional here, defaults to the verified insure.protecthealth.com sender',
         },
       },
       null,

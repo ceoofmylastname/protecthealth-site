@@ -9,7 +9,7 @@ const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
 ---
 
-<Base title="Campaigns — ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+<Base title="Campaigns, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
   <section class="ad cm" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
     <div class="container">
 
@@ -61,11 +61,11 @@ const SUPABASE_ANON =
         </header>
 
         <div class="ad-stats">
-          <div class="ad-stat spot"><b data-stat="active">—</b><span>Campaigns running</span></div>
-          <div class="ad-stat spot"><b data-stat="due30">—</b><span>Emails due next 30 days</span></div>
-          <div class="ad-stat spot"><b data-stat="sent30">—</b><span>Sent in the last 30 days</span></div>
-          <div class="ad-stat spot"><b data-stat="failed">—</b><span>Failed</span></div>
-          <div class="ad-stat spot"><b data-stat="lifetime">—</b><span>Sent all time</span></div>
+          <div class="ad-stat spot"><b data-stat="active">, </b><span>Campaigns running</span></div>
+          <div class="ad-stat spot"><b data-stat="due30">, </b><span>Emails due next 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="sent30">, </b><span>Sent in the last 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="failed">, </b><span>Failed</span></div>
+          <div class="ad-stat spot"><b data-stat="lifetime">, </b><span>Sent all time</span></div>
         </div>
 
         <p class="cm-note ad-muted">
@@ -191,7 +191,7 @@ const SUPABASE_ANON =
     // them with the Date constructor would drag them a day backwards in Vegas,
     // so they are split by hand and rendered as the plain dates they are.
     const parseDay = (d) => { const [y, m, dd] = String(d).split('-').map(Number); return new Date(y, m - 1, dd); };
-    const fmtDay = (d, opts) => d ? parseDay(d).toLocaleDateString('en-US', opts ?? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtDay = (d, opts) => d ? parseDay(d).toLocaleDateString('en-US', opts ?? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '. ';
     const fmtStamp = (iso) => new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
     let campaigns = [];
@@ -512,7 +512,7 @@ const SUPABASE_ANON =
             <thead><tr><th>Sent</th><th>Who</th><th>Email</th><th>Broker</th><th>Status</th></tr></thead>
             <tbody>${sends.map((r) => `<tr>
               <td>${fmtStamp(r.sent_at)}</td>
-              <td>${esc(r.contact_name || '—')}</td>
+              <td>${esc(r.contact_name || ', ')}</td>
               <td class="dim">${esc(r.to_email)}</td>
               <td class="dim">${esc(r.agent_name || 'House')}</td>
               <td><span class="cm-pill ${r.status}">${r.status}</span>${r.error ? `<br><small class="ad-muted">${esc(r.error)}</small>` : ''}</td>
@@ -527,8 +527,8 @@ const SUPABASE_ANON =
           <div class="cm-field" style="max-width:440px;margin-bottom:14px;">
             <label>Preview as</label>
             <select class="cm-person">
-              <option value="">No assigned broker — ProtectHealth house version</option>
-              ${people.map((p, i) => `<option value="${i}"${pick && pick.contact_id === p.contact_id ? ' selected' : ''}>${esc([p.first_name, p.last_name].filter(Boolean).join(' '))} — broker: ${esc(p.agent_name || 'none')}</option>`).join('')}
+              <option value="">No assigned broker, ProtectHealth house version</option>
+              ${people.map((p, i) => `<option value="${i}"${pick && pick.contact_id === p.contact_id ? ' selected' : ''}>${esc([p.first_name, p.last_name].filter(Boolean).join(' '))}. Broker: ${esc(p.agent_name || 'none')}</option>`).join('')}
             </select>
           </div>
           <div class="cm-subject"><small>Subject line</small>${esc(subject)}</div>

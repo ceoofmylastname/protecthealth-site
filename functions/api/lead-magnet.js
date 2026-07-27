@@ -1,4 +1,4 @@
-// Cloudflare Pages Function — mirrors netlify/functions/lead-magnet.mjs. Env vars set in
+// Cloudflare Pages Function, mirrors netlify/functions/lead-magnet.mjs. Env vars set in
 // Cloudflare Pages dashboard: GHL_API_TOKEN, RESEND_API_KEY, RESEND_FROM
 // Lead magnet opt-in → GHL contact + tagged, then Resend delivers the PDF email.
 // Env vars (Netlify → Site configuration → Environment variables):
@@ -65,7 +65,7 @@ const CF = {
 const ROLE_KEYS = ['role', 'profile', 'interest'];
 
 // Builds the customFields array for an upsert. Blank answers are dropped rather
-// than sent as '', because /contacts/upsert merges what it receives — a lead who
+// than sent as '', because /contacts/upsert merges what it receives, a lead who
 // books after filling a shorter form keeps the answers the longer form captured.
 function intakeFields(data, extra = {}) {
   const merged = { ...data, ...extra };
@@ -173,7 +173,7 @@ export async function onRequestPost(context) {
     if (contactId) {
       await ghl('/opportunities/', 'POST', ghlToken, {
         locationId: LOCATION_ID, pipelineId: PIPELINE_ID, pipelineStageId: STAGE_NEW_LEAD,
-        contactId, name: `${magnet.oppPrefix} — ${firstName || email}`, status: 'open',
+        contactId, name: `${magnet.oppPrefix}. ${firstName || email}`, status: 'open',
       }).catch(() => {}); // duplicate opportunities are non-fatal
     }
 

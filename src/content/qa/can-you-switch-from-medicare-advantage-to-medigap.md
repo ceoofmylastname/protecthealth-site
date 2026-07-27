@@ -27,10 +27,10 @@ The switch involves two doors, and almost everyone only checks the first one. Le
 
 Because it's two separate transactions with opposite rules:
 
-1. **Dropping the Advantage plan** — allowed every year during the October 15 to December 7 annual enrollment period. No health questions, guaranteed.
-2. **Buying the Medigap policy** — after the initial 6-month open enrollment window, Nevada generally allows insurers to apply medical underwriting. Applications can be declined or surcharged based on health history.
+1. **Dropping the Advantage plan**, allowed every year during the October 15 to December 7 annual enrollment period. No health questions, guaranteed.
+2. **Buying the Medigap policy**, after the initial 6-month open enrollment window, Nevada generally allows insurers to apply medical underwriting. Applications can be declined or surcharged based on health history.
 
-Step one always works. Step two works reliably only for the healthy — which is exactly backwards from who wants to switch, since the desire to leave Advantage usually follows a diagnosis or network frustration.
+Step one always works. Step two works reliably only for the healthy. Which is exactly backwards from who wants to switch, since the desire to leave Advantage usually follows a diagnosis or network frustration.
 
 ## Who gets a protected path back?
 
@@ -38,4 +38,4 @@ First-year Advantage enrollees. Federal trial rights give certain people in thei
 
 ## How should the switch risk shape the original decision?
 
-By treating the initial choice as partly a one-way door. Advantage remains purchasable every single year for life; Medigap without health questions is generally available once, in the 6-month window that starts with Part B. Anyone leaning Advantage should decide within the first year whether it truly fits, while trial rights still apply. The full trade-off — costs, networks, travel, and the underwriting door — is mapped in the [Advantage versus Medigap comparison for Nevada](/blog-post/medicare-advantage-vs-medigap-nevada).
+By treating the initial choice as partly a one-way door. Advantage remains purchasable every single year for life; Medigap without health questions is generally available once, in the 6-month window that starts with Part B. Anyone leaning Advantage should decide within the first year whether it truly fits, while trial rights still apply. The full trade-off, costs, networks, travel, and the underwriting door, is mapped in the [Advantage versus Medigap comparison for Nevada](/blog-post/medicare-advantage-vs-medigap-nevada).

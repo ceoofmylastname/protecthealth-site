@@ -30,16 +30,16 @@ Nevada runs its own health insurance marketplace, and knowing how it works is th
 
 ## What is SSHIX and who runs it?
 
-The Silver State Health Insurance Exchange is a Nevada state agency that operates **Nevada Health Link**, the marketplace where Nevadans shop for ACA-compliant individual and family coverage. Because Nevada runs its own exchange rather than using the federal platform, enrollment support and deadlines are Nevada-specific — see the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance) for dates.
+The Silver State Health Insurance Exchange is a Nevada state agency that operates **Nevada Health Link**, the marketplace where Nevadans shop for ACA-compliant individual and family coverage. Because Nevada runs its own exchange rather than using the federal platform, enrollment support and deadlines are Nevada-specific, see the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance) for dates.
 
 ## How do premium tax credits actually work?
 
-Premium tax credits reduce the monthly premium immediately — not at tax time. The credit amount is based on household income relative to federal poverty guidelines and family size. Two practical rules:
+Premium tax credits reduce the monthly premium immediately, not at tax time. The credit amount is based on household income relative to federal poverty guidelines and family size. Two practical rules:
 
 - **Estimate income honestly.** Credits reconcile at tax filing. Underestimating income means paying credits back.
 - **Recheck every year.** Income changes, plan prices change, and last year's subsidy math rarely survives contact with the new year.
 
-Nationally, roughly 5 million small-business owners and self-employed workers enrolled through ACA marketplaces in 2025 — the marketplace is the workhorse of self-employed coverage.
+Nationally, roughly 5 million small-business owners and self-employed workers enrolled through ACA marketplaces in 2025, the marketplace is the workhorse of self-employed coverage.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>
@@ -52,7 +52,7 @@ Nationally, roughly 5 million small-business owners and self-employed workers en
 | Tier | Premium | Out-of-pocket | Best fit |
 |------|---------|---------------|----------|
 | Bronze | Lowest | Highest | Rare care, comfortable absorbing a high deductible |
-| Silver | Middle | Middle | Qualifying incomes — unlocks cost-sharing reductions |
+| Silver | Middle | Middle | Qualifying incomes, unlocks cost-sharing reductions |
 | Gold | Higher | Lower | Regular care, prescriptions, planned procedures |
 | Platinum | Highest | Lowest | Heavy expected usage |
 
@@ -60,4 +60,4 @@ Tiers describe cost sharing, not network or quality. A Bronze and a Gold plan fr
 
 ## Is the marketplace the only option for the self-employed?
 
-Not always. Depending on how a business is structured, self-employed Nevadans may also have access to genuine PPO options, small-group opportunities, or tax-advantaged health-benefit structures. The marketplace is the right answer for many households — the point is to check before assuming, because nobody checks it for you.
+Not always. Depending on how a business is structured, self-employed Nevadans may also have access to genuine PPO options, small-group opportunities, or tax-advantaged health-benefit structures. The marketplace is the right answer for many households. The point is to check before assuming, because nobody checks it for you.

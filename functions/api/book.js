@@ -1,4 +1,4 @@
-// Cloudflare Pages Function — mirrors netlify/functions/book.mjs. Keep both in sync.
+// Cloudflare Pages Function, mirrors netlify/functions/book.mjs. Keep both in sync.
 // Talk To A Broker booking → GoHighLevel.
 //
 // POST /api/book
@@ -79,7 +79,7 @@ const CF = {
 const ROLE_KEYS = ['role', 'profile', 'interest'];
 
 // Builds the customFields array for an upsert. Blank answers are dropped rather
-// than sent as '', because /contacts/upsert merges what it receives — a lead who
+// than sent as '', because /contacts/upsert merges what it receives, a lead who
 // books after filling a shorter form keeps the answers the longer form captured.
 function intakeFields(data, extra = {}) {
   const merged = { ...data, ...extra };
@@ -106,7 +106,7 @@ function intakeFields(data, extra = {}) {
 }
 
 
-// Supabase (ProtectHealth Ticketing System) — mirrors leads into ph_leads and
+// Supabase (ProtectHealth Ticketing System), mirrors leads into ph_leads and
 // queues the confirmation + reminder emails. Requires env var PH_HOOK_SECRET.
 const PH_HOOK = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-booking-emails';
 
@@ -281,7 +281,7 @@ export async function onRequestPost(context) {
       contactId,
       startTime,
       endTime,
-      title: `Strategy Conversation — ${fullName || email || phone}`,
+      title: `Strategy Conversation, ${fullName || email || phone}`,
       appointmentStatus: 'confirmed',
       ignoreDateRange: false,
       ignoreFreeSlotValidation: false,
@@ -294,12 +294,12 @@ export async function onRequestPost(context) {
       .filter(([, value]) => value !== '');
     await ghl(`/contacts/${contactId}/notes`, 'POST', token, {
       body:
-        `Talk To A Broker — booked online\n` +
+        `Talk To A Broker, booked online\n` +
         `Appointment: ${when} (Las Vegas time)\n` +
         `Visitor timezone: ${timezone}\n\n` +
         (answers.length
           ? answers.map(([label, value]) => `${label}: ${value}`).join('\n')
-          : 'Qualifying answers were captured on the campaign form — see the earlier note on this contact.'),
+          : 'Qualifying answers were captured on the campaign form, see the earlier note on this contact.'),
     });
 
     // 5. Opportunity in the ProtectHealth pipeline.
@@ -308,7 +308,7 @@ export async function onRequestPost(context) {
       pipelineId: PIPELINE_ID,
       pipelineStageId: STAGE_NEW_LEAD,
       contactId,
-      name: `Strategy Conversation — ${fullName || email || phone}`,
+      name: `Strategy Conversation, ${fullName || email || phone}`,
       status: 'open',
     });
 
@@ -346,7 +346,7 @@ export async function onRequestPost(context) {
   } catch (err) {
     console.error('book function error:', err.message);
     // The contact exists even when the calendar write fails, so the lead is
-    // never lost — say so rather than showing a dead end.
+    // never lost, say so rather than showing a dead end.
     if (contactId) {
       return json(
         {

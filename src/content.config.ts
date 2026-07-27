@@ -3,7 +3,7 @@ import { glob } from 'astro/loaders';
 
 const faqPair = z.object({ q: z.string(), a: z.string() });
 
-// Blog posts — TOFU/MOFU articles. BOFU termini are the campaign landing pages.
+// Blog posts, TOFU/MOFU articles. BOFU termini are the campaign landing pages.
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
   schema: z.object({
@@ -23,7 +23,7 @@ const blog = defineCollection({
   }),
 });
 
-// Q&A pages — single-question answer pages clustered around parent posts.
+// Q&A pages, single-question answer pages clustered around parent posts.
 const qa = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/qa' }),
   schema: z.object({

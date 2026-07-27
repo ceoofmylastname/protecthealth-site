@@ -8,7 +8,7 @@ siblings:
   - "what-happens-when-a-term-life-policy-expires"
   - "is-whole-life-insurance-a-good-investment"
 datePublished: "2026-07-22"
-quickAnswer: "Laddering means buying multiple term life policies of different lengths instead of one large policy — for example, a 30-year policy for the mortgage and a 15-year policy for the child-raising years. Coverage steps down as obligations disappear, reducing total premium cost."
+quickAnswer: "Laddering means buying multiple term life policies of different lengths instead of one large policy, for example, a 30-year policy for the mortgage and a 15-year policy for the child-raising years. Coverage steps down as obligations disappear, reducing total premium cost."
 speakableText: "Laddering life insurance stacks two or three term policies with different term lengths so total coverage matches the shape of a household's obligations over time. Obligations like child-raising costs end sooner than a thirty-year mortgage, so a shorter policy covers the early-years peak while a longer policy carries the lasting debt. As each shorter policy expires, coverage steps down alongside the shrinking obligations. Compared with one large long-term policy, a ladder typically cuts total premiums meaningfully while leaving no year underinsured."
 faq:
   - q: "How does a life insurance ladder reduce cost?"
@@ -21,7 +21,7 @@ faq:
     a: "A ladder means multiple applications, multiple policy fees, and a bet that obligations shrink on schedule. A household expecting more children or a larger mortgage may prefer one policy plus a later addition."
 ---
 
-Coverage needs are not a flat line — they are a hill that peaks in the mortgage-and-toddlers years and slopes down from there. Laddering is simply buying insurance shaped like the hill.
+Coverage needs are not a flat line. They are a hill that peaks in the mortgage-and-toddlers years and slopes down from there. Laddering is simply buying insurance shaped like the hill.
 
 ## How does a life insurance ladder actually work?
 
@@ -33,7 +33,7 @@ Several term policies of different lengths run at once, and each expires as the 
 | 2 | 20-year | $400,000 | Child-raising span |
 | 3 | 30-year | $300,000 | Mortgage payoff |
 
-All three are in force from day one, so total coverage starts at $1 million. At year 10 it steps to $700,000; at year 20, to $300,000 — tracking the debts and dependents that remain.
+All three are in force from day one, so total coverage starts at $1 million. At year 10 it steps to $700,000; at year 20, to $300,000, tracking the debts and dependents that remain.
 
 ## Why is a ladder cheaper than one big policy?
 
@@ -41,4 +41,4 @@ Because long terms carry the highest cost per dollar of coverage, and a single $
 
 ## Who should skip the ladder?
 
-Households whose future is still moving. More children planned, a bigger house likely, or income still climbing all argue for one right-sized policy now and additions later — a ladder locks in a prediction that obligations will shrink on schedule. Laddering also multiplies paperwork and per-policy fees, so below roughly $500,000 of total need, one clean policy usually wins on simplicity.
+Households whose future is still moving. More children planned, a bigger house likely, or income still climbing all argue for one right-sized policy now and additions later, a ladder locks in a prediction that obligations will shrink on schedule. Laddering also multiplies paperwork and per-policy fees, so below roughly $500,000 of total need, one clean policy usually wins on simplicity.

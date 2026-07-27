@@ -9,7 +9,7 @@ quickAnswer:
   - "A common starting point for life insurance coverage is 10 to 12 times annual income, but the DIME method (Debt, Income, Mortgage, Education) produces a number tailored to a specific household."
   - "Employer-provided life insurance typically covers only 1 to 2 times salary and usually ends when the job ends."
   - "Coverage needs are highest during the years a household carries a mortgage and raises children, then typically decline."
-  - "The right amount is a strategy question — the policy type comes after the number, not before."
+  - "The right amount is a strategy question. The policy type comes after the number, not before."
 speakableText: "The amount of life insurance a household needs can be estimated with the DIME method, which adds up outstanding Debt, Income replacement for a chosen number of years, the remaining Mortgage balance, and future Education costs for children. Many households land between 10 and 12 times annual income using this approach. Employer-provided life insurance usually covers only one to two times salary and rarely follows a person to the next job, which is why relying on workplace coverage alone leaves most families underinsured."
 faq:
   - q: "Is 10 times income enough life insurance?"
@@ -25,26 +25,26 @@ faq:
 relatedQa: []
 ---
 
-Most people guess at life insurance coverage the same way they guess at how much water a road trip needs. The difference is that getting this number wrong doesn't leave anyone thirsty — it leaves a family with a mortgage they can't pay. The math takes about 15 minutes. Here's the version worth doing.
+Most people guess at life insurance coverage the same way they guess at how much water a road trip needs. The difference is that getting this number wrong doesn't leave anyone thirsty. It leaves a family with a mortgage they can't pay. The math takes about 15 minutes. Here's the version worth doing.
 
 ## What is the DIME method?
 
 DIME adds four numbers to produce a coverage target: Debt, Income, Mortgage, and Education. It takes minutes and beats every rule of thumb.
 
-1. **Debt** — total every non-mortgage balance: cards, auto loans, personal loans, private student loans that don't discharge at death.
-2. **Income** — annual income multiplied by the years the household would need support. Ten years is a common choice; families with young kids often choose more.
-3. **Mortgage** — the payoff balance, not the monthly payment.
-4. **Education** — a realistic per-child figure for future schooling.
+1. **Debt**, total every non-mortgage balance: cards, auto loans, personal loans, private student loans that don't discharge at death.
+2. **Income**, annual income multiplied by the years the household would need support. Ten years is a common choice; families with young kids often choose more.
+3. **Mortgage**, the payoff balance, not the monthly payment.
+4. **Education**, a realistic per-child figure for future schooling.
 
 Add the four, subtract existing coverage and liquid savings, and the remainder is the gap a policy needs to fill.
 
 ## Why isn't work coverage enough?
 
-Employer life insurance usually pays 1 to 2 times salary — a fraction of what the DIME math produces for most households. It also has a quieter problem: the coverage typically ends the day the job does. A layoff, a career change, or a move to self-employment can erase the entire safety net at exactly the wrong moment. Workplace coverage is a nice bonus. It is not a plan.
+Employer life insurance usually pays 1 to 2 times salary, a fraction of what the DIME math produces for most households. It also has a quieter problem: the coverage typically ends the day the job does. A layoff, a career change, or a move to self-employment can erase the entire safety net at exactly the wrong moment. Workplace coverage is a nice bonus. It is not a plan.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>
-  <p>Once the coverage number is set, the next decision is the policy type — and the term vs. whole life choice changes the monthly cost by 5x to 15x for the same death benefit.</p>
+  <p>Once the coverage number is set, the next decision is the policy type, and the term vs. whole life choice changes the monthly cost by 5x to 15x for the same death benefit.</p>
   <a class="fc-link" href="/blog-post/term-vs-whole-life-insurance">Read: Term vs. Whole Life Insurance</a>
 </div>
 

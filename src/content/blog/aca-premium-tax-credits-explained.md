@@ -25,32 +25,32 @@ faq:
 relatedQa: []
 ---
 
-Billions of dollars in premium tax credits go unclaimed every year by households that assumed they earned too much to qualify. The formula doesn't care about assumptions. It cares about one ratio — household income against the federal poverty level — and for a lot of working families and self-employed Nevadans, that ratio pays real money every month.
+Billions of dollars in premium tax credits go unclaimed every year by households that assumed they earned too much to qualify. The formula doesn't care about assumptions. It cares about one ratio, household income against the federal poverty level, and for a lot of working families and self-employed Nevadans, that ratio pays real money every month.
 
 ## How is the credit actually calculated?
 
 The mechanics run in three steps:
 
-1. **Household income** is measured against the federal poverty level for the household size, producing an expected contribution — a percentage of income the household is expected to pay toward the benchmark plan.
+1. **Household income** is measured against the federal poverty level for the household size, producing an expected contribution, a percentage of income the household is expected to pay toward the benchmark plan.
 2. **The benchmark** is the second-lowest-cost Silver plan in the local market. The credit is the gap between that plan's full premium and the expected contribution.
-3. **The credit travels.** The dollar amount can be applied to any metal tier — stretch it over a cheaper Bronze plan (sometimes reaching $0 premiums) or put it toward a richer Gold plan.
+3. **The credit travels.** The dollar amount can be applied to any metal tier, stretch it over a cheaper Bronze plan (sometimes reaching $0 premiums) or put it toward a richer Gold plan.
 
-The credit shrinks as income rises, but the phase-out is gradual, and households well into middle-class income ranges routinely qualify for meaningful amounts — especially older households, because credits scale with the age-rated premiums they offset.
+The credit shrinks as income rises, but the phase-out is gradual, and households well into middle-class income ranges routinely qualify for meaningful amounts, especially older households, because credits scale with the age-rated premiums they offset.
 
 ## Why is the income estimate the whole game?
 
 Credits are paid in advance against a **projection** of this year's income, then reconciled against actual income on the tax return. Overestimate income and the refund arrives at tax time. Underestimate it and part of the advance credit gets paid back.
 
-For W-2 households this is a minor rounding exercise. For the self-employed — Realtors, contractors, gig workers — it's the most consequential number in the application. Commission income that lands unevenly, a strong Q4, a big deal that closes in December: all of it flows into the reconciliation. The move is to update the marketplace estimate mid-year whenever real income diverges from the projection, not to discover the difference in April.
+For W-2 households this is a minor rounding exercise. For the self-employed, Realtors, contractors, gig workers, it's the most consequential number in the application. Commission income that lands unevenly, a strong Q4, a big deal that closes in December: all of it flows into the reconciliation. The move is to update the marketplace estimate mid-year whenever real income diverges from the projection, not to discover the difference in April.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>
-  <p>The subsidy is one input. Picking the plan it applies to — Bronze vs. Silver vs. Gold, network vs. premium, deductible vs. reality — is where households win or lose the year.</p>
+  <p>The subsidy is one input. Picking the plan it applies to, Bronze vs. Silver vs. Gold, network vs. premium, deductible vs. reality, is where households win or lose the year.</p>
   <a class="fc-link" href="/blog-post/how-to-choose-a-health-insurance-plan-nevada">Read: How To Choose A Health Insurance Plan In Nevada</a>
 </div>
 
 ## What trips people up in practice?
 
-Four patterns show up constantly. Assuming disqualification and never running the numbers, when the calculation takes five minutes through Nevada Health Link. Forgetting that an "affordable" employer offer to one spouse can block credits for that person even when the coverage is mediocre. Taking the full credit in advance on volatile income and meeting the repayment at tax time. And ignoring the Silver-specific cost-sharing reductions available at lower incomes, which quietly upgrade a Silver plan's deductible and copays — but only on Silver.
+Four patterns show up constantly. Assuming disqualification and never running the numbers, when the calculation takes five minutes through Nevada Health Link. Forgetting that an "affordable" employer offer to one spouse can block credits for that person even when the coverage is mediocre. Taking the full credit in advance on volatile income and meeting the repayment at tax time. And ignoring the Silver-specific cost-sharing reductions available at lower incomes, which quietly upgrade a Silver plan's deductible and copays, but only on Silver.
 
-One more note for the self-employed: the self-employed health insurance deduction and the premium credit interact in a circular calculation that genuinely confuses software and humans alike. ProtectHealth brokers are insurance professionals, not tax professionals — when the credit math meets a Schedule C, a licensed tax professional belongs in the conversation. Getting the strategy right on both sides is routinely worth thousands.
+One more note for the self-employed: the self-employed health insurance deduction and the premium credit interact in a circular calculation that genuinely confuses software and humans alike. ProtectHealth brokers are insurance professionals, not tax professionals, when the credit math meets a Schedule C, a licensed tax professional belongs in the conversation. Getting the strategy right on both sides is routinely worth thousands.

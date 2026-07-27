@@ -1,6 +1,6 @@
 ---
 // Q&A page template (wiki: qa-page-architecture).
-// One top-level QAPage schema with FAQPage nested via hasPart — avoids the
+// One top-level QAPage schema with FAQPage nested via hasPart, avoids the
 // "Duplicate field mainEntity" conflict (wiki: qapage-faqpage-mainentity-conflict).
 // quickAnswer (acceptedAnswer) and speakableText (#ai-summary) are different
 // fields with different content (wiki: speakable-vs-accepted-answer).
@@ -39,7 +39,7 @@ const qaPageSchema: Record<string, unknown> = {
     answerCount: 1,
     acceptedAnswer: { '@type': 'Answer', text: d.quickAnswer },
   },
-  // FAQPage nested via hasPart — single root mainEntity.
+  // FAQPage nested via hasPart, single root mainEntity.
   hasPart: {
     '@type': 'FAQPage',
     '@id': `${pageUrl}#faq`,

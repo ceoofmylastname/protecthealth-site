@@ -25,7 +25,7 @@ Insurance that stops at the state line is a genuine problem for retirees who don
 
 ## Why does Medigap work everywhere?
 
-Because Medigap has no network to leave. The policy supplements Original Medicare, and Original Medicare is a federal program honored by any doctor or hospital in America that accepts Medicare. A Nevadan with a Medigap policy walks into a Medicare-accepting practice in Florida, Ohio, or rural Montana and receives care under identical terms as at home — no referrals, no out-of-area paperwork, no plan permission.
+Because Medigap has no network to leave. The policy supplements Original Medicare, and Original Medicare is a federal program honored by any doctor or hospital in America that accepts Medicare. A Nevadan with a Medigap policy walks into a Medicare-accepting practice in Florida, Ohio, or rural Montana and receives care under identical terms as at home, no referrals, no out-of-area paperwork, no plan permission.
 
 ## How does that compare to Medicare Advantage on the road?
 
@@ -42,4 +42,4 @@ That middle rows are the ones that decide it. Emergencies are protected either w
 
 ## Who should weight portability heavily?
 
-Snowbirds splitting the year between Nevada and somewhere cooler or cheaper. Grandparents running a multi-state grandkid circuit. RV retirees. Anyone whose realistic future includes relocating near family. For a homebody anchored in Las Vegas, portability is worth little and the local Advantage market is deep — geography is only one input into the decision. How it stacks against premiums, out-of-pocket exposure, and the underwriting one-way door is covered in the [Advantage versus Medigap comparison for Nevada](/blog-post/medicare-advantage-vs-medigap-nevada).
+Snowbirds splitting the year between Nevada and somewhere cooler or cheaper. Grandparents running a multi-state grandkid circuit. RV retirees. Anyone whose realistic future includes relocating near family. For a homebody anchored in Las Vegas, portability is worth little and the local Advantage market is deep, geography is only one input into the decision. How it stacks against premiums, out-of-pocket exposure, and the underwriting one-way door is covered in the [Advantage versus Medigap comparison for Nevada](/blog-post/medicare-advantage-vs-medigap-nevada).

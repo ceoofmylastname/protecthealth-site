@@ -25,19 +25,19 @@ faq:
 relatedQa: []
 ---
 
-The modern health insurance deductible has quietly become a second rent payment. Families routinely carry deductibles in the thousands while surveys keep finding that a large share of American households can't cover even a few hundred dollars in surprise expenses from savings. The space between what the health plan covers and what the bank account can absorb — that's the gap. GAP insurance is the product built to stand in it.
+The modern health insurance deductible has quietly become a second rent payment. Families routinely carry deductibles in the thousands while surveys keep finding that a large share of American households can't cover even a few hundred dollars in surprise expenses from savings. The space between what the health plan covers and what the bank account can absorb, that's the gap. GAP insurance is the product built to stand in it.
 
 ## How does GAP insurance actually work?
 
-A GAP policy sits on top of a primary health plan and pays **defined cash benefits** when covered events happen — typically accidents, injuries, and hospital admissions, with some designs adding critical illness triggers. The cash offsets the deductible, copays, and coinsurance the primary plan leaves behind, and in many designs it's paid directly to the member rather than the hospital.
+A GAP policy sits on top of a primary health plan and pays **defined cash benefits** when covered events happen, typically accidents, injuries, and hospital admissions, with some designs adding critical illness triggers. The cash offsets the deductible, copays, and coinsurance the primary plan leaves behind, and in many designs it's paid directly to the member rather than the hospital.
 
 The mechanics matter: GAP is event-triggered, not bill-triggered. A covered hospital stay pays the defined benefit whether the hospital bill is large or enormous. That simplicity is why premiums stay modest.
 
 ## Why does the high-deductible pairing work?
 
-Here's the strategy that makes GAP more than a gadget. Health plans price their deductibles steeply — the premium jump from a high-deductible plan to a low-deductible plan often costs more per year than the deductible difference is worth. The pairing move: buy the lower-premium high-deductible plan, then add a GAP policy that covers most of the deductible exposure for a fraction of the premium saved.
+Here's the strategy that makes GAP more than a gadget. Health plans price their deductibles steeply, the premium jump from a high-deductible plan to a low-deductible plan often costs more per year than the deductible difference is worth. The pairing move: buy the lower-premium high-deductible plan, then add a GAP policy that covers most of the deductible exposure for a fraction of the premium saved.
 
-When the math works, the household gets bad-year protection comparable to the expensive plan at a lower total cost. When it doesn't work, an advisor should say so — the pairing is a strategy to be tested against real quotes, not a universal answer. The product should serve the strategy, not become the strategy.
+When the math works, the household gets bad-year protection comparable to the expensive plan at a lower total cost. When it doesn't work, an advisor should say so. The pairing is a strategy to be tested against real quotes, not a universal answer. The product should serve the strategy, not become the strategy.
 
 <div class="funnel-cta">
   <span class="fc-kicker">Go Deeper</span>
@@ -47,8 +47,8 @@ When the math works, the household gets bad-year protection comparable to the ex
 
 ## What does GAP insurance not do?
 
-The clarity here protects everyone. GAP coverage is not health insurance and never replaces a major medical plan. GAP plans do not cover routine care, do not satisfy any coverage requirement, and pay nothing for events outside the policy's defined triggers. Anyone pitched a GAP policy *instead of* a real health plan is being pitched the wrong product — full stop.
+The clarity here protects everyone. GAP coverage is not health insurance and never replaces a major medical plan. GAP plans do not cover routine care, do not satisfy any coverage requirement, and pay nothing for events outside the policy's defined triggers. Anyone pitched a GAP policy *instead of* a real health plan is being pitched the wrong product, full stop.
 
 ## Who tends to benefit most?
 
-The profile is consistent: households carrying a meaningful deductible with limited liquid savings, active families in accident-prone years, self-employed Nevadans buying their own coverage where every premium dollar is personal, and anyone whose plan choice landed on a high deductible for premium reasons. The common thread is exposure — a deductible that would hurt — paired with a modest budget for closing it. Whether the numbers work for a specific household is exactly the kind of 20-minute question a strategy conversation answers.
+The profile is consistent: households carrying a meaningful deductible with limited liquid savings, active families in accident-prone years, self-employed Nevadans buying their own coverage where every premium dollar is personal, and anyone whose plan choice landed on a high deductible for premium reasons. The common thread is exposure, a deductible that would hurt, paired with a modest budget for closing it. Whether the numbers work for a specific household is exactly the kind of 20-minute question a strategy conversation answers.

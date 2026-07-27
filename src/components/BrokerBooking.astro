@@ -1,5 +1,5 @@
 ---
-// Talk To A Broker — the clarity calendar.
+// Talk To A Broker, the clarity calendar.
 //
 // Four stages, one surface: qualify → pick a time → details → confirmed.
 // Qualifying first is deliberate (see the ICHRA launch kit: friction is
@@ -7,7 +7,7 @@
 //
 // Availability comes from GET /api/slots and the booking is written by
 // POST /api/book. Both are serverless functions holding the GHL private
-// integration token — nothing authenticated ever reaches the browser.
+// integration token. Nothing authenticated ever reaches the browser.
 //
 // Styles are is:global and namespaced under .bb because the day cards and
 // time pills are built at runtime by the client script, so Astro's scoped
@@ -23,7 +23,7 @@ const SLOT_MINUTES = 20;
     <li class="bb-rail-step" data-step="details"><span>3</span> Details</li>
   </ol>
 
-  <!-- ══ STAGE 1 — QUALIFY ══ -->
+  <!-- ══ STAGE 1, QUALIFY ══ -->
   <section class="bb-stage is-active" data-stage="qualify" aria-label="A few questions first">
     <div class="bb-q-count"><b class="bb-q-cur">1</b> of <b class="bb-q-total">4</b></div>
 
@@ -84,7 +84,7 @@ const SLOT_MINUTES = 20;
     </div>
   </section>
 
-  <!-- ══ STAGE 2 — PICK A TIME ══ -->
+  <!-- ══ STAGE 2, PICK A TIME ══ -->
   <section class="bb-stage" data-stage="time" aria-label="Pick a time">
     <div class="bb-cal-head">
       <div>
@@ -138,14 +138,14 @@ const SLOT_MINUTES = 20;
     </div>
   </section>
 
-  <!-- ══ STAGE 3 — DETAILS ══ -->
+  <!-- ══ STAGE 3, DETAILS ══ -->
   <section class="bb-stage" data-stage="details" aria-label="Your details">
     <span class="bb-eyebrow">Step 3</span>
     <h3 class="bb-q-title">Where should the broker reach you?</h3>
 
     <div class="bb-selected spot" data-selected-summary>
       <span class="bb-selected-label">Your conversation</span>
-      <strong class="bb-selected-when">—</strong>
+      <strong class="bb-selected-when">, </strong>
       <button type="button" class="bb-change">Change time</button>
     </div>
 
@@ -191,14 +191,14 @@ const SLOT_MINUTES = 20;
     </div>
   </section>
 
-  <!-- ══ STAGE 4 — CONFIRMED ══ -->
+  <!-- ══ STAGE 4, CONFIRMED ══ -->
   <section class="bb-stage" data-stage="done" aria-label="Booked">
     <div class="bb-done">
       <div class="bb-done-mark" aria-hidden="true">
         <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" /><path d="M15 27l8 8 15-16" /></svg>
       </div>
       <span class="bb-eyebrow">You're booked</span>
-      <h3 class="bb-q-title bb-done-when">—</h3>
+      <h3 class="bb-q-title bb-done-when">, </h3>
       <p class="bb-done-copy">
         Quick heads-up on how we work: this is a strategy conversation, not a sales
         appointment. Have a rough idea of your household income and your current plan
@@ -216,7 +216,7 @@ const SLOT_MINUTES = 20;
     <div class="bb-dock-inner">
       <div>
         <span class="bb-dock-label">Selected</span>
-        <strong class="bb-dock-when">—</strong>
+        <strong class="bb-dock-when">, </strong>
       </div>
       <button type="button" class="btn bb-dock-go">Continue</button>
     </div>
@@ -224,7 +224,7 @@ const SLOT_MINUTES = 20;
 </div>
 
 <style is:global>
-  /* ============ Talk To A Broker — clarity calendar ============ */
+  /* ============ Talk To A Broker, clarity calendar ============ */
   .bb {
     position: relative;
     border-radius: var(--radius-lg);
@@ -581,8 +581,7 @@ const SLOT_MINUTES = 20;
     const questions = $$('.bb-q');
     let qIndex = 0;
 
-    // A question is skipped when the role already answered makes it nonsense —
-    // e.g. business structure for someone who doesn't have a business.
+    // A question is skipped when the role already answered makes it nonsense, // e.g. business structure for someone who doesn't have a business.
     function isSkipped(q) {
       const rule = q.getAttribute('data-skip-when-role');
       if (!rule) return false;
@@ -849,8 +848,7 @@ const SLOT_MINUTES = 20;
           return;
         }
         // Surface what the server actually said. The generic fallback below is
-        // for network failures, where we genuinely don't know what happened —
-        // using it here once hid a booking that had in fact been created, and
+        // for network failures, where we genuinely don't know what happened. // using it here once hid a booking that had in fact been created, and
         // told the visitor to call and rebook a slot they already held.
         if (!res.ok) {
           errEl.textContent =

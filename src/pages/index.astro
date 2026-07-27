@@ -21,7 +21,7 @@ const schemas = [
   breadcrumbSchema([{ name: 'Home', url: `${SITE.domain}/` }]),
 ];
 
-// Inline SVG icon set — always renders, no network needed.
+// Inline SVG icon set, always renders, no network needed.
 const ICONS: Record<string, string> = {
   'health-insurance': '<svg viewBox="0 0 48 48" fill="none"><path d="M24 41S7 30.6 7 18.5C7 12.7 11.6 8 17.4 8c3 0 5.7 1.3 6.6 3.3C24.9 9.3 27.6 8 30.6 8 36.4 8 41 12.7 41 18.5 41 30.6 24 41 24 41Z" stroke="url(#g)" stroke-width="2.6" stroke-linejoin="round"/><path d="M24 17v12M18 23h12" stroke="#19c8ff" stroke-width="2.6" stroke-linecap="round"/></svg>',
   'life-insurance': '<svg viewBox="0 0 48 48" fill="none"><path d="M6 24C6 14 14 7 24 7s18 7 18 17" stroke="url(#g)" stroke-width="2.6" stroke-linecap="round"/><path d="M6 24c3-3 6-3 9 0 3-3 6-3 9 0 3-3 6-3 9 0 3-3 6-3 9 0" stroke="url(#g)" stroke-width="2.6" stroke-linecap="round"/><path d="M24 24v12a5 5 0 0 0 10 0" stroke="#19c8ff" stroke-width="2.6" stroke-linecap="round"/></svg>',
@@ -38,7 +38,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
 ---
 <Base
   title="Insurance Strategy For Everyone | ProtectHealth Las Vegas"
-  description="ProtectHealth is a Las Vegas insurance brokerage that builds coverage around your life and business — health, life, dental, vision, Medicare, and employer benefits. Strategy first, product second."
+  description="ProtectHealth is a Las Vegas insurance brokerage that builds coverage around your life and business. Health, life, dental, vision, Medicare, and employer benefits. Strategy first, product second."
   schemas={schemas}
 >
   <!-- ============ CINEMATIC INTRO (plays once per session, dissolves into homepage) ============ -->
@@ -131,7 +131,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   </section>
 
   <!-- ============ SERVICES ============ -->
-  <!-- ============ COVERAGE — sticky stacking deck ============ -->
+  <!-- ============ COVERAGE, sticky stacking deck ============ -->
   <section class="stackzone" id="coverage">
     <div class="sz-gridbg" aria-hidden="true"></div>
     <div class="sz-glow" aria-hidden="true"></div>
@@ -180,7 +180,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
             <li>Built around age, income &amp; tax-credit eligibility</li>
             <li>Networks checked against your actual doctors</li>
             <li>Prescriptions priced before you enroll</li>
-            <li>Total financial exposure — not just the premium</li>
+            <li>Total financial exposure, not just the premium</li>
           </ul>
           <a href="/about-us" class="btn" style="margin-top:16px;">Our Approach</a>
         </div>
@@ -198,7 +198,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
           <div class="pc-body">
             <span class="pc-tag">Realtors · 1099 · Self-Employed</span>
             <h3>Your coverage should be built around your business.</h3>
-            <p>ICHRA, Section 105, genuine PPO access, small-group opportunities — the options nobody ever explained.</p>
+            <p>ICHRA, Section 105, genuine PPO access, small-group opportunities, the options nobody ever explained.</p>
             <span class="pc-btn">Explore The Strategy →</span>
           </div>
         </a>
@@ -208,7 +208,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
           <div class="pc-body">
             <span class="pc-tag">Business Owners · Paychex Partner</span>
             <h3>Your insurance agency just got a much bigger toolbox.</h3>
-            <p>Benefits, payroll, HR, compliance, and retirement — one conversation, the whole employer picture.</p>
+            <p>Benefits, payroll, HR, compliance, and retirement, one conversation, the whole employer picture.</p>
             <span class="pc-btn">See What That Unlocks →</span>
           </div>
         </a>
@@ -225,7 +225,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
         <h2 style="margin-top:0;max-width:560px;">We understand that everyone's insurance needs are unique.</h2>
         <div class="grid cols-2">
           <div class="feature-num reveal"><div class="n">1</div><div><h3>Customized Coverage</h3><p>Strategies built around your household, your business structure, and your real financial exposure.</p></div></div>
-          <div class="feature-num reveal d1"><div class="n">2</div><div><h3>Exceptional Customer Service</h3><p>A dedicated team ready to assist with any question — before, during, and after enrollment.</p></div></div>
+          <div class="feature-num reveal d1"><div class="n">2</div><div><h3>Exceptional Customer Service</h3><p>A dedicated team ready to assist with any question, before, during, and after enrollment.</p></div></div>
           <div class="feature-num reveal d2"><div class="n">3</div><div><h3>Trusted Expertise</h3><p>Years of industry experience across health, life, Medicare, and employer benefits.</p></div></div>
           <div class="feature-num reveal d3"><div class="n">4</div><div><h3>Strong Partnerships</h3><p>Transparency, integrity, and an official Paychex partnership that gives business owners a bigger toolbox.</p></div></div>
         </div>
@@ -290,13 +290,13 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
         </div>
         <div class="rs-mid">
           <div class="rs-count"><span data-count="703">703</span>+ Google reviews</div>
-          <div class="rs-sub">Insurance agency in Clark County, Nevada — rated by the people who had the conversation.</div>
+          <div class="rs-sub">Insurance agency in Clark County, Nevada, rated by the people who had the conversation.</div>
         </div>
         <div class="rs-cta">Read the reviews →</div>
       </a>
     </div>
 
-    <!-- Real Google reviews wall — verbatim from the live listing, display-only (no review schema by design) -->
+    <!-- Real Google reviews wall, verbatim from the live listing, display-only (no review schema by design) -->
     <div class="review-wall reveal">
       {[reviewRowA, reviewRowB].map((row, ri) => (
         <div class={`rv-row ${ri === 1 ? 'rv-reverse' : ''}`}>
@@ -391,7 +391,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     <div class="container">
       <div class="cta-band lux reveal" style="background-image:url('/assets/art-cta.webp');background-size:cover;">
         <h2>20 minutes. No pitch. <span style="color:#66e0ff;">Just clarity.</span></h2>
-        <p>Bring your current coverage — or your lack of it — and walk away knowing which options fit, which don't, and what questions to ask next. If what you have is right, ProtectHealth will tell you that too.</p>
+        <p>Bring your current coverage, or your lack of it, and walk away knowing which options fit, which don't, and what questions to ask next. If what you have is right, ProtectHealth will tell you that too.</p>
         <div style="display:flex;gap:14px;flex-wrap:wrap;">
           <a href="/talk-to-a-broker" class="btn big white">Book A Strategy Conversation</a>
           <a href={SITE.phoneHref} class="btn big glass no-arrow">Call {SITE.phone}</a>
@@ -739,7 +739,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
   }
-  /* mobile performance tier (homepage decor) — keep last so it wins the cascade */
+  /* mobile performance tier (homepage decor), keep last so it wins the cascade */
   @media (pointer: coarse), (max-width: 1023px) {
     .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip { animation: none !important; }
     .rv-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: #fff !important; }
