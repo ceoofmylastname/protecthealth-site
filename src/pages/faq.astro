@@ -39,7 +39,10 @@ const schemas = [
   </section>
   <section class="section">
     <div class="container article">
-      <div class="hero-img"><img src={FAQ_ART.png} alt={FAQ_ART.alt} loading="eager" /></div>
+      {/* .webp, not .png. This was the only rendered <img> on the site still
+          pointing at the full-res 2K PNG — every sibling article template uses
+          the compressed variant. It was also eager and above the fold. */}
+      <div class="hero-img"><img src={FAQ_ART.webp} alt={FAQ_ART.alt} width="1456" height="816" loading="eager" fetchpriority="high" /></div>
       <div id="ai-summary">
         ProtectHealth is a Las Vegas insurance brokerage offering free, strategy-first consultations across health, life, GAP, Medicare, dental, vision, and employer benefits. ProtectHealth serves all of Nevada, works extensively with self-employed professionals and small businesses, and has officially partnered with Paychex for payroll and HR support solutions.
       </div>

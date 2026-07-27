@@ -55,10 +55,18 @@ const total = fields.length;
               ))}
             </div>
           ) : f.type === 'textarea' ? (
-            <textarea class="tf-input" rows="3" placeholder="Type your answer here..." aria-label={f.label} />
+            <textarea class="tf-input" name={f.name} rows="3" enterkeyhint="done" placeholder="Type your answer here..." aria-label={f.label} />
           ) : (
-            <input class="tf-input" type={f.type} placeholder="Type your answer here..." aria-label={f.label}
-              autocomplete={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : f.name.includes('first') ? 'given-name' : f.name.includes('last') ? 'family-name' : 'on'} />
+            /* Values are read from the fieldset's data-name, but `name` is set
+               anyway: Safari and Chrome autofill weight it far more heavily than
+               autocomplete alone. inputmode is what actually switches the keypad
+               on several Android IMEs — type="tel" alone is not enough there.
+               enterkeyhint matches the Enter-to-advance handler below. */
+            <input class="tf-input" name={f.name} type={f.type}
+              inputmode={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : undefined}
+              enterkeyhint={i === total - 1 ? 'done' : 'next'}
+              placeholder="Type your answer here..." aria-label={f.label}
+              autocomplete={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : f.name.includes('first') ? 'given-name' : f.name.includes('last') ? 'family-name' : f.name === 'business' ? 'organization' : 'on'} />
           )}
           <p class="tf-err" role="alert"></p>
           <div class="tf-actions">
@@ -154,7 +162,10 @@ const total = fields.length;
 
 
   @media (max-width: 560px) {
-    .tf-viewport { min-height: 340px; }
+    /* was 340px, which left ~160px of dead space under a short question like a
+       name field. 240px still absorbs most of the step-to-step height change
+       without padding every screen out. */
+    .tf-viewport { min-height: 240px; }
     .tf-nav { display: none; }
     .tf-hint { display: none; }
   }
@@ -191,9 +202,22 @@ const total = fields.length;
     nextBtn.disabled = idx === total - 1;
   };
 
+  // iOS Safari only raises the keyboard for a focus() that happens inside the
+  // user-gesture window. The old version fired from a 320ms setTimeout, so the
+  // keyboard never came up and every advance needed a second tap on the field.
+  // Focus synchronously; the CSS transition still animates around it.
   const focusStep = (s) => {
     const inp = s.querySelector('.tf-input');
-    if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 320);
+    if (!inp) return;
+    try {
+      inp.focus({ preventScroll: true });
+    } catch {
+      inp.focus();
+    }
+    // Question heights differ a lot (a name field vs five option pills), so the
+    // OK button can end up off-screen after an advance. Nudge the card back into
+    // view once layout has settled. block:'nearest' is a no-op when it already is.
+    requestAnimationFrame(() => s.scrollIntoView({ block: 'nearest' }));
   };
 
   const go = (to, dir) => {

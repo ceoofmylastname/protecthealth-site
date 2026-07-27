@@ -38,6 +38,11 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
   }
   .fmag.on { opacity: 1; transform: none; pointer-events: auto; }
   .fmag[hidden] { display: none; }
+  /* Yields to the conversion point. When the lead form or the booking submit is
+     on screen this bar gets out of the way entirely — it used to sit over the
+     bottom ~81px of the viewport for the whole form interaction, which on a
+     phone meant a tap aimed at Submit landed on the PDF link instead. */
+  .fmag.yield { opacity: 0; transform: translateY(18px) scale(0.97); pointer-events: none; }
 
   .fmag-link {
     display: flex;
@@ -61,12 +66,14 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
   .fmag-txt em { font-style: normal; font-weight: 700; color: var(--navy, #0f3567); font-size: 0.9rem; margin-top: 2px; }
   .fmag-cta { flex-shrink: 0; align-self: center; white-space: nowrap; font-weight: 800; font-size: 0.84rem; color: #fff; background: linear-gradient(120deg, var(--blue, #197bff), var(--accent, #19c8ff)); padding: 10px 16px; border-radius: 999px; box-shadow: 0 8px 20px rgba(25, 123, 255, 0.35); }
 
+  /* 26px was unmissably small, and on mobile the parent's left: 10px put it
+     half off the screen edge. 44px, and moved inboard on small screens below. */
   .fmag-x {
     position: absolute;
-    top: -9px;
-    left: -9px;
-    width: 26px;
-    height: 26px;
+    top: -11px;
+    left: -11px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 1px solid rgba(15, 53, 103, 0.15);
     background: #fff;
@@ -83,6 +90,8 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
 
   @media (max-width: 700px) {
     .fmag { right: 10px; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: none; }
+    /* Keep the 44px dismiss button on screen instead of hanging off the edge. */
+    .fmag-x { top: -14px; left: 0; }
     .fmag-link { flex: 1; gap: 10px; padding: 8px 10px; border-radius: 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: #fff; }
     .fmag-cover { width: 40px; }
     .fmag-txt b { font-size: 0.64rem; }
@@ -113,6 +122,24 @@ const { href, cover, label, title, cta = 'Get the free PDF' } = Astro.props;
       };
       window.addEventListener('scroll', check, { passive: true });
       check();
+
+      // Yield to the conversion point. Watch the lead form, the booking card and
+      // the footer; whenever one is on screen, hide the bar. Cheap — an
+      // IntersectionObserver, not a scroll handler, so it costs nothing per frame.
+      const rivals = document.querySelectorAll('.lead-form, .lp-formwrap, .bb, .site-footer');
+      if (rivals.length && 'IntersectionObserver' in window) {
+        const visible = new Set();
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+            el.classList.toggle('yield', visible.size > 0);
+          },
+          // Negative bottom margin: only count it as "on screen" once it reaches
+          // the lower part of the viewport, which is where the bar actually sits.
+          { rootMargin: '0px 0px -45% 0px', threshold: 0 },
+        );
+        rivals.forEach((r) => io.observe(r));
+      }
       el.querySelector('.fmag-x')?.addEventListener('click', () => {
         el.classList.remove('on');
         try { sessionStorage.setItem(key, '1'); } catch {}
