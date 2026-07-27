@@ -31,3 +31,11 @@
 # Legal pages ported from Webflow. /privacy-policy keeps its URL; the
 # cryptic /t-c becomes a readable slug.
 /t-c                          /terms-and-conditions           301
+
+# Sitemap path. Webflow served /sitemap.xml and that path is still registered in
+# Search Console from Jun 2025, where it had been 404ing on every read. Astro's
+# integration emits /sitemap-index.xml instead. Redirect rather than rename,
+# because /sitemap.xml is also the path most third-party crawlers and SEO tools
+# probe by convention. Note /sitemap (no extension) is a real HTML page for
+# humans and must not be caught by this.
+/sitemap.xml                  /sitemap-index.xml              301
