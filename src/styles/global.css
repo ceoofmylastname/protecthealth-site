@@ -466,14 +466,14 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 /* Timing was ~1.13s end to end, which reads as lag no matter how smooth it is.
    Now ~0.72s: three coloured layers sweep in 60ms apart, links start before the
    last layer lands so the two overlap instead of queueing. */
-.mnav-layer { position: absolute; inset: 0; transform: translateX(101%); transition: transform 0.44s cubic-bezier(0.65, 0.05, 0, 1); }
-.mnav-layer.l1 { background: linear-gradient(160deg, #19c8ff, var(--blue)); transition-delay: 0.12s; }
-.mnav-layer.l2 { background: linear-gradient(160deg, var(--blue), var(--accent)); transition-delay: 0.06s; }
+.mnav-layer { position: absolute; inset: 0; transform: translateX(101%); transition: transform 0.36s cubic-bezier(0.65, 0.05, 0, 1); }
+.mnav-layer.l1 { background: linear-gradient(160deg, #19c8ff, var(--blue)); transition-delay: 0.1s; }
+.mnav-layer.l2 { background: linear-gradient(160deg, var(--blue), var(--accent)); transition-delay: 0.05s; }
 .mnav-layer.l3 { background: linear-gradient(165deg, #081d3d 0%, var(--navy) 60%, #0d2a52 100%); transition-delay: 0s; overflow-y: auto; overscroll-behavior: contain; }
 .mnav.open .mnav-layer { transform: translateX(0); }
 .mnav.open .mnav-layer.l1 { transition-delay: 0s; }
-.mnav.open .mnav-layer.l2 { transition-delay: 0.06s; }
-.mnav.open .mnav-layer.l3 { transition-delay: 0.12s; }
+.mnav.open .mnav-layer.l2 { transition-delay: 0.05s; }
+.mnav.open .mnav-layer.l3 { transition-delay: 0.1s; }
 .mnav-inner { min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 100px 34px 34px; }
 .mnav-list { list-style: none; margin: 0; padding: 0; }
 .mnav-clip { display: block; overflow: hidden; }
@@ -491,16 +491,24 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
   from { transform: translateY(140%) rotate(6deg); }
   to   { transform: translateY(0) rotate(0deg); }
 }
-.mnav.open .mnav-list a {
-  animation: mnavItemIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+/* Gated on `.items-in`, which the JS adds only AFTER the panel has finished
+   sliding. This is the actual fix for "they don't layer in".
+   Why it matters: .mnav-layer.l3 has overflow-y: auto and is being transformed.
+   iOS Safari rasterises a scrollable transformed subtree and slides it as a
+   single texture, so any child animation runs inside that texture while it is
+   still off-screen. The stagger was finishing before the panel arrived. Running
+   the items only once the panel is stationary makes it visible and also removes
+   the compositing guesswork entirely. */
+.mnav.items-in .mnav-list a {
+  animation: mnavItemIn 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transition: color 0.2s ease;
 }
-.mnav.open .mnav-list li:nth-child(1) a { animation-delay: 0.26s; }
-.mnav.open .mnav-list li:nth-child(2) a { animation-delay: 0.315s; }
-.mnav.open .mnav-list li:nth-child(3) a { animation-delay: 0.37s; }
-.mnav.open .mnav-list li:nth-child(4) a { animation-delay: 0.425s; }
-.mnav.open .mnav-list li:nth-child(5) a { animation-delay: 0.48s; }
-.mnav.open .mnav-list li:nth-child(6) a { animation-delay: 0.535s; }
+.mnav.items-in .mnav-list li:nth-child(1) a { animation-delay: 0s; }
+.mnav.items-in .mnav-list li:nth-child(2) a { animation-delay: 0.055s; }
+.mnav.items-in .mnav-list li:nth-child(3) a { animation-delay: 0.11s; }
+.mnav.items-in .mnav-list li:nth-child(4) a { animation-delay: 0.165s; }
+.mnav.items-in .mnav-list li:nth-child(5) a { animation-delay: 0.22s; }
+.mnav.items-in .mnav-list li:nth-child(6) a { animation-delay: 0.275s; }
 .mnav-list a:active, .mnav-list a:hover { color: #66e0ff; }
 .mnav-list em { font-style: normal; font-size: 0.8rem; font-weight: 800; letter-spacing: 1px; background: linear-gradient(120deg, #19c8ff, #f5b942); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .mnav-foot { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; opacity: 0; transform: translateY(30px); transition: opacity 0.3s ease 0s, transform 0.3s ease 0s; margin-top: 30px; }
@@ -514,9 +522,12 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
 @media (min-width: 1024px) { .mnav { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .mnav-layer, .mnav-list a, .mnav-foot, .mnav-scrim { transition: none; }
-  /* Kill the keyframe reveal too, and restore the end state in the same rule —
-     otherwise the items keep the translateY(140%) start value and stay hidden. */
-  .mnav.open .mnav-list a { animation: none !important; transform: translateY(0) rotate(0deg); }
+  /* Kill the keyframe reveal too, and restore the end state in the same rule,
+     otherwise the items keep the translateY(140%) start value and stay hidden.
+     Targets .open as well as .items-in because under reduced motion the JS may
+     not have added .items-in yet when the panel is already usable. */
+  .mnav.open .mnav-list a,
+  .mnav.items-in .mnav-list a { animation: none !important; transform: translateY(0) rotate(0deg); }
 }
 
 /* ============ Mobile performance tier: static decor on touch devices ============ */

@@ -158,8 +158,11 @@ const orgSchema = organizationSchema();
         const burger = document.getElementById('navBurger');
         const mnav = document.getElementById('mnav');
         if (!burger || !mnav) return;
+        const panel = mnav.querySelector('.mnav-layer.l3');
         let open = false;
         let hideTimer = null;
+        let itemTimer = null;
+
         const set = (v) => {
           open = v;
           burger.classList.toggle('open', open);
@@ -169,24 +172,43 @@ const orgSchema = organizationSchema();
 
           if (open) {
             clearTimeout(hideTimer);
-            // Two steps, one frame apart. `is-open` makes the panel visible
-            // while it is still off-canvas; `open` runs the transforms.
-            // Doing both in one recalculation leaves the browser with no start
-            // frame, and iOS Safari skips straight to the end state, which is
-            // why this used to hang and then pop.
+            clearTimeout(itemTimer);
+            // Step 1: visible but still off-canvas.
             mnav.classList.add('is-open');
-            void mnav.offsetHeight;                 // flush layout
+            void mnav.offsetHeight;
+            // Step 2, next frame: slide the panels. Splitting these gives the
+            // browser a start frame to animate from; doing both in one style
+            // recalculation makes iOS jump to the end state.
             requestAnimationFrame(() => {
               requestAnimationFrame(() => mnav.classList.add('open'));
             });
+            // Step 3: stagger the links only once the panel has STOPPED.
+            // .mnav-layer.l3 scrolls and is transformed, so iOS composites its
+            // subtree into one texture while it slides. Anything animating in
+            // there during the slide is invisible. transitionend is the accurate
+            // signal; the timeout is the fallback for when it does not fire
+            // (interrupted transition, background tab, reduced motion).
+            const start = () => { mnav.classList.add('items-in'); };
+            if (panel) panel.addEventListener('transitionend', start, { once: true });
+            itemTimer = setTimeout(start, 520);
           } else {
-            mnav.classList.remove('open');
-            // Hold visibility until the slide-out finishes, or the panel would
-            // vanish mid-animation. 480ms covers the longest exit transition.
+            clearTimeout(itemTimer);
+            mnav.classList.remove('open', 'items-in');
             hideTimer = setTimeout(() => mnav.classList.remove('is-open'), 480);
           }
         };
-        burger.addEventListener('click', () => set(!open));
+
+        // pointerdown, not click. iOS holds click for ~300ms in case the tap
+        // becomes a double-tap zoom, which is the lag you feel before anything
+        // moves. preventDefault stops the synthetic click that would re-toggle.
+        burger.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          set(!open);
+        });
+        // Keyboard and any environment without pointer events.
+        burger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set(!open); }
+        });
         mnav.querySelectorAll('a, [data-mnav-close]').forEach((el) =>
           el.addEventListener('click', () => set(false)));
         addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) set(false); });
