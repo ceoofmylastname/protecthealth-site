@@ -55,7 +55,12 @@ export function organizationSchema() {
 // TODO (Claude Code): download to /public/assets as WebP and swap paths (see CLAUDE.md roadmap).
 const CDN = 'https://cdn.prod.website-files.com';
 export const ASSETS = {
-  logo: `${CDN}/66c61e488a0b1c025cc02cdc/66c9286791d542e6438faae0_New%20LO.webp`,
+  // LOCALISED Jul 27 2026. Generated from the official transparent lockup
+  // (public/assets/og-logo-source.png) at 3x the 44px render height so it stays
+  // crisp on retina. This was the single most important hotlink on the site:
+  // every page header and footer rendered it, and it would have 404'd the day
+  // the Webflow account is decommissioned.
+  logo: '/assets/logo.webp',
   heroFamily: `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02e24_About%20Us-Home%20(1).webp`,
   contactPortrait: `${CDN}/66c61e488a0b1c025cc02cdc/66c61e498a0b1c025cc02dbc_contact%20us%20img%20(1).webp`,
   avatars: [
