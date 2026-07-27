@@ -32,6 +32,13 @@
 # cryptic /t-c becomes a readable slug.
 /t-c                          /terms-and-conditions           301
 
+# Surfaced by the Search Console coverage export, Jul 27 2026. Both are pre-Webflow
+# artifacts Google still holds in its index with no rule pointing anywhere.
+# /default.aspx is an IIS-era default document from whatever ran this domain before
+# Webflow; /form was a standalone Webflow contact form.
+/default.aspx                 /                               301
+/form                         /contact-us                     301
+
 # Sitemap path. Webflow served /sitemap.xml and that path is still registered in
 # Search Console from Jun 2025, where it had been 404ing on every read. Astro's
 # integration emits /sitemap-index.xml instead. Redirect rather than rename,
