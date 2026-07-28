@@ -6,6 +6,7 @@ import LeadForm from '../components/LeadForm.astro';
 import FAQSection from '../components/FAQSection.astro';
 import { SITE, ORG_ID, TEAM, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
 import ReviewWall from '../components/ReviewWall.astro';
+import ContentRail from '../components/ContentRail.astro';
 import FloatingMagnet from '../components/FloatingMagnet.astro';
 import { getCollection } from 'astro:content';
 
@@ -277,28 +278,23 @@ const schemas = [
         <h2>Read your way in</h2>
         <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">Every guide and answer below was written for business owners running teams, benefits, payroll, HR, and the tipped-payroll rules Las Vegas runs on.</p>
       </div>
-      <div class="grid cols-3">
-        {clusterPosts.map((p) => (
-          <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
-            <div class="thumb">{BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}</div>
-            <div class="body-pad">
-              <span class="badge">{p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper'}</span>
-              <h3>{p.data.title}</h3>
-              <p>{p.data.description}</p>
-              <span class="more">Read The Guide →</span>
-            </div>
-          </a>
-        ))}
-      </div>
+      {/* Single drifting rail instead of the 3-up grid; the old layout added
+          1,000px+ of height below the form. */}
+      <ContentRail
+        cue="Read The Guide →"
+        items={clusterPosts.map((p) => ({
+          href: `/blog-post/${p.id}`,
+          img: BLOG_ART[p.id]?.webp,
+          alt: BLOG_ART[p.id]?.alt,
+          badge: p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper',
+          title: p.data.title,
+        }))}
+      />
       <div class="section-head center" style="margin-top:54px;margin-bottom:0;">
         <div class="section-label">Quick Answers</div>
         <h2 style="margin-top:0;">The questions business owners actually ask</h2>
       </div>
-      <div class="lp-qa-grid">
-        {clusterQa.map((q) => (
-          <a class="qa-pill" href={`/qa/${q.id}`}>{q.data.question}<i>→</i></a>
-        ))}
-      </div>
+      <ContentRail pills={clusterQa.map((q) => ({ href: `/qa/${q.id}`, label: q.data.question }))} />
       <p style="text-align:center;margin-top:30px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
     </div>
   </section>

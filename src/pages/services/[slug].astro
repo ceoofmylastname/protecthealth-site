@@ -5,6 +5,7 @@ import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema } from '../..
 import { SERVICES } from '../../lib/services';
 import { RICH } from '../../lib/services-content';
 import { getCollection } from 'astro:content';
+import ContentRail from '../../components/ContentRail.astro';
 
 export function getStaticPaths() {
   return SERVICES.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
@@ -164,33 +165,27 @@ const maxBar = rich?.chart ? Math.max(...rich.chart.bars.map((b) => b.value)) : 
       {clusterPosts.length > 0 && (
         <div class="svc-lib">
           <h2>The full {service.name.toLowerCase()} library</h2>
-          <p class="reading-sub">Every guide ProtectHealth has written on this coverage, newest thinking first.</p>
-          <div class="grid cols-3" style="margin-top:20px;">
-            {clusterPosts.map((p) => (
-              <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
-                <div class="thumb">
-                  {BLOG_ART[p.id] && <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" />}
-                </div>
-                <div class="body-pad">
-                  <span class="badge">{p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper'}</span>
-                  <h3>{p.data.title}</h3>
-                  <p>{p.data.description}</p>
-                  <span class="more">Read The Guide →</span>
-                </div>
-              </a>
-            ))}
-          </div>
+          <p class="reading-sub">Every guide ProtectHealth has written on this coverage. Hover to pause, or just click through.</p>
+          {/* One drifting line instead of a 3-up grid of full cards. The old
+              layout added 1,000px+ of page height here; the rail keeps every
+              guide reachable at ~250px. */}
+          <ContentRail
+            cue="Read The Guide →"
+            items={clusterPosts.map((p) => ({
+              href: `/blog-post/${p.id}`,
+              img: BLOG_ART[p.id]?.webp,
+              alt: BLOG_ART[p.id]?.alt,
+              badge: p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper',
+              title: p.data.title,
+            }))}
+          />
         </div>
       )}
 
       {clusterQa.length > 0 && (
         <div class="svc-lib">
           <h3>Quick answers on {service.name.toLowerCase()}</h3>
-          <div class="lp-qa-grid" style="margin-top:14px;">
-            {clusterQa.map((q) => (
-              <a class="qa-pill" href={`/qa/${q.id}`}>{q.data.question}<i>→</i></a>
-            ))}
-          </div>
+          <ContentRail pills={clusterQa.map((q) => ({ href: `/qa/${q.id}`, label: q.data.question }))} />
           <p style="margin-top:22px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
         </div>
       )}

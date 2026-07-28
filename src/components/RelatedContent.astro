@@ -19,6 +19,7 @@
  */
 import { getCollection } from 'astro:content';
 import { BLOG_ART, QA_ART } from '../lib/site';
+import ContentRail from './ContentRail.astro';
 
 interface Props {
   cluster: string;
@@ -62,9 +63,10 @@ const posts = allPosts
 // rest of the cluster. On a Q&A page they are the siblings around it.
 const childQa = allQa.filter((q) => q.data.parentPost === currentId && !skip.has(q.id));
 const clusterQa = allQa.filter((q) => q.data.cluster === cluster && !skip.has(q.id) && !childQa.some((c) => c.id === q.id));
-// Capped at 6 / 4. These render as image cards now, and a wall of twelve pieces
-// of art below the CTA reads as a dumping ground rather than a recommendation.
-const questions = [...childQa, ...clusterQa].slice(0, type === 'blog' ? 6 : 4);
+// Caps were 6/4 when these rendered as a stacked grid. The rail costs no
+// vertical space per extra card, so the caps loosen to 8/6, still capped so
+// the drift loop stays readable rather than becoming a blur of every page.
+const questions = [...childQa, ...clusterQa].slice(0, type === 'blog' ? 8 : 6);
 
 const parent = parentPost ? allPosts.find((p) => p.id === parentPost) : undefined;
 const showParent = parent && !skip.has(parent.id) && !posts.some((p) => p.id === parent.id);
@@ -85,49 +87,36 @@ const showParent = parent && !skip.has(parent.id) && !posts.some((p) => p.id ===
   {questions.length > 0 && (
     <div class="related-qa">
       <h3>Questions People Ask About This</h3>
-      {/* Image cards, not text links. Every Q&A page has its own art in QA_ART
-          and a bare list of question strings threw all of it away. The image is
-          the reason a reader clicks, and the alt text is a second descriptive
-          signal about the destination on top of the anchor text. */}
-      <div class="related-grid qa-grid">
-        {questions.map((q) => (
-          <a href={`/qa/${q.id}`} class="related-card">
-            {QA_ART[q.id] && (
-              <span class="rc-art">
-                <img src={QA_ART[q.id].webp} alt={QA_ART[q.id].alt} loading="lazy" width="640" height="360" />
-              </span>
-            )}
-            <span class="rc-body">
-              <span class="rc-tag">Question</span>
-              <b>{q.data.question}</b>
-              <span class="rc-go">Read the answer →</span>
-            </span>
-          </a>
-        ))}
-      </div>
+      {/* One drifting line of compact image cards, replacing the stacked grid
+          that added 1,000px+ of height here. Art still comes from QA_ART; the
+          description is dropped on purpose, the image and question do the
+          selling. */}
+      <ContentRail
+        cue="Read the answer →"
+        items={questions.map((q) => ({
+          href: `/qa/${q.id}`,
+          img: QA_ART[q.id]?.webp,
+          alt: QA_ART[q.id]?.alt,
+          badge: 'Question',
+          title: q.data.question,
+        }))}
+      />
     </div>
   )}
 
   {posts.length > 0 && (
     <div class="related-more">
       <h3>More Guides In This Cluster</h3>
-      <div class="related-grid">
-        {posts.map((p) => (
-          <a href={`/blog-post/${p.id}`} class="related-card">
-            {BLOG_ART[p.id] && (
-              <span class="rc-art">
-                <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" width="640" height="360" />
-              </span>
-            )}
-            <span class="rc-body">
-              <span class="rc-tag">{p.data.category}</span>
-              <b>{p.data.title}</b>
-              <span class="rc-desc">{p.data.description}</span>
-              <span class="rc-go">Read the guide →</span>
-            </span>
-          </a>
-        ))}
-      </div>
+      <ContentRail
+        cue="Read the guide →"
+        items={posts.map((p) => ({
+          href: `/blog-post/${p.id}`,
+          img: BLOG_ART[p.id]?.webp,
+          alt: BLOG_ART[p.id]?.alt,
+          badge: p.data.category,
+          title: p.data.title,
+        }))}
+      />
     </div>
   )}
 
