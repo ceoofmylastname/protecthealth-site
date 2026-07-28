@@ -1,6 +1,6 @@
 ---
 question: "What Is The Medicare Part B Penalty?"
-description: "How the Medicare Part B late enrollment penalty works: 10% per full 12-month delay, added to the premium for life, and the coverage that lets people avoid it."
+description: "The Medicare Part B late enrollment penalty adds an extra 10 percent to the premium for each full 12-month period enrollment could have happened but did not, and it generally lasts for as long as Part B is held."
 cluster: "medicare"
 parentPost: "turning-65-in-nevada-medicare-checklist"
 siblings:
@@ -8,38 +8,76 @@ siblings:
   - "is-medicare-free-at-65"
   - "can-you-delay-medicare-if-still-working"
 datePublished: "2026-07-22"
-quickAnswer: "The Part B penalty adds 10% to the monthly Part B premium for each full 12-month period enrollment was delayed without qualifying coverage. The surcharge is permanent and applies for life."
-speakableText: "Medicare charges a late enrollment penalty on Part B when someone misses the Initial Enrollment Period without qualifying employer coverage. The surcharge equals 10 percent of the Part B premium for every full 12-month period of delay, and it never goes away. A two-year delay means paying 20 percent extra on every Part B premium for life. Qualifying coverage from active employment at an employer with 20 or more employees prevents the penalty, but COBRA and retiree coverage do not count."
+dateModified: "2026-07-27"
+quickAnswer: "The Part B late enrollment penalty adds an extra 10 percent to the monthly Part B premium for each full 12-month period a person could have signed up but did not. Two full years of delay means a 20 percent penalty, and the surcharge generally lasts for as long as Part B is held."
+speakableText: "Medicare charges a late enrollment penalty on Part B when someone passes up the Initial Enrollment Period without qualifying employer coverage. The surcharge equals an extra 10 percent of the premium for every full 12-month period enrollment could have happened but did not, so a two-year delay produces a 20 percent penalty. Unlike most insurance mistakes, this one does not expire at the next renewal, because the penalty generally applies for as long as Part B is held. A Special Enrollment Period can avoid the penalty entirely for people who delayed because of qualifying employer coverage from active employment. COBRA and retiree coverage do not qualify, and that single distinction accounts for a large share of the penalties actually assessed."
 faq:
-  - q: "How is the Part B penalty calculated?"
-    a: "The penalty equals 10% of the Part B premium for each full 12-month period of delayed enrollment without qualifying coverage. A 3-year delay produces a 30% surcharge."
+  - q: "How is the Part B late enrollment penalty calculated?"
+    a: "The penalty equals an extra 10 percent of the Part B premium for each full 12-month period a person could have signed up but did not. Waiting two full years produces a 20 percent penalty, and waiting three produces 30 percent."
   - q: "Does the Part B penalty ever go away?"
-    a: "No. The penalty is added to the Part B premium for life, and because the premium is set federally each year, the dollar amount of the surcharge grows whenever the premium does."
+    a: "Generally no. The surcharge applies for as long as Part B is held, which means a lifetime penalty for most people. Because the underlying premium is set federally each year, the dollar amount of the surcharge moves with the premium."
   - q: "What coverage avoids the Part B penalty?"
-    a: "Employer coverage from active employment, generally at a company with 20 or more employees, allows penalty-free delay and earns a Special Enrollment Period later. COBRA and retiree coverage do not qualify."
-  - q: "Is there a penalty for delaying Part A too?"
-    a: "Most people avoid a Part A issue because Part A is premium-free with 40 quarters of work history. The lifetime late penalty risk sits mainly with Part B, and separately with Part D drug coverage."
+    a: "Qualifying employer coverage from active employment allows a penalty-free delay and a Special Enrollment Period later. COBRA and retiree coverage are not coverage from active employment and do not qualify."
+  - q: "Is there a late enrollment penalty on other parts of Medicare?"
+    a: "A separate late enrollment penalty applies to Part D drug coverage. Part A is premium-free for most people with enough work history, so the main late enrollment exposure sits with Part B and Part D."
 ---
 
-Most Medicare mistakes can be fixed the following October. This one can't. The Part B penalty is the rare error that gets billed every month, forever, and it exists purely to stop people from waiting until sickness to enroll.
+Most insurance mistakes are annual. Pick a plan that turns out to be wrong, and the following autumn offers a clean correction.
 
-## How does the penalty actually work?
+The Part B late enrollment penalty is not that kind of mistake. It gets billed every month, generally for the rest of a person's life, for a decision made during one seven-month stretch decades earlier.
 
-The math is simple and unforgiving: 10% of the Part B premium for every full 12-month period of delay without qualifying coverage, stacked on top of the regular premium for life.
+## How does the Part B penalty actually work?
 
-| Delay without qualifying coverage | Lifetime surcharge |
+The formula is short. An extra 10 percent is added to the monthly Part B premium for each full 12-month period a person could have signed up but did not, and the surcharge generally lasts for as long as Part B is held.
+
+| Full 12-month periods of delay | Added to the Part B premium |
 |---|---|
-| Under 12 full months | 0% |
-| 1-2 years | 10% |
-| 2-3 years | 20% |
-| 3-4 years | 30% |
+| Fewer than one | No penalty |
+| One | 10 percent |
+| Two | 20 percent |
+| Three | 30 percent |
+| Four | 40 percent |
 
-Because the Part B premium is set federally each year and generally rises over time, the penalty's dollar amount grows with it.
+Two details make the table understate the effect.
 
-## Why does the penalty exist at all?
+The first is duration. Nothing in the calculation causes the penalty to expire. Someone who triggers a 20 percent surcharge at 67 is still paying a 20 percent surcharge at 87.
 
-Because Part B is optional and has no health questions. Without a penalty, the rational move would be skipping premiums while healthy and enrolling after a diagnosis, which would collapse the program's funding. The surcharge makes waiting expensive enough that nearly everyone enrolls on time. The enrollment window itself, the 7-month Initial Enrollment Period around the 65th birthday, is mapped step by step in the [turning-65 Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist).
+The second is that the base moves. The Part B premium is set federally and republished each year, and the penalty is a percentage of it rather than a fixed dollar amount. Medicare publishes the current figures and the rules for [avoiding penalties](https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties), and those are the numbers to work from rather than anything quoted secondhand.
 
-## How does someone avoid it completely?
+Here is an **invented illustration** to make the shape of it concrete. The figure below is a round number chosen for easy arithmetic, not the real premium.
 
-Two clean paths exist. First: enroll during the 7-month Initial Enrollment Period, done. Second: keep qualifying employer coverage from active employment, generally at a company with 20 or more employees, and enroll later through a Special Enrollment Period when the employment ends. The trap between the paths is coverage that feels like employer insurance but doesn't qualify: COBRA and retiree plans do not count, and months spent on them can silently accrue toward a penalty. Confirming qualification before delaying is a five-minute call that protects decades of premiums.
+Suppose the premium were two hundred dollars a month. A two-year delay produces a 20 percent surcharge, which is forty dollars a month, or four hundred eighty dollars a year. Carried across twenty years of retirement, that invented example totals nine thousand six hundred dollars.
+
+Real numbers differ. The structure does not.
+
+## Why does this penalty exist at all?
+
+Because Part B is voluntary and asks no health questions. Without a late enrollment penalty, the rational strategy would be obvious: skip the premium while healthy, sign up after a diagnosis.
+
+Enough people doing that would collapse the funding for everyone who enrolled on time. The surcharge makes waiting expensive enough that the overwhelming majority enroll during the window, which keeps the risk pool broad. The Centers for Medicare & Medicaid Services describes the structure of [Original Parts A and B](https://www.cms.gov/medicare/enrollment-renewal/original-part-a-b) that the penalty is designed to protect.
+
+That framing is worth holding onto, because it explains why the exceptions are drawn where they are. The rule is not punishing lateness. It is punishing the specific behavior of staying uninsured by choice and then buying in when the odds turn.
+
+## How does someone avoid the penalty completely?
+
+Two clean paths, and one trap sitting between them.
+
+**Path one: enroll during the Initial Enrollment Period.** Seven months, running from three months before the 65th birthday month through three months after. Done, permanently, with no further thought required. The full window and its timing rules are mapped in the [turning 65 in Nevada Medicare checklist](/blog-post/turning-65-in-nevada-medicare-checklist).
+
+**Path two: keep qualifying employer coverage from active employment.** A Special Enrollment Period can then avoid the penalty when the employment ends. The conditions and the verification steps are covered in [whether Medicare can be delayed while still working](/qa/can-you-delay-medicare-if-still-working).
+
+**The trap: coverage that feels like employer insurance and is not.** COBRA and retiree coverage both come from a job that already ended, which means neither is coverage from active employment. Months spent relying on either after 65 can accrue toward the penalty while everything looks fine from the outside.
+
+The defense against the trap costs five minutes. Ask the employer's benefits administrator, in writing, whether the specific plan qualifies as coverage that permits delaying Part B without a late enrollment penalty. Written answers survive; hallway conversations do not.
+
+## What else is worth knowing before assuming a penalty applies?
+
+Three things: Part A is premium-free for most workers, declining Part B to save money backfires, and the Part B start date controls a second enrollment window that gets almost no attention.
+
+Part A is premium-free for most people with enough work history, which is why late enrollment exposure concentrates on Part B and separately on Part D drug coverage. What is actually free and what is not is separated out in [whether Medicare is free at 65](/qa/is-medicare-free-at-65).
+
+Declining Part B to save money is the single most expensive version of this mistake, because the savings last a few years and the penalty lasts several decades. The decision framework, including who genuinely has to act at 65, sits in [whether Medicare signup is required at 65](/qa/do-you-have-to-sign-up-for-medicare-at-65).
+
+And the timing of Part B controls a second window that most people never hear about. Medigap Open Enrollment runs 6 months from the first day of the month a person is both 65 or older and enrolled in Part B, so the enrollment date does more than settle the penalty question. That window is explained in [what Medigap Open Enrollment is](/qa/what-is-medigap-open-enrollment).
+
+Anyone who has already delayed should get an actual determination rather than assume the worst. Whether a penalty applies depends on documented coverage history, and Social Security makes the determination, not a salesperson. Nevada residents can also verify any producer's license with the state regulator before taking advice. A licensed ProtectHealth broker can walk through the history and the paperwork at no cost to the household, and the fastest way to get that started is to [talk to a broker](/talk-to-a-broker).
