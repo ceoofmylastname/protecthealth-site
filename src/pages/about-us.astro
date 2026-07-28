@@ -14,7 +14,11 @@ const schemas = [
 
 // Named team members surfaced on this page. Bios live in src/lib/site.ts (TEAM)
 // and render in full at /team-members/[slug]. This is a strip, not a duplicate.
-const LEADS = TEAM.filter((m) => ['brian-douglas', 'robert-morgen', 'jason-vasquez', 'janet-nevarez'].includes(m.slug));
+// Brenda carries the byline on the life and dental-vision content, so leaving
+// her off the about page undercut the E-E-A-T chain her name anchors. Her bio
+// is still marked draft-pending-approval in site.ts; the line about her below
+// asserts only role, agency and focus, nothing beyond what that draft claims.
+const LEADS = TEAM.filter((m) => ['brian-douglas', 'robert-morgen', 'brenda-morgen', 'jason-vasquez', 'janet-nevarez'].includes(m.slug));
 ---
 <Base
   title="About ProtectHealth | Las Vegas Insurance Brokers, Strategy First"
@@ -101,7 +105,7 @@ const LEADS = TEAM.filter((m) => ['brian-douglas', 'robert-morgen', 'jason-vasqu
           </a>
         ))}
       </div>
-      <p><strong>Brian D. Douglas</strong> is the Owner and CEO, a licensed broker and benefits advisor who leads the statewide broker network and has built the agency around education and service rather than volume. <strong>Robert Morgen</strong> is an Owner and COO, a Las Vegas-based licensed Life and Health broker with more than a decade serving Nevada families and small businesses, who runs employer group services and trains the agency's brokers. <strong>Jason Vasquez</strong> is a licensed broker with over sixteen years in the financial industry who was raised in Las Vegas and treats insurance as one component of a larger financial plan. <strong>Janet Nevarez</strong> is Director of Administration and Operations, and the reason licensing, compliance, and follow-through actually happen on schedule.</p>
+      <p><strong>Brian D. Douglas</strong> is the Owner and CEO, a licensed broker and benefits advisor who leads the statewide broker network and has built the agency around education and service rather than volume. <strong>Robert Morgen</strong> is an Owner and COO, a Las Vegas-based licensed Life and Health broker with more than a decade serving Nevada families and small businesses, who runs employer group services and trains the agency's brokers. <strong>Brenda Morgen</strong> is a licensed broker who works with Nevada individuals and families on the coverage that sits alongside a health plan rather than inside it, life, dental, and vision, the decisions that tend to get made last and matter more than people expect. <strong>Jason Vasquez</strong> is a licensed broker with over sixteen years in the financial industry who was raised in Las Vegas and treats insurance as one component of a larger financial plan. <strong>Janet Nevarez</strong> is Director of Administration and Operations, and the reason licensing, compliance, and follow-through actually happen on schedule.</p>
       <p>Full bios, credentials, and the rest of the team are on the <a href="/our-team">our team page</a>.</p>
 
       <h2>How can a Nevadan verify any of this?</h2>
