@@ -112,6 +112,29 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     </div>
   </div>
 
+  <!-- ============ ACA 2027 ALERT TEASER ============
+       Sits directly under the marquee, above the stats, because it is time
+       sensitive and the enrollment window opens Nov 1. The live number is the
+       days counter; everything else is static so the teaser still reads
+       correctly with JS off. Full detail lives at /aca-changes. -->
+  <section class="section acat-sec" style="padding:26px 0 6px;">
+    <div class="container">
+      <a href="/aca-changes" class="acat">
+        <span class="acat-glow"></span>
+        <span class="acat-left">
+          <span class="acat-kick"><i class="acat-dot"></i> 2027 Plan Year · Rules Changed</span>
+          <span class="acat-h">Nevada's enrollment window just got shorter.</span>
+          <span class="acat-p">Open enrollment now closes <b>December 31</b>, not January 15. And the December 15 deadline in the national headlines is not Nevada's. Seven changes reach Nevadans, three do not.</span>
+        </span>
+        <span class="acat-right">
+          <span class="acat-num" id="acatDays" data-open="2026-11-01T00:00:00-08:00">97</span>
+          <span class="acat-unit" id="acatUnit">days until enrollment opens</span>
+          <span class="acat-cta">See what changed <i>→</i></span>
+        </span>
+      </a>
+    </div>
+  </section>
+
   <!-- ============ STATS ============ -->
   <section class="section grad-soft" style="padding-bottom:34px;">
     <div class="container">
@@ -501,6 +524,34 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .p2 { top: 22px; right: -14px; animation-delay: -2s; }
   @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 
+  /* ===== ACA 2027 teaser ===== */
+  .acat { position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr auto; gap: 26px; align-items: center;
+    padding: 24px 28px; border-radius: 22px; text-decoration: none;
+    background: linear-gradient(125deg, #071832 0%, #0f3567 58%, #17457e 100%);
+    border: 1px solid rgba(142,201,255,0.24);
+    box-shadow: 0 16px 44px rgba(15,53,103,0.22);
+    transition: transform 0.24s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.24s ease; }
+  .acat:hover { transform: translateY(-3px); box-shadow: 0 22px 56px rgba(15,53,103,0.3); }
+  .acat-glow { position: absolute; width: 340px; height: 340px; border-radius: 50%; background: #197bff; filter: blur(90px); opacity: 0.44; top: -160px; right: -80px; pointer-events: none; }
+  .acat-left { position: relative; z-index: 2; }
+  .acat-kick { display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 2.2px; font-size: 0.68rem; font-weight: 800; color: #bfe2ff; padding: 6px 13px; border-radius: 999px; border: 1px solid rgba(142,201,255,0.34); background: rgba(25,123,255,0.18); }
+  .acat-dot { width: 6px; height: 6px; border-radius: 50%; background: #19c8ff; box-shadow: 0 0 0 0 rgba(25,200,255,0.7); animation: acatPulse 2.2s ease infinite; }
+  @keyframes acatPulse { 70% { box-shadow: 0 0 0 8px rgba(25,200,255,0); } 100% { box-shadow: 0 0 0 0 rgba(25,200,255,0); } }
+  .acat-h { display: block; font-family: var(--font-display); font-size: clamp(1.15rem, 2.1vw, 1.5rem); font-weight: 800; color: #fff; margin: 12px 0 7px; letter-spacing: -0.015em; line-height: 1.2; }
+  .acat-p { display: block; font-size: 0.93rem; color: #cfe0f5; line-height: 1.55; max-width: 620px; }
+  .acat-p b { color: #8ee4ff; }
+  .acat-right { position: relative; z-index: 2; text-align: center; padding: 16px 22px; border-radius: 16px; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18); min-width: 168px; }
+  .acat-num { display: block; font-family: var(--font-display); font-size: 2.5rem; line-height: 1; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+  .acat-unit { display: block; margin-top: 6px; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: #a9cdf2; }
+  .acat-cta { display: block; margin-top: 12px; font-size: 0.85rem; font-weight: 800; color: #8ee4ff; }
+  .acat-cta i { font-style: normal; display: inline-block; transition: transform 0.24s ease; }
+  .acat:hover .acat-cta i { transform: translateX(4px); }
+  @media (max-width: 820px) {
+    .acat { grid-template-columns: 1fr; gap: 18px; padding: 20px 20px 22px; }
+    .acat-right { min-width: 0; }
+    .acat-num { font-size: 2.1rem; }
+  }
+
   /* marquee */
   .marquee { background: #0a2246; color: #8ec9ff; overflow: hidden; padding: 13px 0; border-top: 1px solid rgba(255,255,255,0.08); }
   .marquee-track { display: flex; white-space: nowrap; animation: marquee 30s linear infinite; font-size: 0.82rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; }
@@ -807,14 +858,15 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     .chip.c1 { left: 8px; } .chip.c2 { right: 8px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .mesh, .btn.glow, .float-pill, .marquee-track, .band-glow, .glass-card, .chip, .hero-bg, .aurora, .glass-card::before, .rs-glow { animation: none !important; }
+    .mesh, .btn.glow, .float-pill, .marquee-track, .band-glow, .glass-card, .chip, .hero-bg, .aurora, .glass-card::before, .rs-glow, .acat-dot { animation: none !important; }
+    .acat { transition: none; }
     .uline svg path { stroke-dashoffset: 0; }
     .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
   }
   /* mobile performance tier (homepage decor), keep last so it wins the cascade */
   @media (pointer: coarse), (max-width: 1023px) {
-    .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip { animation: none !important; }
+    .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip, .acat-dot { animation: none !important; }
 
     /* CRITICAL: .hw starts at opacity 0 and the wordUp animation is what reveals
        it. Killing the animation above without restoring opacity left "Insurance
@@ -974,6 +1026,21 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
 
   // v5: scroll progress bar + parallax (skipped under reduced motion)
   const fill = document.getElementById('scrollbar-fill');
+  // ACA teaser day counter. The markup ships with a static number so the card
+  // reads correctly with JS off; this only keeps it honest as the date moves.
+  (() => {
+    const n = document.getElementById('acatDays');
+    const u = document.getElementById('acatUnit');
+    if (!n || !u) return;
+    const open = new Date(n.dataset.open).getTime();
+    const close = new Date('2026-12-31T23:59:59-08:00').getTime();
+    const now = Date.now();
+    const days = (t) => Math.max(0, Math.ceil((t - now) / 86400000));
+    if (now < open) { n.textContent = days(open); u.textContent = 'days until enrollment opens'; }
+    else if (now < close) { n.textContent = days(close); u.textContent = 'days left to enroll'; }
+    else { n.textContent = 'SEP'; u.textContent = 'enrollment closed, check for a qualifying event'; }
+  })();
+
   const heroBg = document.getElementById('heroBg');
   const pcs = [...document.querySelectorAll('.pc-photo')];
   if (!reduce) {

@@ -1,0 +1,516 @@
+---
+// The 2027 ACA reset, explained for Nevada specifically.
+//
+// The whole reason this page exists: CMS finalized the Marketplace Integrity
+// and Affordability rule for plan year 2027, and national coverage of it is
+// written for HealthCare.gov states. Nevada runs its own exchange, so several
+// of the harshest provisions were explicitly NOT finalized for state
+// marketplaces, and Nevada's deadline is December 31 rather than the federal
+// December 15. A Nevadan reading national coverage gets the wrong deadline and
+// a handful of rules that do not apply. Sorting Nevada from federal is the
+// entire value of the page, and no competitor is doing it.
+//
+// Every claim here traces to the CMS fact sheet or Nevada Health Link. Do not
+// add a change to CHANGES without a source that says it, and do not move one
+// from 'fed' to 'nv' without re-reading the rule.
+import Base from '../layouts/Base.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
+
+const pageUrl = `${SITE.domain}/aca-changes`;
+const description =
+  'The ACA marketplace rules changed for the 2027 plan year. What actually applies to Nevadans, what stops at the state line, and why Nevada enrollment ends December 31 rather than the federal December 15.';
+
+const speakable =
+  'The ACA marketplace rules changed for the 2027 plan year under a federal rule finalized by the Centers for Medicare and Medicaid Services. Nevada open enrollment now runs November 1 through December 31, not the January 15 deadline used in past years, and not the December 15 deadline that applies to states on the federal HealthCare.gov platform. Because Nevada operates a state-based marketplace through Nevada Health Link, several of the strictest new provisions were not finalized for Nevada at all, including the five dollar premium on automatic re-enrollments and mandatory pre-enrollment verification for special enrollment periods. The changes that do reach Nevadans center on stricter income verification, a shorter enrollment window, and the repeal of the monthly special enrollment period for lower income households.';
+
+const CMS = 'https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule';
+const NVHL = 'https://nevadahealthlink.com/get-help/when-to-enroll/';
+
+// Nevada open enrollment for plan year 2027. Both dates drive the countdown.
+const OPEN = '2026-11-01T00:00:00-08:00';
+const CLOSE = '2026-12-31T23:59:59-08:00';
+
+const CHANGES = [
+  {
+    scope: 'nv',
+    title: 'The window closes December 31',
+    lede: 'Nevada open enrollment runs November 1 through December 31. Coverage selected in that window starts January 1.',
+    detail:
+      'The January 15 deadline Nevadans used in past years is retired. Federal rules now require every exchange in the country to close by December 31 and to run no longer than nine calendar weeks. Nevada Health Link sets its own dates inside those limits and publishes November 1 through December 31. National articles saying December 15 are describing states on the federal platform, not Nevada.',
+    source: 'CMS final rule, standardizing the annual Open Enrollment Period',
+  },
+  {
+    scope: 'nv',
+    title: 'Self attestation no longer clears an income check',
+    lede: 'Where the IRS has no tax return on file, the exchange can no longer simply accept a stated income.',
+    detail:
+      'Exchanges must now verify income against other trusted data sources, or require documentary evidence to resolve the inconsistency. For a Clark County household living on tips, commission or gig income, that means gathering proof rather than typing a number and moving on. Bank statements, profit and loss records and recent invoices are worth having ready before November.',
+    source: 'CMS final rule, income verification when tax data is unavailable',
+  },
+  {
+    scope: 'nv',
+    title: 'Ninety days to fix a mismatch, and no extension',
+    lede: 'The automatic 60 day extension on resolving an income inconsistency has been removed.',
+    detail:
+      'The statutory 90 day window now stands on its own. Miss it and advance premium tax credits can stop, which turns a subsidized premium into a full one with no warning. Notices arrive by mail and inside the Nevada Health Link account, and both need watching through enrollment season.',
+    source: 'CMS final rule, 60 day extension removed',
+  },
+  {
+    scope: 'nv',
+    title: 'One missed tax filing ends the subsidy',
+    lede: 'Failing to file a federal return and reconcile advance credits for a single year now blocks eligibility.',
+    detail:
+      'The previous standard allowed two consecutive years before eligibility was cut off. Anyone who received advance premium tax credits and did not file for that year needs to resolve it before enrolling, because the subsidy will not attach until the reconciliation is done. This provision is written to sunset at the end of 2026, which does not help anyone enrolling this autumn.',
+    source: 'CMS final rule, failure to file and reconcile',
+  },
+  {
+    scope: 'nv',
+    title: 'The low income monthly SEP is gone',
+    lede: 'The monthly special enrollment period for households at or below 150 percent of the federal poverty level was repealed.',
+    detail:
+      'CMS also stated plainly that a change in income is not an exceptional circumstance, which closes the door on income based special enrollment generally. For a Las Vegas household whose hours drop in a slow summer, the marketplace no longer reopens on income alone. Nevada Medicaid still enrolls year round for those who qualify, and that becomes the realistic path mid year.',
+    source: 'CMS final rule, repeal of the monthly SEP at or below 150 percent FPL',
+  },
+  {
+    scope: 'nv',
+    title: 'A plan can cover less under the same name',
+    lede: 'Actuarial value ranges widened, so a plan can shift what it pays without changing what it is called.',
+    detail:
+      'De minimis ranges moved to plus two and minus four percentage points for most plans, and plus five and minus four for expanded bronze. In practice the plan renewing automatically next January is not necessarily the plan enrolled in last year. Re-shopping was always sensible. It now protects against a change that carries no obvious signal.',
+    source: 'CMS final rule, de minimis thresholds',
+  },
+  {
+    scope: 'nv',
+    title: 'Past due premiums can block new coverage',
+    lede: 'Insurers may require payment of an unpaid past balance before starting new coverage, where state law permits.',
+    detail:
+      'A lapsed balance with the same insurer can now stand between a household and a new plan. Anyone who let coverage drop mid year should settle the old balance before open enrollment rather than discovering it at the point of enrolling.',
+    source: 'CMS final rule, satisfaction of debt for past due premiums',
+  },
+  {
+    scope: 'fed',
+    title: 'The five dollar premium does not apply here',
+    lede: 'Automatically re-enrolled members with a zero dollar premium are billed five dollars monthly on the federal platform. Not in Nevada.',
+    detail:
+      'CMS explicitly declined to finalize this requirement for state marketplaces. Nevadans will see it in national coverage all autumn and reasonably assume it applies. It does not. Confirming eligibility information each year is still worth doing, for reasons that have nothing to do with a five dollar charge.',
+    source: 'CMS final rule, not finalized for State Marketplaces',
+  },
+  {
+    scope: 'fed',
+    title: 'Pre-enrollment SEP verification is federal only',
+    lede: 'Mandatory verification before a special enrollment period takes effect was not finalized for state exchanges.',
+    detail:
+      'Exchanges on the federal platform must verify eligibility before enrollment, and must pre-verify at least 75 percent of new special enrollment period sign ups. CMS declined to require either of state marketplaces, citing operational feasibility and cost. Nevada was left out of both.',
+    source: 'CMS final rule, requirements not finalized for State Marketplaces',
+  },
+  {
+    scope: 'fed',
+    title: 'December 15 is not the Nevada deadline',
+    lede: 'The federal platform closes December 15. Nevada has until December 31.',
+    detail:
+      'This is the single most repeated error in national coverage as it reaches Nevadans, and it costs people sixteen days of decision time. Sixteen days is the difference between checking whether a specific Henderson pediatrician is still in network and picking whichever plan sorts cheapest.',
+    source: 'CMS final rule, federal platform Open Enrollment Period',
+  },
+];
+
+const faq = [
+  {
+    q: 'When does Nevada open enrollment end for the 2027 plan year?',
+    a: 'December 31. Nevada open enrollment runs November 1 through December 31, and coverage selected during that window starts January 1. The January 15 deadline used in past years no longer applies.',
+  },
+  {
+    q: 'Why do national articles say open enrollment ends December 15?',
+    a: 'December 15 is the deadline for states that use the federal HealthCare.gov platform. Nevada operates a state-based marketplace through Nevada Health Link, and state marketplaces may run through December 31 under the federal rule.',
+  },
+  {
+    q: 'Which new ACA rules do not apply in Nevada?',
+    a: 'The five dollar premium charged on automatic re-enrollments with no premium responsibility, mandatory pre-enrollment verification for special enrollment periods, and the requirement to pre-verify at least 75 percent of new special enrollment sign ups. CMS finalized all three for the federal platform only.',
+  },
+  {
+    q: 'Can a drop in income reopen marketplace enrollment mid year?',
+    a: 'No. The monthly special enrollment period for households at or below 150 percent of the federal poverty level was repealed, and a change in income is not treated as an exceptional circumstance. Nevada Medicaid still enrolls year round for income-eligible households.',
+  },
+  {
+    q: 'What documents should a Nevada household prepare before November 1?',
+    a: 'Proof of projected household income such as recent pay records, invoices or profit and loss statements, a current list of doctors and prescriptions, and confirmation that any prior year advance premium tax credits were reconciled on a filed federal return.',
+  },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': pageUrl,
+    name: 'ACA Marketplace Changes For 2027: What Applies In Nevada',
+    description,
+    url: pageUrl,
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['#ai-summary'] },
+    datePublished: '2026-07-27',
+    dateModified: '2026-07-27',
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'ACA Changes For 2027', url: pageUrl },
+  ]),
+];
+---
+
+<Base
+  title="ACA Changes For 2027: What Applies In Nevada | ProtectHealth"
+  description={description}
+  schemas={schemas}
+>
+  <section class="acap-hero">
+    <div class="acap-glow acap-g1"></div>
+    <div class="acap-glow acap-g2"></div>
+    <div class="acap-grid-bg"></div>
+    <div class="container acap-hero-inner">
+      <nav class="acap-crumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> <span>›</span> <span>ACA Changes For 2027</span>
+      </nav>
+      <div class="acap-kick"><i class="acap-dot"></i> 2027 Plan Year · Federal Rule Change</div>
+      <h1>The ACA rules changed.<br /><span class="acap-grad">Half of it stops at the Nevada line.</span></h1>
+      <p class="acap-lead">
+        Nevada runs its own health insurance exchange, so several of the strictest new federal
+        rules were never finalized here. National coverage will not make that distinction.
+        This page does.
+      </p>
+
+      <div id="ai-summary" class="acap-ai">{speakable}</div>
+
+      <div class="acap-countdown" id="acapCount" data-open={OPEN} data-close={CLOSE}>
+        <div class="acap-cd-label" id="acapCdLabel">Nevada open enrollment opens in</div>
+        <div class="acap-cd-units">
+          <div class="acap-unit"><b id="cdD">000</b><span>days</span></div>
+          <div class="acap-unit"><b id="cdH">00</b><span>hours</span></div>
+          <div class="acap-unit"><b id="cdM">00</b><span>min</span></div>
+          <div class="acap-unit"><b id="cdS">00</b><span>sec</span></div>
+        </div>
+        <div class="acap-cd-foot" id="acapCdFoot">November 1 to December 31, 2026 · Coverage starts January 1</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section acap-window-sec">
+    <div class="container">
+      <div class="section-label">The headline number</div>
+      <h2 class="acap-h2">How much enrollment time did Nevada actually lose?</h2>
+      <p class="acap-p">
+        Fifteen days, not thirty. Nevada keeps sixteen days that states on the federal platform
+        lose entirely, and that gap is where most of the confusion this autumn will come from.
+      </p>
+
+      <div class="acap-bars">
+        <div class="acap-bar-row">
+          <span class="acap-bl">Previously</span>
+          <div class="acap-track"><div class="acap-fill acap-f-old" style="--w:100%"><b>Nov 1 to Jan 15</b></div></div>
+          <span class="acap-bv">76 days</span>
+        </div>
+        <div class="acap-bar-row">
+          <span class="acap-bl">Nevada now</span>
+          <div class="acap-track"><div class="acap-fill acap-f-nv" style="--w:80%"><b>Nov 1 to Dec 31</b></div></div>
+          <span class="acap-bv">61 days</span>
+        </div>
+        <div class="acap-bar-row">
+          <span class="acap-bl">Federal platform states</span>
+          <div class="acap-track"><div class="acap-fill acap-f-fed" style="--w:59%"><b>Nov 1 to Dec 15</b></div></div>
+          <span class="acap-bv">45 days</span>
+        </div>
+      </div>
+      <p class="acap-note">
+        Nevada Health Link opens window shopping on October 1, a month before enrollment starts.
+        Using that month is the cheapest way to buy back the time the rule took away. The full
+        Nevada calendar sits in <a href="/qa/when-is-open-enrollment-in-nevada">when is open enrollment in Nevada</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section acap-changes-sec" id="changes">
+    <div class="container">
+      <div class="section-label">Sorted by what reaches you</div>
+      <h2 class="acap-h2">Which ACA changes actually apply to a Nevadan?</h2>
+      <p class="acap-p">
+        Seven changes reach Nevada households. Three were finalized for the federal platform only
+        and can be safely ignored here. Select a card to open the detail and the source.
+      </p>
+
+      <div class="acap-filter" role="group" aria-label="Filter changes">
+        <button type="button" class="acap-chip is-on" data-f="all">All 10 changes</button>
+        <button type="button" class="acap-chip" data-f="nv">Applies in Nevada (7)</button>
+        <button type="button" class="acap-chip" data-f="fed">Federal only (3)</button>
+      </div>
+
+      <div class="acap-cards">
+        {CHANGES.map((c, i) => (
+          <article class="acap-card" data-scope={c.scope}>
+            <button type="button" class="acap-card-head" aria-expanded="false" aria-controls={`acap-d${i}`}>
+              <span class={`acap-badge ${c.scope === 'nv' ? 'b-nv' : 'b-fed'}`}>
+                {c.scope === 'nv' ? 'Applies in Nevada' : 'Federal only, not Nevada'}
+              </span>
+              <span class="acap-plus" aria-hidden="true"></span>
+              <h3>{c.title}</h3>
+              <p>{c.lede}</p>
+            </button>
+            <div class="acap-detail" id={`acap-d${i}`}>
+              <div>
+                <p>{c.detail}</p>
+                <p class="acap-src">Source: {c.source}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="acap-note">
+        Every item above traces to the
+        <a href={CMS} rel="noopener" target="_blank">CMS 2025 Marketplace Integrity and Affordability Final Rule</a>
+        or to <a href={NVHL} rel="noopener" target="_blank">Nevada Health Link</a>. Nothing here is a
+        ProtectHealth interpretation of what the rule might mean.
+      </p>
+    </div>
+  </section>
+
+  <section class="section acap-do-sec">
+    <div class="container">
+      <div class="section-label">Before November 1</div>
+      <h2 class="acap-h2">What should a Nevada household do about this?</h2>
+      <p class="acap-p">
+        Five things, and October is the month to do them. The shortened window punishes anyone
+        who starts the week of the deadline.
+      </p>
+      <ol class="acap-steps">
+        <li>
+          <b>Reconcile any prior year advance credits.</b>
+          One unfiled year now blocks eligibility. Confirm the return was filed and the credits
+          reconciled before enrollment opens, because fixing it in December is not realistic.
+        </li>
+        <li>
+          <b>Gather income proof, not an income guess.</b>
+          Self attestation alone no longer resolves a mismatch. For tipped, commission and
+          1099 households, that means records ready in advance. The estimating problem itself is
+          covered in <a href="/qa/how-do-freelancers-estimate-income-for-health-subsidies">how to estimate income for health subsidies</a>.
+        </li>
+        <li>
+          <b>Window shop from October 1.</b>
+          Nevada Health Link opens browsing a month early. Check the specific doctors and
+          prescriptions that matter against each plan, because valley networks shift between plan years.
+        </li>
+        <li>
+          <b>Do not auto-renew without looking.</b>
+          Widened actuarial value ranges mean last year's plan can pay differently under the same
+          name. Compare against <a href="/blog-post/how-to-choose-a-health-insurance-plan-nevada">how to choose a health insurance plan in Nevada</a>.
+        </li>
+        <li>
+          <b>Clear any past due balance.</b>
+          An old unpaid premium with the same insurer can now block new coverage.
+        </li>
+      </ol>
+      <p class="acap-note">
+        Employers offering an ICHRA have their own timing problem this year, because the
+        arrangement requires a notice at least 90 days before the plan year starts. That sits in
+        <a href="/blog-post/what-is-an-ichra">the ICHRA guide</a> and in
+        <a href="/blog-post/ichra-vs-marketplace-health-insurance">ICHRA versus marketplace coverage</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+
+      <div class="cta-band">
+        <h2>Twenty minutes, before the window opens</h2>
+        <p>
+          The rules changed, the calendar shrank, and the verification is stricter. A free
+          conversation with a licensed Nevada broker maps what applies to your household and what
+          to have ready by November 1.
+        </p>
+        <a href="/talk-to-a-broker" class="btn big" style="background:#fff;color:var(--navy);">Talk To A Broker</a>
+      </div>
+
+      <p class="compliance-note">
+        ProtectHealth brokers are insurance professionals, not tax professionals. This page
+        summarizes published federal and Nevada guidance and is not legal or tax advice.
+        Eligibility depends on household income, filing status and individual circumstances.
+        When tax questions arise, a licensed tax professional is the right next call. Nevada
+        producers can be verified through the Nevada Division of Insurance.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  /* Hero. The glows sit inside their own clipped layer rather than relying on
+     overflow on the section, per the mobile stage 1 rules in CLAUDE.md. */
+  .acap-hero { position: relative; overflow: hidden; background: linear-gradient(150deg, #071832 0%, #0f3567 55%, #17457e 100%); color: #fff; padding: 62px 0 74px; border-radius: 0 0 34px 34px; }
+  .acap-grid-bg { position: absolute; inset: 0; opacity: 0.16; background-image: linear-gradient(rgba(255,255,255,0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.16) 1px, transparent 1px); background-size: 54px 54px; mask-image: radial-gradient(circle at 30% 20%, #000 0%, transparent 72%); -webkit-mask-image: radial-gradient(circle at 30% 20%, #000 0%, transparent 72%); }
+  .acap-glow { position: absolute; border-radius: 50%; filter: blur(94px); opacity: 0.5; }
+  .acap-g1 { width: 520px; height: 520px; background: #197bff; top: -190px; right: -130px; }
+  .acap-g2 { width: 400px; height: 400px; background: #19c8ff; bottom: -200px; left: -120px; opacity: 0.32; }
+  .acap-hero-inner { position: relative; z-index: 2; }
+  .acap-crumb { font-size: 0.82rem; color: #9dc2ee; margin-bottom: 20px; }
+  .acap-crumb a { color: #9dc2ee; text-decoration: none; }
+  .acap-crumb a:hover { color: #fff; }
+  .acap-kick { display: inline-flex; align-items: center; gap: 9px; text-transform: uppercase; letter-spacing: 2.4px; font-size: 0.72rem; font-weight: 800; color: #bfe2ff; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(142,201,255,0.35); background: rgba(25,123,255,0.16); }
+  .acap-dot { width: 7px; height: 7px; border-radius: 50%; background: #19c8ff; box-shadow: 0 0 0 0 rgba(25,200,255,0.7); animation: acapPulse 2.2s ease infinite; }
+  @keyframes acapPulse { 70% { box-shadow: 0 0 0 9px rgba(25,200,255,0); } 100% { box-shadow: 0 0 0 0 rgba(25,200,255,0); } }
+  .acap-hero h1 { color: #fff; font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.06; letter-spacing: -0.03em; margin: 18px 0 0; }
+  .acap-grad { background: linear-gradient(92deg, #8ec9ff, #19c8ff 45%, #66e0ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .acap-lead { color: #d3e4f8; font-size: 1.1rem; max-width: 620px; margin: 18px 0 0; line-height: 1.6; }
+  .acap-ai { margin: 22px 0 0; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); color: #e2eefc; font-size: 0.94rem; line-height: 1.62; max-width: 780px; }
+
+  /* Countdown */
+  .acap-countdown { margin-top: 26px; padding: 20px 22px; border-radius: 18px; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: inline-block; }
+  .acap-cd-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #8ec9ff; margin-bottom: 12px; }
+  .acap-cd-units { display: flex; gap: 10px; flex-wrap: wrap; }
+  .acap-unit { min-width: 74px; text-align: center; padding: 12px 14px; border-radius: 13px; background: linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.18); }
+  .acap-unit b { display: block; font-family: var(--font-display); font-size: 1.75rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .acap-unit span { display: block; margin-top: 5px; font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; color: #a9cdf2; }
+  .acap-cd-foot { margin-top: 13px; font-size: 0.84rem; color: #c9dcf5; }
+
+  .acap-h2 { margin-top: 6px; }
+  .acap-p { color: var(--muted); max-width: 700px; font-size: 1rem; }
+  .acap-note { font-size: 0.9rem; color: var(--muted); margin-top: 16px; line-height: 1.62; }
+
+  /* Window comparison bars */
+  .acap-bars { margin: 26px 0 4px; padding: 22px 24px; background: #fff; border: 1.5px solid var(--line); border-radius: 18px; box-shadow: 0 6px 22px rgba(15,53,103,0.06); }
+  .acap-bar-row { display: grid; grid-template-columns: 150px 1fr 68px; align-items: center; gap: 14px; margin-bottom: 11px; }
+  .acap-bar-row:last-child { margin-bottom: 0; }
+  .acap-bl { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+  .acap-bv { font-size: 0.88rem; font-weight: 800; color: var(--navy); text-align: right; }
+  .acap-track { height: 34px; background: rgba(15,53,103,0.06); border-radius: 9px; overflow: hidden; }
+  .acap-fill { height: 100%; width: 0; display: flex; align-items: center; padding-left: 13px; border-radius: 9px; animation: acapGrow 1.05s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+  .acap-fill b { font-size: 0.8rem; color: #fff; white-space: nowrap; font-weight: 700; }
+  .acap-f-old { background: linear-gradient(90deg, #8fa6c4, #a9bcd4); animation-delay: 0.05s; }
+  .acap-f-nv { background: linear-gradient(90deg, var(--blue), #19c8ff); animation-delay: 0.2s; }
+  .acap-f-fed { background: linear-gradient(90deg, #c2410c, #ea6d1f); animation-delay: 0.35s; }
+  @keyframes acapGrow { to { width: var(--w); } }
+
+  /* Filter chips */
+  .acap-filter { display: flex; gap: 9px; flex-wrap: wrap; margin: 24px 0 16px; }
+  .acap-chip { font-family: var(--font); font-size: 0.86rem; font-weight: 700; color: var(--navy); background: #fff; border: 1.5px solid var(--line); padding: 10px 17px; border-radius: 999px; cursor: pointer; transition: background 0.18s, border-color 0.18s, color 0.18s; min-height: 44px; }
+  .acap-chip:hover { border-color: rgba(25,123,255,0.5); }
+  .acap-chip.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+  /* Change cards. min() floor so the track shrinks on a 360px phone rather than
+     punching out of the container. */
+  .acap-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; }
+  .acap-card { background: #fff; border: 1.5px solid var(--line); border-radius: 17px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .acap-card:hover { border-color: rgba(25,123,255,0.42); box-shadow: 0 12px 30px rgba(15,53,103,0.09); transform: translateY(-2px); }
+  .acap-card.is-open { border-color: var(--blue); box-shadow: 0 12px 30px rgba(25,123,255,0.14); }
+  .acap-card.is-hidden { display: none; }
+  .acap-card-head { display: block; width: 100%; text-align: left; background: none; border: none; font-family: var(--font); padding: 18px 46px 18px 19px; cursor: pointer; position: relative; }
+  .acap-badge { display: inline-block; font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
+  .b-nv { background: rgba(25,123,255,0.11); color: #0f5fd0; }
+  .b-fed { background: rgba(194,65,12,0.1); color: #b3400c; }
+  .acap-card h3 { font-size: 1.02rem; color: var(--navy); margin: 0 0 6px; line-height: 1.32; }
+  .acap-card-head p { font-size: 0.9rem; color: var(--muted); margin: 0; line-height: 1.55; }
+  .acap-plus { position: absolute; top: 19px; right: 17px; width: 17px; height: 17px; }
+  .acap-plus::before, .acap-plus::after { content: ""; position: absolute; background: var(--blue); border-radius: 2px; transition: transform 0.3s cubic-bezier(0.2,0.7,0.2,1); }
+  .acap-plus::before { top: 7px; left: 0; width: 17px; height: 3px; }
+  .acap-plus::after { left: 7px; top: 0; width: 3px; height: 17px; }
+  .acap-card.is-open .acap-plus::after { transform: rotate(90deg); }
+  .acap-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.32s ease; }
+  .acap-card.is-open .acap-detail { grid-template-rows: 1fr; }
+  .acap-detail > div { overflow: hidden; }
+  .acap-detail p { font-size: 0.9rem; line-height: 1.62; color: var(--ink); margin: 0 19px 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+  .acap-detail .acap-src { border-top: none; padding-top: 0; margin-top: 0; font-size: 0.78rem; font-weight: 700; color: var(--blue); }
+
+  /* Steps */
+  .acap-steps { counter-reset: acs; list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+  .acap-steps li { counter-increment: acs; position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: 15px; padding: 17px 19px 17px 62px; font-size: 0.94rem; line-height: 1.6; color: var(--ink); }
+  .acap-steps li::before { content: counter(acs); position: absolute; left: 18px; top: 16px; width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(140deg, var(--blue), #007db3); color: #fff; font-weight: 800; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; }
+  .acap-steps b { display: block; color: var(--navy); margin-bottom: 3px; }
+
+  @media (max-width: 780px) {
+    .acap-hero { padding: 44px 0 54px; border-radius: 0 0 22px 22px; }
+    .acap-bar-row { grid-template-columns: 96px 1fr 58px; gap: 9px; }
+    .acap-bl { font-size: 0.78rem; }
+    .acap-countdown { display: block; }
+    .acap-unit { flex: 1 1 0; min-width: 0; }
+  }
+  /* Touch tier: the animated fills and the pulse are decorative. CLAUDE.md
+     requires disabling an animation to restore the end state, not just stop it. */
+  @media (pointer: coarse), (max-width: 1023px) {
+    .acap-fill { animation: none; width: var(--w); }
+    .acap-dot { animation: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .acap-fill { animation: none; width: var(--w); }
+    .acap-dot { animation: none; }
+    .acap-card { transition: none; }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    // Filter. Cards are always in the DOM as static HTML, so every change stays
+    // crawlable whether or not this script runs.
+    const chips = document.querySelectorAll('.acap-chip');
+    const cards = document.querySelectorAll('.acap-card');
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.classList.remove('is-on'));
+        chip.classList.add('is-on');
+        const f = chip.dataset.f;
+        cards.forEach((card) => {
+          card.classList.toggle('is-hidden', f !== 'all' && card.dataset.scope !== f);
+        });
+      });
+    });
+
+    // Expanders
+    document.querySelectorAll('.acap-card-head').forEach((head) => {
+      head.addEventListener('click', () => {
+        const card = head.closest('.acap-card');
+        const open = card.classList.toggle('is-open');
+        head.setAttribute('aria-expanded', String(open));
+      });
+    });
+
+    // Countdown. Three states: before the window opens, inside it, and after it
+    // closes. The last state must not read as a live countdown to nothing.
+    const box = document.getElementById('acapCount');
+    if (!box) return;
+    const open = new Date(box.dataset.open).getTime();
+    const close = new Date(box.dataset.close).getTime();
+    const label = document.getElementById('acapCdLabel');
+    const foot = document.getElementById('acapCdFoot');
+    const els = { d: document.getElementById('cdD'), h: document.getElementById('cdH'), m: document.getElementById('cdM'), s: document.getElementById('cdS') };
+    const pad = (n, w) => String(Math.max(0, n)).padStart(w, '0');
+
+    const tick = () => {
+      const now = Date.now();
+      let target, text, footText;
+      if (now < open) {
+        target = open;
+        text = 'Nevada open enrollment opens in';
+        footText = 'November 1 to December 31, 2026 · Coverage starts January 1';
+      } else if (now < close) {
+        target = close;
+        text = 'Nevada open enrollment closes in';
+        footText = 'Enrollment is open now · Coverage starts January 1';
+      } else {
+        label.textContent = 'Nevada open enrollment is closed';
+        foot.textContent = 'A qualifying life event may still open a special enrollment period. Nevada Medicaid enrolls year round.';
+        box.classList.add('is-closed');
+        els.d.textContent = '000'; els.h.textContent = '00'; els.m.textContent = '00'; els.s.textContent = '00';
+        return true;
+      }
+      label.textContent = text;
+      foot.textContent = footText;
+      const diff = target - now;
+      els.d.textContent = pad(Math.floor(diff / 86400000), 3);
+      els.h.textContent = pad(Math.floor(diff / 3600000) % 24, 2);
+      els.m.textContent = pad(Math.floor(diff / 60000) % 60, 2);
+      els.s.textContent = pad(Math.floor(diff / 1000) % 60, 2);
+      return false;
+    };
+
+    if (!tick()) {
+      const id = setInterval(() => { if (tick()) clearInterval(id); }, 1000);
+    }
+  })();
+</script>
