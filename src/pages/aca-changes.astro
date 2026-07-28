@@ -359,7 +359,13 @@ const schemas = [
   .acap-hero h1 { color: #fff; font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.06; letter-spacing: -0.03em; margin: 18px 0 0; }
   .acap-grad { background: linear-gradient(92deg, #8ec9ff, #19c8ff 45%, #66e0ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .acap-lead { color: #d3e4f8; font-size: 1.1rem; max-width: 620px; margin: 18px 0 0; line-height: 1.6; }
-  .acap-ai { margin: 22px 0 0; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); color: #e2eefc; font-size: 0.94rem; line-height: 1.62; max-width: 780px; }
+  /* global.css styles #ai-summary for LIGHT pages: background #eef6fa with an
+     inherited text colour. On this dark hero the inherited colour is white, so
+     the speakable block rendered as white text on a near-white box, invisible.
+     An ID selector outranks a class, so .acap-ai alone could never win. This
+     rule is (1 id + 1 class) and does. Any future dark-background page that
+     reuses #ai-summary needs the same treatment. */
+  .acap-hero #ai-summary { margin: 22px 0 0; padding: 18px 20px; border-radius: 14px; background: rgba(9,26,52,0.55); border: 1px solid rgba(142,201,255,0.28); color: #e8f2ff; font-size: 0.95rem; line-height: 1.62; max-width: 780px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
   /* Countdown */
   .acap-countdown { margin-top: 26px; padding: 20px 22px; border-radius: 18px; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: inline-block; }
