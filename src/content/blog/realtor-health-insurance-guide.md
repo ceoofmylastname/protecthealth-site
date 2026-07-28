@@ -1,5 +1,5 @@
 ---
-title: "Health Insurance For Realtors: Why 1 In 8 Agents Has No Coverage"
+title: "Health Insurance For Realtors: The Coverage Guide Nobody Hands New Agents"
 description: "How Nevada real estate agents actually get health coverage. Why brokerages cannot offer a group plan, how premium tax credits run on net commission income, when Nevada open enrollment closes, and which structures fit a 1099 agent."
 category: "Guide"
 funnelStage: "TOFU"
@@ -8,7 +8,7 @@ datePublished: "2026-07-21"
 dateModified: "2026-07-27"
 quickAnswer:
   - "A Realtor is generally an independent contractor rather than an employee, so a brokerage usually cannot cover agents under a traditional group health plan."
-  - "National Association of Realtors surveys put the uninsured rate among agents at 10 to 15 percent, down from 28 to 33 percent before the Affordable Care Act, and still roughly 1 in 8 agents."
+  - "Real estate agents are almost always independent contractors, which means no brokerage benefits packet, and coverage is a problem each agent has to solve alone."
   - "The main path for a Nevada agent is an individual plan through Nevada Health Link, where premium tax credits are calculated on net income after business expenses rather than gross commissions."
   - "Nevada open enrollment runs November 1 through December 31, and the former January 15 close was retired by a federal rule beginning with the 2027 plan year."
   - "ICHRA and Section 105 arrangements require at least one employee who is not the owner or the owner's spouse, which rules out most solo agents."
@@ -39,9 +39,9 @@ Here is the landscape a Nevada agent is actually choosing from.
 
 ## Why are so many Realtors uninsured?
 
-Roughly 1 in 8 agents carries no health coverage, and the cause is structural rather than financial. Nobody at a brokerage is responsible for handing an agent a benefits packet.
+A meaningful share of agents carries no health coverage at all, and the cause is structural rather than financial. Nobody at a brokerage is responsible for handing an agent a benefits packet.
 
-National Association of Realtors surveys have put the uninsured rate among agents in the 10 to 15 percent range, down from the 28 to 33 percent measured before the Affordable Care Act. The improvement is real. The gap that remains concentrates in the first two years of a license, when income is unpredictable and every spare dollar goes back into signage, photography and lead generation.
+Industry surveys have repeatedly found a meaningful share of agents uninsured, with the gap concentrating in the first two years of a license, when income is unpredictable and every spare dollar goes back into signage, photography and lead generation. The structural cause does not need a statistic to be visible: an agent is not an employee, so no one in the building is responsible for their coverage.
 
 The Clark County version runs the same way almost every time. An agent gets licensed, goes looking for the benefits page at the brokerage and finds a desk fee schedule instead. Coverage becomes a thing to handle once this escrow closes. Then the next one. Two years later the agent is producing well and still uninsured, because the decision never had a deadline attached to it.
 
