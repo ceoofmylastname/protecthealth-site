@@ -105,7 +105,7 @@ One `Person` node per page, emitted standalone and referenced by `@id` (`{domain
 - `licenseNumber` and `sameAs` are empty strings/arrays on all three. Nevada producer license number + LinkedIn URL are the strongest author-authority signals in a licensed industry and they are the two we do not have. `personSchema()` omits empty values so nothing false reaches the JSON-LD. Fill them when Rob supplies them; never invent them.
 - **Brenda Morgen's bio is a DRAFT pending her approval.** She had no bio at all before Jul 27. What is there now asserts only her role, agency and city — no years of experience, no license number, no carrier appointments. She carries the byline on 4 posts and their Q&A children, so she must read and correct it. Her wording wins.
 
-Also unresolved: the site spells them **Morgen**; they have been referred to as Morgan elsewhere. Confirm which is correct, because inconsistent name spelling actively harms entity recognition.
+**RESOLVED (owner confirmation, Jul 28 2026): the family name is Morgen.** The site already spells it Morgen everywhere, so nothing needed changing in the repo. If "Morgan" appears in any external profile the brokers control (Google Business, LinkedIn, state licensing records, directory listings), it should be corrected to Morgen there, because inconsistent spelling across the web weakens the entity match between the bylines and the people.
 
 ## Non-negotiable content rules
 
