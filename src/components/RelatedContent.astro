@@ -73,8 +73,10 @@ const showParent = parent && !skip.has(parent.id) && !posts.some((p) => p.id ===
 ---
 
 <section class="related" aria-labelledby="related-h">
+  {/* Visitor-facing copy. "Cluster" is internal SEO vocabulary and must never
+      appear in rendered text; readers think in topics, not clusters. */}
   <h2 id="related-h">Keep Reading</h2>
-  <p class="related-sub">Related guides and answers from the same ProtectHealth coverage cluster.</p>
+  <p class="related-sub">More ProtectHealth guides and answers on this topic.</p>
 
   {showParent && (
     <a href={`/blog-post/${parent!.id}`} class="related-parent">
@@ -106,7 +108,7 @@ const showParent = parent && !skip.has(parent.id) && !posts.some((p) => p.id ===
 
   {posts.length > 0 && (
     <div class="related-more">
-      <h3>More Guides In This Cluster</h3>
+      <h3>More Guides On This Topic</h3>
       <ContentRail
         cue="Read the guide →"
         items={posts.map((p) => ({
