@@ -1,6 +1,6 @@
 ---
 question: "Can A Spouse Join A Self-Employed Health Plan?"
-description: "How a spouse fits into self-employed health coverage: family marketplace plans, the premium deduction, and employment-based structures with real rules."
+description: "How a spouse fits into self-employed health coverage in Nevada: family marketplace plans, the premium deduction, and employment-based structures with real rules."
 cluster: "ichra"
 parentPost: "health-insurance-options-self-employed-nevada"
 siblings:
@@ -8,35 +8,81 @@ siblings:
   - "how-do-llc-owners-get-health-insurance-in-nevada"
   - "can-a-sole-proprietor-get-group-health-insurance"
 datePublished: "2026-07-22"
-quickAnswer: "Yes. A spouse can join a self-employed household's marketplace plan, and qualifying premiums for a spouse count toward the self-employed premium deduction. Employment-based structures like Section 105 require the spouse to be legitimately employed by the business."
-speakableText: "A spouse fits into self-employed health coverage in three distinct ways, and they follow different rules. The simplest is a family marketplace plan covering both spouses, with premium tax credits based on household income. Second, the self-employed premium deduction generally covers premiums for a spouse and dependents, not just the business owner. Third, and most structure-dependent, a spouse who legitimately works for the business as a W-2 employee can anchor arrangements like a Section 105 plan, where the business reimburses family medical costs tax-free. The third path carries real employment and documentation requirements, and eligibility depends on business structure, income, and household situation."
+dateModified: "2026-07-27"
+quickAnswer: "Yes. A spouse can be covered on a self-employed household's marketplace plan, and qualifying premiums paid for a spouse count toward the self-employed health insurance deduction claimed on Schedule 1 of Form 1040, line 17."
+speakableText: "Joining a self-employed health plan means three different things, and each one follows a separate rule. Sharing coverage is the simple version, where a family plan through Nevada Health Link covers both spouses and premium tax credits are figured on household income. Sharing the deduction is the tax version, since premiums for a spouse, dependents and a child under age 27 at year end are deductible alongside the taxpayer's own. Joining the payroll is the structural version, and that one demands genuine employment plus a written plan document before any reimbursement arrangement will survive scrutiny."
 faq:
   - q: "Does a spouse's own employer coverage change the picture?"
-    a: "Significantly. Eligibility for a spouse's employer-subsidized plan can block the premium deduction for those months and affect marketplace credit eligibility, so the plans must be compared together, not separately."
-  - q: "Can a self-employed person deduct a spouse's premiums?"
-    a: "Generally yes, the self-employed premium deduction covers qualifying premiums for the filer, spouse, and dependents, limited by business income."
-  - q: "What makes spousal employment legitimate for a Section 105 plan?"
-    a: "Real work, reasonable wages, payroll records, and documentation. A spouse on paper only invites the arrangement to fail under scrutiny, which is why a tax professional belongs in the setup."
-  - q: "Do both spouses need to be on the same plan?"
-    a: "No. Sometimes one spouse takes an employer plan while the other uses a subsidized marketplace plan. The right split depends on household income and each plan's actual cost."
+    a: "Significantly. Eligibility to participate in a subsidized plan through a spouse's employer blocks the self-employed health insurance deduction for every month that eligibility exists, and an affordable employer offer can also affect marketplace credit eligibility for the household."
+  - q: "Can a self-employed filer deduct premiums paid for a spouse?"
+    a: "Generally yes. The self-employed health insurance deduction covers medical, dental, vision and qualified long-term care premiums for the taxpayer, a spouse, dependents and a child under age 27 at year end, limited by net self-employment income."
+  - q: "Do both spouses have to be on the same health plan?"
+    a: "No. One spouse taking an employer plan while the other buys marketplace coverage is common in Nevada. The right split depends on household income and what each plan actually costs after subsidies."
+  - q: "What makes spousal employment legitimate for a reimbursement plan?"
+    a: "Real work the business needs, reasonable wages actually run through payroll, continuous records of hours and duties, and a written plan document adopted before any reimbursement begins."
+  - q: "Does a QSEHRA affect the self-employed deduction?"
+    a: "Yes. Coverage under a QSEHRA counts as participation in a subsidized health plan, which blocks the self-employed health insurance deduction for the months of that coverage."
 ---
 
-The spouse question sounds simple and splits into three answers. Because "join the plan" can mean sharing coverage, sharing a deduction, or joining the payroll. Each has different rules.
+The spouse question sounds like one question and is actually three. Because joining a plan can mean sharing the coverage, sharing the deduction, or joining the payroll. Different rules govern each, and mixing them up is how a household ends up with a structure that costs more than it saves.
 
 ## Can a spouse simply share the coverage?
 
-Yes. The simplest version is a family marketplace plan covering both spouses, with premium tax credits calculated on household income. One caveat carries most of the weight: if the spouse has access to an *affordable employer plan* of their own, that offer can affect credit eligibility and the premium deduction for those months. The two paths interact, so the comparison has to be run once, properly, across the whole household.
+Yes, and this is the version that fits most households. A family plan bought through Nevada Health Link covers both spouses, with premium tax credits calculated on household income after business expenses.
 
-## Does the premium deduction cover a spouse?
+Nothing exotic is required. The self-employed spouse is not buying a special product, and the non-working or also-self-employed spouse is not a complication. The exchange application asks who needs coverage, screens the whole household at once, and prices from there.
 
-Generally yes. The self-employed health insurance deduction covers qualifying medical, dental, and long-term-care premiums for the filer, spouse, and dependents, above the line, limited by business income. Months when either spouse was eligible for an employer-subsidized plan generally do not count, which is the fine print that catches households mid-year.
+Two Nevada details make this easier than people expect. Nevada expanded Medicaid, so the same application screens for Medicaid eligibility year round, which matters for a household with one steady income and one that swings. And Nevada open enrollment now runs November 1 through December 31, a shorter window than the one most people remember, laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
-## What about hiring the spouse into the business?
+The one real trap is mixed status. In Clark County it is routine for one spouse to hold a Strip property job with benefits while the other runs a 1099 business. That combination changes the math for both, which is the next section.
 
-That is the structure play, and it has real requirements:
+## Does the deduction cover a spouse's premiums?
 
-1. **Legitimate employment**, actual work, reasonable pay, real payroll.
-2. **Documentation**, job description, hours, wage records maintained continuously.
-3. **A formal plan document**, arrangements like Section 105 reimbursement run on paperwork, not intentions.
+Generally yes. Premiums paid for a spouse, dependents, and a child under age 27 at year end are deductible alongside the taxpayer's own, on Schedule 1 of Form 1040, line 17.
 
-Done correctly and where the household qualifies, a legitimately employed spouse can anchor tax-advantaged reimbursement of family medical costs. Done casually, it fails under scrutiny. Eligibility depends on business structure, income, and household situation, and this is precisely where a licensed tax professional joins the conversation, the full map of these options lives in [the self-employed options guide for Nevada](/blog-post/health-insurance-options-self-employed-nevada).
+The scope is broader than most people assume. Medical, dental, vision and qualified long-term care premiums all qualify. The child under 27 rule catches people pleasantly by surprise, because that child does not have to be a dependent for the premiums to count.
+
+Two limits govern the whole thing. The deduction cannot exceed net self-employment income, so a lean year in a lumpy business caps it regardless of what was actually paid in premiums. And the employer-eligibility rule, covered below, can switch it off month by month. Anything that does not qualify on line 17 may still be includable as a medical expense on Schedule A for a household that itemizes. Full mechanics live in [can self-employed Nevadans deduct health insurance premiums](/qa/can-self-employed-nevadans-deduct-health-insurance-premiums) and in the IRS [Form 7206 instructions](https://www.irs.gov/instructions/i7206).
+
+Nevada has no state income tax. That means the federal deduction is the entire benefit, with no state layer to soften a mistake.
+
+## What does a spouse's employer offer change?
+
+A great deal, and mostly in one direction. Eligibility to participate in a subsidized plan through a spouse's employer removes the self-employed deduction for every month that eligibility exists.
+
+Read that carefully, because the trigger is eligibility, not enrollment. A self-employed Realtor who declines her husband's plan at his open enrollment and keeps her own marketplace coverage has still lost the deduction for those months. Nothing was signed. Nothing changed on the coverage side. The deduction is simply gone.
+
+The rule reaches further than a spouse, too. Eligibility through the taxpayer's own employer, or through the employer of a dependent or a child under 27, produces the same result.
+
+There is a premium tax credit dimension as well. An affordable offer of employer coverage changes what the household can claim, and the [IRS explains the credit basics](https://www.irs.gov/affordable-care-act/individuals-and-families/the-premium-tax-credit-the-basics) in plain terms. The interaction is worked through in [can you get ACA subsidies if an employer offers insurance](/qa/can-you-get-aca-subsidies-if-an-employer-offers-insurance).
+
+The practical move is unglamorous: price the spouse's family tier before buying anything. One phone call to a human resources department. Households in the valley skip that call constantly and pay for the omission twice, once on premium and once on the lost deduction.
+
+## Can a spouse join the business payroll instead?
+
+Sometimes, and only where the employment is genuine. Hiring a spouse creates an employee, and employee benefits attach to employees rather than to owners, which is the entire mechanism.
+
+### What legitimacy actually requires
+
+Four things, maintained continuously rather than reconstructed later.
+
+1. **Real work the business genuinely needs.** Bookkeeping, scheduling, client intake, jobsite coordination.
+2. **Reasonable wages** for that role and those hours, actually processed through payroll.
+3. **Records kept as events happen.** Hours, duties, wage payments.
+4. **A written plan document** adopted before the first reimbursement.
+
+A spouse on paper only, drawing token wages for invisible work, fails. And every tax benefit built on that employment fails alongside it.
+
+### Where the structure breaks
+
+Entity type decides more than effort does. A more-than-2-percent S corporation shareholder is treated like a partner rather than an employee for fringe benefit purposes, per IRS [Publication 15-B](https://www.irs.gov/publications/p15b), and attribution rules generally pull the owner's spouse into the same treatment. The classic arrangement is [a Section 105 plan](/qa/what-is-a-section-105-plan) inside a sole proprietorship, not inside an S corporation.
+
+The strategy and its failure modes get a full page in [can hiring a spouse unlock health benefits](/qa/can-hiring-a-spouse-unlock-health-benefits).
+
+## What should a Nevada household check before deciding?
+
+Price the spouse's employer plan first, because that is the cheapest information available. Then run marketplace numbers on net income rather than gross. Then, and only then, look at anything structural.
+
+Check the things premium alone never reveals. Whether the family's existing doctors are in network for the coming plan year, since Las Vegas valley networks shift between plan years. Whether prescriptions sit on the formulary and at what tier. What the out-of-pocket maximum looks like in a genuinely bad year, because the ceiling is the point of coverage.
+
+The wider map sits in [the self-employed options guide for Nevada](/blog-post/health-insurance-options-self-employed-nevada). We are insurance nerds, not tax professionals, and every one of these branches ends on a tax return, so a licensed tax professional belongs in the conversation before anything gets implemented. When the coverage side is ready, [book a conversation](/talk-to-a-broker) with both spouses on the call.
