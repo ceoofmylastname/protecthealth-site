@@ -130,6 +130,31 @@ Also unresolved: the site spells them **Morgen**; they have been referred to as 
 - All internal links are plain `<a href>` in static HTML. Slugs are LOCKED once indexed — never rename a published slug.
 - New images: WebP, descriptive noun-specific alt text.
 
+## Content depth standard (owner decision, Jul 27 2026)
+
+Full spec: `content-depth-and-linking-standard.md` in the AI Website Authority wiki. Seven requirements, all mandatory, on blog posts, Q&A pages and the buyer's guide. **The entire existing library is currently below this floor** — 22 blogs at 330–600 words, 88 Q&A at ~283 median, and zero external links anywhere on the site. Treat every page as pending rewrite, not as compliant.
+
+| # | Requirement | Blog | Q&A |
+|---|---|---|---|
+| 1 | Body word count | 2,000+ | 900–1,200 |
+| 2 | One H1, question-form H2s, H3 subsections | ✓ | ✓ |
+| 3 | Inline internal links inside body prose | 6–10 | 4–6 |
+| 4 | External citations to gov/nonprofit authorities | 3–5 | 2–3 |
+| 5 | Human-sounding copy | ✓ | ✓ |
+| 6 | Nevada / Clark County specificity | ✓ | ✓ |
+| 7 | Related Reading block, image cards, below the CTA | ✓ | ✓ |
+
+Rules that are easy to get wrong:
+
+- **Never link a company that sells insurance.** External links go to `.gov`, state regulators, official statistics bodies, or non-commercial associations and research nonprofits only. No aggregators, no comparison sites, no lead vendors. This is the one outbound mistake that actively transfers authority to a competitor.
+- **Word count is body copy only.** Frontmatter, Quick Answer bullets, speakable text, the FAQ block and the Related Reading block do not count.
+- **Q&A sits at 900–1,200 deliberately, not 2,000.** Padding a single-question page buries the extractable answer, which is the entire reason the page type exists.
+- **Localization means Nevada, not translation.** Nevada Health Link, the Silver State Health Insurance Exchange, the Nevada Division of Insurance, Clark County networks, Las Vegas hospitality and tipped-wage examples. Never invent a local fact — a wrong deadline is worse than a generic sentence.
+- **No inline link inside the first 160 characters under an H2.** That passage is the extractable answer and must stay clean.
+- **Depth work is a content change, never a slug change**, and `dateModified` is set per page as it is genuinely rewritten, never bulk-stamped across a batch.
+
+`src/components/RelatedContent.astro` owns requirement 7 on both `blog-post/[slug].astro` and `qa/[slug].astro`. It auto-populates from cluster + funnel stage, renders Q&A and guides as image cards off `QA_ART` / `BLOG_ART`, de-duplicates, and is placed BELOW `.cta-band`. Do not move it above the CTA and do not hand-curate its lists.
+
 ## Current content inventory
 
 **Blog: 22 posts. Q&A: 88 pages (exactly 4 children per post). 147 pages built.** Verified against `src/content/` on July 27, 2026 — an earlier revision of this file said 10 and 6, which was three build waves out of date.

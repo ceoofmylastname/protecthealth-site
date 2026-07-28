@@ -84,12 +84,27 @@ const orgSchema = organizationSchema();
                 nav shifts when the logo decodes. */}
             <img src={ASSETS.logo} alt="ProtectHealth: Medical, Medicare, Life, Annuity, Supplements" width="511" height="132" />
           </a>
+          {/* Eight top-level children overflowed the shell and `flex-wrap: wrap`
+              dropped the CTA onto a second row, doubling the header height. The
+              education pages now live under one Learn group, so the row is five
+              items and CANNOT wrap — `.nav` is `flex-wrap: nowrap`. Adding a
+              seventh top-level link here will overflow again; add it to the
+              Learn menu instead. */}
           <nav class="nav" aria-label="Main">
             <a href="/services">Services</a>
-            <a href="/buyers-guide">Buyer's Guide</a>
             <a href="/self-employed">Self-Employed</a>
             <a href="/employers">Employers</a>
-            <a href="/blog">Blog</a>
+            <div class="nav-group" data-navgroup>
+              <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true" aria-controls="learnMenu">
+                Learn<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="nav-menu" id="learnMenu" role="menu">
+                <a href="/blog" role="menuitem"><b>Blog</b><span>Guides and strategy breakdowns</span></a>
+                <a href="/qa" role="menuitem"><b>Q&amp;A</b><span>Straight answers to single questions</span></a>
+                <a href="/buyers-guide" role="menuitem"><b>Buyer's Guide</b><span>How to choose coverage</span></a>
+                <a href="/faq" role="menuitem"><b>FAQ</b><span>Common questions about ProtectHealth</span></a>
+              </div>
+            </div>
             <a href="/about-us">About</a>
             <a href={SITE.phoneHref} class="nav-phone">{SITE.phone}</a>
             <a href="/talk-to-a-broker" class="btn">Talk To A Broker</a>
@@ -113,11 +128,12 @@ const orgSchema = organizationSchema();
             <ul class="mnav-list" aria-label="Mobile navigation">
               {[
                 { href: '/services', label: 'Services', n: '01' },
-                { href: '/buyers-guide', label: "Buyer's Guide", n: '02' },
-                { href: '/self-employed', label: 'Self-Employed', n: '03' },
-                { href: '/employers', label: 'Employers', n: '04' },
-                { href: '/blog', label: 'Blog', n: '05' },
-                { href: '/about-us', label: 'About', n: '06' },
+                { href: '/self-employed', label: 'Self-Employed', n: '02' },
+                { href: '/employers', label: 'Employers', n: '03' },
+                { href: '/blog', label: 'Blog', n: '04' },
+                { href: '/qa', label: 'Q&A', n: '05' },
+                { href: '/buyers-guide', label: "Buyer's Guide", n: '06' },
+                { href: '/about-us', label: 'About', n: '07' },
               ].map((l) => (
                 <li><span class="mnav-clip"><a href={l.href}><em>{l.n}</em>{l.label}</a></span></li>
               ))}
@@ -144,6 +160,26 @@ const orgSchema = organizationSchema();
         const onScroll = () => h.classList.toggle('scrolled', scrollY > 12);
         addEventListener('scroll', onScroll, { passive: true });
         onScroll();
+      })();
+      // Desktop "Learn" dropdown. Hover opens it on real pointer devices; click
+      // and keyboard work everywhere, so it is operable without a mouse. The
+      // links are static <a href> in the DOM either way, so crawlability never
+      // depends on this script running.
+      (() => {
+        const group = document.querySelector('[data-navgroup]');
+        if (!group) return;
+        const btn = group.querySelector('.nav-group-btn');
+        const set = (v) => { group.classList.toggle('open', v); btn.setAttribute('aria-expanded', String(v)); };
+        btn.addEventListener('click', (e) => { e.preventDefault(); set(!group.classList.contains('open')); });
+        if (matchMedia('(hover: hover)').matches) {
+          group.addEventListener('pointerenter', () => set(true));
+          group.addEventListener('pointerleave', () => set(false));
+        }
+        // Focus moving out of the group closes it, which keeps tabbing past the
+        // menu from leaving an open panel floating over the page.
+        group.addEventListener('focusout', (e) => { if (!group.contains(e.relatedTarget)) set(false); });
+        document.addEventListener('click', (e) => { if (!group.contains(e.target)) set(false); });
+        addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
       })();
       // Pointer spotlight for .spot cards (site-wide)
       document.addEventListener('pointermove', (e) => {

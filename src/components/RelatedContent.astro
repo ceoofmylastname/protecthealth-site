@@ -1,0 +1,191 @@
+---
+/**
+ * RelatedContent — the mandatory "Related Reading" block at the foot of every
+ * blog post and Q&A page (wiki: content-depth-and-linking-standard).
+ *
+ * Three rules this component exists to enforce, so no page can quietly skip them:
+ *
+ * 1. It renders BELOW the conversion CTA. Same conversion-first, education-after
+ *    rule the BOFU landing pages and service hubs already follow. Callers place
+ *    it after `.cta-band`; never move it above.
+ * 2. It is auto-populated from cluster + funnel-stage filters. Hand-curated
+ *    lists rot the moment new content ships, and 110 content files is well past
+ *    the point where a human maintains them accurately.
+ * 3. It de-duplicates against `exclude`, so a destination already linked inline
+ *    in the body is not offered a second time.
+ *
+ * Every link is a plain <a href> in static HTML with title-case descriptive
+ * anchor text (wiki: internal-link-quality). Nothing here depends on JS.
+ */
+import { getCollection } from 'astro:content';
+import { BLOG_ART, QA_ART } from '../lib/site';
+
+interface Props {
+  cluster: string;
+  /** Which template is rendering this — decides what "related" means. */
+  type: 'blog' | 'qa';
+  /** id of the current page, always excluded from its own related block. */
+  currentId: string;
+  /** For Q&A: the parent post id, surfaced first as the full guide. */
+  parentPost?: string;
+  /** Destinations already linked inline in the body, as bare slugs. */
+  exclude?: string[];
+}
+const { cluster, type, currentId, parentPost, exclude = [] } = Astro.props;
+
+const skip = new Set([currentId, ...exclude]);
+
+// One genuinely relevant supporting page per cluster. Kept to a single entry
+// on purpose: a block of six site links reads as a footer, not a recommendation.
+const CLUSTER_HUB: Record<string, { url: string; label: string; note: string }> = {
+  ichra: { url: '/self-employed', label: 'Health Insurance For The Self-Employed', note: 'How ProtectHealth maps coverage to a 1099 income structure' },
+  employers: { url: '/employers', label: 'Employer Benefits And HR Strategy', note: 'Benefits, payroll and HR handled as one picture' },
+  'nevada-core': { url: '/services/health-insurance', label: 'Health Insurance Coverage', note: 'Plans, networks and what ProtectHealth checks first' },
+  life: { url: '/services/life-insurance', label: 'Life Insurance Coverage', note: 'Term, whole life and how the amount is calculated' },
+  'dental-vision': { url: '/services/dental-insurance', label: 'Dental And Vision Coverage', note: 'When the coverage pays for itself and when it does not' },
+  medicare: { url: '/services/medicare', label: 'Medicare Solutions', note: 'Advantage, Medigap and the deadlines that matter' },
+};
+const hub = CLUSTER_HUB[cluster];
+
+const allPosts = await getCollection('blog');
+const allQa = await getCollection('qa');
+
+// TOFU first, then MOFU. A reader who reached the foot of the page is usually
+// widening their understanding, not narrowing it.
+const STAGE_ORDER: Record<string, number> = { TOFU: 0, MOFU: 1, BOFU: 2 };
+const posts = allPosts
+  .filter((p) => p.data.cluster === cluster && !skip.has(p.id))
+  .sort((a, b) => STAGE_ORDER[a.data.funnelStage] - STAGE_ORDER[b.data.funnelStage])
+  .slice(0, type === 'blog' ? 3 : 2);
+
+// On a blog post the relevant questions are its own children first, then the
+// rest of the cluster. On a Q&A page they are the siblings around it.
+const childQa = allQa.filter((q) => q.data.parentPost === currentId && !skip.has(q.id));
+const clusterQa = allQa.filter((q) => q.data.cluster === cluster && !skip.has(q.id) && !childQa.some((c) => c.id === q.id));
+// Capped at 6 / 4. These render as image cards now, and a wall of twelve pieces
+// of art below the CTA reads as a dumping ground rather than a recommendation.
+const questions = [...childQa, ...clusterQa].slice(0, type === 'blog' ? 6 : 4);
+
+const parent = parentPost ? allPosts.find((p) => p.id === parentPost) : undefined;
+const showParent = parent && !skip.has(parent.id) && !posts.some((p) => p.id === parent.id);
+---
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Keep Reading</h2>
+  <p class="related-sub">Related guides and answers from the same ProtectHealth coverage cluster.</p>
+
+  {showParent && (
+    <a href={`/blog-post/${parent!.id}`} class="related-parent">
+      <span class="rp-tag">Full Guide</span>
+      <b>{parent!.data.title}</b>
+      <span class="rp-desc">{parent!.data.description}</span>
+    </a>
+  )}
+
+  {questions.length > 0 && (
+    <div class="related-qa">
+      <h3>Questions People Ask About This</h3>
+      {/* Image cards, not text links. Every Q&A page has its own art in QA_ART
+          and a bare list of question strings threw all of it away. The image is
+          the reason a reader clicks, and the alt text is a second descriptive
+          signal about the destination on top of the anchor text. */}
+      <div class="related-grid qa-grid">
+        {questions.map((q) => (
+          <a href={`/qa/${q.id}`} class="related-card">
+            {QA_ART[q.id] && (
+              <span class="rc-art">
+                <img src={QA_ART[q.id].webp} alt={QA_ART[q.id].alt} loading="lazy" width="640" height="360" />
+              </span>
+            )}
+            <span class="rc-body">
+              <span class="rc-tag">Question</span>
+              <b>{q.data.question}</b>
+              <span class="rc-go">Read the answer →</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {posts.length > 0 && (
+    <div class="related-more">
+      <h3>More Guides In This Cluster</h3>
+      <div class="related-grid">
+        {posts.map((p) => (
+          <a href={`/blog-post/${p.id}`} class="related-card">
+            {BLOG_ART[p.id] && (
+              <span class="rc-art">
+                <img src={BLOG_ART[p.id].webp} alt={BLOG_ART[p.id].alt} loading="lazy" width="640" height="360" />
+              </span>
+            )}
+            <span class="rc-body">
+              <span class="rc-tag">{p.data.category}</span>
+              <b>{p.data.title}</b>
+              <span class="rc-desc">{p.data.description}</span>
+              <span class="rc-go">Read the guide →</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {hub && (
+    <a href={hub.url} class="related-hub">
+      <b>{hub.label}</b>
+      <span>{hub.note}</span>
+    </a>
+  )}
+</section>
+
+<style>
+  .related { margin: 54px 0 0; padding: 34px 0 0; border-top: 2px solid rgba(25,123,255,0.14); }
+  .related h2 { margin: 0 0 4px; font-size: 1.55rem; }
+  .related-sub { margin: 0 0 22px; color: #5b708c; font-size: 0.95rem; }
+
+  .related-parent { display: block; padding: 18px 20px; margin-bottom: 18px; border-radius: 16px; text-decoration: none;
+    background: linear-gradient(120deg, rgba(25,123,255,0.09), rgba(25,200,255,0.05));
+    border: 1.5px solid rgba(25,123,255,0.22); transition: border-color 0.2s, transform 0.2s; }
+  .related-parent:hover { border-color: rgba(25,123,255,0.5); transform: translateY(-2px); }
+  .rp-tag { display: inline-block; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 7px; }
+  .related-parent b { display: block; font-size: 1.08rem; color: var(--navy); line-height: 1.32; }
+  .rp-desc { display: block; margin-top: 6px; font-size: 0.9rem; color: #5b708c; }
+
+  /* min() floor so the track can shrink below its ideal width on a 360px phone
+     instead of punching out of the container and scrolling the document
+     sideways (CLAUDE.md, mobile stage 1). */
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 16px; }
+  .qa-grid { grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); }
+  .related-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; text-decoration: none;
+    background: #fff; border: 1.5px solid rgba(15,53,103,0.1); box-shadow: 0 4px 16px rgba(15,53,103,0.05);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .related-card:hover { border-color: rgba(25,123,255,0.42); box-shadow: 0 12px 30px rgba(15,53,103,0.11); transform: translateY(-2px); }
+  /* aspect-ratio is load-order insurance: without it every card reflows when
+     the art decodes and the whole block shifts under the reader. */
+  .rc-art { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: rgba(15,53,103,0.06); }
+  .rc-art img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s cubic-bezier(.2,.7,.2,1); }
+  .related-card:hover .rc-art img { transform: scale(1.05); }
+  .rc-body { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 16px; }
+  .rc-tag { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 7px; }
+  .related-card b { font-size: 0.98rem; color: var(--navy); line-height: 1.32; }
+  .rc-desc { margin-top: 7px; font-size: 0.86rem; color: #5b708c; flex: 1; }
+  /* auto, not a fixed value: Q&A cards carry no description, so without this
+     the CTA line floats up against the question instead of sitting on the
+     baseline the guide cards use. */
+  .rc-go { margin-top: auto; padding-top: 12px; font-size: 0.82rem; font-weight: 800; color: var(--blue); }
+
+  .related-qa, .related-more { margin-top: 30px; }
+  .related-qa h3, .related-more h3 { margin: 0 0 14px; font-size: 1.12rem; color: var(--navy); }
+
+  .related-hub { display: block; margin-top: 24px; padding: 16px 20px; border-radius: 14px; text-decoration: none;
+    background: rgba(15,53,103,0.04); border: 1px solid rgba(15,53,103,0.1); transition: background 0.2s, border-color 0.2s; }
+  .related-hub:hover { background: rgba(25,123,255,0.07); border-color: rgba(25,123,255,0.32); }
+  .related-hub b { display: block; font-size: 0.98rem; color: var(--navy); }
+  .related-hub span { display: block; margin-top: 3px; font-size: 0.86rem; color: #5b708c; }
+
+  @media (max-width: 700px) {
+    .related { margin-top: 40px; padding-top: 26px; }
+    .related h2 { font-size: 1.35rem; }
+  }
+</style>

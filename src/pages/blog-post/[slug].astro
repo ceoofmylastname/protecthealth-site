@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
 import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId } from '../../lib/site';
 import AuthorByline from '../../components/AuthorByline.astro';
+import RelatedContent from '../../components/RelatedContent.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -53,9 +54,7 @@ const cta = CLUSTER_BOFU[d.cluster];
 // in site.ts for why it is not round-robin.
 const byline = authorFor(d.cluster);
 
-// Related Q&A pages in this post's cluster
-const allQa = await getCollection('qa');
-const childQa = allQa.filter((q) => q.data.parentPost === post.id);
+// Child Q&A lookup moved into RelatedContent, which now owns the related block.
 
 const articleSchema: Record<string, unknown> = {
   '@context': 'https://schema.org',
@@ -120,22 +119,16 @@ const schemas = [
 
       <FAQSection faq={d.faq} pageUrl={pageUrl} />
 
-      {childQa.length > 0 && (
-        <section aria-label="Related questions">
-          <h2>Related Questions</h2>
-          <ul>
-            {childQa.map((q) => (
-              <li><a href={`/qa/${q.id}`}>{q.data.question}</a></li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       <div class="cta-band">
         <h2>What's the next step?</h2>
         <p>{cta.line}</p>
         <a href={cta.url} class="btn big" style="background:#fff;color:var(--navy);">{cta.label}</a>
       </div>
+
+      {/* Related Reading sits BELOW the CTA — conversion first, education after.
+          The old plain <ul> of child Q&A links lived above it and offered no
+          related posts at all. Do not move this block up. */}
+      <RelatedContent cluster={d.cluster} type="blog" currentId={post.id} />
 
       <p class="compliance-note">ProtectHealth brokers are insurance professionals, not tax professionals. Nothing on this page implies every self-employed person or business automatically qualifies for any specific structure. Eligibility depends on business structure, income, and household situation. When tax or business structure enters the conversation, a brief chat with a licensed tax professional is a make-sense next step.</p>
     </div>
