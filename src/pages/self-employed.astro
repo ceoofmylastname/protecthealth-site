@@ -75,10 +75,14 @@ const schemas = [
     <div class="container">
       <div class="section-label">The Part Nobody Explains</div>
       <p class="lp-statement">Premiums and deductibles are the beginning of the conversation, <span class="lp-mark">not the end of it.</span></p>
-      <p style="max-width:760px;color:var(--muted);">Age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure decide what "good coverage" actually looks like. Two Realtors at the same brokerage with the same premium can have completely different coverage quality. NAR data shows 10 to 15 percent of Realtors carry no coverage at all. Usually because nobody ever explained the options, not because options don't exist.</p>
+      <p style="max-width:760px;color:var(--muted);">Age, household income, tax-credit eligibility, provider networks, prescriptions, and total financial exposure decide what "good coverage" actually looks like. Two Realtors at the same brokerage paying the same premium can end up with completely different coverage quality, because the premium is the only number the comparison screen shows and it is the least informative one.</p>
 
+      {/* The speakable block feeds JSON-LD and gets quoted by answer engines, so
+          every claim in it has to be sourceable. An earlier version asserted an
+          NAR uninsured statistic with no citation. Removed rather than left
+          standing on the money page. */}
       <div id="ai-summary" style="margin-top:26px;">
-        ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how their business is structured. Depending on structure, options may include individual marketplace coverage, genuine PPO access, small-group plans, or tax-advantaged health-benefit structures such as ICHRA and Section 105 arrangements. National Association of Realtors data shows 10 to 15 percent of Realtors remain uninsured, usually because nobody ever explained the options, not because options don't exist.
+        ProtectHealth helps Realtors, 1099 contractors, and self-employed professionals in Nevada build health coverage strategies around how the business is actually structured. Depending on structure, the realistic paths include an individual plan through Nevada Health Link with premium tax credits calculated on net self-employment income, coverage through a spouse's employer, Nevada Medicaid for households that qualify, and tax-advantaged reimbursement structures such as an ICHRA where the business has employees. Nevada open enrollment runs November 1 through December 31, and a solo operator with no employees generally cannot set up an ICHRA for their own coverage.
       </div>
     </div>
   </section>
@@ -95,7 +99,7 @@ const schemas = [
         <div class="lp-card spot"><span class="n">01</span><h3>Individual Coverage, Done Right</h3><p>Marketplace plans with the subsidy math actually run, net self-employment income, tax credits, and the deduction most 1099s never claim.</p></div>
         <div class="lp-card spot"><span class="n">02</span><h3>Genuine PPO Access</h3><p>Real PPO options with real networks, checked against your actual doctors before anything gets signed.</p></div>
         <div class="lp-card spot"><span class="n">03</span><h3>Small-Group Opportunities</h3><p>Some business setups unlock group coverage most self-employed people assume they can't have.</p></div>
-        <div class="lp-card spot"><span class="n">04</span><h3>Tax-Advantaged Structures</h3><p>ICHRA and Section 105 arrangements, small-employer ICHRA adoption grew 52% last year. Eligibility depends on structure, which is the whole point of the conversation.</p></div>
+        <div class="lp-card spot"><span class="n">04</span><h3>Tax-Advantaged Structures</h3><p>ICHRA and Section 105 arrangements, available only where the business has an employee who is not the owner or the owner's spouse. Eligibility turns on entity type, which is the whole point of the conversation.</p></div>
       </div>
       <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:22px;">Not every option fits every person. That's the point of having a strategy.</p>
     </div>
@@ -108,8 +112,9 @@ const schemas = [
       <h2 style="margin-top:0;">Your income closes in escrow. Your insurance thinks you get a paycheck.</h2>
       <p>Here's the thing about being self-employed in Las Vegas. Your income doesn't show up in tidy biweekly deposits. It shows up when a deal closes, when a client pays, when a busy season hits. Three closings in March, nothing in April, and somewhere in the middle of that you're supposed to guess what you'll earn this year, because that guess is exactly what <a href="https://www.nevadahealthlink.com/" target="_blank" rel="noopener noreferrer">Nevada Health Link</a> uses to calculate your premium tax credit.</p>
       <p>Guess low and you pay some of that credit back at tax time. Guess high and you leave money on the table every single month. Most agents and contractors we sit down with have never had anyone walk them through <a href="/qa/what-income-counts-for-aca-subsidies">what income actually counts</a>, or the fact that the math runs on your net self-employment income after expenses, not the gross number on your 1099. We wrote a whole plain-English breakdown of <a href="/blog-post/aca-premium-tax-credits-explained">how the premium tax credit really works</a> because we got tired of watching people overpay for coverage they could have gotten help with.</p>
-      <p>Then there's the deduction almost nobody claims correctly. If you qualify, health insurance premiums come off your income above the line. The IRS lays it out in their <a href="https://www.irs.gov/businesses/small-businesses-self-employed/self-employed-individuals-tax-center" target="_blank" rel="noopener noreferrer">Self-Employed Individuals Tax Center</a>, and the short version is that a lot of 1099 professionals in this valley are effectively paying 20 to 30 percent more for coverage than they need to. Whether you can claim it depends on your situation, which is a conversation for your tax professional, and yes, <a href="/qa/is-self-employed-health-insurance-tax-deductible">we wrote up that answer too</a>.</p>
-      <p>And the structures. ICHRA and Section 105 arrangements have been growing for five straight years nationally. The <a href="https://www.hracouncil.org/" target="_blank" rel="noopener noreferrer">HRA Council</a> tracks the adoption data, and the growth among small employers has been the fastest of all. If you've never heard those words before, start with <a href="/blog-post/what-is-an-ichra">our plain-English ICHRA guide</a>, and if you're an S-corp owner wondering whether this applies to you, <a href="/qa/can-an-s-corp-owner-use-an-ichra">that answer has some fine print worth reading</a> before anyone sells you anything.</p>
+      <p>Then there's the deduction almost nobody claims correctly. The self-employed health insurance deduction comes off income on Schedule 1 of Form 1040, and it covers medical, dental, vision and qualified long-term care premiums for you, a spouse and dependents. The catch that disqualifies people quietly: it is unavailable for any month you were eligible to participate in a subsidized plan through your own employer or a spouse's employer. Eligible, not enrolled. The <a href="https://www.irs.gov/instructions/i7206" target="_blank" rel="noopener noreferrer">IRS instructions for Form 7206</a> spell out when the form is required, and we wrote the plain version in <a href="/qa/is-self-employed-health-insurance-tax-deductible">is self-employed health insurance tax deductible</a>. We are insurance nerds, not tax professionals, so the final word belongs to yours.</p>
+      <p>And the structures. ICHRA and Section 105 arrangements are real and federally recognized, and they are also the most oversold thing in this category. The disqualifier that catches most solo operators is simple: an ICHRA requires at least one employee who is not a self-employed owner or that owner's spouse, which the <a href="https://www.healthcare.gov/small-businesses/learn-more/individual-coverage-hra/" target="_blank" rel="noopener noreferrer">HealthCare.gov employer guidance</a> states directly. If you have never heard these words before, start with <a href="/blog-post/what-is-an-ichra">the plain-English ICHRA guide</a>. If you are an S-corp owner, <a href="/qa/can-an-s-corp-owner-use-an-ichra">that answer has fine print worth reading</a> before anyone sells you anything, because a shareholder above 2 percent is treated like a partner rather than an employee for fringe benefit purposes.</p>
+      <p>One thing changed this year that most people have not heard. Nevada open enrollment now closes <b>December 31</b>, not January 15, and the December 15 deadline in the national headlines is the federal platform's, not Nevada's. Verification is stricter too, and a single unfiled tax year can now block the subsidy entirely. The full list is on the <a href="/aca-changes">2027 ACA changes page</a>, and the calendar itself is in <a href="/qa/when-is-open-enrollment-in-nevada">when is open enrollment in Nevada</a>.</p>
       <p>One more thing, because this is Las Vegas and this industry has its share of characters. Any broker you talk to, us included, should be verifiable through the <a href="https://doi.nv.gov/" target="_blank" rel="noopener noreferrer">Nevada Division of Insurance</a>. Look us up. We'll wait.</p>
     </div>
   </section>
@@ -163,6 +168,57 @@ const schemas = [
       <p>No slideshow. No script. Someone from the team, all six of us are licensed here in Nevada and based off West Charleston, asks how your business is set up and what your year actually looks like. Sole proprietor, LLC, S-corp, or "my CPA handles it and I sign things." All normal answers.</p>
       <p>Then we check the things that decide whether coverage is good or just cheap. Which doctors you'd hate to lose. What prescriptions you fill every month. Whether your income qualifies you for help through the marketplace, and whether the way you file taxes opens any of the doors above. If you're a Realtor, we'll probably talk about what happens in a year where you close eight deals versus a year where you close twenty, because your coverage has to survive both. Our <a href="/blog-post/realtor-health-insurance-guide">Realtor coverage guide</a> covers the version of this conversation we've had a few hundred times, and if you're driving for three apps or freelancing across state lines, the <a href="/blog-post/health-insurance-for-freelancers-and-gig-workers">freelancer and gig worker breakdown</a> is the better read.</p>
       <p>Sometimes the answer is that what you already have is right. We say that out loud when it's true. It costs us the sale and it's still the right answer, because you'll remember who told you the truth, and Las Vegas is a small town wearing a big city's clothes.</p>
+    </div>
+  </section>
+
+  {/* DECISION MATRIX. Added July 2026. The page previously asserted four doors
+      without showing what disqualifies a person from each, which is the single
+      most useful thing a self-employed reader can learn before a call. Static
+      HTML table, no JS, so it is fully crawlable and extractable. */}
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">The Honest Version</div>
+        <h2 style="margin-top:0;">Which door is actually open to you?</h2>
+        <p style="color:var(--muted);max-width:720px;margin-inline:auto;">Most pages like this list options. Very few tell you what rules you out. Here is the disqualifier for each path, which is usually the faster way to find your answer.</p>
+      </div>
+
+      <div class="lp-matrix">
+        <table>
+          <thead>
+            <tr><th>Path</th><th>Works when</th><th>Ruled out when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Individual plan</b><br /><span>Nevada Health Link</span></td>
+              <td>Almost always available. Premium tax credits run on net income after business expenses, not gross revenue.</td>
+              <td>Never fully ruled out, but credits shrink or disappear when an affordable employer offer exists in the household.</td>
+            </tr>
+            <tr>
+              <td><b>Spouse's employer plan</b><br /><span>One phone call</span></td>
+              <td>A spouse has employer coverage and the family tier prices better than an unsubsidized individual plan.</td>
+              <td>No spouse with an offer. Note that eligibility for that plan also blocks the self-employed deduction for those months.</td>
+            </tr>
+            <tr>
+              <td><b>Nevada Medicaid</b><br /><span>Year-round enrollment</span></td>
+              <td>Household income qualifies. Nevada expanded Medicaid, so there is no seasonal window and a lean quarter counts.</td>
+              <td>Income above the threshold. Worth re-checking whenever a slow stretch hits rather than assuming.</td>
+            </tr>
+            <tr>
+              <td><b>Small-group plan</b><br /><span>Requires staff</span></td>
+              <td>The business has eligible W-2 employees beyond the owner.</td>
+              <td>Solo operation. There is no group of one, regardless of what anyone selling one claims.</td>
+            </tr>
+            <tr>
+              <td><b>ICHRA or QSEHRA</b><br /><span>Requires staff</span></td>
+              <td>At least one employee who is not the owner or the owner's spouse.</td>
+              <td>Solo operation. Also blocked for S-corp shareholders above 2 percent, who are treated as partners for fringe benefits.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:20px;max-width:700px;margin-inline:auto;">Three of these five require employees. If you work alone, the real conversation is about the first three, and anyone steering a solo operator toward an ICHRA is selling a setup fee. The full map is in <a href="/blog-post/health-insurance-options-self-employed-nevada">health insurance options for self-employed Nevadans</a>.</p>
     </div>
   </section>
 

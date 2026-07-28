@@ -378,6 +378,32 @@ p { margin: 0.7rem 0; }
 .lp-proof .stars { color: var(--gold); letter-spacing: 1px; }
 .lp-statement { font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.35; color: var(--navy); max-width: 900px; }
 .lp-statement .lp-mark { background: linear-gradient(120deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* Decision matrix on the campaign landing pages. Real table above 760px so the
+   three columns can be compared across; stacked card layout below it, because a
+   3-column table at 360px is unreadable and horizontal scroll on a money page
+   loses people. Shared by /self-employed and /employers. */
+.lp-matrix { margin-top: 32px; }
+.lp-matrix table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 28px rgba(15,53,103,0.07); }
+.lp-matrix th { background: linear-gradient(120deg, var(--navy), #17457e); color: #fff; text-align: left; padding: 15px 20px; font-size: 0.86rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.lp-matrix td { padding: 17px 20px; border-top: 1px solid var(--line); vertical-align: top; font-size: 0.93rem; line-height: 1.58; color: var(--ink); }
+.lp-matrix tbody tr:nth-child(even) td { background: rgba(15,53,103,0.025); }
+.lp-matrix td:first-child { width: 22%; }
+.lp-matrix td b { color: var(--navy); font-size: 0.98rem; }
+.lp-matrix td span { display: block; margin-top: 3px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+@media (max-width: 760px) {
+  .lp-matrix table, .lp-matrix tbody, .lp-matrix tr, .lp-matrix td { display: block; width: 100%; }
+  .lp-matrix thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  .lp-matrix tr { border-top: 1px solid var(--line); padding: 6px 0 12px; }
+  .lp-matrix tr:first-child { border-top: none; }
+  .lp-matrix td { border-top: none; padding: 6px 18px; }
+  .lp-matrix td:first-child { width: auto; padding-top: 16px; }
+  .lp-matrix tbody tr:nth-child(even) td { background: none; }
+  /* Labels only exist on the stacked view, where the header row is hidden. */
+  .lp-matrix td:nth-child(2)::before { content: "Works when"; }
+  .lp-matrix td:nth-child(3)::before { content: "Ruled out when"; }
+  .lp-matrix td:nth-child(2)::before, .lp-matrix td:nth-child(3)::before { display: block; margin-bottom: 3px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); }
+}
+
 .lp-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 22px; margin-top: 34px; }
 .lp-card { position: relative; overflow: hidden; border: 1.5px solid transparent; border-radius: 24px; padding: 28px; background: linear-gradient(160deg, #ffffff, #f5faff) padding-box, linear-gradient(135deg, rgba(25,123,255,0.45), rgba(25,200,255,0.2) 50%, rgba(0,125,179,0.5)) border-box; box-shadow: var(--shadow-sm); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s; }
 .lp-card:hover { transform: translateY(-7px); box-shadow: 0 22px 50px rgba(15,53,103,0.18); }

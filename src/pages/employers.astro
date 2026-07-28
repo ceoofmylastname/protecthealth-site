@@ -75,10 +75,10 @@ const schemas = [
     <div class="container">
       <div class="section-label">The Second Job Nobody Applied For</div>
       <p class="lp-statement">Running the employer side of a business shouldn't feel like a second job, <span class="lp-mark">but for most owners, it does.</span></p>
-      <p style="max-width:760px;color:var(--muted);">Payroll. Onboarding. Handbooks. Compliance. Workers comp. Retirement. Benefits questions. Most owners are duct-taping five vendors together, or handling it all themselves at 9pm. Research shows 70 percent of small business owners lose more than a week every month to HR administration, and 51 percent say compliance requirements actively hold back growth.</p>
+      <p style="max-width:760px;color:var(--muted);">Payroll. Onboarding. Handbooks. Compliance. Workers comp. Retirement. Benefits questions. Most owners are duct-taping five vendors together, or handling all of it themselves at 9pm. The cost of that is rarely a single dramatic penalty. It is the same small error repeated across every employee and every pay period until somebody finally checks.</p>
 
       <div id="ai-summary" style="margin-top:26px;">
-        ProtectHealth, a Las Vegas insurance brokerage, has officially partnered with Paychex to support small businesses beyond group health insurance. Business owners work with ProtectHealth on benefits strategy, and when payroll, HR infrastructure, compliance, onboarding, or retirement plans are worth exploring, ProtectHealth connects them directly with a dedicated Paychex team. Industry research shows 70 percent of small business owners spend more than a week per month on HR administration, time the partnership is designed to win back.
+        ProtectHealth, a Las Vegas insurance brokerage, has officially partnered with Paychex to support small businesses beyond group health insurance. Business owners work with ProtectHealth on benefits strategy, and when payroll, HR infrastructure, compliance, onboarding, or retirement plans are worth exploring, ProtectHealth connects them directly with a dedicated Paychex team. Nevada employers face a payroll rule most states do not, because Nevada prohibits a tip credit entirely, and employers with fewer than 50 full-time equivalent employees are generally not required to offer health coverage at all.
       </div>
     </div>
   </section>
@@ -108,7 +108,7 @@ const schemas = [
       <p>If you run a restaurant, a bar, a salon, or anything else in this town where tips hit the table, you already know the national advice doesn't fit. Here's the part a surprising number of local operators still get burned on: Nevada doesn't allow a tip credit. Not a reduced one. None. Your tipped staff earn the full state minimum wage before a single tip lands, and the <a href="https://labor.nv.gov/" target="_blank" rel="noopener noreferrer">Office of the Nevada Labor Commissioner</a> is not shy about back-wage findings when a franchise handbook written for Texas math shows up on Boulder Highway. We broke down the whole mess, tip pools and service charges included, in <a href="/blog-post/tipped-payroll-mistakes-las-vegas">our tipped payroll guide</a>, and the short answer to "does Nevada allow a tip credit" is <a href="/qa/does-nevada-allow-a-tip-credit">a flat no with receipts</a>.</p>
       <p>Now the good news nobody tells you. If you run food and beverage, the federal FICA tip credit can hand back a meaningful chunk of the employer taxes you paid on tips, claimed through <a href="https://www.irs.gov/forms-pubs/about-form-8846" target="_blank" rel="noopener noreferrer">IRS Form 8846</a>. In a tip-heavy market like ours, that's real money per tipped employee per year, and an astonishing number of eligible spots on and off the Strip have never claimed a dollar of it. <a href="/qa/what-is-the-fica-tip-credit">Here's how it works</a>. Your CPA files it. Our job is making sure the conversation happens.</p>
       <p>Then there's the growth problem, which is a good problem right up until it isn't. Five employees becomes fifteen, one location becomes two, and suddenly onboarding lives in your night manager's head and your handbook is a group text. That's usually the moment owners start comparing doing it themselves against a payroll service against a PEO, and the honest math on all three lives in <a href="/blog-post/peo-vs-payroll-service-vs-diy">our total-cost comparison</a>. If the letters PEO are new to you, start with <a href="/qa/what-is-co-employment">what co-employment actually means</a>, because that one mechanism is how a nine-person company in Henderson ends up with big-company benefits pricing.</p>
-      <p>This is where the partnership earns its keep. <a href="https://www.paychex.com/" target="_blank" rel="noopener noreferrer">Paychex</a> handles payroll and HR for hundreds of thousands of businesses, and the <a href="https://www.sba.gov/" target="_blank" rel="noopener noreferrer">SBA</a> will tell you what happens to owners who try to be their own HR department indefinitely. Our arrangement is simple: ProtectHealth owns the benefits strategy, and when the payroll or HR side needs muscle, you're introduced to a dedicated Paychex team by name. Nobody gets forwarded into a call center.</p>
+      <p>This is where the partnership earns its keep. The arrangement is simple: ProtectHealth owns the benefits strategy, and when the payroll or HR side needs muscle, you are introduced to a dedicated Paychex team by name. Nobody gets forwarded into a call center. What that is worth depends entirely on how much of the administrative load is currently sitting on one person, which is the honest way to evaluate it rather than a pitch about hours saved. The tradeoffs between a PEO, a payroll service and keeping it in house are laid out in <a href="/blog-post/peo-vs-payroll-service-vs-diy">PEO versus payroll service versus DIY</a>, including the exit friction nobody mentions until you want to leave.</p>
     </div>
   </section>
 
@@ -161,6 +161,58 @@ const schemas = [
       <p>You talk, we take notes. How many people, what industry, what's breaking first. Whether that's payroll eating your Sunday nights, a benefits question you've been dodging since your best line cook asked about insurance, or workers comp paperwork you're pretty sure is a year stale. In a town that runs 24 hours, "we'll deal with it during business hours" isn't a plan, and most of the owners we talk to know it.</p>
       <p>Where benefits are the answer, we build that strategy with you, and our <a href="/blog-post/employee-benefits-guide-small-business">benefits guide for small business</a> shows the shape of it, including <a href="/qa/what-benefits-do-small-business-employees-want-most">what employees actually rank highest</a>, which surprises most owners. Where payroll, HR, compliance, or retirement is the answer, you get introduced to the dedicated Paychex team, and you'll always know who you're talking to and why. Where the honest answer is "your setup is fine, don't spend money," you'll hear that too. Free means free. No obligation means we're fine hearing no.</p>
       <p>Bring your real numbers or bring nothing but a headache. Both work. The conversation meets you where the business actually is, not where a pitch deck wants it to be.</p>
+    </div>
+  </section>
+
+  {/* HEADCOUNT MATRIX. Added July 2026. Employer obligations change at specific
+      headcount thresholds and almost no local operator knows where the lines
+      sit. Static HTML, shares .lp-matrix styles with /self-employed. Figures
+      here are federal thresholds from IRS and HealthCare.gov guidance, not
+      estimates. Do not add a row without a source. */}
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Know Where The Lines Are</div>
+        <h2 style="margin-top:0;">What changes as your headcount grows?</h2>
+        <p style="color:var(--muted);max-width:740px;margin-inline:auto;">Most Nevada small businesses are not legally required to offer health insurance. Knowing exactly where that changes is worth more than any pitch about benefits.</p>
+      </div>
+
+      <div class="lp-matrix">
+        <table>
+          <thead>
+            <tr><th>Size</th><th>What is available</th><th>What is required</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Owner only</b><br /><span>No employees</span></td>
+              <td>An individual plan. No group plan and no ICHRA, because both need an employee who is not the owner or the owner's spouse.</td>
+              <td>Nothing. Coverage for the owner is a personal decision, covered on the <a href="/self-employed">self-employed side</a>.</td>
+            </tr>
+            <tr>
+              <td><b>Under 25 employees</b><br /><span>Full-time equivalents</span></td>
+              <td>SHOP coverage, an ICHRA, or a QSEHRA if no group plan is offered. The Small Business Health Care Tax Credit becomes possible.</td>
+              <td>No coverage mandate. The tax credit requires paying at least half of employee premium and offering through SHOP.</td>
+            </tr>
+            <tr>
+              <td><b>25 to 49 employees</b><br /><span>Full-time equivalents</span></td>
+              <td>SHOP is open through 50. ICHRA and QSEHRA both remain available.</td>
+              <td>Still no coverage mandate. The tax credit is generally out of reach above 25.</td>
+            </tr>
+            <tr>
+              <td><b>50 or more</b><br /><span>Applicable large employer</span></td>
+              <td>Group coverage, level funding, or an ICHRA. SHOP no longer applies.</td>
+              <td>This is the line. Employer shared responsibility rules begin, and the reporting obligations come with them.</td>
+            </tr>
+            <tr>
+              <td><b>Any size, tipped staff</b><br /><span>Nevada rule</span></td>
+              <td>The federal FICA tip credit on employer payroll taxes, claimed on Form 8846.</td>
+              <td>Nevada prohibits a tip credit. Tips cannot offset the minimum wage here, unlike most states.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:20px;max-width:720px;margin-inline:auto;">Thresholds are counted in full-time equivalents, not headcount, which is where owners with part-time crews usually miscount. The detail sits in <a href="/qa/are-small-businesses-required-to-offer-health-insurance">are small businesses required to offer health insurance</a> and <a href="/qa/how-many-employees-are-needed-for-group-health-insurance">how many employees are needed for group coverage</a>. ProtectHealth is not a law firm, and wage and hour questions belong with the <a href="https://labor.nv.gov/About/Frequently_Asked_Questions/Frequently_Asked_Questions_-_About_Us/" target="_blank" rel="noopener noreferrer">Nevada Office of the Labor Commissioner</a> or an employment attorney.</p>
     </div>
   </section>
 
