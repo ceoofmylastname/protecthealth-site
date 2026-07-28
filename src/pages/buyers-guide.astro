@@ -162,7 +162,7 @@ const products = [
     art: 'dental',
     name: 'Dental Insurance',
     href: '/services/dental-insurance',
-    what: 'Covers preventive care near 100 percent, fillings around 80, major work around 50, all capped by an annual maximum. Prevention is the product.',
+    what: 'Splits care into preventive, basic and major tiers, each paid at a different share set by the individual plan, and caps total plan payment with an annual maximum. Prevention is the product.',
     compare: 'The annual maximum, waiting periods against any work you already know is coming, and whether your dentist is in-network.',
     buyIf: 'No employer dental and you actually use preventive visits. The premium roughly prepays the cleanings and the tiers protect the crown year.',
     skipIf: 'Major work is needed right now and waiting periods block it. Compare discount plans and cash negotiation first.',
@@ -299,8 +299,24 @@ const startTable = {
         </table>
       </div>
       <p>
-        And a standing note that applies to every row: when business structure or taxes enter the picture, ProtectHealth brokers are insurance nerds, not tax professionals, and a quick conversation with a licensed tax professional is the recommended companion step. The wider education library lives on the <a href="/blog">blog</a>, the <a href="/faq">FAQ</a>, and the quick-answer pages linked throughout this guide.
+        And a standing note that applies to every row: when business structure or taxes enter the picture, ProtectHealth brokers are insurance nerds, not tax professionals, and a quick conversation with a licensed tax professional is the recommended companion step. The wider education library lives on the <a href="/blog">blog</a>, the <a href="/qa">Q&amp;A library</a>, the <a href="/faq">FAQ</a>, and the quick-answer pages linked throughout this guide.
       </p>
+
+      {/* SOURCES + VERIFICATION. Added July 2026. The guide previously carried
+          zero outbound citations, which is the weakest possible position for a
+          page whose entire premise is teaching people to buy without being
+          sold. Every link here is a government body or a regulator. Never add a
+          link to a company that sells insurance. */}
+      <h2>Where should you check this against a primary source?</h2>
+      <p>Not here. A buyer's guide written by a brokerage should tell you where to verify it independently, so here is the short list worth bookmarking before enrollment season.</p>
+      <ul>
+        <li><strong>Enrollment dates and plan shopping.</strong> <a href="https://nevadahealthlink.com/get-help/when-to-enroll/" target="_blank" rel="noopener noreferrer">Nevada Health Link</a> publishes Nevada's actual calendar. Window shopping opens October 1 and enrollment runs November 1 through December 31. National articles quoting December 15 are describing the federal platform, not this state, and the reasons are on the <a href="/aca-changes">2027 ACA changes page</a>.</li>
+        <li><strong>Producer licenses and complaints.</strong> The <a href="https://doi.nv.gov/" target="_blank" rel="noopener noreferrer">Nevada Division of Insurance</a> licenses everyone selling insurance in this state and is where a complaint is filed. Verify any agent, including ours, before taking advice.</li>
+        <li><strong>Premium tax credits.</strong> The <a href="https://www.irs.gov/affordable-care-act/individuals-and-families/the-premium-tax-credit-the-basics" target="_blank" rel="noopener noreferrer">IRS premium tax credit guidance</a> explains how the credit is calculated and reconciled. This matters most for anyone with variable income.</li>
+        <li><strong>Medicare timing and penalties.</strong> <a href="https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties" target="_blank" rel="noopener noreferrer">Medicare.gov</a> publishes the enrollment periods and how late enrollment penalties are calculated. The Part B penalty generally lasts for life, which is why the timing questions matter more than the plan questions.</li>
+        <li><strong>Neutral definitions.</strong> The <a href="https://content.naic.org/consumer/health-insurance.htm" target="_blank" rel="noopener noreferrer">National Association of Insurance Commissioners</a> publishes consumer explainers written by the people who regulate carriers rather than by the people selling policies.</li>
+      </ul>
+      <p>One rule that outlasts this guide: be careful about who a source is paid by. If a comparison site, a lead vendor or an agency is the only citation behind a claim, treat the claim as marketing until a regulator or a government body confirms it. That standard applies to this page as much as to any other.</p>
 
       <FAQSection faq={faq} pageUrl={pageUrl} />
 
