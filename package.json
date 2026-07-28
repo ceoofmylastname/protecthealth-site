@@ -5,7 +5,7 @@
   "description": "ProtectHealth 2.0, AEO/GEO-optimized insurance website. Strategy over product.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/sitemap-lastmod.mjs",
+    "build": "astro build && node scripts/sitemap-lastmod.mjs && node scripts/llms-txt.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

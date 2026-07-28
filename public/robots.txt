@@ -26,3 +26,7 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: https://www.protecthealth.com/sitemap-index.xml
+
+# LLM content index (generated fresh at every build):
+# https://www.protecthealth.com/llms.txt
+# https://www.protecthealth.com/llms-full.txt
