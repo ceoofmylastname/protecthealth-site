@@ -56,6 +56,12 @@ const byline = authorFor(d.cluster);
 
 // Child Q&A lookup moved into RelatedContent, which now owns the related block.
 
+// Per-post share card. Every post has its own art in BLOG_ART; falling back to
+// og-default meant 110 content pages all shared one generic card on Facebook,
+// LinkedIn, iMessage and Slack. PNG, not the WebP: several social scrapers
+// still will not render a WebP og:image.
+const ogImage = BLOG_ART[post.id] ? BLOG_ART[post.id].png : undefined;
+
 const articleSchema: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -87,7 +93,7 @@ const schemas = [
   ]),
 ];
 ---
-<Base title={`${d.title} | ProtectHealth`} description={d.description} schemas={schemas}>
+<Base title={`${d.title} | ProtectHealth`} description={d.description} schemas={schemas} ogImage={ogImage}>
   <section class="section">
     <div class="container article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">

@@ -23,6 +23,11 @@ const pageUrl = `${SITE.domain}/qa/${qa.id}`;
 // Sibling and parent lookups moved into RelatedContent, which now owns the
 // whole related block for both templates.
 
+// Per-page share card off the page's own art, same reasoning as the blog
+// template. PNG rather than WebP because several social scrapers still refuse
+// to render a WebP og:image.
+const ogImage = QA_ART[qa.id] ? QA_ART[qa.id].png : undefined;
+
 // Reviewer, not author. These answers carry the agency's voice; the accurate
 // claim is that a licensed broker with expertise in this cluster checked them.
 const reviewer = authorFor(d.cluster);
@@ -80,7 +85,7 @@ const QA_CTA: Record<string, string> = {
 };
 const ctaUrl = QA_CTA[d.cluster] ?? '/contact-us';
 ---
-<Base title={`${d.question} | ProtectHealth Q&A`} description={d.description} schemas={schemas}>
+<Base title={`${d.question} | ProtectHealth Q&A`} description={d.description} schemas={schemas} ogImage={ogImage}>
   <section class="section">
     <div class="container article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
