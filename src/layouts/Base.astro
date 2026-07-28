@@ -36,7 +36,7 @@ const orgSchema = organizationSchema();
         public/assets/icon-source.png via scripts/make-icons.py.
         No SVG: the source is raster, and a link to a non-existent favicon.svg
         would just 404 on every page load.
-        The tab favicons keep transparency. The apple-touch-icon does NOT —
+        The tab favicons keep transparency. The apple-touch-icon does NOT , 
         iOS renders a transparent home-screen icon on black, and this mark is
         grey and mid-blue, so it would all but vanish. */}
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
@@ -87,7 +87,7 @@ const orgSchema = organizationSchema();
           {/* Eight top-level children overflowed the shell and `flex-wrap: wrap`
               dropped the CTA onto a second row, doubling the header height. The
               education pages now live under one Learn group, so the row is five
-              items and CANNOT wrap — `.nav` is `flex-wrap: nowrap`. Adding a
+              items and CANNOT wrap, `.nav` is `flex-wrap: nowrap`. Adding a
               seventh top-level link here will overflow again; add it to the
               Learn menu instead. */}
           <nav class="nav" aria-label="Main">
@@ -217,7 +217,7 @@ const orgSchema = organizationSchema();
             // background, Ken Burns, mesh layers, the carousel and several
             // observers, and rAF callbacks get starved for seconds. Until the
             // second frame arrived, `open` was never added, so the panel sat at
-            // translateX(101%) while the burger already read "Close" — open in
+            // translateX(101%) while the burger already read "Close", open in
             // state, invisible on screen. Never gate a user-initiated animation
             // on rAF landing promptly.
             mnav.classList.add('is-open', 'open');

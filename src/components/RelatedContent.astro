@@ -1,6 +1,6 @@
 ---
 /**
- * RelatedContent — the mandatory "Related Reading" block at the foot of every
+ * RelatedContent, the mandatory "Related Reading" block at the foot of every
  * blog post and Q&A page (wiki: content-depth-and-linking-standard).
  *
  * Three rules this component exists to enforce, so no page can quietly skip them:
@@ -22,7 +22,7 @@ import { BLOG_ART, QA_ART } from '../lib/site';
 
 interface Props {
   cluster: string;
-  /** Which template is rendering this — decides what "related" means. */
+  /** Which template is rendering this, decides what "related" means. */
   type: 'blog' | 'qa';
   /** id of the current page, always excluded from its own related block. */
   currentId: string;

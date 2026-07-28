@@ -9,7 +9,7 @@ siblings:
   - "does-nevada-have-expanded-medicaid"
 datePublished: "2026-07-22"
 quickAnswer: "Nevada Health Link is Nevada's official state-based health insurance marketplace, operated by the Silver State Health Insurance Exchange. It is the only place premium tax credits and cost-sharing reductions apply to individual plans in Nevada."
-speakableText: "Nevada Health Link is the online marketplace where Nevadans shop for, compare, and enroll in individual and family health insurance plans. The platform is run by the Silver State Health Insurance Exchange, a state agency, which makes Nevada a state-based marketplace rather than a healthcare.gov state. Premium tax credits and Silver-plan cost-sharing reductions are only available on plans purchased through the marketplace, and the application also screens households for Medicaid eligibility, since Nevada expanded Medicaid. Open enrollment through Nevada Health Link runs November 1 through January 15 each year."
+speakableText: "Nevada Health Link is the online marketplace where Nevadans shop for, compare, and enroll in individual and family health insurance plans. The platform is run by the Silver State Health Insurance Exchange, a state agency, which makes Nevada a state-based marketplace rather than a healthcare.gov state. Premium tax credits and Silver-plan cost-sharing reductions are only available on plans purchased through the marketplace, and the application also screens households for Medicaid eligibility, since Nevada expanded Medicaid. Open enrollment through Nevada Health Link runs November 1 through December 31 each year, a window that federal rules shortened beginning with the 2027 plan year."
 faq:
   - q: "Who operates Nevada Health Link?"
     a: "The Silver State Health Insurance Exchange, a Nevada state agency, operates Nevada Health Link. The agency runs the marketplace platform; private carriers provide the actual insurance plans sold on it."
@@ -18,7 +18,7 @@ faq:
   - q: "Does using a broker on Nevada Health Link add fees?"
     a: "No. Licensed brokers are paid by carriers, and premiums are identical with or without broker help, whether enrolling through the marketplace directly or with assistance."
   - q: "When can Nevadans enroll through Nevada Health Link?"
-    a: "During open enrollment, November 1 through January 15, or during a special enrollment period opened by a qualifying life event. Medicaid routing operates year-round."
+    a: "During open enrollment, November 1 through December 31, or during a special enrollment period opened by a qualifying life event. Medicaid routing operates year-round."
 ---
 
 Every state has a front door to ACA coverage. Nevada built its own. And knowing how it works saves both money and confusion.
@@ -37,4 +37,4 @@ Neither sells the insurance and both descriptions miss it. The Exchange is a sta
 
 ## How does enrollment through the platform work?
 
-The rhythm is annual. Open enrollment runs November 1 through January 15, with a December 15 cutoff for January 1 coverage. Outside the window, qualifying life events, coverage loss, marriage, a birth, a move into Nevada, open 60-day special enrollment periods. The application itself turns on one number above all: the household income estimate, which drives the tax credit, the cost-sharing reductions, and the Medicaid screen all at once. Estimating it carefully is the whole game.
+The rhythm is annual. Open enrollment runs November 1 through December 31, and coverage selected in the window starts January 1. Outside the window, qualifying life events, coverage loss, marriage, a birth, a move into Nevada, open 60-day special enrollment periods. The application itself turns on one number above all: the household income estimate, which drives the tax credit, the cost-sharing reductions, and the Medicaid screen all at once. Estimating it carefully is the whole game.

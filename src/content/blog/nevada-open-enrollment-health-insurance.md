@@ -7,14 +7,14 @@ cluster: "nevada-core"
 datePublished: "2024-10-15"
 dateModified: "2026-07-21"
 quickAnswer:
-  - "Nevada open enrollment for individual health plans runs November 1 through January 15 through the Silver State Health Insurance Exchange."
-  - "Coverage selected by December 15 typically starts January 1; later selections start February 1."
+  - "Nevada open enrollment for individual health plans runs November 1 through December 31 through the Silver State Health Insurance Exchange."
+  - "Coverage selected during the window starts January 1. The old January 15 deadline no longer applies, because federal rules now close every exchange by December 31."
   - "Outside open enrollment, a qualifying life event, job loss, marriage, birth, a move, opens a 60-day special enrollment window."
   - "Premium and deductible alone do not determine whether a plan fits; income, tax credits, networks, and prescriptions change the math."
-speakableText: "Nevada open enrollment for individual and family health insurance runs from November 1 through January 15 each year through the Silver State Health Insurance Exchange. Nevadans who miss the window generally must wait a full year unless a qualifying life event opens a special enrollment period. ProtectHealth recommends comparing plans on total exposure, premium, deductible, network, prescriptions, and tax-credit eligibility together, rather than premium alone."
+speakableText: "Nevada open enrollment for individual and family health insurance runs from November 1 through December 31 each year through the Silver State Health Insurance Exchange, a window shortened by federal rule beginning with the 2027 plan year. Nevadans who miss the window generally must wait a full year unless a qualifying life event opens a special enrollment period. ProtectHealth recommends comparing plans on total exposure, premium, deductible, network, prescriptions, and tax-credit eligibility together, rather than premium alone."
 faq:
   - q: "When is open enrollment for health insurance in Nevada?"
-    a: "Nevada open enrollment runs November 1 through January 15 through the Silver State Health Insurance Exchange. Enrollment by December 15 typically gives a January 1 start date."
+    a: "Nevada open enrollment runs November 1 through December 31 through the Silver State Health Insurance Exchange. Coverage selected during the window starts January 1."
   - q: "What happens if a Nevadan misses open enrollment?"
     a: "Outside open enrollment, a person generally cannot buy an ACA-compliant individual plan unless a qualifying life event, such as job loss, marriage, a birth, or a move, opens a 60-day special enrollment period."
   - q: "Can Nevadans get help paying for health insurance?"
@@ -30,10 +30,10 @@ Open enrollment is the one window each year when any Nevadan can buy individual 
 
 ## When does Nevada open enrollment start and end?
 
-Nevada open enrollment runs **November 1 through January 15** through the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange), Nevada's state-based marketplace. Two timing rules matter:
+Nevada open enrollment runs **November 1 through December 31** through the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange), Nevada's state-based marketplace. Two timing rules matter:
 
-- Enroll by **December 15** → coverage typically starts January 1
-- Enroll December 16 through January 15 → coverage starts February 1
+- Enroll **any time in the window** → coverage starts January 1
+- Miss **December 31** → no ACA plan until the following November, absent a qualifying life event
 
 A plan selected on time but never paid does not activate. The first premium payment is what turns a selection into actual coverage.
 

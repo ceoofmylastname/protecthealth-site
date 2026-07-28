@@ -9,7 +9,7 @@ siblings:
   - "does-nevada-have-expanded-medicaid"
 datePublished: "2026-07-22"
 quickAnswer: "No. Healthcare.gov is the federal marketplace serving states without their own exchange. Nevada operates a state-based marketplace, Nevada Health Link, run by the Silver State Health Insurance Exchange, Nevadans enroll there, not on healthcare.gov."
-speakableText: "Nevada Health Link and healthcare.gov serve the same purpose in different states. Healthcare.gov is the federally run marketplace used by states that never built their own exchange, while Nevada operates a state-based marketplace called Nevada Health Link, run by the Silver State Health Insurance Exchange. A Nevadan who starts an application on healthcare.gov gets redirected to Nevada Health Link, because the federal platform does not sell Nevada plans. Both platforms follow the same ACA rules, offer the same premium tax credits, and run the same November 1 through January 15 open enrollment framework, so nothing is lost, the address is simply different."
+speakableText: "Nevada Health Link and healthcare.gov serve the same purpose in different states. Healthcare.gov is the federally run marketplace used by states that never built their own exchange, while Nevada operates a state-based marketplace called Nevada Health Link, run by the Silver State Health Insurance Exchange. A Nevadan who starts an application on healthcare.gov gets redirected to Nevada Health Link, because the federal platform does not sell Nevada plans. Both platforms follow the same ACA rules, offer the same premium tax credits, and run open enrollment under the same federal framework, which now closes every exchange by December 31, so nothing is lost, the address is simply different."
 faq:
   - q: "What happens if a Nevadan applies on healthcare.gov?"
     a: "The federal site recognizes the Nevada ZIP code and redirects to Nevada Health Link. No Nevada plans are sold through healthcare.gov, so the application must finish on the state platform."
@@ -38,7 +38,7 @@ Nevada sits firmly in the state-based column, the full story of how and why is i
 
 ## Does the state-based setup change anything for enrollees?
 
-Nothing about the money, everything about the address. Premium tax credits are calculated the same way in every state, anchored to the second-lowest-cost Silver benchmark, reconciled on the federal tax return, and open enrollment runs November 1 through January 15 either way. What changes is where accounts live: a Nevadan's application, income updates, and plan documents all sit inside Nevada Health Link. Old healthcare.gov logins from a previous state carry nothing over.
+Nothing about the money, everything about the address. Premium tax credits are calculated the same way in every state, anchored to the second-lowest-cost Silver benchmark, reconciled on the federal tax return, and open enrollment runs November 1 through December 31 either way. What changes is where accounts live: a Nevadan's application, income updates, and plan documents all sit inside Nevada Health Link. Old healthcare.gov logins from a previous state carry nothing over.
 
 ## What mistakes does the confusion cause?
 

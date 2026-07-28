@@ -14,7 +14,7 @@ faq:
   - q: "Who qualifies for expanded Medicaid in Nevada?"
     a: "Adults whose household income falls under the expansion threshold, measured as modified adjusted gross income relative to the federal poverty level. No disability, pregnancy, or dependent-child requirement applies under expansion."
   - q: "Can Nevadans apply for Medicaid outside open enrollment?"
-    a: "Yes. Medicaid and Nevada Check Up enroll year-round. The November 1 through January 15 window applies only to marketplace plans, not to Medicaid."
+    a: "Yes. Medicaid and Nevada Check Up enroll year-round. The November 1 through December 31 window applies only to marketplace plans, not to Medicaid."
   - q: "What happens when income rises above the Medicaid threshold?"
     a: "Losing Medicaid eligibility is a qualifying life event that opens a special enrollment period on Nevada Health Link, where premium tax credits typically pick up where Medicaid left off."
   - q: "Does one application cover both Medicaid and marketplace plans?"

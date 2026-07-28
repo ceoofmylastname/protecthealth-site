@@ -19,7 +19,7 @@ faq:
   - q: "How should a Nevadan verify a plan's network?"
     a: "Search each carrier's provider directory for every doctor, hospital, and specialist the household uses, then confirm by calling the provider's office directly, because directories lag reality. Network verification matters most in Las Vegas, where provider-group contracts shift year to year."
   - q: "When can Nevadans enroll in marketplace coverage?"
-    a: "Open enrollment through Nevada Health Link runs November 1 through January 15. Outside that window, enrollment requires a qualifying life event such as losing coverage, moving, marriage, or a birth."
+    a: "Open enrollment through Nevada Health Link runs November 1 through December 31. Outside that window, enrollment requires a qualifying life event such as losing coverage, moving, marriage, or a birth."
   - q: "Is the cheapest Bronze plan ever the right choice?"
     a: "Sometimes. A healthy household with savings to cover the deductible, or one pairing the plan with supplemental GAP coverage, can do well on Bronze. A household with regular prescriptions or ongoing care usually spends less overall on Silver or Gold despite the higher premium."
 relatedQa: []
@@ -58,6 +58,6 @@ Check every current medication against each plan's formulary, including the tier
 
 ## What mistakes cost Nevadans the most?
 
-The premium sort, already covered. It's the expensive one. Auto-renewing without re-shopping, because plans re-price and re-network every year even when the plan name stays the same. Skipping the formulary check and meeting a four-figure prescription surprise in February. Guessing at subsidy income instead of estimating it carefully. And waiting past January 15, because outside open enrollment, options narrow to qualifying life events.
+The premium sort, already covered. It's the expensive one. Auto-renewing without re-shopping, because plans re-price and re-network every year even when the plan name stays the same. Skipping the formulary check and meeting a four-figure prescription surprise in February. Guessing at subsidy income instead of estimating it carefully. And waiting past December 31, because outside open enrollment, options narrow to qualifying life events. That deadline moved: the window used to run to January 15, and a federal rule now closes every exchange by December 31.
 
 None of these mistakes require intelligence to avoid. They require sequence. Total cost, then network, then formulary, then subsidy, in that order, the right plan usually identifies itself.
