@@ -537,7 +537,19 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .acat-kick { display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 2.2px; font-size: 0.68rem; font-weight: 800; color: #bfe2ff; padding: 6px 13px; border-radius: 999px; border: 1px solid rgba(142,201,255,0.34); background: rgba(25,123,255,0.18); }
   .acat-dot { width: 6px; height: 6px; border-radius: 50%; background: #19c8ff; box-shadow: 0 0 0 0 rgba(25,200,255,0.7); animation: acatPulse 2.2s ease infinite; }
   @keyframes acatPulse { 70% { box-shadow: 0 0 0 8px rgba(25,200,255,0); } 100% { box-shadow: 0 0 0 0 rgba(25,200,255,0); } }
-  .acat-h { display: block; font-family: var(--font-display); font-size: clamp(1.15rem, 2.1vw, 1.5rem); font-weight: 800; color: #fff; margin: 12px 0 7px; letter-spacing: -0.015em; line-height: 1.2; }
+  /* Animated gradient headline. Reuses the `shimmer` keyframe already defined
+     for the hero h1 so the motion reads as the same brand gesture rather than a
+     second, competing effect. background-size must exceed 100% or there is
+     nothing for background-position to travel across.
+     Both motion tiers below restore a STATIC gradient rather than killing the
+     rule outright, because color is transparent here and dropping the
+     background would render the headline invisible. */
+  .acat-h { display: block; font-family: var(--font-display); font-size: clamp(1.22rem, 2.3vw, 1.62rem); font-weight: 800; margin: 12px 0 7px; letter-spacing: -0.015em; line-height: 1.2;
+    background: linear-gradient(92deg, #ffffff 8%, #8ee4ff 30%, #19c8ff 46%, #b8ecff 62%, #ffffff 88%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 5.5s linear infinite; }
+  .acat-h::selection { -webkit-text-fill-color: #fff; }
   .acat-p { display: block; font-size: 0.93rem; color: #cfe0f5; line-height: 1.55; max-width: 620px; }
   .acat-p b { color: #8ee4ff; }
   .acat-right { position: relative; z-index: 2; text-align: center; padding: 16px 22px; border-radius: 16px; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18); min-width: 168px; }
@@ -860,6 +872,9 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   @media (prefers-reduced-motion: reduce) {
     .mesh, .btn.glow, .float-pill, .marquee-track, .band-glow, .glass-card, .chip, .hero-bg, .aurora, .glass-card::before, .rs-glow, .acat-dot { animation: none !important; }
     .acat { transition: none; }
+    /* Static gradient, NOT `animation: none` alone. The headline has
+       color: transparent, so the gradient must survive or the text vanishes. */
+    .acat-h { animation: none !important; background-position: 0 0; background-size: 100% 100%; }
     .uline svg path { stroke-dashoffset: 0; }
     .hw, .grad-anim { animation: none !important; opacity: 1; transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
@@ -867,6 +882,9 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   /* mobile performance tier (homepage decor), keep last so it wins the cascade */
   @media (pointer: coarse), (max-width: 1023px) {
     .mesh, .aurora, .rs-glow, .band-glow, .hero-bg, .grad-anim, .hs-grad, .glass-card, .float-pill, .chip, .acat-dot { animation: none !important; }
+    /* Same rule as the reduced-motion tier: kill the travel, keep the gradient,
+       or a transparent-coloured headline disappears on every phone. */
+    .acat-h { animation: none !important; background-position: 0 0; background-size: 100% 100%; }
 
     /* CRITICAL: .hw starts at opacity 0 and the wordUp animation is what reveals
        it. Killing the animation above without restoring opacity left "Insurance
