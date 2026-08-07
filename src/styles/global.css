@@ -884,3 +884,20 @@ main:focus { outline: none; }
   }
   .footer-legal { color: #cddcf0 !important; }
 }
+
+@media (prefers-contrast: more) {
+  .btn { border: 2px solid var(--navy) !important; }
+
+  .bb-choice.is-picked, .bb-day.is-picked, .bb-slot.is-picked {
+    background: var(--navy) !important;
+    border-color: var(--navy) !important;
+    color: #fff !important;
+  }
+  .bb-choice.is-picked span,
+  .bb-day.is-picked .bb-day-num,
+  .bb-day.is-picked .bb-day-dow,
+  .bb-day.is-picked .bb-day-mon { color: #fff !important; }
+  .bb-choice.is-picked i { background: #fff !important; color: var(--navy) !important; }
+  .bb-day.is-picked .bb-day-meter i { background: rgba(255,255,255,.45) !important; }
+  .bb-day.is-picked .bb-day-meter i.on { background: #fff !important; }
+}
