@@ -523,6 +523,19 @@ const SLOT_MINUTES = 20;
     .bb-dock-when { font-size: 0.96rem; }
   }
 
+  /* The site strips backdrop-filter on touch devices for performance, but .bb
+     was never added to that policy. It is a full-width blurred surface on the
+     conversion screen, which is the most expensive place to leave one. */
+  @media (pointer: coarse), (max-width: 1023px) {
+    .bb {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, rgba(25, 123, 255, 0.55), rgba(25, 200, 255, 0.28) 45%, rgba(0, 125, 179, 0.5)) border-box !important;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .bb-stage, .bb-q.is-active, .bb-times, .bb-dock { animation: none; }
     .bb-choice:hover, .bb-day:hover, .bb-slot:hover { transform: none; }
