@@ -310,7 +310,9 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
                 { n: '04', t: 'Stay', img: '/assets/buyers-guide/05-timing.webp', alt: 'Glass hourglass beside a calendar of light', p: 'Renewals, network shuffles, life changes. The strategy gets maintained by people who answer the phone.', href: '/our-team', link: 'Meet the team' },
               ]).map((st) => (
                 <article class="mcard">
-                  <div class="mcard-img"><img src={st.img} alt={st.alt} loading="lazy" /></div>
+                  {/* draggable=false or the browser starts a native image drag on
+                      pointerdown, which cancels our gesture a few px in. */}
+                  <div class="mcard-img"><img src={st.img} alt={st.alt} loading="lazy" draggable="false" /></div>
                   <div class="mcard-body">
                     <span class="mnum">{st.n}</span>
                     <h3>{st.t}</h3>
@@ -322,7 +324,11 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
             </div>
             <button class="mnav mprev" aria-label="Previous step" type="button">←</button>
             <button class="mnav mnext" aria-label="Next step" type="button">→</button>
-            <div class="mdots" id="mDots" role="tablist" aria-label="Method steps"></div>
+            {/* role="group", not "tablist". These were role="tab" with no tabpanel
+                to control and no aria-selected, which announces as a broken tab
+                widget. They are jump buttons, so say that. */}
+            <div class="mdots" id="mDots" role="group" aria-label="Method steps"></div>
+            <button class="mpause" id="mPause" type="button" aria-pressed="false" aria-label="Pause step carousel">❚❚</button>
           </div>
         </div>
       </div>
@@ -756,7 +762,18 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
      on the body-level net. overflow-x only, so the card shadows still breathe
      vertically. */
   .mcarousel { position: relative; padding: 22px 0 10px; overflow-x: hidden; }
-  .mtrack { position: relative; height: 460px; perspective: 1100px; }
+  /* pan-y hands vertical gestures to the page and horizontal ones to the drag
+     handler. Without it the browser arbitrates mid-gesture and fires
+     pointercancel, which reads to the visitor as the deck snapping back. */
+  .mtrack {
+    position: relative; height: 460px; perspective: 1100px;
+    touch-action: pan-y;
+    /* Without these, dragging from a card selects its text or starts a native
+       image drag, and the browser fires pointercancel a few px into the
+       gesture. The deck then snaps back and the drag appears not to work. */
+    user-select: none; -webkit-user-select: none;
+  }
+  .mtrack img { -webkit-user-drag: none; user-drag: none; }
   .mcard { position: absolute; left: 50%; top: 8px; width: min(300px, 78vw); margin-left: max(-150px, -39vw); background: linear-gradient(165deg, #0f3567, #17457e); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 53, 103, 0.3); transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s ease; will-change: transform; }
   .mcard-img { aspect-ratio: 1 / 1; max-height: 240px; width: 100%; overflow: hidden; }
   .mcard-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -769,11 +786,45 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .mnav { position: absolute; top: 45%; z-index: 5; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(15, 53, 103, 0.12); background: #fff; color: var(--navy); font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform 0.2s ease, box-shadow 0.2s ease; }
   .mnav:hover { transform: scale(1.08); box-shadow: var(--shadow); }
   .mprev { left: 10px; } .mnext { right: 10px; }
-  .mdots { display: flex; justify-content: center; gap: 8px; padding: 14px 0 10px; }
-  .mdots button { width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(15, 53, 103, 0.18); cursor: pointer; transition: transform 0.2s, background 0.2s; padding: 0; }
-  .mdots button.on { background: linear-gradient(120deg, var(--blue), #19c8ff); transform: scale(1.35); }
+  /* The dot is still 9px to look at, but the BUTTON is now 24x44 and the dot is
+     drawn by ::after inside it. Previously the button itself was 9x9, and below
+     640px the arrows are hidden, so a 9px square was the entire control surface
+     on a phone. Sizing the real element rather than padding a pseudo keeps the
+     hit area honest to the accessibility tree as well as to the pointer. */
+  /* :global() is required, not optional. Astro scopes these rules with a
+     data-astro-cid attribute, but the dots are created in JS at runtime, so
+     they never carry it. The previous `.mdots button { width:9px; height:9px }`
+     therefore never matched anything: the dots have been shipping as unstyled
+     ~4px default buttons. Scoping stays on `.mdots`, which IS in the template. */
+  .mdots { display: flex; justify-content: center; gap: 0; padding: 6px 0 4px; }
+  .mdots :global(button) {
+    width: 24px; height: 44px; padding: 0; border: none; background: none;
+    cursor: pointer; display: grid; place-items: center;
+  }
+  .mdots :global(button)::after {
+    content: ""; width: 9px; height: 9px; border-radius: 50%;
+    background: rgba(15, 53, 103, 0.18);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .mdots :global(button.on)::after { background: linear-gradient(120deg, var(--blue), #19c8ff); transform: scale(1.35); }
+
+  /* Autoplay pause. WCAG 2.2.2 wants a stop for anything auto-advancing past
+     5s; this deck moves every 3.2s. */
+  .mpause {
+    display: block; margin: 0 auto 4px; min-width: 44px; min-height: 44px;
+    border-radius: 999px; border: 1.5px solid rgba(15, 53, 103, 0.14);
+    background: #fff; color: var(--navy); font-size: 0.7rem; letter-spacing: 1px;
+    cursor: pointer; box-shadow: var(--shadow-sm);
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+  }
+  .mpause:hover { background: var(--navy); color: #fff; }
+  .mpause:active { transform: scale(0.94); transition-duration: 60ms; }
+
   @media (max-width: 640px) {
     .mtrack { height: 440px; }
+    /* Arrows overlap the 78vw cards at this width. The deck now tracks the
+       finger 1:1 with momentum, so swipe is the affordance here, and the dots
+       carry 44px targets for anyone who would rather tap. */
     .mnav { display: none; }
   }
 
@@ -941,12 +992,17 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     // dots represent the 4 steps
     for (let i = 0; i < STEPS; i++) {
       const b = document.createElement('button');
-      b.setAttribute('role', 'tab');
+      b.type = 'button';
       b.setAttribute('aria-label', 'Go to step ' + (i + 1));
+      b.setAttribute('aria-current', 'false');
       b.addEventListener('click', () => { goTo(i); restart(); });
       dotsWrap.appendChild(b);
     }
     const dots = [...dotsWrap.children];
+
+    // dragPx offsets every card live while a finger is down, so the deck tracks
+    // the pointer 1:1 instead of sitting still until release.
+    let dragPx = 0;
     const render = () => {
       cards.forEach((c, i) => {
         let o = ((i - active) % N + N) % N;
@@ -956,10 +1012,18 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
         c.style.opacity = visible ? String(1 - abs * 0.18) : '0';
         c.style.pointerEvents = o === 0 ? 'auto' : visible ? 'auto' : 'none';
         c.style.zIndex = String(20 - abs);
-        c.style.transform = `translateX(${o * spacing}px) translateZ(${-abs * 120}px) rotateY(${o * -7}deg) scale(${1 - abs * 0.1})`;
-        c.setAttribute('aria-hidden', o === 0 ? 'false' : 'true');
+        c.style.transform = `translateX(${o * spacing + dragPx}px) translateZ(${-abs * 120}px) rotateY(${o * -7}deg) scale(${1 - abs * 0.1})`;
+        const hidden = o !== 0;
+        c.setAttribute('aria-hidden', String(hidden));
+        // A focusable link inside an aria-hidden subtree is an ARIA conflict:
+        // the tab order reaches something assistive tech was told to ignore.
+        c.querySelectorAll('a, button').forEach((el) => { el.tabIndex = hidden ? -1 : 0; });
       });
-      dots.forEach((d, i) => d.classList.toggle('on', i === active % STEPS));
+      dots.forEach((d, i) => {
+        const on = i === active % STEPS;
+        d.classList.toggle('on', on);
+        d.setAttribute('aria-current', on ? 'true' : 'false');
+      });
     };
     const goTo = (i) => { active = ((i % N) + N) % N; render(); };
     const next = () => goTo(active + 1);
@@ -968,24 +1032,129 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
     document.querySelector('.mprev').addEventListener('click', () => { prev(); restart(); });
     // click a side card to bring it to center
     cards.forEach((c, i) => c.addEventListener('click', (e) => {
+      if (dragged) return; // a drag that ended on a card is not a click
       let o = ((i - active) % N + N) % N; if (o > N / 2) o -= N;
       if (o !== 0) { e.preventDefault(); goTo(i); restart(); }
     }));
-    // swipe
-    let sx = null;
-    track.addEventListener('pointerdown', (e) => { sx = e.clientX; }, { passive: true });
+
+    // ---- drag: 1:1 tracking, then momentum ----
+    // Previously this compared clientX at pointerdown against pointerup and
+    // advanced one card if the delta cleared 40px. Nothing moved during the
+    // gesture and velocity was discarded, so a flick and a slow drag were
+    // identical. Touch and content now move together, and the release lands
+    // where the throw was actually going.
+    let sx = 0, st = 0, down = false, dragged = false;
+    const HYSTERESIS = 10; // ignore the first few px so a tap is still a tap
+
+    // Apple's projection function from the Designing Fluid Interfaces sample.
+    // Exponential decay, not the v^2/2a textbook form.
+    //
+    // 0.998 is the scroll-deceleration value and is right for a long list. This
+    // deck shows about two cards either side, so it uses the snappier 0.99:
+    // a 1500px/s flick projects ~150px (one card) instead of ~750px (three),
+    // which is the difference between advancing and spinning.
+    const project = (v, d = 0.99) => (v / 1000) * d / (1 - d);
+
+    // Belt and braces alongside draggable="false" and user-drag:none in CSS.
+    track.addEventListener('dragstart', (e) => e.preventDefault());
+
+    track.addEventListener('pointerdown', (e) => {
+      if (e.button != null && e.button !== 0) return;
+      down = true; dragged = false;
+      sx = e.clientX; st = e.timeStamp;
+      stop(); // a hand on the deck stops the autoplay, including on touch
+      cards.forEach((c) => { c.style.transition = 'none'; });
+      try { track.setPointerCapture(e.pointerId); } catch { /* not fatal */ }
+    });
+
+    track.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - sx;
+      if (!dragged && Math.abs(dx) < HYSTERESIS) return;
+      dragged = true;
+      dragPx = dx;
+      render();
+    });
+
+    // settle: restore a transition, optionally change card, resume autoplay.
+    const settle = (steps, v) => {
+      dragPx = 0;
+      cards.forEach((c) => {
+        // Faster throw, shorter settle, so the animation continues the gesture
+        // rather than restarting it at a fixed speed.
+        const d = Math.max(0.28, Math.min(0.65, 320 / Math.max(60, Math.abs(v))));
+        c.style.transition = reduce
+          ? 'none'
+          : `transform ${d}s cubic-bezier(0.2,0.7,0.2,1), opacity 0.5s ease`;
+      });
+      if (steps !== 0) goTo(active + steps); else render();
+      restart();
+      // Hand the duration back to the stylesheet once the gesture has landed,
+      // so a later dot or arrow press animates at the design speed, not at
+      // whatever speed the last flick happened to imply.
+      window.setTimeout(() => { cards.forEach((c) => { c.style.transition = ''; }); }, 700);
+      window.setTimeout(() => { dragged = false; }, 0);
+    };
+
     track.addEventListener('pointerup', (e) => {
-      if (sx === null) return;
-      const dx = e.clientX - sx; sx = null;
-      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); restart(); }
-    }, { passive: true });
-    // autoplay (pause on hover, off for reduced motion)
-    const start = () => { if (!reduce) timer = setInterval(next, 3200); };
+      if (!down) return;
+      down = false;
+      try { track.releasePointerCapture(e.pointerId); } catch { /* fine */ }
+      const dx = dragged ? e.clientX - sx : 0;
+      const dt = Math.max(1, e.timeStamp - st);
+      const v = dx / dt * 1000; // px/s
+
+      // Land where the throw was going, not where the finger happened to lift.
+      const projected = dx + project(v);
+      let steps = Math.round(-projected / spacing);
+      steps = Math.max(-2, Math.min(2, steps)); // a violent flick should not spin
+      settle(steps, v);
+    });
+
+    // A cancel is the browser taking the gesture away, usually because it
+    // decided the movement was a page scroll. That is not a committed flick,
+    // so snap back to where we were instead of projecting momentum off it.
+    track.addEventListener('pointercancel', (e) => {
+      if (!down) return;
+      down = false;
+      try { track.releasePointerCapture(e.pointerId); } catch { /* fine */ }
+      settle(0, 0);
+    });
+
+    // ---- autoplay ----
+    // WCAG 2.2.2: content that auto-updates past 5s needs a pause mechanism.
+    // mouseenter never fires on touch, so on a phone this rotated forever with
+    // no way to stop it.
+    let paused = false;
+    // The `timer` guard matters: start() has several callers now (mouseleave,
+    // focusout, the IntersectionObserver sync, settle). Without it a second
+    // start() overwrites `timer` and the first interval leaks, running forever
+    // with no handle left to clear it, so Pause stops only the newest one.
+    const start = () => { if (!reduce && !paused && !timer) timer = setInterval(next, 3200); };
     const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
     const restart = () => { stop(); start(); };
     const wrap = document.getElementById('mCarousel');
     wrap.addEventListener('mouseenter', stop);
     wrap.addEventListener('mouseleave', start);
+    // Keyboard users need it to hold still while they tab through it.
+    wrap.addEventListener('focusin', stop);
+    wrap.addEventListener('focusout', (e) => { if (!wrap.contains(e.relatedTarget)) start(); });
+
+    const pauseBtn = document.getElementById('mPause');
+    if (pauseBtn) {
+      if (reduce) {
+        // Nothing is moving, so the control would be a lie.
+        pauseBtn.hidden = true;
+      } else {
+        pauseBtn.addEventListener('click', () => {
+          paused = !paused;
+          pauseBtn.setAttribute('aria-pressed', String(paused));
+          pauseBtn.setAttribute('aria-label', paused ? 'Play step carousel' : 'Pause step carousel');
+          pauseBtn.textContent = paused ? '▶' : '❚❚';
+          paused ? stop() : start();
+        });
+      }
+    }
     addEventListener('resize', render, { passive: true });
     render();
 

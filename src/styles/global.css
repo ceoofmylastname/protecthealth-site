@@ -672,3 +672,153 @@ body::after { width: 44vw; height: 44vw; bottom: -16vw; left: -14vw; background:
      margin for the padding and keep the visual rhythm. */
   .footer-grid li { margin: 0; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INTERACTION SYSTEM
+   Added Aug 2026 after the Apple fluid-interface audit. Three defects, all
+   site-wide, all rooted in the same assumption: that a pointer exists.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Press feedback ──────────────────────────────────────────────────
+   Every tappable surface on the site expressed itself through :hover, which
+   does not exist on a phone. Tapping a booking choice moved nothing until
+   the JS advanced the stage. Apple's rule is that feedback is immediate and
+   lives on the press, not the release.
+
+   Scale rather than translate on purpose: translate reads as a second hover
+   state, scale reads as "pressed into the page". 60ms because a press must
+   feel instant; anything eased enough to notice is already too slow. */
+.bb-choice:active, .bb-day:active, .bb-slot:active,
+.icon-card:active, .acat:active, .card:active, .img-card:active,
+.qa-pill:active, .lp-card:active, .rv-card:active, .team-card:active,
+.sz-card:active, .photo-card:active, .mg-promo:active, .stat:active,
+.nav-menu a:active, .b8-more:active, .fan-card:active,
+.bb-back:active, .bb-change:active, .bb-days-arrow:active,
+.bb-retry:active, .mnav:active, .mprev:active, .mnext:active,
+.mdots button:active, .review-showcase:active, .faq-section summary:active {
+  transform: scale(0.975);
+  transition-duration: 60ms;
+}
+
+/* Cards that already lift on hover need the lift preserved under the press,
+   or the element appears to drop back to rest at the moment of contact. */
+.icon-card:active, .img-card:active, .lp-card:active, .card:active {
+  transform: translateY(-4px) scale(0.985);
+}
+
+/* Touch has no hover, so the state hover was carrying has to land somewhere.
+   These are the booking-flow choices, which is the conversion path. */
+@media (hover: none) {
+  .bb-choice:active { background: rgba(25, 123, 255, 0.07); }
+  .bb-choice:active i {
+    background: linear-gradient(135deg, var(--blue), #19c8ff);
+    color: #fff;
+  }
+  .bb-day:active, .bb-slot:active { box-shadow: 0 8px 20px rgba(25, 123, 255, 0.2); }
+}
+
+/* The burger already carried this. Everything else inherited the ~300ms hold
+   iOS keeps in case the tap becomes a double-tap zoom. */
+a, button, [role="button"], summary, .bb-choice, .bb-day, .bb-slot {
+  touch-action: manipulation;
+}
+
+/* ── 2. Focus ───────────────────────────────────────────────────────────
+   :focus-visible appeared zero times in the codebase, and .lead-form removed
+   the UA ring outright. Keyboard users were navigating pill-shaped gradient
+   buttons over navy with whatever the browser drew by default.
+
+   :where() keeps specificity at zero so any component can still override. */
+:where(a, button, [role="button"], [role="radio"], [role="tab"],
+       input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* On dark surfaces the brand blue disappears into the navy. */
+.hero :focus-visible, .lux-hero :focus-visible, .lp-hero :focus-visible,
+.navy-band :focus-visible, .site-footer :focus-visible,
+.mnav :focus-visible, .stackzone :focus-visible, .cta-band :focus-visible,
+.review-showcase:focus-visible, .acat:focus-visible, .bb-dock :focus-visible {
+  outline-color: #66e0ff;
+}
+
+/* Restore a real indicator where the outline was being suppressed. */
+.lead-form input:focus-visible,
+.lead-form select:focus-visible,
+.lead-form textarea:focus-visible,
+.bb-field input:focus-visible,
+.bb-field textarea:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* The nav underline was hover-only, so keyboard users never saw the affordance
+   the design uses to signal "you are on this item". */
+.nav a:not(.btn):not(.nav-phone):focus-visible::after { transform: scaleX(1); }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 999;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(6, 20, 44, 0.4);
+  transition: top 0.18s ease;
+}
+.skip-link:focus { top: 12px; }
+/* Focus lands on <main tabindex="-1">, which must not draw a ring of its own. */
+main:focus { outline: none; }
+
+/* ── 3. Gradient text fallback ──────────────────────────────────────────
+   Eighteen selectors paint glyphs with background-clip:text and set the text
+   colour to transparent. Forced-colors mode and print both strip background
+   images, so the background stops painting and the glyphs render as nothing.
+   That took out the H1 of every hero on the site. */
+@media (forced-colors: active) {
+  .hero h1, .lux-hero h1, .lp-h1,
+  .grad-anim, .grad-text, .h-grad, .acat-h, .section-label,
+  .sz-idx, .mnum, .rv-g, .lp-grad, .lp-mark, .stat .num span,
+  .b8-tags span:first-child, .lp-step::before, .ai-label,
+  .mnav-list em, .bb-eyebrow, .expect-n, .fw-l {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: currentColor !important;
+    color: CanvasText !important;
+  }
+}
+
+@media print {
+  .hero h1, .lux-hero h1, .lp-h1,
+  .grad-anim, .grad-text, .h-grad, .acat-h, .section-label,
+  .sz-idx, .mnum, .rv-g, .lp-grad, .lp-mark, .stat .num span,
+  .b8-tags span:first-child, .lp-step::before, .ai-label,
+  .bb-eyebrow, .expect-n {
+    background: none !important;
+    -webkit-text-fill-color: #0f3567 !important;
+    color: #0f3567 !important;
+  }
+}
+
+/* Press feedback is motion. Under reduce, keep the state change, drop the
+   movement. Removing the feedback entirely is the opposite of the intent. */
+@media (prefers-reduced-motion: reduce) {
+  .bb-choice:active, .bb-day:active, .bb-slot:active,
+  .icon-card:active, .acat:active, .card:active, .img-card:active,
+  .qa-pill:active, .lp-card:active, .rv-card:active, .team-card:active,
+  .sz-card:active, .photo-card:active, .mg-promo:active, .stat:active,
+  .nav-menu a:active, .b8-more:active, .fan-card:active,
+  .bb-back:active, .bb-change:active, .bb-days-arrow:active,
+  .bb-retry:active, .mdots button:active, .review-showcase:active {
+    transform: none;
+  }
+  .skip-link { transition: none; }
+}

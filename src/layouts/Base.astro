@@ -75,6 +75,10 @@ const orgSchema = organizationSchema();
     {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
   </head>
   <body>
+    {/* First focusable element on every page. Without it a keyboard user tabs
+        the logo, six nav items, the phone number, the CTA and the burger
+        before reaching content, on all 148 pages. */}
+    <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header" id="siteHeader">
       <div class="container">
         <div class="nav-shell">
@@ -148,7 +152,10 @@ const orgSchema = organizationSchema();
       </div>
     </div>
 
-    <main>
+    {/* tabindex="-1" so the skip link actually moves focus here. Without it the
+        browser scrolls to #main but focus stays on the link, and the next Tab
+        lands back in the nav. */}
+    <main id="main" tabindex="-1">
       <slot />
     </main>
 

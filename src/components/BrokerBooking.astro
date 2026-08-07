@@ -31,12 +31,12 @@ const SLOT_MINUTES = 20;
       <h3 class="bb-q-title">Which best describes you?</h3>
       <p class="bb-q-help">This decides who takes the conversation.</p>
       <div class="bb-choices" role="radiogroup" aria-label="Which best describes you?">
-        <button type="button" class="bb-choice spot" data-value="Realtor"><i>A</i><span>Realtor</span></button>
-        <button type="button" class="bb-choice spot" data-value="1099 contractor"><i>B</i><span>1099 contractor</span></button>
-        <button type="button" class="bb-choice spot" data-value="Self-employed"><i>C</i><span>Self-employed</span></button>
-        <button type="button" class="bb-choice spot" data-value="Small business owner with a team"><i>D</i><span>Small business owner with a team</span></button>
-        <button type="button" class="bb-choice spot" data-value="Individual or family"><i>E</i><span>Individual or family</span></button>
-        <button type="button" class="bb-choice spot" data-value="Other"><i>F</i><span>Other</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Realtor"><i>A</i><span>Realtor</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="1099 contractor"><i>B</i><span>1099 contractor</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Self-employed"><i>C</i><span>Self-employed</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Small business owner with a team"><i>D</i><span>Small business owner with a team</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Individual or family"><i>E</i><span>Individual or family</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Other"><i>F</i><span>Other</span></button>
       </div>
     </div>
 
@@ -47,11 +47,11 @@ const SLOT_MINUTES = 20;
       <h3 class="bb-q-title">How is your business currently structured?</h3>
       <p class="bb-q-help">"Not sure" is a real answer. Most people pick it.</p>
       <div class="bb-choices" role="radiogroup" aria-label="How is your business currently structured?">
-        <button type="button" class="bb-choice spot" data-value="Sole proprietor"><i>A</i><span>Sole proprietor</span></button>
-        <button type="button" class="bb-choice spot" data-value="LLC"><i>B</i><span>LLC</span></button>
-        <button type="button" class="bb-choice spot" data-value="S-corp"><i>C</i><span>S-corp</span></button>
-        <button type="button" class="bb-choice spot" data-value="Not sure"><i>D</i><span>Not sure</span></button>
-        <button type="button" class="bb-choice spot" data-value="Prefer to discuss"><i>E</i><span>Prefer to discuss</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Sole proprietor"><i>A</i><span>Sole proprietor</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="LLC"><i>B</i><span>LLC</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="S-corp"><i>C</i><span>S-corp</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Not sure"><i>D</i><span>Not sure</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Prefer to discuss"><i>E</i><span>Prefer to discuss</span></button>
       </div>
     </div>
 
@@ -59,11 +59,11 @@ const SLOT_MINUTES = 20;
       <h3 class="bb-q-title">What's your current coverage situation?</h3>
       <p class="bb-q-help">No wrong answer here either.</p>
       <div class="bb-choices" role="radiogroup" aria-label="What's your current coverage situation?">
-        <button type="button" class="bb-choice spot" data-value="Marketplace plan"><i>A</i><span>Marketplace plan</span></button>
-        <button type="button" class="bb-choice spot" data-value="Spouse's plan"><i>B</i><span>Spouse's plan</span></button>
-        <button type="button" class="bb-choice spot" data-value="Group plan"><i>C</i><span>Group plan</span></button>
-        <button type="button" class="bb-choice spot" data-value="No coverage right now"><i>D</i><span>No coverage right now</span></button>
-        <button type="button" class="bb-choice spot" data-value="Not sure what I have"><i>E</i><span>Not sure what I have</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Marketplace plan"><i>A</i><span>Marketplace plan</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Spouse's plan"><i>B</i><span>Spouse's plan</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Group plan"><i>C</i><span>Group plan</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="No coverage right now"><i>D</i><span>No coverage right now</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Not sure what I have"><i>E</i><span>Not sure what I have</span></button>
       </div>
     </div>
 
@@ -71,11 +71,11 @@ const SLOT_MINUTES = 20;
       <h3 class="bb-q-title">What matters most in this conversation?</h3>
       <p class="bb-q-help">Last one. Then you pick a time.</p>
       <div class="bb-choices" role="radiogroup" aria-label="What matters most in this conversation?">
-        <button type="button" class="bb-choice spot" data-value="Keeping my doctors"><i>A</i><span>Keeping my doctors</span></button>
-        <button type="button" class="bb-choice spot" data-value="Lowering total cost"><i>B</i><span>Lowering total cost</span></button>
-        <button type="button" class="bb-choice spot" data-value="Understanding my options"><i>C</i><span>Understanding my options</span></button>
-        <button type="button" class="bb-choice spot" data-value="Covering my family"><i>D</i><span>Covering my family</span></button>
-        <button type="button" class="bb-choice spot" data-value="Exploring options for my team"><i>E</i><span>Exploring options for my team</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Keeping my doctors"><i>A</i><span>Keeping my doctors</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Lowering total cost"><i>B</i><span>Lowering total cost</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Understanding my options"><i>C</i><span>Understanding my options</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Covering my family"><i>D</i><span>Covering my family</span></button>
+        <button type="button" role="radio" aria-checked="false" class="bb-choice spot" data-value="Exploring options for my team"><i>E</i><span>Exploring options for my team</span></button>
       </div>
     </div>
 
@@ -149,25 +149,37 @@ const SLOT_MINUTES = 20;
       <button type="button" class="bb-change">Change time</button>
     </div>
 
+    {/* Each field owns its own error node, tied by aria-describedby, and flips
+        aria-invalid on blur. Previously there was one pooled role="alert" at the
+        bottom for five fields, so a screen reader heard a single message with no
+        way to know which field it belonged to. */}
     <form class="bb-form" novalidate>
       <div class="bb-row">
         <label class="bb-field">
           <span>First name</span>
-          <input type="text" name="first_name" autocomplete="given-name" required />
+          <input type="text" name="first_name" autocomplete="given-name" required
+                 aria-describedby="bb-err-first_name" aria-invalid="false" />
+          <em class="bb-field-err" id="bb-err-first_name"></em>
         </label>
         <label class="bb-field">
           <span>Last name</span>
-          <input type="text" name="last_name" autocomplete="family-name" required />
+          <input type="text" name="last_name" autocomplete="family-name" required
+                 aria-describedby="bb-err-last_name" aria-invalid="false" />
+          <em class="bb-field-err" id="bb-err-last_name"></em>
         </label>
       </div>
       <div class="bb-row">
         <label class="bb-field">
           <span>Email</span>
-          <input type="email" name="email" autocomplete="email" required />
+          <input type="email" name="email" autocomplete="email" required
+                 aria-describedby="bb-err-email" aria-invalid="false" />
+          <em class="bb-field-err" id="bb-err-email"></em>
         </label>
         <label class="bb-field">
           <span>Phone</span>
-          <input type="tel" name="phone" autocomplete="tel" required />
+          <input type="tel" name="phone" autocomplete="tel" required
+                 aria-describedby="bb-err-phone" aria-invalid="false" />
+          <em class="bb-field-err" id="bb-err-phone"></em>
         </label>
       </div>
       <label class="bb-field">
@@ -175,6 +187,7 @@ const SLOT_MINUTES = 20;
         <textarea name="notes" rows="2"></textarea>
       </label>
 
+      {/* Reserved for errors that belong to no single field, e.g. a failed POST. */}
       <p class="bb-err" role="alert"></p>
 
       <button type="submit" class="btn big bb-submit">Confirm My Conversation</button>
@@ -464,6 +477,13 @@ const SLOT_MINUTES = 20;
     outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(25, 123, 255, 0.13);
   }
   .bb-field.is-bad input, .bb-field.is-bad textarea { border-color: #d64545; }
+  /* Per-field message. Collapses to zero height when empty so the form does not
+     reserve five blank rows, but the field is grid-gapped so nothing jumps. */
+  .bb-field-err {
+    font-style: normal; color: #c62828; font-size: 0.8rem; font-weight: 700;
+    line-height: 1.4; display: none;
+  }
+  .bb-field.is-bad .bb-field-err { display: block; }
   .bb-err { color: #d64545; font-size: 0.88rem; font-weight: 700; min-height: 1.2em; margin: 0; }
   .bb-submit { justify-self: start; }
   .bb-submit[disabled] { opacity: 0.6; pointer-events: none; }
@@ -613,6 +633,24 @@ const SLOT_MINUTES = 20;
       return i;
     }
 
+    // These buttons sit inside role="radiogroup", so they have to behave like
+    // radios: aria-checked carries the selection, and the group exposes exactly
+    // one tab stop with the arrow keys moving between options. Before this, a
+    // screen reader announced a group of plain buttons with no selected state.
+    function syncRadios(q, picked) {
+      const opts = [...q.querySelectorAll('.bb-choice')];
+      opts.forEach((c) => {
+        const on = c === picked;
+        c.setAttribute('aria-checked', String(on));
+        // Roving tabindex: one stop per group. With nothing chosen yet the
+        // first option takes it, which is the standard radiogroup entry point.
+        c.tabIndex = picked ? (on ? 0 : -1) : (c === opts[0] ? 0 : -1);
+      });
+    }
+
+    // Establish the initial tab stop for every group on load.
+    questions.forEach((q) => syncRadios(q, q.querySelector('.bb-choice.is-picked')));
+
     $$('.bb-choice').forEach((choice) => {
       choice.addEventListener('click', () => {
         const q = choice.closest('.bb-q');
@@ -627,12 +665,14 @@ const SLOT_MINUTES = 20;
             if (n <= qIndex) return;
             delete answers[other.getAttribute('data-q')];
             other.querySelectorAll('.bb-choice').forEach((c) => c.classList.remove('is-picked'));
+            syncRadios(other, null);
           });
         }
 
         answers[key] = value;
         q.querySelectorAll('.bb-choice').forEach((c) => c.classList.remove('is-picked'));
         choice.classList.add('is-picked');
+        syncRadios(q, choice);
 
         // Small beat so the selection registers visually before advancing.
         window.setTimeout(() => {
@@ -640,6 +680,22 @@ const SLOT_MINUTES = 20;
           if (next < questions.length) showQuestion(next);
           else go('time');
         }, 260);
+      });
+
+      // Arrow keys move and select in one action, which is what the radiogroup
+      // pattern specifies. Home/End jump to the ends of the group.
+      choice.addEventListener('keydown', (e) => {
+        const opts = [...choice.closest('.bb-q').querySelectorAll('.bb-choice')];
+        const i = opts.indexOf(choice);
+        let next = -1;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (i + 1) % opts.length;
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (i - 1 + opts.length) % opts.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = opts.length - 1;
+        if (next < 0) return;
+        e.preventDefault();
+        opts[next].focus();
+        opts[next].click();
       });
     });
 
@@ -791,29 +847,64 @@ const SLOT_MINUTES = 20;
       });
     });
 
-    // ---------- stage 3: submit ----------
-    function fieldError(name, message) {
-      const field = form.querySelector(`[name="${name}"]`)?.closest('.bb-field');
-      field?.classList.add('is-bad');
-      errEl.textContent = message;
-      form.querySelector(`[name="${name}"]`)?.focus();
+    // ---------- stage 3: validation ----------
+    // One rule set, used by both the blur handler and submit, so the two can
+    // never disagree about what counts as valid.
+    const RULES = {
+      first_name: (v) => (v ? '' : 'We need a first name.'),
+      last_name:  (v) => (v ? '' : 'We need a last name.'),
+      email:      (v) => (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? '' : 'That email does not look right.'),
+      phone:      (v) => (v.replace(/\D/g, '').length >= 10 ? '' : 'A 10-digit phone number, please.'),
+    };
+
+    const fieldOf = (name) => form.querySelector(`[name="${name}"]`);
+    const valueOf = (name) => String(fieldOf(name)?.value || '').trim();
+
+    function setFieldError(name, message) {
+      const input = fieldOf(name);
+      if (!input) return;
+      const bad = Boolean(message);
+      input.setAttribute('aria-invalid', String(bad));
+      input.closest('.bb-field')?.classList.toggle('is-bad', bad);
+      const msg = document.getElementById(`bb-err-${name}`);
+      if (msg) msg.textContent = message;
     }
 
+    // Validate on blur, never on keystroke. Telling someone their email is
+    // malformed while they are still typing it is noise, not feedback.
+    Object.keys(RULES).forEach((name) => {
+      const input = fieldOf(name);
+      if (!input) return;
+      input.addEventListener('blur', () => {
+        // An untouched empty field is not yet an error, it is just empty.
+        if (!input.value.trim() && input.getAttribute('aria-invalid') !== 'true') return;
+        setFieldError(name, RULES[name](valueOf(name)));
+      });
+      // Clear as soon as it becomes valid so the error does not nag mid-fix.
+      input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true' && !RULES[name](valueOf(name))) {
+          setFieldError(name, '');
+        }
+      });
+    });
+
+    // ---------- stage 3: submit ----------
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (submitting) return;
 
       errEl.textContent = '';
-      form.querySelectorAll('.bb-field').forEach((f) => f.classList.remove('is-bad'));
 
-      const value = (n) => String(form.querySelector(`[name="${n}"]`)?.value || '').trim();
-      const first = value('first_name');
-      const email = value('email');
-      const phone = value('phone');
+      // Validate every field, not just the first failure, so the user sees the
+      // full list at once instead of fixing one and discovering another.
+      let firstBad = null;
+      Object.keys(RULES).forEach((name) => {
+        const message = RULES[name](valueOf(name));
+        setFieldError(name, message);
+        if (message && !firstBad) firstBad = name;
+      });
+      if (firstBad) { fieldOf(firstBad)?.focus(); return; }
 
-      if (!first) return fieldError('first_name', 'We need a first name.');
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fieldError('email', 'That email does not look right.');
-      if (phone.replace(/\D/g, '').length < 10) return fieldError('phone', 'A 10-digit phone number, please.');
       if (!pickedSlot) { go('time'); return; }
 
       submitting = true;
