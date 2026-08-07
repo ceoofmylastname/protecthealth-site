@@ -1,4 +1,4 @@
-// Cloudflare Pages Function, mirrors netlify/functions/book.mjs. Keep both in sync.
+// Cloudflare Pages Function. Single source of truth: the Netlify mirror was deleted Aug 7 2026.
 // Talk To A Broker booking → GoHighLevel.
 //
 // POST /api/book
@@ -55,7 +55,7 @@ const ROLE_TAGS = {
 // Created in GHL on 2026-07-25 under the "Website Intake" folder. Ids rather
 // than keys, because /contacts/upsert resolves ids without a second lookup.
 // Keep this block byte-identical in lead.js, book.js, lead-magnet.js and their
-// netlify/functions mirrors.
+// this file. Keep the three handlers' copies identical.
 const CF = {
   role:        'KFgNfn7tOxlTCmvjvTNj', // Website Intake: Which Best Describes You
   structure:   'hN30YvoSCFjYZyl2WYzc', // Website Intake: Business Structure

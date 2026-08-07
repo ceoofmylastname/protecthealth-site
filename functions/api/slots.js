@@ -1,4 +1,4 @@
-// Cloudflare Pages Function, mirrors netlify/functions/slots.mjs. Keep both in sync.
+// Cloudflare Pages Function. Single source of truth: the Netlify mirror was deleted Aug 7 2026.
 // Live availability for the Talk To A Broker booking calendar.
 //
 // GET /api/slots?days=21&tz=America/Los_Angeles
