@@ -1,0 +1,31 @@
+---
+// Where Supabase sends a broker after they click the emailed password-reset link.
+//
+// The recovery tokens ride in the URL *fragment*, not the query string, so the
+// forward below must carry location.hash across verbatim. Drop it and the
+// session is never established and the reset silently fails. This page
+// deliberately does not initialise a Supabase client: /app is the only place
+// that parses the fragment, so there is one implementation, not two.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Reset your password, ProtectHealth</title>
+    <script is:inline>
+      (function () {
+        location.replace('/app' + location.search + location.hash);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 24px">
+        Resetting your ProtectHealth password needs JavaScript enabled.
+        Turn it on and open the link again, or call the office on 800-240-8185.
+      </p>
+    </noscript>
+  </body>
+</html>

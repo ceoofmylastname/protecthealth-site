@@ -23,13 +23,51 @@ const SUPABASE_ANON =
         <div class="ag-center">
           <div class="ag-card ag-login">
             <span class="section-label">ProtectHealth</span>
-            <h1>Agent sign-in</h1>
-            <p class="ag-muted">Enter your work email and we'll send a one-time sign-in link. No password to remember or lose.</p>
+            <h1>Broker sign-in</h1>
+            <p class="ag-muted">Sign in with your email and password.</p>
             <form class="ag-login-form">
-              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
-              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
+              <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+              <button type="submit" class="btn no-arrow">Sign In</button>
             </form>
             <p class="ag-status" role="status" aria-live="polite"></p>
+            <p class="ag-muted ag-small"><a href="#" class="ag-go-forgot">Forgot your password?</a></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-view" data-view="forgot" hidden>
+        <div class="ag-center">
+          <div class="ag-card ag-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Reset your password</h1>
+            <p class="ag-muted">Enter your work email and we'll send you a link to set a new password.</p>
+            <form class="ag-forgot-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
+              <button type="submit" class="btn no-arrow">Send Reset Link</button>
+            </form>
+            <p class="ag-status" role="status" aria-live="polite"></p>
+            <p class="ag-muted ag-small"><a href="#" class="ag-go-signin">Back to sign in</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shown after a recovery link lands, and after a claim token checks out.
+           Same form both times: pick a password, get signed in. -->
+      <div class="ag-view" data-view="setpassword" hidden>
+        <div class="ag-center">
+          <div class="ag-card ag-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1 class="ag-setpw-title">Set your password</h1>
+            <p class="ag-muted ag-setpw-intro">Choose a password for your account.</p>
+            <form class="ag-setpw-form">
+              <input type="email" name="email" autocomplete="username" hidden readonly />
+              <input type="password" name="password" placeholder="New password" autocomplete="new-password" required minlength="10" />
+              <input type="password" name="confirm" placeholder="Confirm password" autocomplete="new-password" required minlength="10" />
+              <button type="submit" class="btn no-arrow">Save Password</button>
+            </form>
+            <p class="ag-status" role="status" aria-live="polite"></p>
+            <p class="ag-muted ag-small">At least 10 characters.</p>
           </div>
         </div>
       </div>
@@ -159,9 +197,14 @@ const SUPABASE_ANON =
   .ag-card { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 18px; padding: 34px; box-shadow: 0 18px 44px rgba(8, 29, 61, 0.08); }
   .ag-login { max-width: 420px; width: 100%; }
   .ag-login h1 { margin: 4px 0 10px; }
-  .ag-login-form { display: grid; gap: 10px; margin-top: 16px; }
-  .ag-login-form input { border: 1.5px solid rgba(15, 53, 103, 0.16); border-radius: 11px; padding: 12px 14px; font-size: 1rem; font-family: var(--font); }
-  .ag-login-form input:focus { outline: none; border-color: var(--blue); }
+  .ag-login-form, .ag-forgot-form, .ag-setpw-form { display: grid; gap: 10px; margin-top: 16px; }
+  .ag-login-form input, .ag-forgot-form input, .ag-setpw-form input { border: 1.5px solid rgba(15, 53, 103, 0.16); border-radius: 11px; padding: 12px 14px; font-size: 1rem; font-family: var(--font); }
+  .ag-login-form input:focus, .ag-forgot-form input:focus, .ag-setpw-form input:focus { outline: none; border-color: var(--blue); }
+  /* The username field on the set-password form exists for password managers,
+     not for people. Keep [hidden] winning over the grid item display above. */
+  .ag-login-form input[hidden], .ag-forgot-form input[hidden], .ag-setpw-form input[hidden] { display: none; }
+  .ag-small { font-size: 0.86rem; margin-top: 12px; }
+  .ag-small a { color: var(--blue); text-decoration: underline; text-underline-offset: 2px; }
   .ag-status { margin-top: 10px; font-size: 0.9rem; color: var(--muted); min-height: 1.2em; }
   .ag-status.is-bad { color: #c0392b; }
   .ag-muted { color: var(--muted); }
@@ -330,22 +373,131 @@ const SUPABASE_ANON =
     };
 
     // ---------- auth ----------
+    // Password is the login. Magic link survives only as the recovery path,
+    // because a broker who has lost their password still has their inbox.
+    const AUTH_FN = `${root.getAttribute('data-supabase-url')}/functions/v1/ph-auth`;
+
+    const authPost = async (body) => {
+      const res = await fetch(AUTH_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      let json = {};
+      try { json = await res.json(); } catch { /* non-JSON error page */ }
+      return { ok: res.ok, status: res.status, json };
+    };
+
+    // Each view owns its own status line, so clear the one being left behind.
+    const statusIn = (viewName) => root.querySelector(`.ag-view[data-view="${viewName}"] .ag-status`);
+    const setStatus = (viewName, text, bad = false) => {
+      const el = statusIn(viewName);
+      if (!el) return;
+      el.textContent = text;
+      el.classList.toggle('is-bad', Boolean(bad));
+    };
+
+    $('.ag-go-forgot')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      setStatus('signin', '');
+      const typed = root.querySelector('.ag-login-form')?.email?.value?.trim();
+      if (typed) root.querySelector('.ag-forgot-form').email.value = typed;
+      view('forgot');
+    });
+
+    $('.ag-go-signin')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      setStatus('forgot', '');
+      view('signin');
+    });
+
     $('.ag-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const status = $('.ag-status');
+      const btn = e.target.querySelector('button[type="submit"]');
       const email = e.target.email.value.trim();
-      status.classList.remove('is-bad');
-      status.textContent = 'Sending…';
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: `${location.origin}/app` },
-      });
+      const password = e.target.password.value;
+      btn.disabled = true;
+      setStatus('signin', 'Signing in…');
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) {
-        status.classList.add('is-bad');
-        status.textContent = error.message;
-      } else {
-        status.textContent = 'Check your inbox. The link signs you straight in.';
+        btn.disabled = false;
+        // Supabase says "Invalid login credentials" for both a wrong password
+        // and an address with no account. Keep it that way: telling a stranger
+        // which addresses exist is an invitation.
+        setStatus('signin', 'That email and password did not match. Try again, or use Forgot your password.', true);
+        return;
       }
+      e.target.password.value = '';
+      const who = data?.session?.user?.email ?? email;
+      $$('[data-who]').forEach((el) => (el.textContent = who));
+      await load(who);
+    });
+
+    $('.ag-forgot-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      setStatus('forgot', 'Sending…');
+      // The endpoint answers identically whether or not the address is on the
+      // roster, so mirror that here rather than leaking the difference in the UI.
+      await authPost({ action: 'recover', email: e.target.email.value.trim() });
+      btn.disabled = false;
+      setStatus('forgot', 'If that address is on the roster, a reset link is on its way. It expires in 60 minutes.');
+    });
+
+    // Used by both the claim link and the recovery link. claimToken is set only
+    // in the claim case; recovery arrives as a real session from the emailed link.
+    let claimToken = null;
+
+    $('.ag-setpw-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const password = e.target.password.value;
+      const confirm = e.target.confirm.value;
+
+      if (password !== confirm) { setStatus('setpassword', 'Those two passwords do not match.', true); return; }
+      if (password.length < 10) { setStatus('setpassword', 'Password must be at least 10 characters.', true); return; }
+
+      btn.disabled = true;
+      setStatus('setpassword', 'Saving…');
+
+      if (claimToken) {
+        const { ok, json } = await authPost({ action: 'claim', token: claimToken, password });
+        if (!ok) {
+          btn.disabled = false;
+          setStatus('setpassword', json.error || 'That link is no longer valid.', true);
+          return;
+        }
+        // Password is set but there is no session yet; sign in with what they
+        // just chose, which also proves the credentials work before they leave.
+        const { error } = await sb.auth.signInWithPassword({ email: json.email, password });
+        if (error) {
+          btn.disabled = false;
+          setStatus('setpassword', 'Password saved. Please sign in.', true);
+          view('signin');
+          return;
+        }
+        claimToken = null;
+        history.replaceState({}, '', '/app');
+        $$('[data-who]').forEach((el) => (el.textContent = json.email));
+        await load(json.email);
+        return;
+      }
+
+      // Recovery: the emailed link already established a session.
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) {
+        btn.disabled = false;
+        setStatus('setpassword', error.message, true);
+        return;
+      }
+      const { data } = await sb.auth.getSession();
+      const who = data?.session?.user?.email;
+      if (!who) { view('signin'); return; }
+      history.replaceState({}, '', '/app');
+      $$('[data-who]').forEach((el) => (el.textContent = who));
+      await load(who);
     });
 
     $$('.ag-signout').forEach((b) =>
@@ -360,13 +512,34 @@ const SUPABASE_ANON =
       // Authorisation is a data question, not a flag: can this email find
       // itself on the roster? RLS only returns the agent's own row (admins see
       // all rows, so we match on email to be exact either way).
-      const { data: me } = await sb
-        .from('ph_agents')
-        .select('id, full_name, is_active')
-        .ilike('email', sessionEmail)
-        .limit(1);
-      if (!me || !me.length || !me[0].is_active) { view('denied'); return; }
-      myName = me[0].full_name || sessionEmail;
+      // Match on the auth user id, not the email string. A broker's roster email
+      // can change (37 of them are still on personal domains) and matching on
+      // email would quietly strand them on the "no access" screen. Admins see
+      // every roster row, so an unfiltered .limit(1) would hand them a stranger's
+      // name; the uid filter is what keeps this exact for them too.
+      const { data: authUser } = await sb.auth.getUser();
+      const uid = authUser?.user?.id ?? null;
+
+      let me = null;
+      if (uid) {
+        const { data } = await sb
+          .from('ph_agents')
+          .select('id, full_name, is_active')
+          .eq('auth_user_id', uid)
+          .limit(1);
+        me = data?.[0] ?? null;
+      }
+      if (!me) {
+        // Only reachable for a roster row that was never linked to a login.
+        const { data } = await sb
+          .from('ph_agents')
+          .select('id, full_name, is_active')
+          .ilike('email', sessionEmail)
+          .limit(1);
+        me = data?.[0] ?? null;
+      }
+      if (!me || !me.is_active) { view('denied'); return; }
+      myName = me.full_name || sessionEmail;
 
       view('app');
       // No .eq('agent_id', ...) anywhere, RLS already restricts this query to
@@ -778,12 +951,70 @@ const SUPABASE_ANON =
     });
 
     // ---------- boot ----------
+    // Three ways to arrive: a claim link from the office, a recovery link from
+    // Forgot password, or normally.
     (async () => {
-      const { data } = await sb.auth.getSession();
-      const email = data?.session?.user?.email;
-      if (!email) { view('signin'); return; }
-      $$('[data-who]').forEach((el) => (el.textContent = email));
-      await load(email);
+      const params = new URLSearchParams(location.search);
+      const token = params.get('claim');
+
+      if (token) {
+        view('loading');
+        const { ok, json } = await authPost({ action: 'claim_info', token });
+        if (ok && json.ok) {
+          claimToken = token;
+          const form = root.querySelector('.ag-setpw-form');
+          form.email.value = json.email || '';
+          root.querySelector('.ag-setpw-title').textContent = 'Welcome, ' + (String(json.full_name || '').split(' ')[0] || 'there');
+          root.querySelector('.ag-setpw-intro').textContent =
+            'Set a password for ' + (json.email || 'your account') + '. You will use it to sign in from now on.';
+          view('setpassword');
+          return;
+        }
+        const why = {
+          used: 'That link has already been used. Sign in below, or use Forgot your password.',
+          expired: 'That link has expired. Use Forgot your password below and we will send a fresh one.',
+          invalid: 'That link is not valid. Check you copied the whole thing, or ask the office to resend it.',
+        }[json.reason] || 'That link is not valid.';
+        view('signin');
+        setStatus('signin', why, true);
+        return;
+      }
+
+      // Supabase parses the recovery link's tokens out of the URL fragment and
+      // establishes a session, then fires PASSWORD_RECOVERY. Until the new
+      // password is saved, that session must not be treated as a normal sign-in.
+      let recovering = false;
+      sb.auth.onAuthStateChange((event) => {
+        if (event !== 'PASSWORD_RECOVERY') return;
+        recovering = true;
+        claimToken = null;
+        root.querySelector('.ag-setpw-title').textContent = 'Choose a new password';
+        root.querySelector('.ag-setpw-intro').textContent = 'Pick something you will remember. At least 10 characters.';
+        view('setpassword');
+      });
+
+      // Never leave anyone stranded on "Checking your session…". If the session
+      // lookup throws or stalls (blocked storage, private window, flaky wifi in
+      // a room full of people signing in at once), fall through to the form,
+      // which is the one screen that can always recover the situation.
+      let settled = false;
+      const toSignin = () => { if (!settled) { settled = true; view('signin'); } };
+      const stall = setTimeout(toSignin, 8000);
+
+      try {
+        const { data } = await sb.auth.getSession();
+        const email = data?.session?.user?.email;
+        clearTimeout(stall);
+        if (recovering) { settled = true; return; }
+        if (!email) { toSignin(); return; }
+        settled = true;
+        $$('[data-who]').forEach((el) => (el.textContent = email));
+        await load(email);
+      } catch (err) {
+        clearTimeout(stall);
+        toSignin();
+        setStatus('signin', 'Could not check your session. Please sign in.', true);
+      }
     })();
   }
 </script>

@@ -1,0 +1,30 @@
+---
+// Entry point for the one-time claim link the office hands out.
+// The ph-auth function mints links shaped /app/claim?t=<token>; the whole
+// sign-in experience lives in /app, so this forwards the token there and gets
+// out of the way. Kept as its own route so the link a broker receives reads as
+// what it is rather than as a query string bolted onto the dashboard.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Setting up your account, ProtectHealth</title>
+    <script is:inline>
+      (function () {
+        var t = new URLSearchParams(location.search).get('t');
+        location.replace(t ? '/app?claim=' + encodeURIComponent(t) : '/app');
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 24px">
+        Setting up your ProtectHealth account needs JavaScript enabled.
+        Turn it on and open the link again, or call the office on 800-240-8185.
+      </p>
+    </noscript>
+  </body>
+</html>
