@@ -129,7 +129,7 @@ Six checks, and together they take one evening.
 
 **Get the discount fee schedule in writing.** For the actual procedures expected, not a headline range on a landing page.
 
-**Check the marketplace timing if health coverage is also in play.** A stand-alone dental plan cannot be bought through the marketplace without a health plan purchased at the same time, and dental coverage must be made available for anyone eighteen or younger as an essential health benefit, while adult dental carries no such requirement. Nevada runs a state-based marketplace, and the enrollment window is published by [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/).
+**Check the marketplace timing if health coverage is also in play.** A stand-alone dental plan cannot be bought through the marketplace without a health plan purchased at the same time, and dental coverage must be made available for anyone eighteen or younger as an essential health benefit, while adult dental carries no such requirement. Nevada runs a state-based marketplace, and the enrollment window is published by [Nevada Health Link](https://www.nevadahealthlink.com/).
 
 **Verify whoever is selling it.** Anyone advising on insurance in Nevada should hold an active producer license, and licenses are verifiable through the Division of Insurance. NAIC also maintains [general consumer guidance on health coverage](https://content.naic.org/consumer/health-insurance.htm) for anyone who wants a neutral reference before a sales conversation starts.
 

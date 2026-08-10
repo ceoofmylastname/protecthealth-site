@@ -5,7 +5,7 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "ichra"
 datePublished: "2026-07-21"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "An ICHRA (Individual Coverage Health Reimbursement Arrangement) lets an employer reimburse employees tax-free for individual health insurance plans employees choose themselves."
   - "The employer sets a fixed monthly budget; employees pick plans that fit their own doctors, prescriptions, and families."
@@ -42,7 +42,7 @@ An ICHRA lets an employer reimburse employees tax-free for individual health ins
 The mechanics run in three steps:
 
 1. The employer sets a **fixed monthly allowance** per employee. Allowances can differ by legitimate employee class, such as full-time versus part-time, or salaried versus hourly.
-2. Each employee **buys an individual health plan** of their own choosing, through [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) or directly from a carrier, and must actually be enrolled in individual coverage or Medicare to participate.
+2. Each employee **buys an individual health plan** of their own choosing, through [Nevada Health Link](https://www.nevadahealthlink.com/) or directly from a carrier, and must actually be enrolled in individual coverage or Medicare to participate.
 3. The employer **reimburses premiums tax-free** up to the allowance. Money not claimed is not paid out. It stays with the business.
 
 That third point is the one business owners react to. A group plan bills a fixed premium whether employees value it or not. An ICHRA spends only what employees actually claim, and the budget gets set in advance rather than reset by a carrier at every renewal.
@@ -128,7 +128,7 @@ Six things, in rough order.
 
 **Send the notice on time.** Current employees must receive written notice at least 90 days before the start of the plan year, and new employees get it when they become eligible. The Labor Department publishes a [model ICHRA notice](https://www.dol.gov/agencies/ebsa/laws-and-regulations/rules-and-regulations/completed-rulemaking/1210-ab87/individual-coverage-model-notice) that can be adapted. Miss the notice window and the plan year start moves.
 
-**Help employees enroll.** Nevada open enrollment runs November 1 through December 31, a window federal rules shortened beginning with the 2027 plan year. An ICHRA offer also opens a special enrollment period for affected employees. Timing the announcement against that calendar is the difference between smooth adoption and a scramble, and the dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+**Help employees enroll.** Nevada open enrollment runs November 1 through January 15. Select a plan by December 31 and coverage starts January 1; enroll between January 1 and January 15 and coverage starts February 1. An ICHRA offer also opens a special enrollment period for affected employees. Timing the announcement against that calendar is the difference between smooth adoption and a scramble, and the dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
 **Set up substantiation.** Employees verify they are enrolled in qualifying individual coverage, both at enrollment and with each reimbursement.
 

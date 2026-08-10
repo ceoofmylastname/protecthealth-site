@@ -80,7 +80,7 @@ Four situations, and they are narrower than the marketing suggests.
 
 **Work that lands after an annual maximum is exhausted.** Carrying a membership alongside insurance is permitted, and the two arrangements can be used across a year on different procedures rather than stacked on the same one, as described in [carrying dental insurance and a discount plan together](/qa/can-you-have-dental-insurance-and-a-discount-plan).
 
-**Households outside an enrollment window.** Memberships generally start on demand rather than waiting for an annual window, which matters in Nevada where marketplace enrollment runs on a fixed calendar published by [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) and stand-alone dental cannot be bought there without a health plan purchased at the same time.
+**Households outside an enrollment window.** Memberships generally start on demand rather than waiting for an annual window, which matters in Nevada where marketplace enrollment runs on a fixed calendar published by [Nevada Health Link](https://www.nevadahealthlink.com/) and stand-alone dental cannot be bought there without a health plan purchased at the same time.
 
 Before joining anything, get the fee schedule for the specific procedures expected, in writing, and confirm the dentist by phone. Anyone unsure whether a product being sold is insurance or a membership can ask the [Nevada Division of Insurance](https://doi.nv.gov/), which regulates insurance products and licenses the producers who sell them.
 

@@ -8,7 +8,7 @@ siblings:
   - "how-do-you-check-if-a-doctor-is-in-network"
   - "which-metal-tier-is-best-for-families"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "An HMO covers non-emergency care only from in-network providers and typically routes specialist access through a primary care referral, in exchange for a lower premium. A PPO pays something toward out-of-network care and drops the referral requirement, at a higher premium."
 speakableText: "HMO and PPO are labels for how a plan controls access, not measures of how good the coverage is. Both designs sit inside the same metal tier system and both carry the same annual ceiling on covered in-network cost sharing, so the real difference shows up in what happens when care wanders outside the network. Emergency care is covered regardless of network status under federal rules, which means the restriction applies to everything planned rather than everything urgent. What matters far more than the acronym in the Las Vegas valley is which specific providers hold contracts with the specific plan, because participation there is decided plan by plan rather than company by company."
 faq:
@@ -84,4 +84,4 @@ Re-checking annually matters more than it used to, because actuarial value range
 
 Four items, and none of them appear on a comparison grid. The referral rule as written. The out-of-network payment terms, if any exist. The participation status of every provider the household intends to keep. And the service area, since coverage rules frequently change the moment care happens outside it.
 
-Nevada residents shop through Nevada Health Link, where window shopping opens October 1 and enrollment runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/). Anyone selling a plan in Nevada holds a producer license that can be checked through the [Nevada Division of Insurance](https://doi.nv.gov/). Households that would rather have someone read the referral rules and the roster with them can [talk to a broker](/talk-to-a-broker) at no cost, since plan prices are identical with or without one.
+Nevada residents shop through Nevada Health Link, where window shopping opens October 1 and enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/). Anyone selling a plan in Nevada holds a producer license that can be checked through the [Nevada Division of Insurance](https://doi.nv.gov/). Households that would rather have someone read the referral rules and the roster with them can [talk to a broker](/talk-to-a-broker) at no cost, since plan prices are identical with or without one.

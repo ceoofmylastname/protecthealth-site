@@ -5,7 +5,7 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "employers"
 datePublished: "2024-10-16"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "No federal requirement to offer health insurance applies to an employer with fewer than 50 full-time employees including full-time equivalents, so most Las Vegas small businesses offer coverage as a hiring decision rather than a legal one."
   - "Four structures cover nearly every small employer: a traditional small-group plan, a level-funded plan, an ICHRA, and a QSEHRA."
@@ -133,7 +133,7 @@ Five things, and premium is only the first of them.
 
 **The out-of-pocket maximum.** The monthly premium describes an ordinary year. The out-of-pocket maximum describes the worst one, which is the entire reason coverage exists.
 
-**The calendar.** Individual open enrollment in Nevada runs November 1 through December 31 through [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/). Any strategy that depends on employees buying individual plans has to be announced against that window rather than whenever the idea occurs.
+**The calendar.** Individual open enrollment in Nevada runs November 1 through January 15 through [Nevada Health Link](https://www.nevadahealthlink.com/), and a plan selected by December 31 starts January 1 while one selected between January 1 and January 15 starts February 1. Any strategy that depends on employees buying individual plans has to be announced against that window rather than whenever the idea occurs.
 
 **The producer.** Anyone advising a Nevada business on this should hold an active producer license, and any Nevadan can verify one through the [Nevada Division of Insurance](https://doi.nv.gov/). What a broker is supposed to do for the fee the carrier already builds into the premium is covered in [what does a benefits broker do](/qa/what-does-a-benefits-broker-do).
 

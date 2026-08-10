@@ -8,14 +8,14 @@ siblings:
   - "who-qualifies-for-health-insurance-subsidies-in-nevada"
   - "is-nevada-health-link-the-same-as-healthcare-gov"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Yes. Nevada expanded Medicaid under the ACA, which made adult eligibility income-based rather than category-based. Medicaid and Nevada Check Up enroll year round, and the Nevada Health Link application screens household income and routes qualifying applicants automatically."
 speakableText: "Expansion changed who the program is for. Before it, an adult generally had to fit a category such as pregnancy, disability or caretaker status to qualify at all, and earnings alone were not enough. Afterward, household income measured against the federal poverty guideline became the test, which closed the gap that still exists in states that declined expansion. The practical effect for a Las Vegas household with irregular earnings is that a lean stretch does not have to mean an uninsured stretch, because the state program accepts applications in any month of the year."
 faq:
   - q: "Who qualifies for expanded Medicaid in Nevada?"
     a: "Adults whose household income falls below the expansion threshold, measured as modified adjusted gross income against the federal poverty guideline for the household size. No disability, pregnancy or dependent-child requirement applies under expansion."
   - q: "Can Nevadans apply for Medicaid outside open enrollment?"
-    a: "Yes. Medicaid and Nevada Check Up accept applications year round. The November 1 through December 31 window applies only to marketplace plans."
+    a: "Yes. Medicaid and Nevada Check Up accept applications year round. The November 1 through January 15 window applies only to marketplace plans."
   - q: "What happens when income rises above the Medicaid threshold?"
     a: "Losing Medicaid eligibility is a qualifying life event that opens a special enrollment period on Nevada Health Link, where premium tax credits generally pick up where the state program left off."
   - q: "Does one application cover both Medicaid and marketplace plans?"
@@ -54,7 +54,7 @@ Because self-employed income moves in both directions, and the system is built t
 
 Clark County earns unevenly by design. Tipped income tracks the convention calendar, so a soft summer flattens servers, bartenders and valets at the same time. Rideshare and delivery earnings follow that calendar one step removed. Real estate commission arrives in lumps that have nothing to do with the month rent is due, and a quiet market can stretch four months without a closing.
 
-In a state without expansion, that stretch would leave a Realtor or a gig worker with no realistic option until November. In Nevada, income that drops far enough qualifies immediately, in whatever month it happens, with no window to wait for and no qualifying life event required. Nevada Health Link publishes enrollment timing for the marketplace side on its [when to enroll page](https://nevadahealthlink.com/get-help/when-to-enroll/), and Medicaid simply sits outside that calendar.
+In a state without expansion, that stretch would leave a Realtor or a gig worker with no realistic option until November. In Nevada, income that drops far enough qualifies immediately, in whatever month it happens, with no window to wait for and no qualifying life event required. [Nevada Health Link](https://www.nevadahealthlink.com/) publishes the marketplace calendar, which runs November 1 through January 15, and Medicaid sits outside that calendar entirely.
 
 ### Moving back up is also handled
 

@@ -8,7 +8,7 @@ siblings:
   - "do-real-estate-brokerages-offer-health-insurance"
   - "can-commission-income-qualify-for-health-insurance-subsidies"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "There is no single price. Sticker premiums are set by age, zip code, tobacco use, household size, and metal tier, and the premium tax credit calculated on net self-employment income is what decides the amount an agent actually pays each month."
 speakableText: "A quoted premium and a paid premium are two different numbers, and the distance between the two is the entire story for a commission earner. Rating factors fix the sticker price before shopping even starts, because carriers price by age, geography, tobacco use, and household composition under rules that are the same for every applicant. What varies enormously from one agent to the next is the subsidy, which runs on profit after deductible business costs rather than on gross commission volume. Real figures for a specific household come from window shopping on Nevada Health Link, which opens on the first of October, a month before enrollment begins."
 faq:
@@ -76,7 +76,7 @@ The premium describes an ordinary year. The out-of-pocket maximum describes the 
 
 Nevada Health Link, which opens window shopping on October 1, a month before open enrollment begins on November 1. That tool prices real plans against a real zip code, real ages, and a real income estimate.
 
-Anything else is an average, and averages are useless here. Open enrollment closes December 31, and the January 15 date agents remember was retired for every exchange beginning with the 2027 plan year, so [Nevada Health Link's enrollment calendar](https://nevadahealthlink.com/get-help/when-to-enroll/) is worth checking before the reminder gets set. Producers selling coverage in this state are licensed by the Nevada Division of Insurance and can be verified there before any application is signed.
+Anything else is an average, and averages are useless here. Nevada open enrollment runs November 1 through January 15, and a plan selected by December 31 starts January 1 while one selected between January 1 and January 15 starts February 1, so [Nevada Health Link's enrollment calendar](https://www.nevadahealthlink.com/) is worth checking before the reminder gets set. Producers selling coverage in this state are licensed by the Nevada Division of Insurance and can be verified there before any application is signed.
 
 A licensed broker costs the household nothing, because individual plans are priced identically whether a producer is involved or not. We are insurance nerds, not tax professionals, so once the question turns to the self-employed premium deduction, entity structure, or how the credit reconciles at filing, a licensed tax professional belongs in that conversation.
 

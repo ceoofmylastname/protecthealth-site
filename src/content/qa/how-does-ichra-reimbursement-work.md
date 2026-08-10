@@ -8,7 +8,7 @@ siblings:
   - "can-an-s-corp-owner-use-an-ichra"
   - "what-happens-to-my-ichra-if-i-leave-my-job"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "The employer sets a fixed monthly allowance, the employee buys individual health insurance and submits proof of coverage and premium cost, and the employer reimburses up to that allowance tax-free. Unclaimed allowance stays with the business."
 speakableText: "Three things have to line up every month for the money to move: real individual coverage or Medicare in force, documentation of what the premium cost, and a payment routed through payroll or a benefits administrator. Substantiation is what protects the tax treatment, so proof gets provided once at enrollment and again with each claim. Allowances may vary by legitimate employee class, such as full-time versus part-time, and by age and family size within a class. Nothing accumulates, because an allowance is a promise to reimburse rather than a funded account balance."
 faq:
@@ -75,6 +75,6 @@ Three things, and all three are cheaper to check now than to fix in April. Verif
 
 Accepting reimbursement forecloses the premium tax credit for that coverage, which is the most expensive detail in the whole arrangement. For a household already receiving a large advance credit, the allowance can be worth less than what it replaces. That arithmetic is laid out in [does an ICHRA affect premium tax credits](/qa/does-an-ichra-affect-premium-tax-credits) and compared side by side in [ICHRA versus marketplace health insurance](/blog-post/ichra-vs-marketplace-health-insurance).
 
-Timing matters too. Nevada open enrollment runs November 1 through December 31, and an ICHRA offer also opens a special enrollment period for the affected employee. The calendar detail sits in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and networks in the valley shift between plan years, so last year's provider list is not a safe assumption.
+Timing matters too. Nevada open enrollment runs November 1 through January 15, and an ICHRA offer also opens a special enrollment period for the affected employee. The calendar detail sits in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and networks in the valley shift between plan years, so last year's provider list is not a safe assumption.
 
 We are insurance nerds, not tax professionals. Once the question moves to payroll treatment, deductions or anything that lands on a return, a licensed tax professional belongs in the room. Everything upstream of that is worth a conversation with a broker who works this valley year-round.

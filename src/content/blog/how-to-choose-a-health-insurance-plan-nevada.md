@@ -5,13 +5,13 @@ category: "Framework"
 funnelStage: "MOFU"
 cluster: "nevada-core"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "The right Nevada health plan is identified by total expected cost, meaning twelve months of premium plus realistic out-of-pocket spending, rather than by the premium column alone."
   - "Network verification comes second, because Las Vegas valley provider groups contract plan by plan and the same medical group can be in network on one plan and out on another from the same company."
   - "Formulary placement comes third, since two plans quoting nearly identical premiums can price the same maintenance drug very differently."
   - "Premium tax credits are anchored to the second-lowest-cost Silver plan available to the household, and cost-sharing reductions attach only to Silver plans."
-  - "Nevada open enrollment runs November 1 through December 31 through Nevada Health Link, and coverage selected in that window starts January 1."
+  - "Nevada open enrollment runs November 1 through January 15 through Nevada Health Link, and a plan selected by December 31 starts January 1 while a plan selected between January 1 and January 15 starts February 1."
 speakableText: "A Nevada household finds the right plan by running four filters in a fixed sequence every year: annual cost at realistic usage, provider network fit, drug formulary placement, and subsidy eligibility. Metal tiers describe only how a plan splits covered costs with a member, and say nothing about which Clark County doctors participate or how good the coverage feels in practice. Federal rules now let a plan shift what it pays without changing its name, so auto-renewal can quietly carry a household into a less generous version of last year's product. Enrollment for Nevada residents happens on Nevada Health Link, the state-based marketplace, rather than on the federal platform used by most other states. Doing the comparison work in October and early November leaves enough room to fix a network problem while switching plans is still possible."
 faq:
   - q: "What do the metal tiers actually mean?"
@@ -23,7 +23,7 @@ faq:
   - q: "Why does re-shopping matter more than it used to?"
     a: "Actuarial value de minimis ranges widened to plus two and minus four percentage points for most plans, and plus five and minus four for expanded bronze. A plan can therefore change what it pays without changing its name, so an auto-renewed plan may cover less than the version selected the prior year."
   - q: "When can Nevada residents enroll in marketplace coverage?"
-    a: "Open enrollment on Nevada Health Link runs November 1 through December 31, with coverage starting January 1. Outside that window enrollment requires a qualifying life event. Medicaid enrolls year round in Nevada because the state expanded eligibility."
+    a: "Open enrollment on Nevada Health Link runs November 1 through January 15. A plan selected by December 31 starts January 1, and a plan selected between January 1 and January 15 starts February 1. Outside that window enrollment requires a qualifying life event. Medicaid enrolls year round in Nevada because the state expanded eligibility."
 relatedQa:
   - "what-is-an-out-of-pocket-maximum"
   - "how-do-you-check-if-a-doctor-is-in-network"
@@ -133,9 +133,9 @@ Renewal notices now also arrive inside the shortest enrollment window Nevada has
 
 ### What is the actual Nevada calendar?
 
-Nevada open enrollment runs November 1 through December 31, and coverage selected in that window begins January 1. The January 15 close many Nevadans still remember is retired. States on the federal platform run to [a December 15 deadline for January coverage](https://www.healthcare.gov/quick-guide/dates-and-deadlines/), but Nevada operates a state-based marketplace and is not on the federal platform, which is why national articles routinely publish dates that are wrong for Nevada readers.
+Nevada open enrollment runs November 1 through January 15. A plan selected by December 31 begins January 1, and a plan selected between January 1 and January 15 begins February 1. States on the federal HealthCare.gov platform close [December 15](https://www.healthcare.gov/quick-guide/dates-and-deadlines/), but Nevada operates a state-based marketplace and is not on that platform, which is why national articles routinely publish dates that are wrong for Nevada readers.
 
-Window shopping on [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) opens October 1, a full month before enrollment. That month is when the four filters belong. A household browsing in October has time to discover a network problem while switching is still an option. A household opening the site on December 30 is sorting by premium and hoping. The dates are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada) and the full walkthrough in [the Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
+Window shopping on [Nevada Health Link](https://www.nevadahealthlink.com/) opens October 1, a full month before enrollment. That month is when the four filters belong. A household browsing in October has time to discover a network problem while switching is still an option. A household opening the site on December 30 is sorting by premium and hoping. The dates are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada) and the full walkthrough in [the Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
 
 ## Where can a Nevada household get help running this?
 

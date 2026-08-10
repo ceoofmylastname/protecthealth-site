@@ -8,7 +8,7 @@ siblings:
   - "how-much-does-health-insurance-cost-for-realtors-in-nevada"
   - "can-commission-income-qualify-for-health-insurance-subsidies"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Rarely for agents. Because a real estate agent is almost always an independent contractor rather than a W-2 employee, most brokerages have no eligible population to enroll and offer access to coverage rather than employer-funded benefits."
 speakableText: "What a brokerage can sponsor depends entirely on who is on payroll. Office managers, transaction coordinators, and marketing staff hired as employees may sit on a small-group plan, while the licensed agents down the hall remain outside that plan despite sharing the same office and the same brand. What gets offered to agents instead is usually access: a referral to a producer, a private enrollment portal, or an association program. Access has value, but access is not a funded benefit, and the quality of what sits behind those doors ranges from full major medical to limited-benefit products that behave nothing like insurance when a hospital bill arrives."
 faq:
@@ -64,7 +64,7 @@ An agent quoting production volume is quoting a figure the application never use
 
 ### What about the timing?
 
-Nevada open enrollment runs November 1 through December 31, and the January 15 close that agents remember was retired for every exchange beginning with the 2027 plan year. Two weeks of runway disappeared, and they were the two weeks this business was most likely to use, because late December here belongs to closings and family.
+Nevada open enrollment runs November 1 through January 15, and the January 15 close that agents remember is still the close. Those two weeks of runway are the two weeks this business is most likely to use, because late December here belongs to closings and family. A plan selected by December 31 starts January 1, and one selected in the first half of January starts February 1.
 
 Outside that window a qualifying life event opens a special enrollment period. Marriage, a birth or adoption, loss of other coverage, and a permanent move into Nevada all count, and that last one matters in a market absorbing agents relicensing in from California and Arizona every month. Dates and exceptions are in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). Nevada Medicaid is separate and enrolls year round, because Nevada expanded eligibility.
 

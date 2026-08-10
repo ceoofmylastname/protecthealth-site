@@ -5,14 +5,14 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "ichra"
 datePublished: "2026-07-21"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "A Realtor is generally an independent contractor rather than an employee, so a brokerage usually cannot cover agents under a traditional group health plan."
   - "Real estate agents are almost always independent contractors, which means no brokerage benefits packet, and coverage is a problem each agent has to solve alone."
   - "The main path for a Nevada agent is an individual plan through Nevada Health Link, where premium tax credits are calculated on net income after business expenses rather than gross commissions."
-  - "Nevada open enrollment runs November 1 through December 31, and the former January 15 close was retired by a federal rule beginning with the 2027 plan year."
+  - "Nevada open enrollment runs November 1 through January 15, and a plan selected by December 31 starts January 1 while a plan selected between January 1 and January 15 starts February 1."
   - "ICHRA and Section 105 arrangements require at least one employee who is not the owner or the owner's spouse, which rules out most solo agents."
-speakableText: "Real estate agents in Nevada shop for health coverage as self-employed individuals, because independent contractor status keeps agents off brokerage group plans. The most common route runs through Nevada Health Link, the state exchange operated by the Silver State Health Insurance Exchange, where subsidy eligibility is figured on profit after deductible business costs instead of on total commission volume. Brokerage splits, association dues, errors and omissions coverage and mileage across Clark County all lower that figure, which is why many producing agents qualify without ever checking. Enrollment opens on the first of November and closes on the last day of December, with qualifying life events opening coverage at other points in the year. Employer reimbursement arrangements only enter the picture once an agent's business has staff beyond the owner."
+speakableText: "Real estate agents in Nevada shop for health coverage as self-employed individuals, because independent contractor status keeps agents off brokerage group plans. The most common route runs through Nevada Health Link, the state exchange operated by the Silver State Health Insurance Exchange, where subsidy eligibility is figured on profit after deductible business costs instead of on total commission volume. Brokerage splits, association dues, errors and omissions coverage and mileage across Clark County all lower that figure, which is why many producing agents qualify without ever checking. Enrollment opens on the first of November and closes on January 15, with a plan selected by December 31 starting January 1 and a plan selected in the first two weeks of January starting February 1. Qualifying life events open coverage at other points in the year. Employer reimbursement arrangements only enter the picture once an agent's business has staff beyond the owner."
 faq:
   - q: "Why do real estate brokerages not offer health insurance to agents?"
     a: "Most Realtors are classified as 1099 independent contractors rather than W-2 employees, and a traditional group health plan covers employees. A brokerage with W-2 office staff can cover those staff members, but agents paying desk fees are generally not eligible to join that plan."
@@ -21,7 +21,7 @@ faq:
   - q: "Do Realtors qualify for premium tax credits?"
     a: "Many do. Eligibility is based on household income, and commission income counts after business expenses, so an agent quoting gross commission volume is quoting a figure the exchange does not use."
   - q: "When can a Realtor in Nevada enroll in health insurance?"
-    a: "Open enrollment through Nevada Health Link runs November 1 through December 31. A qualifying life event such as marriage, a birth, loss of other coverage, or a permanent move into Nevada opens a special enrollment period outside that window."
+    a: "Open enrollment through Nevada Health Link runs November 1 through January 15. A plan selected by December 31 starts January 1, and a plan selected between January 1 and January 15 starts February 1. A qualifying life event such as marriage, a birth, loss of other coverage, or a permanent move into Nevada opens a special enrollment period outside that window."
   - q: "Can a solo real estate agent set up an ICHRA?"
     a: "Generally no. An ICHRA requires at least one employee who is not a self-employed owner or that owner's spouse, so a solo agent cannot use one to reimburse premiums for personal coverage."
 relatedQa:
@@ -119,9 +119,9 @@ A shorter sketch. A newer agent, 27, single, first full year licensed, netting a
 
 ## When can a Nevada Realtor enroll?
 
-Open enrollment through Nevada Health Link runs November 1 through December 31. The old January 15 close is gone, retired by a federal rule that applies to every exchange beginning with the 2027 plan year.
+Open enrollment through Nevada Health Link runs November 1 through January 15. A plan selected by December 31 starts January 1, and a plan selected between January 1 and January 15 starts February 1.
 
-Two weeks of runway disappeared with that change, and they were the two weeks agents were most likely to use, because the back half of December in this business belongs to closings and family. [Nevada Health Link publishes the enrollment calendar](https://nevadahealthlink.com/get-help/when-to-enroll/), and the shortened window comes out of the [CMS marketplace integrity and affordability final rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule). Anyone who has treated January as buffer time should move the reminder up a month.
+That second date is where agents get caught. The back half of December in this business belongs to closings and family, so the enrollment task slides into January, and coverage that could have started January 1 now starts February 1 instead. [Nevada Health Link publishes the enrollment calendar](https://www.nevadahealthlink.com/), and an agent who wants coverage in force on January 1 should treat December 31 as the working deadline rather than January 15.
 
 Outside that window, a qualifying life event opens a special enrollment period. Marriage, a birth or adoption, loss of other coverage, and a permanent move into Nevada all count. That last one matters in a market absorbing a steady flow of agents relicensing in from California and Arizona, because the move creates an enrollment right that expires unused. Dates are in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 

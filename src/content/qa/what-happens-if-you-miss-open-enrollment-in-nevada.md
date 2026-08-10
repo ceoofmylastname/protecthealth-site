@@ -1,6 +1,6 @@
 ---
 question: "What Happens If You Miss Open Enrollment In Nevada?"
-description: "Missing Nevada's December 31 deadline generally means no ACA-compliant plan until the following November, unless a qualifying life event or Medicaid eligibility applies."
+description: "Missing Nevada's January 15 deadline generally means no ACA-compliant plan until the following November, unless a qualifying life event or Medicaid eligibility applies."
 cluster: "nevada-core"
 parentPost: "nevada-open-enrollment-health-insurance"
 siblings:
@@ -8,13 +8,13 @@ siblings:
   - "what-is-a-qualifying-life-event"
   - "can-you-buy-health-insurance-outside-open-enrollment"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
-quickAnswer: "Missing the December 31 deadline generally closes Nevada Health Link to new individual enrollment until the following November 1, with coverage starting January 1 after that. Two exceptions remain: a qualifying life event opens a special enrollment period of roughly 60 days, and Medicaid enrolls year round for income-eligible households."
-speakableText: "After December 31 the Nevada marketplace stops accepting new individual enrollments, and the next opportunity arrives the following November unless something specific reopens the door. A qualifying life event such as losing other coverage, marriage or divorce, a birth or adoption, or a permanent move into Nevada reopens enrollment for a limited period and usually requires documentation. Because Nevada expanded Medicaid, Medicaid and Nevada Check Up accept applications throughout the year based on household income rather than on a calendar. A change in income by itself no longer reopens the marketplace, since the monthly special enrollment period for lower-income households was repealed and an income shift is not treated as an exceptional circumstance."
+dateModified: "2026-08-10"
+quickAnswer: "Missing the January 15 deadline generally closes Nevada Health Link to new individual enrollment until the following November 1. Two exceptions remain: a qualifying life event opens a special enrollment period of roughly 60 days, and Medicaid enrolls year round for income-eligible households."
+speakableText: "After January 15 the Nevada marketplace stops accepting new individual enrollments, and the next opportunity arrives the following November unless something specific reopens the door. A qualifying life event such as losing other coverage, marriage or divorce, a birth or adoption, or a permanent move into Nevada reopens enrollment for a limited period and usually requires documentation. Because Nevada expanded Medicaid, Medicaid and Nevada Check Up accept applications throughout the year based on household income rather than on a calendar. A change in income by itself no longer reopens the marketplace, since the monthly special enrollment period for lower-income households was repealed and an income shift is not treated as an exceptional circumstance."
 faq:
   - q: "How long is the wait after the Nevada deadline passes?"
     a: "Until November 1, with coverage beginning the following January 1. That gap can approach a full year for anyone without a qualifying life event or Medicaid eligibility."
-  - q: "Which changes reopen enrollment after December 31?"
+  - q: "Which changes reopen enrollment after January 15?"
     a: "Losing other coverage, marriage or divorce, a birth or adoption, and a permanent move into Nevada each open a special enrollment period, generally lasting 60 days from the event and usually requiring documentation."
   - q: "Does a drop in income reopen the Nevada marketplace?"
     a: "No. The monthly special enrollment period for households at or below 150 percent of the federal poverty level was repealed, and a change in income is not treated as an exceptional circumstance."
@@ -24,7 +24,7 @@ faq:
     a: "No federal penalty applies and Nevada has not adopted a state mandate penalty. The exposure is the cost, because coverage sold outside the marketplace carries no annual ceiling on spending."
 ---
 
-January 1 is the quietest expensive day on the Nevada insurance calendar. Nothing announces itself. The marketplace simply stops accepting new individual enrollments, and everyone who meant to get around to it is now waiting eleven months.
+January 16 is the quietest expensive day on the Nevada insurance calendar. Nothing announces itself. The marketplace stops accepting new individual enrollments, and everyone who meant to get around to it is now waiting ten months.
 
 ## What actually changes once the window closes?
 
@@ -32,9 +32,9 @@ Nevada Health Link stops accepting new individual enrollment until the following
 
 The credit piece is worth stating separately, because it surprises people. Premium tax credits and cost-sharing reductions attach to marketplace coverage. Nothing purchased off the marketplace during the closed months carries either one, regardless of household income.
 
-The date itself moved recently, which is why so much of the advice circulating in Nevada is stale. Open enrollment now runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/), with coverage starting January 1. The January 15 close that Nevadans used for years is retired, under the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule), which requires every exchange to close by December 31. Nevada runs a state-based marketplace and is not on the federal platform, so national articles quoting a December 15 deadline are describing a different calendar entirely. The dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+Which date closes the door is where most of the stale advice in Nevada goes wrong. Open enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/). The [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) would have forced every exchange to close by December 31 beginning with the 2027 plan year, but a federal court vacated that provision in June 2026 and Nevada Health Link kept January 15. Nevada also runs a state-based marketplace and is not on the federal platform, so national articles quoting a December 15 deadline are describing a different calendar entirely. The dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
-Anyone still working from the old two-week grace period is planning around a deadline that no longer exists.
+The trap is the tier inside the window rather than the close. A plan selected by December 31 starts January 1. A plan selected between January 1 and January 15 does not start until February 1, so waiting costs a month of coverage even for someone who technically made the deadline.
 
 ## Which exceptions still open the marketplace?
 

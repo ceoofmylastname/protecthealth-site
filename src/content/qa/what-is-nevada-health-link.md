@@ -8,7 +8,7 @@ siblings:
   - "is-nevada-health-link-the-same-as-healthcare-gov"
   - "does-nevada-have-expanded-medicaid"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Nevada Health Link is the official state-based health insurance marketplace, operated by the Silver State Health Insurance Exchange, a Nevada state agency. It is the only place premium tax credits and cost-sharing reductions apply to individual health plans in Nevada."
 speakableText: "Every state has a front door to Affordable Care Act coverage, and this state built and runs its own rather than borrowing the federal one. The platform does three jobs at once: it displays every compliant individual plan sold in the county, applies financial help to those plans, and screens the same application for the state Medicaid program so nobody has to diagnose their own eligibility first. Plans carry identical prices whether purchased on the marketplace, direct from a carrier or through a licensed broker, with one exception that decides everything. Financial help exists only on the marketplace side."
 faq:
@@ -19,7 +19,7 @@ faq:
   - q: "Does using a broker on Nevada Health Link add a fee?"
     a: "No. Licensed brokers are compensated by carriers rather than by the household, and the premium is the same with or without assistance."
   - q: "When can Nevadans enroll through Nevada Health Link?"
-    a: "During open enrollment, November 1 through December 31, with coverage starting January 1, or during a special enrollment period opened by a qualifying life event. Medicaid and Nevada Check Up enroll year round."
+    a: "During open enrollment, November 1 through January 15, where a plan selected by December 31 starts January 1 and one selected January 1 through January 15 starts February 1, or during a special enrollment period opened by a qualifying life event. Medicaid and Nevada Check Up enroll year round."
   - q: "Can Nevada Health Link screen for Medicaid?"
     a: "Yes. One application collects household income once and routes each member to the right program, sending income-qualified applicants to Medicaid and everyone else to subsidized marketplace plans."
 ---
@@ -54,11 +54,11 @@ A qualifying household that shops by monthly premium alone and lands on Bronze k
 
 ## How does enrollment through the platform work?
 
-The rhythm is annual. Open enrollment runs November 1 through December 31, and coverage selected inside that window starts January 1.
+The rhythm is annual. Open enrollment runs November 1 through January 15, and a plan selected by December 31 starts coverage January 1.
 
 Two things have to happen before the window closes. A plan has to be selected, and the first premium has to be paid. A selection is not coverage, and unpaid selections expire without much fanfare. Window shopping opens October 1, a month ahead of enrollment, which is the right time to compare rather than the last week of December.
 
-Those dates changed, and most Nevadans have not heard. Open enrollment used to run through January 15, and the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) now requires every exchange in the country to close by December 31 beginning with the 2027 plan year. Nevada Health Link publishes the current dates on its [when to enroll page](https://nevadahealthlink.com/get-help/when-to-enroll/), The step-by-step walkthrough for a Nevada household sits in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
+The second half of the window is the part most Nevadans miss. A plan selected between January 1 and January 15 still counts as open enrollment, but coverage does not begin until February 1, which leaves an uninsured January for anyone who waits. Nevada Health Link publishes the current dates on [its website](https://www.nevadahealthlink.com/). The step-by-step walkthrough for a Nevada household sits in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
 
 Outside that window, a qualifying life event such as losing other coverage, marriage or divorce, a birth or adoption, or a permanent move opens a special enrollment period that generally runs 60 days from the event and usually requires documentation. Medicaid and Nevada Check Up enroll year round regardless of the marketplace calendar.
 

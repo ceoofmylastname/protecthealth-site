@@ -8,7 +8,7 @@ siblings:
   - "can-gap-insurance-pair-with-any-health-plan"
   - "is-gap-health-insurance-worth-it"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Not automatically. A GAP policy pays a defined cash benefit when an event written into the contract occurs, and that cash can be applied toward deductible exposure. Payment is triggered by the event rather than by the medical bill, so a deductible built up through routine care may produce no benefit at all."
 speakableText: "Supplemental policies in this category are event-triggered rather than bill-triggered, which is the single most important thing to understand before buying one. A covered admission or accidental injury releases a benefit amount fixed by the contract, and that amount bears no relationship to what the hospital eventually charges. Whether a specific policy pays toward deductible exposure, how much, and under what conditions are questions answered by the policy document rather than by the product name. Deductible spending that accumulates through specialist visits, imaging and maintenance prescriptions frequently triggers nothing, because no listed event occurred."
 faq:
@@ -72,4 +72,4 @@ Five things, all of which live in the policy rather than in the sales conversati
 
 If a seller cannot produce those five in writing, the evaluation cannot be completed. That is not a red flag about any particular product, it is simply the nature of a contract that pays on defined terms. Terms, triggers and availability all vary by policy, and what a national brochure describes is not necessarily what a Nevada resident can purchase. Product-specific questions belong with the [Nevada Division of Insurance](https://doi.nv.gov/), which regulates insurance products and licenses producers in the state.
 
-The order of operations does not bend. ACA-compliant coverage first, during open enrollment, which in Nevada runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/). Then price a supplement against whatever exposure is left. The service overview is at [GAP health insurance](/services/gap-health-insurance), and a household that wants the contract read line by line before signing anything can [talk to a broker](/talk-to-a-broker).
+The order of operations does not bend. ACA-compliant coverage first, during open enrollment, which in Nevada runs [November 1 through January 15](https://www.nevadahealthlink.com/). Then price a supplement against whatever exposure is left. The service overview is at [GAP health insurance](/services/gap-health-insurance), and a household that wants the contract read line by line before signing anything can [talk to a broker](/talk-to-a-broker).

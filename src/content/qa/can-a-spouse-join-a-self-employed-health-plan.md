@@ -8,7 +8,7 @@ siblings:
   - "how-do-llc-owners-get-health-insurance-in-nevada"
   - "can-a-sole-proprietor-get-group-health-insurance"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Yes. A spouse can be covered on a self-employed household's marketplace plan, and qualifying premiums paid for a spouse count toward the self-employed health insurance deduction claimed on Schedule 1 of Form 1040, line 17."
 speakableText: "Joining a self-employed health plan means three different things, and each one follows a separate rule. Sharing coverage is the simple version, where a family plan through Nevada Health Link covers both spouses and premium tax credits are figured on household income. Sharing the deduction is the tax version, since premiums for a spouse, dependents and a child under age 27 at year end are deductible alongside the taxpayer's own. Joining the payroll is the structural version, and that one demands genuine employment plus a written plan document before any reimbursement arrangement will survive scrutiny."
 faq:
@@ -32,7 +32,7 @@ Yes, and this is the version that fits most households. A family plan bought thr
 
 Nothing exotic is required. The self-employed spouse is not buying a special product, and the non-working or also-self-employed spouse is not a complication. The exchange application asks who needs coverage, screens the whole household at once, and prices from there.
 
-Two Nevada details make this easier than people expect. Nevada expanded Medicaid, so the same application screens for Medicaid eligibility year round, which matters for a household with one steady income and one that swings. And Nevada open enrollment now runs November 1 through December 31, a shorter window than the one most people remember, laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+Two Nevada details make this easier than people expect. Nevada expanded Medicaid, so the same application screens for Medicaid eligibility year round, which matters for a household with one steady income and one that swings. And Nevada open enrollment runs November 1 through January 15, with a plan selected by December 31 starting January 1, laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
 The one real trap is mixed status. In Clark County it is routine for one spouse to hold a Strip property job with benefits while the other runs a 1099 business. That combination changes the math for both, which is the next section.
 

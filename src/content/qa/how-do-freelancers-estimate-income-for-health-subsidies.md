@@ -8,7 +8,7 @@ siblings:
   - "is-short-term-health-insurance-good-for-freelancers"
   - "can-freelancers-write-off-health-insurance-premiums"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "By projecting net self-employment income for the coverage year, meaning expected revenue minus business expenses rather than gross platform payouts, then updating that estimate through Nevada Health Link whenever the year stops matching the projection."
 speakableText: "Premium tax credits are calculated on profit, not on invoices or platform payouts, so the figure that belongs on the application is revenue minus legitimate business expenses across the whole household. Last year's actual return is the honest starting point, adjusted for signed contracts, lost clients, rate changes and planned time off rather than for optimism. Credits are advanced monthly against that projection and then reconciled against real income on the federal return, which means an estimate set too low turns into a repayment at filing. Nevada Health Link accepts income updates in the middle of the year, and almost nobody makes one."
 faq:
@@ -88,8 +88,8 @@ That matters most in a slow stretch, which is exactly when a household is most l
 
 ## When does the projection need to be ready?
 
-Before November 1. Nevada open enrollment runs November 1 through December 31, and window shopping opens October 1, which gives a full month to build the estimate before anything has to be submitted.
+Before November 1. Nevada open enrollment runs November 1 through January 15, and window shopping opens October 1, which gives a full month to build the estimate before anything has to be submitted.
 
-October is the right time to pull the prior return, list the known changes and land on a number. December 30 is the wrong time, because a rushed estimate is a low estimate more often than not, and the [Nevada Health Link enrollment calendar](https://nevadahealthlink.com/get-help/when-to-enroll/) leaves no January cushion the way earlier years did. Nevada Health Link also lists certified brokers and navigators through its [find assistance directory](https://nevadahealthlink.com/find-assistance/), and licensed brokers are paid by the carrier rather than the household, so the comparison carries no fee.
+October is the right time to pull the prior return, list the known changes and land on a number. December 30 is the wrong time, because a rushed estimate is a low estimate more often than not, and the January cushion on the [Nevada Health Link enrollment calendar](https://www.nevadahealthlink.com/) costs a month of coverage to use, since a plan selected after December 31 does not start until February 1. Nevada Health Link also lists certified brokers and navigators through its [find assistance directory](https://nevadahealthlink.com/find-assistance/), and licensed brokers are paid by the carrier rather than the household, so the comparison carries no fee.
 
 The estimate is a strategy decision, not paperwork. Get it wrong and the plan choice barely matters, because the price the household actually pays was set by the number on the application. [Book a conversation](/self-employed) and bring the prior year return rather than a memory of it.

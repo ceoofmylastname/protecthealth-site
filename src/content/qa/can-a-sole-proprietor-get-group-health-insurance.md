@@ -8,7 +8,7 @@ siblings:
   - "how-do-llc-owners-get-health-insurance-in-nevada"
   - "can-a-spouse-join-a-self-employed-health-plan"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Generally no. A group health plan requires at least one W-2 common-law employee besides the owner and the owner's spouse, so a solo operator in Nevada typically uses individual marketplace coverage, premium tax credits and the self-employed premium deduction instead."
 speakableText: "Group coverage is built around a payroll, not around a single-person business, which is why carriers request wage records before issuing a small-group policy. An owner working alone, an owner working alongside only a spouse, and an owner paying only 1099 contractors all fail that test in Nevada. Reimbursement arrangements such as an individual coverage HRA or a QSEHRA fail for the same reason, because both require at least one employee who is neither a self-employed owner nor that owner's spouse. The workable path for a solo Nevada business is a Nevada Health Link plan priced on net business income, plus the federal deduction claimed on Schedule 1 of Form 1040."
 faq:
@@ -48,7 +48,7 @@ A three-layer stack, and it is frequently better than the group plan originally 
 
 ### Layer one: a plan through Nevada Health Link
 
-Individual coverage in Nevada is bought through Nevada Health Link, the state-based exchange operated by the Silver State Health Insurance Exchange, not through the federal platform. Open enrollment now runs November 1 through December 31, a window roughly two weeks shorter than the one most Nevadans remember. The dates sit in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). Medicaid is the exception to the calendar, because Nevada expanded Medicaid and enrolls income-eligible households year round.
+Individual coverage in Nevada is bought through Nevada Health Link, the state-based exchange operated by the Silver State Health Insurance Exchange, not through the federal platform. Open enrollment runs November 1 through January 15, and a plan selected by December 31 starts January 1 while one selected between January 1 and January 15 starts February 1. The dates sit in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). Medicaid is the exception to the calendar, because Nevada expanded Medicaid and enrolls income-eligible households year round.
 
 ### Layer two: premium tax credits on net income
 

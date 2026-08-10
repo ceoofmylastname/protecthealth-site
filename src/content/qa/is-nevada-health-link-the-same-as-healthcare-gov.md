@@ -8,9 +8,9 @@ siblings:
   - "who-qualifies-for-health-insurance-subsidies-in-nevada"
   - "does-nevada-have-expanded-medicaid"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "No. Healthcare.gov is the federal marketplace serving states that never built their own exchange. Nevada operates a state-based marketplace called Nevada Health Link, run by the Silver State Health Insurance Exchange, and a Nevada resident who starts an application on healthcare.gov is redirected there."
-speakableText: "Two platforms, one law, different front doors. The federal site serves states that chose not to build an exchange, while this state built and operates its own through a state agency. Nobody loses financial help by using one instead of the other, because premium tax credits follow a single federal formula everywhere in the country. What does differ is the calendar: the federal platform closes enrollment earlier in December than the state platform does, which means advice written for a healthcare.gov state can quietly mislead a Nevada household about how much time remains."
+speakableText: "Two platforms, one law, different front doors. The federal site serves states that chose not to build an exchange, while this state built and operates its own through a state agency. Nobody loses financial help by using one instead of the other, because premium tax credits follow a single federal formula everywhere in the country. What does differ is the calendar: the federal platform closes enrollment in mid December while the state platform stays open a full month longer, which means advice written for a healthcare.gov state can quietly mislead a Nevada household about how much time remains."
 faq:
   - q: "What happens when a Nevadan applies on healthcare.gov?"
     a: "The federal site recognizes the Nevada ZIP code and redirects to Nevada Health Link. No Nevada plans are sold through healthcare.gov, so the application has to be completed on the state platform."
@@ -19,7 +19,7 @@ faq:
   - q: "Are premium tax credits different on a state-based marketplace?"
     a: "No. Premium tax credits and cost-sharing reductions follow the same federal formula in every state, anchored to the second-lowest-cost Silver plan available locally and reconciled on the federal tax return."
   - q: "Do the two platforms share the same enrollment deadline?"
-    a: "No. The federal platform closes open enrollment on December 15, while Nevada Health Link runs November 1 through December 31. National articles quoting the federal deadline understate the Nevada window."
+    a: "No. The federal platform closes open enrollment on December 15, while Nevada Health Link runs November 1 through January 15. National articles quoting the federal deadline understate the Nevada window by a full month."
   - q: "Which site should a Nevada resident use to enroll?"
     a: "Nevada Health Link, the official state marketplace. A licensed Nevada broker uses the same platform and the same filed plan prices, at no additional cost to the household."
 ---
@@ -38,7 +38,7 @@ The result is two categories of state and one very common source of confusion.
 | Serves | States without their own exchange | Nevada only |
 | Nevada plans sold | None | All of them |
 | Subsidy formula | Federal | The same federal formula |
-| Open enrollment closes | December 15 | December 31 |
+| Open enrollment closes | December 15 | January 15 |
 
 Nevada sits firmly in the state-based column, and the history of how the state got there is covered in the [Silver State Health Insurance Exchange guide](/blog-post/silver-state-health-insurance-exchange). What the platform does day to day is broken down in [what is Nevada Health Link](/qa/what-is-nevada-health-link).
 
@@ -52,11 +52,11 @@ What changes is where the account lives. The application, the income updates, th
 
 ## Where does the calendar difference bite?
 
-In the two weeks between the federal deadline and the Nevada one. National coverage quotes the federal date, and a Nevada household reading that coverage assumes the window is already shut.
+In the month between the federal deadline and the Nevada one. National coverage quotes the federal date, and a Nevada household reading that coverage assumes the window is already shut.
 
-The federal platform closes open enrollment on December 15. Nevada Health Link runs November 1 through December 31, with coverage starting January 1. Both dates come out of the same federal framework, because the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) requires every exchange to close by December 31 while allowing state-based marketplaces to set their own dates within that limit. The federal deadlines are published on the [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/), and the Nevada dates on the [Nevada Health Link when to enroll page](https://nevadahealthlink.com/get-help/when-to-enroll/).
+The federal platform closes open enrollment on December 15. Nevada Health Link runs November 1 through January 15, and a plan selected by December 31 starts coverage January 1 while one selected between January 1 and January 15 starts February 1. That is a state-based marketplace setting its own calendar, which is exactly the authority Nevada took on when it left the federal platform. The federal deadlines are published on the [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/), and the Nevada dates on [Nevada Health Link](https://www.nevadahealthlink.com/).
 
-The reverse error is more dangerous. Nevada previously enrolled through January 15, and plenty of local memory still runs on that date. A household counting on a mid-January enrollment now finds a closed marketplace and a ten-month wait. Both the retired date and the current one are addressed in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and the rest of the rule changes sit on the [2027 ACA changes page](/aca-changes).
+Local memory is the reliable guide here, which is not usually how this goes. Nevadans who remember enrolling in the first two weeks of January are remembering it correctly, and that January 15 close still stands. The error to guard against runs the other direction: a household that sees December 15 quoted as the deadline, concludes the marketplace has closed, and stops looking gives up a month it actually had. The Nevada calendar is laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and the rest of the plan-year changes sit on the [2027 ACA changes page](/aca-changes).
 
 ### Window shopping opens earlier than enrollment
 
@@ -72,7 +72,7 @@ Four, and all four repeat every winter in Clark County.
 
 **Assuming an old federal account counts as coverage.** A healthcare.gov login from a previous state proves nothing about current enrollment. Somebody who relocated to Las Vegas mid-year and never enrolled here is uninsured regardless of what that old dashboard shows. A permanent move is itself a qualifying life event, and using it requires acting inside the 60 days it allows.
 
-**Reading a national deadline as the local one.** Two weeks of the Nevada window disappear on paper for anyone who trusts a syndicated article.
+**Reading a national deadline as the local one.** A full month of the Nevada window disappears on paper for anyone who trusts a syndicated article.
 
 **Buying off marketplace after seeing an advertisement.** This is the costliest of the four. Premium tax credits and Silver-plan cost-sharing reductions exist only on plans purchased through Nevada Health Link. Filed premiums are identical wherever the purchase happens, so a credit-eligible household that buys direct pays more for the same plan, every month, for a full year.
 

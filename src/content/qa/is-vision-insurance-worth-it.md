@@ -68,7 +68,7 @@ Specialty lens options also sit partly outside the allowance on many plans. Coat
 
 Last, not first. Vision belongs in the conversation after the health plan is settled, because the health plan is the line item that carries real financial risk.
 
-A few Nevada-specific notes. Nevada runs a state-based marketplace rather than the federal one, so enrollment timing for household coverage is set by [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) and the current window is laid out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Coverage for children is treated differently from adult coverage across these ancillary benefits, so households enrolling minors should check what is included rather than assuming.
+A few Nevada-specific notes. Nevada runs a state-based marketplace rather than the federal one, so enrollment timing for household coverage is set by [Nevada Health Link](https://www.nevadahealthlink.com/) and the current window is laid out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Coverage for children is treated differently from adult coverage across these ancillary benefits, so households enrolling minors should check what is included rather than assuming.
 
 Network matters here for the same reason it matters in dental. The Las Vegas valley has independent optometry practices and retail optical locations spread across Henderson, Summerlin, the northwest and the east side, and participation varies. The allowance is only worth what a nearby participating provider will apply it to, so call before enrolling.
 

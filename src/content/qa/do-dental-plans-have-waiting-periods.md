@@ -74,7 +74,7 @@ The practical implication is that a household mid-way through a waiting period s
 
 Three things, and two of them are calendar items rather than plan items.
 
-**The enrollment window.** Nevada runs a state-based marketplace rather than the federal one, and stand-alone dental coverage there cannot be bought without a health plan purchased at the same time. Dates are published by [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/), and the current window is spelled out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Employer-sponsored dental follows its own calendar, which matters for the large share of Clark County workers whose benefits open once a year and not again.
+**The enrollment window.** Nevada runs a state-based marketplace rather than the federal one, and stand-alone dental coverage there cannot be bought without a health plan purchased at the same time. Dates are published by [Nevada Health Link](https://www.nevadahealthlink.com/), and the current window is spelled out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Employer-sponsored dental follows its own calendar, which matters for the large share of Clark County workers whose benefits open once a year and not again.
 
 **The waiting period schedule, read against the treatment plan.** If a dentist has already recommended restorative work, the relevant question is not whether the plan covers that work but whether it covers it this year. Those are different answers.
 

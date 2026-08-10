@@ -5,11 +5,11 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "nevada-core"
 datePublished: "2024-10-17"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "The Silver State Health Insurance Exchange is a Nevada state agency, and Nevada Health Link is the consumer-facing marketplace that agency runs."
   - "Nevada is a state-based marketplace rather than a federal-platform state, so a Nevadan who starts at healthcare.gov is redirected to Nevada Health Link."
-  - "Open enrollment through the exchange runs November 1 through December 31, with window shopping available from October 1 and coverage effective January 1."
+  - "Open enrollment through the exchange runs November 1 through January 15, with window shopping available from October 1. A plan selected by December 31 takes effect January 1, and one selected between January 1 and January 15 takes effect February 1."
   - "Premium tax credits are calculated on projected household income and anchored to the second-lowest-cost Silver plan available to the household."
   - "Medicaid and Nevada Check Up are screened inside the same application and accept income-eligible households year round, because Nevada expanded Medicaid."
 speakableText: "Nevada is one of the states that built and runs a marketplace instead of leaning on the federal platform, and the agency responsible is the Silver State Health Insurance Exchange. Consumers rarely see that agency name, because the shopping site carries the Nevada Health Link brand instead. Running a state-based marketplace is why the Nevada enrollment calendar is longer than the federal-platform calendar, and why enrollment support in Nevada is staffed by certified brokers and navigators listed by the state rather than by a national call center. A single application on the platform screens for premium tax credits, cost-sharing reductions, Medicaid and Nevada Check Up at the same time. For plan year 2027, a federal rule tightened parts of how every exchange operates, and several of the strictest provisions were finalized only for the federal platform and do not reach state-based marketplaces."
@@ -23,7 +23,7 @@ faq:
   - q: "What do the Bronze, Silver, Gold and Platinum tiers mean?"
     a: "Metal tiers describe how costs are split between plan and household, not plan quality or network size. Bronze carries the lowest premium and the highest out-of-pocket exposure, Platinum reverses that trade, and Silver is the only tier where cost-sharing reductions apply for qualifying households."
   - q: "Did the 2025 federal rule change how the Nevada exchange works?"
-    a: "Partly. Open enrollment must now end by December 31, actuarial value ranges widened, and failing to file and reconcile advance credits for a single year now blocks eligibility. The five dollar auto-reenrollment premium and mandatory pre-enrollment special enrollment verification were finalized for the federal platform only, not for state-based marketplaces."
+    a: "Partly, and less than the rule originally called for. The provision requiring every exchange to close open enrollment by December 31 was vacated in June 2026 and Nevada kept its January 15 close. The five dollar auto-reenrollment premium and mandatory pre-enrollment special enrollment verification were finalized for the federal platform only, not for state-based marketplaces."
 relatedQa:
   - "what-is-nevada-health-link"
   - "is-nevada-health-link-the-same-as-healthcare-gov"
@@ -51,9 +51,9 @@ That redirect is where the confusion starts. People land on the federal site, ge
 
 ### The difference shows up first in the calendar
 
-Exchanges on the federal platform run open enrollment November 1 through December 15. Nevada runs November 1 through December 31.
+Exchanges on the federal platform run open enrollment November 1 through December 15. Nevada runs November 1 through January 15.
 
-That is more than two extra weeks of runway, and it is a direct consequence of operating a state-based marketplace. The [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/) publishes the federal-platform calendar, and applying it to Nevada is a mistake with a real cost. [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) publishes the Nevada dates, and the full Nevada calendar, including what happens after the window closes, is in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
+That is a full extra month of runway, and it is a direct consequence of operating a state-based marketplace. The [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/) publishes the federal-platform calendar, and applying it to Nevada is a mistake with a real cost. [Nevada Health Link](https://www.nevadahealthlink.com/) publishes the Nevada dates, and the full Nevada calendar, including what happens after the window closes, is in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
 
 Window shopping opens October 1, a month before applications. That month is where a careful household does the network and formulary work while switching is still easy.
 
@@ -112,7 +112,7 @@ Several things, and one of the most useful facts is which changes stop at the fe
 
 Changes that apply to Nevada Health Link along with every other exchange:
 
-- Open enrollment ends December 31, with each annual period starting no later than November 1 and running no longer than nine calendar weeks.
+- The rule would have ended open enrollment by December 31 for every exchange, capping each annual period at nine calendar weeks. A federal court vacated that provision in June 2026 and the appeal is pending, so Nevada kept its November 1 through January 15 window.
 - Failing to file and reconcile advance premium tax credits now blocks eligibility after a single year, where the prior standard was two consecutive years.
 - The automatic 60 day extension for resolving an income inconsistency was removed. The statutory 90 day window stands alone.
 - Where the IRS holds no tax data for an applicant, self attestation of income is no longer accepted. Documentary evidence or another trusted data source is required.
@@ -125,7 +125,7 @@ Of that list, the past due premium rule is the one most likely to surprise a hou
 
 Picture the pattern it catches. A household drops behind on premium during a slow summer, lets the plan lapse in August, and shows up in November intending to start clean in January. Under the old habit, that reset was easy. Now the old balance can follow the household into the new plan year and sit between an approved application and an active plan.
 
-The workaround is not clever, it is early. Anyone with a lapsed plan or a partial payment history from the current year should resolve the balance before the enrollment window, not during it. December 31 is a hard stop now, and a payment dispute is a slow way to spend the last two weeks of a window that no longer forgives lateness.
+The workaround is not clever, it is early. Anyone with a lapsed plan or a partial payment history from the current year should resolve the balance before the enrollment window, not during it. December 31 decides whether coverage starts January 1, and a payment dispute is a slow way to spend the weeks that decide it.
 
 Finalized for the federal platform only, and therefore not for a state-based marketplace like Nevada's: the five dollar auto-reenrollment premium and mandatory pre-enrollment verification for special enrollment periods. National coverage of this rule frequently blurs that line, so a Nevadan reading a national explainer should check which platform is being described. A fuller walkthrough sits on the [2027 ACA changes page](/aca-changes).
 

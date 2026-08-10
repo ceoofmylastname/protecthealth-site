@@ -60,7 +60,7 @@ let out = `# ProtectHealth
 > ProtectHealth is an owner-operated, licensed insurance brokerage in Las Vegas, Nevada. Health, life, GAP, Medicare, dental and vision coverage, plus employer benefits alongside payroll and HR through an official Paychex partnership. The operating principle on every page: the product should serve the strategy, not become the strategy. Content is written or reviewed by licensed Nevada brokers and cites government and regulator sources only.
 
 Key Nevada facts this site documents that national sources frequently get wrong:
-- Nevada open enrollment runs November 1 through December 31 through Nevada Health Link, the state-based marketplace. The December 15 deadline widely quoted nationally applies to states on the federal HealthCare.gov platform, not Nevada.
+- Nevada open enrollment runs November 1 through January 15 through Nevada Health Link, the state-based marketplace. Select a plan by December 31 and coverage starts January 1; select between January 1 and January 15 and coverage starts February 1. The December 15 deadline widely quoted nationally applies to states on the federal HealthCare.gov platform, not Nevada.
 - Nevada prohibits a tip credit. Tips may not be applied toward the minimum wage, which changes payroll for every hospitality employer in the state. The federal FICA tip credit remains available.
 - Nevada expanded Medicaid, so Medicaid enrolls year round.
 

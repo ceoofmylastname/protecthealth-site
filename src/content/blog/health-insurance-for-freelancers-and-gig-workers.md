@@ -5,12 +5,12 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "ichra"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "Gig platforms classify drivers, couriers and freelancers as independent contractors, so no rideshare, delivery or freelance marketplace company provides health insurance to those workers."
   - "Four coverage paths carry weight in Nevada: an individual plan through Nevada Health Link, a spouse's employer plan, Nevada Medicaid in a low-income stretch, and an employer reimbursement arrangement where the business has employees beyond the owner."
   - "Premium tax credits are calculated on net self-employment income after business expenses such as mileage, equipment and home office, not on the gross earnings a platform reports."
-  - "Nevada open enrollment runs November 1 through December 31, and the former January 15 close was retired by a federal rule beginning with the 2027 plan year."
+  - "Nevada open enrollment runs November 1 through January 15, and a plan selected by December 31 starts January 1 while a plan selected between January 1 and January 15 starts February 1."
   - "A solo freelancer with no employees cannot set up an ICHRA or QSEHRA for personal coverage, because both arrangements require an employee who is not the owner or the owner's spouse."
 speakableText: "Independent contractor status is the reason gig companies hand out no benefits packet, and that status does not change based on how many hours a week the work takes. Most Las Vegas gig earners land on the state exchange, where subsidy eligibility is figured on profit rather than on platform payouts. Miles driven between the airport and the Strip, phone mounts, insulated delivery bags, a portion of household internet and a dedicated workspace all reduce the figure the application uses. Nevada expanded Medicaid, so a slow stretch between convention weeks can qualify a household in the middle of the year rather than only in the fall. Reimbursement arrangements from an employer stay out of reach until a gig business has payroll beyond the owner."
 faq:
@@ -97,9 +97,9 @@ For gig income this is genuinely the hard part, harder than choosing a plan. A c
 
 ## When can a Nevada gig worker enroll?
 
-Open enrollment through Nevada Health Link runs November 1 through December 31. Medicaid enrolls year-round, and a qualifying life event opens a special enrollment period outside that window.
+Open enrollment through Nevada Health Link runs November 1 through January 15. Medicaid enrolls year-round, and a qualifying life event opens a special enrollment period outside that window.
 
-The old January 15 close is gone, retired by a federal rule that applies to every exchange beginning with the 2027 plan year. Two weeks of runway disappeared with it, and those were the two weeks gig workers were most likely to use, because late December in this town is peak earning season for anyone driving, delivering or working events. [Nevada Health Link publishes the enrollment calendar](https://nevadahealthlink.com/get-help/when-to-enroll/), and the shortened window traces back to the [CMS marketplace integrity and affordability final rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule). Anyone treating January as buffer time should move the reminder up a month, and the full calendar sits in [Nevada open enrollment for health insurance](/blog-post/nevada-open-enrollment-health-insurance).
+Inside that window there are two dates, not one. A plan selected by December 31 starts January 1. A plan selected between January 1 and January 15 does not start until February 1, which leaves January uncovered for anyone who waited. That distinction matters here, because late December in this town is peak earning season for anyone driving, delivering or working events, and the enrollment task is the first thing to slide. [Nevada Health Link publishes the enrollment calendar](https://www.nevadahealthlink.com/), the full walkthrough sits in [Nevada open enrollment for health insurance](/blog-post/nevada-open-enrollment-health-insurance), and a gig worker who wants coverage on January 1 should set the reminder for early December rather than for the January 15 close.
 
 Outside that window, marriage, a birth or adoption, loss of other coverage, and a permanent move into Nevada all open a special enrollment period. Losing a W-2 job and going full-time gig counts as loss of coverage, which is the exact moment most gig careers begin and the moment that enrollment right most often expires unused.
 

@@ -1,26 +1,26 @@
 ---
 title: "Nevada Open Enrollment Health Insurance: The No-Nonsense Guide"
-description: "Nevada open enrollment runs November 1 through December 31. The current dates, the federal rule that retired January 15, the special enrollment doors that recently closed, and what a Clark County household should have ready before November 1."
+description: "Nevada open enrollment runs November 1 through January 15. The two-tier deadline that decides whether coverage starts January 1 or February 1, the federal rule that nearly ended it, and what a Clark County household should have ready before November 1."
 category: "Guide"
 funnelStage: "TOFU"
 cluster: "nevada-core"
 datePublished: "2024-10-15"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
-  - "Nevada open enrollment for individual health insurance runs November 1 through December 31, and coverage selected inside that window starts January 1."
-  - "The January 15 close that Nevadans remember is retired, because a 2025 federal rule requires every exchange to end open enrollment by December 31 beginning with plan year 2027."
+  - "Nevada open enrollment for individual health insurance runs November 1 through January 15."
+  - "A plan selected on or before December 31 takes effect January 1. A plan selected between January 1 and January 15 takes effect February 1."
   - "Enrollment happens through Nevada Health Link, the state-based marketplace operated by the Silver State Health Insurance Exchange, not through the federal platform."
-  - "Missing December 31 closes the individual market until the following November unless a qualifying life event opens a special enrollment period."
+  - "Missing January 15 closes the individual market until the following November unless a qualifying life event opens a special enrollment period."
   - "Medicaid and Nevada Check Up accept applications year round for income-eligible Nevada households, because Nevada expanded Medicaid."
-speakableText: "Open enrollment is the annual stretch when any Nevada resident can buy an ACA-compliant individual plan without proving a qualifying event first. The window opens on the first day of November and closes on the last day of December, with window shopping available from October 1. Every individual application is filed on the state exchange platform rather than the federal one, because the Silver State Health Insurance Exchange operates a marketplace of Nevada's own. A federal rule finalized in 2025 standardized the calendar nationwide so that no exchange may run past the end of December and no annual period may exceed nine calendar weeks. Households in Clark County with tipped, commission or seasonal earnings should treat the income projection as the hardest part of the application, because that projection drives the premium tax credit and gets reconciled later on the federal return."
+speakableText: "Open enrollment is the annual stretch when any Nevada resident can buy an ACA-compliant individual plan without proving a qualifying event first. The window opens on the first day of November and closes on the fifteenth of January, with window shopping available from October 1. Inside that window the calendar splits in two: a plan chosen by the last day of December begins on New Year's Day, while a plan chosen in the first half of January does not begin until the first of February. Every individual application is filed on the state exchange platform rather than the federal one, because the Silver State Health Insurance Exchange operates a marketplace of Nevada's own. Households in Clark County with tipped, commission or seasonal earnings should treat the income projection as the hardest part of the application, because that projection drives the premium tax credit and gets reconciled later on the federal return."
 faq:
   - q: "What are the current Nevada open enrollment dates?"
-    a: "November 1 through December 31, with coverage effective January 1. Window shopping opens October 1, one month ahead of applications, so plans and networks can be compared before the enrollment period begins."
-  - q: "Why is the January 15 Nevada deadline no longer valid?"
-    a: "The 2025 Marketplace Integrity and Affordability Final Rule from the Centers for Medicare & Medicaid Services requires every exchange to close open enrollment by December 31 beginning with plan year 2027. Each annual period must start no later than November 1 and may not exceed nine calendar weeks."
+    a: "November 1 through January 15. A plan selected by December 31 takes effect January 1, and a plan selected between January 1 and January 15 takes effect February 1. Window shopping opens October 1, one month ahead of applications."
+  - q: "Is the January 15 Nevada deadline still valid?"
+    a: "Yes. The 2025 Marketplace Integrity and Affordability Final Rule would have required every exchange to close by December 31 beginning with plan year 2027, but a federal court vacated that provision in June 2026 and the appeal is pending. Nevada Health Link kept the January 15 close."
   - q: "Does Nevada open enrollment run on healthcare.gov?"
     a: "No. Exchanges on the federal platform run November 1 through December 15, and Nevada is not on that platform. A Nevada resident who starts an application at healthcare.gov is redirected to Nevada Health Link."
-  - q: "What options remain after December 31 in Nevada?"
+  - q: "What options remain after January 15 in Nevada?"
     a: "A qualifying life event such as loss of other coverage, marriage, a birth, or a permanent move opens a special enrollment period of roughly 60 days. Medicaid and Nevada Check Up accept applications year round for income-eligible households. A change in income alone is not treated as an exceptional circumstance."
   - q: "Does broker help during Nevada open enrollment cost anything?"
     a: "No. Licensed brokers are compensated by carriers rather than by households, so premiums are identical whether enrollment happens through a broker or directly on the exchange. Nevada Health Link also publishes a directory of certified brokers and navigators."
@@ -31,22 +31,24 @@ relatedQa:
   - "can-you-buy-health-insurance-outside-open-enrollment"
 ---
 
-The dates moved, and most of the internet has not caught up. Nearly every article written about Nevada open enrollment before 2026 still names January 15 as the deadline, and plenty of Las Vegas households still carry that date around in their heads.
+Nevada open enrollment has two deadlines, and almost every article written about it names only one. The date most Las Vegas households carry around, January 15, is real. The date that decides whether the year starts covered, December 31, is the one nobody talks about.
 
-It is gone. What follows is the calendar that replaced it, the federal rule that forced the change, and the parts of an enrollment that quietly cost Clark County families money every single year.
+What follows is both of them, the federal rule that nearly erased the second half of the window, and the parts of an enrollment that quietly cost Clark County families money every single year.
 
 ## When does Nevada open enrollment actually run?
 
-Nevada open enrollment runs November 1 through December 31, and coverage selected inside that window takes effect January 1. There is no second-tier deadline anymore.
+Nevada open enrollment runs November 1 through January 15, and the window has two tiers.
 
-That last sentence carries more weight than it looks like it does. Under the old calendar, a household could drift into early January, enroll late, and accept a February 1 start date instead. That fallback no longer exists. The window ends, coverage begins January 1, and the whole calendar fits in one line. [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) publishes the dates, and the short version lives in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+A plan selected on or before **December 31** takes effect **January 1**. A plan selected between **January 1 and January 15** takes effect **February 1**. Both are inside the window and both are valid enrollments. The difference is a month of coverage, and January is not a cheap month to spend uninsured. [Nevada Health Link](https://www.nevadahealthlink.com/) publishes the dates, and the short version lives in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+
+That second tier is a genuine safety net, and it is worth knowing it exists. It is not, however, a plan. Treating January as the backup means starting the year with a gap on purpose.
 
 ### Two things have to happen inside the window
 
 Only the first one gets any attention.
 
-1. **A plan has to be selected on or before December 31.** This is the part everybody knows about.
-2. **The first premium has to be paid.** A selection that never gets paid is not coverage. Every February, a handful of Nevadans learn that at a front desk instead of at their kitchen table.
+1. **A plan has to be selected.** By December 31 for a January 1 start, or by January 15 for a February 1 start.
+2. **The first premium has to be paid.** A selection that never gets paid is not coverage. Every year, a handful of Nevadans learn that at a front desk instead of at their kitchen table.
 
 ### October 1 is when the real work starts
 
@@ -54,27 +56,27 @@ Window shopping opens a full month before applications do. Nevada Health Link po
 
 October is the month that actually decides how the enrollment goes. Pull the doctor list. Check the drug formulary. Compare the networks against the clinics the family already drives to. A household that browses in October and enrolls in the first week of November has weeks of room to catch a problem and switch. A household that opens the site on December 29 is picking by premium and hoping for the best. The step by step version of that comparison sits in [how to choose a health insurance plan in Nevada](/blog-post/how-to-choose-a-health-insurance-plan-nevada).
 
-## Why did the January 15 deadline disappear?
+## Did the January 15 deadline go away?
 
-A federal rule retired it. The annual enrollment calendar was standardized so that every exchange in the country closes by December 31, beginning with plan year 2027.
+No, though it very nearly did, and that near miss is why so much confident advice about Nevada is currently wrong.
 
-The [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) from the Centers for Medicare & Medicaid Services draws three lines. An annual open enrollment period must start no later than November 1. It may not run longer than nine calendar weeks. And it has to be finished by December 31, with all enrollments effective January 1.
+The [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) from the Centers for Medicare & Medicaid Services drew three lines. An annual open enrollment period had to start no later than November 1, could not run longer than nine calendar weeks, and had to be finished by December 31, beginning with plan year 2027. Under those limits Nevada would have lost the back half of its window.
 
-Nevada operates a state-based marketplace, so the exchange still controls its own start date inside those limits. What the exchange cannot do anymore is extend past the end of December.
+A federal court vacated that provision in June 2026. The Department of Health and Human Services appealed in July 2026 and the case has not been resolved. In the meantime the constraint is not in force, and Nevada Health Link kept the January 15 close, in line with most other state-based exchanges.
 
-The practical effect for a Nevadan is about two weeks of lost runway and the loss of a safety net that a lot of people had used without ever thinking about it. Anyone who has enrolled in the first half of January before should read that as a habit to break. A broader walk through the rule changes and what each one touches sits on the [2027 ACA changes page](/aca-changes).
+Two things follow from that. Nevadans who remember January 15 are remembering correctly. And because the litigation is live, this calendar is worth re-checking each fall rather than assumed. A broader walk through the rule changes and what each one touches sits on the [2027 ACA changes page](/aca-changes).
 
 ## Does Nevada enrollment happen on healthcare.gov?
 
 No. Nevada runs a state-based marketplace, and all individual enrollment goes through Nevada Health Link, operated by the Silver State Health Insurance Exchange, a state agency.
 
-The distinction is not cosmetic. Exchanges that sit on the federal platform run a shorter window, November 1 through December 15. Nevada is not one of them, which is why a Nevada household gets thirty-one extra days that a household in a federal-platform state does not. The [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/) reflects the federal platform calendar, not Nevada's.
+The distinction is not cosmetic. Exchanges that sit on the federal platform run a much shorter window, November 1 through December 15. Nevada is not one of them, which is why a Nevada household gets a full extra month that a household in a federal-platform state does not. The [healthcare.gov dates and deadlines page](https://www.healthcare.gov/quick-guide/dates-and-deadlines/) reflects the federal platform calendar, not Nevada's.
 
 A Nevadan who starts an application at healthcare.gov is redirected to Nevada Health Link, which is the source of most of the confusion on this point. The two are related but not interchangeable, and that relationship is unpacked in [is Nevada Health Link the same as healthcare.gov](/qa/is-nevada-health-link-the-same-as-healthcare-gov) and in the full guide to the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange).
 
-## What happens if December 31 passes without an enrollment?
+## What happens if January 15 passes without an enrollment?
 
-The individual market closes until the following November. Between January and October, an ACA-compliant plan is generally not available to a Nevadan who simply missed the window.
+The individual market closes until the following November. Between mid-January and October, an ACA-compliant plan is generally not available to a Nevadan who missed the window.
 
 That is a real consequence, and it lands hardest on the people least able to absorb it. The longer version, including what people actually do in that gap, sits in [what happens after missing open enrollment in Nevada](/qa/what-happens-if-you-miss-open-enrollment-in-nevada).
 

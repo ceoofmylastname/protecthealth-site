@@ -8,7 +8,7 @@ siblings:
   - "can-gap-insurance-pair-with-any-health-plan"
   - "is-gap-health-insurance-worth-it"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "The two overlap without being identical. Hospital indemnity describes a specific structure that pays fixed amounts tied to hospital admission and inpatient days, while GAP is a looser marketing label for supplemental coverage aimed at deductible and cost-sharing exposure. Product names in this category are not standardized, so contract language decides what a policy actually is."
 speakableText: "Both product types are supplemental, both pay defined amounts when a listed event occurs, and neither replaces major medical coverage. The structural distinction is what triggers payment: an indemnity contract keys on admission and on nights spent as an inpatient, while supplements marketed around deductible exposure often bundle several triggers together, including accidental injury, ambulance transport and outpatient surgery. Marketing uses the two terms loosely and sometimes interchangeably, which is a meaningful source of buyer confusion in a category where the contract, not the label, determines what gets paid. Reading the schedule of benefits is the only reliable way to know which structure is being purchased."
 faq:
@@ -78,7 +78,7 @@ Neither one is health insurance. Neither carries a provider network, negotiates 
 
 That last point is the one that matters most. Only an ACA-compliant plan carries an annual ceiling on covered in-network cost sharing, and that ceiling is the single most valuable feature of real coverage. A supplement can improve liquidity during a bad month. A supplement cannot bound the year.
 
-Anyone presented with either product as an alternative to a real health plan is being sold the wrong thing. That is not a matter of preference or risk tolerance. Buy the ACA-compliant plan first, during open enrollment, which in Nevada runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/) with coverage starting January 1. Whether a supplement then attaches cleanly to that plan is a separate question, handled in [can GAP insurance pair with any health plan](/qa/can-gap-insurance-pair-with-any-health-plan).
+Anyone presented with either product as an alternative to a real health plan is being sold the wrong thing. That is not a matter of preference or risk tolerance. Buy the ACA-compliant plan first, during open enrollment, which in Nevada runs [November 1 through January 15](https://www.nevadahealthlink.com/), with a plan selected by December 31 starting coverage January 1. Whether a supplement then attaches cleanly to that plan is a separate question, handled in [can GAP insurance pair with any health plan](/qa/can-gap-insurance-pair-with-any-health-plan).
 
 ## What has to be read before buying either?
 

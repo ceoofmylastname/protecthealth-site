@@ -8,7 +8,7 @@ siblings:
   - "how-do-you-check-if-a-doctor-is-in-network"
   - "which-metal-tier-is-best-for-families"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "The out-of-pocket maximum is the most a member pays in one plan year for covered, in-network care. Deductible payments, copays and coinsurance all count toward that ceiling, and once the ceiling is reached the plan pays covered in-network costs in full for the rest of the plan year."
 speakableText: "Every ACA-compliant health plan carries an annual ceiling on member cost sharing, and that ceiling is what separates comprehensive coverage from the products sold alongside it. Premiums sit outside the ceiling entirely, as do balance bills from providers outside the network and services a plan does not cover at all. Family coverage runs two ceilings at once, an individual ceiling for each enrolled person and a larger household ceiling, and whichever fills first begins paying in full. Short-term medical plans, healthcare sharing arrangements and fixed-indemnity policies carry no such ceiling and can exclude pre-existing conditions, which is why those products and ACA-compliant plans are not comparable."
 faq:
@@ -88,6 +88,6 @@ Because a plan can now change what it pays without changing its name. Actuarial 
 
 Those de minimis ranges run plus two and minus four percentage points for most plans, and plus five and minus four for expanded bronze, under the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule). The Nevada consequences are collected on the [ACA changes page](/aca-changes). An auto-renewed plan can therefore arrive in January carrying a meaningfully higher ceiling than the version selected the year before, and nothing on the renewal notice announces it.
 
-The window for catching that is short. Nevada open enrollment runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/), with window shopping opening October 1, and the ceiling is the first line worth checking on a renewal.
+The window for catching that is short. Nevada open enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/), with window shopping opening October 1, and the ceiling is the first line worth checking on a renewal.
 
 Reading the number takes two minutes. Finding out the hard way takes a year. A free twenty minute ProtectHealth conversation runs both cost passes against real Nevada plans, and anyone who would rather start there can [talk to a broker](/talk-to-a-broker).

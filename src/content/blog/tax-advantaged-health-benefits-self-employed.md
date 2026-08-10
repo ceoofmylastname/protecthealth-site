@@ -5,7 +5,7 @@ category: "Comparison"
 funnelStage: "MOFU"
 cluster: "ichra"
 datePublished: "2026-07-21"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "Four tax-advantaged structures cover self-employed health costs: the self-employed health insurance deduction, Section 105 medical reimbursement plans, QSEHRA, and ICHRA."
   - "Only the self-employed health insurance deduction works for a solo operator with no payroll, and that deduction is claimed on Schedule 1 of Form 1040, line 17."
@@ -148,7 +148,7 @@ Nevada charges no state income tax, so the federal deduction is the entire tax b
 
 Residents of California or Oregon watch the same premium dollars reduce two tax bills. A Las Vegas hospitality contractor watches them reduce one. That does not make the federal deduction less valuable. It means every calculation stops at the federal line, and any planning article assuming state stacking is describing somebody else's state.
 
-The calendar matters just as much. Open enrollment through [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) runs November 1 through December 31, a hard deadline for the coverage decisions feeding all four structures. And before taking structure advice from anyone, including us, any Nevadan can verify a producer's license through the [Nevada Division of Insurance](https://doi.nv.gov/).
+The calendar matters just as much. Open enrollment through [Nevada Health Link](https://www.nevadahealthlink.com/) runs November 1 through January 15, and a plan selected by December 31 starts January 1 while one selected between January 1 and January 15 starts February 1. Those dates bound the coverage decisions feeding all four structures. And before taking structure advice from anyone, including us, any Nevadan can verify a producer's license through the [Nevada Division of Insurance](https://doi.nv.gov/).
 
 <div class="funnel-cta">
   <span class="fc-kicker">Take The Next Step</span>

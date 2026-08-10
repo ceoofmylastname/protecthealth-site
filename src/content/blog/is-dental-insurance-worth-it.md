@@ -143,7 +143,7 @@ Five steps, in order.
 
 **Compare annual maximums before comparing premiums.** Then compare waiting period schedules. Then compare premiums.
 
-**Check the calendar.** Nevada runs a state-based marketplace rather than the federal one, and a stand-alone dental plan cannot be purchased there without a health plan bought at the same time. The enrollment window is published by [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/), and the current dates are laid out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Employer-sponsored dental follows a different calendar, which matters for anyone whose employer offers it as a voluntary line.
+**Check the calendar.** Nevada runs a state-based marketplace rather than the federal one, and a stand-alone dental plan cannot be purchased there without a health plan bought at the same time. The enrollment window is published by [Nevada Health Link](https://www.nevadahealthlink.com/), and the current dates are laid out in [when open enrollment runs in Nevada](/qa/when-is-open-enrollment-in-nevada). Employer-sponsored dental follows a different calendar, which matters for anyone whose employer offers it as a voluntary line.
 
 **Verify whoever is advising.** Producers selling insurance in Nevada should hold an active license, and any Nevadan can check one through the [Nevada Division of Insurance](https://doi.nv.gov/).
 

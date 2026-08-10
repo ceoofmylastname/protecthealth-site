@@ -8,7 +8,7 @@ siblings:
   - "can-a-sole-proprietor-get-group-health-insurance"
   - "can-a-spouse-join-a-self-employed-health-plan"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Most Nevada LLC owners buy an individual plan through Nevada Health Link, often with premium tax credits calculated on net business income, then claim the self-employed premium deduction on Schedule 1 of Form 1040. The LLC wrapper itself changes little, because the tax election behind it and the presence of W-2 employees decide what else opens up."
 speakableText: "An LLC is a state law wrapper, and benefits law reads the federal tax classification underneath rather than the registration filed with the Nevada Secretary of State. A single-member LLC treated as a sole proprietorship follows sole proprietor rules, meaning individual coverage plus the line 17 deduction and no group plan without staff. An S corporation election places a more-than-2-percent shareholder under partner treatment for fringe benefit purposes, which changes how premiums have to move through payroll before any deduction is claimed. Hiring a W-2 employee who is not an owner or an owner's spouse is the event that genuinely opens small-group coverage and reimbursement arrangements."
 faq:
@@ -30,7 +30,7 @@ faq:
 
 An individual plan bought through Nevada Health Link, priced with premium tax credits on net business income, plus the self-employed premium deduction where eligible.
 
-That combination is the workhorse for the large majority of LLC owners in Clark County, and it is the baseline against which every fancier structure should be measured. Nevada Health Link is the state-based exchange operated by the Silver State Health Insurance Exchange, so a Nevadan starting on the federal site gets redirected. Enrollment runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/), a window that lost roughly two weeks compared with what most people remember.
+That combination is the workhorse for the large majority of LLC owners in Clark County, and it is the baseline against which every fancier structure should be measured. Nevada Health Link is the state-based exchange operated by the Silver State Health Insurance Exchange, so a Nevadan starting on the federal site gets redirected. Enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/), and a plan selected by December 31 starts January 1 rather than February 1.
 
 The subsidy math is where LLC owners regularly leave money behind. Premium tax credits are calculated on net self-employment income after business expenses, not on gross revenue. A single-member LLC invoicing $140,000 that legitimately deducts vehicle, equipment, contractor payments and home office costs may show a net figure in a completely different subsidy band. Owners assume the invoice total disqualifies the household and never run the numbers. Running them costs nothing.
 

@@ -8,7 +8,7 @@ siblings:
   - "what-is-an-out-of-pocket-maximum"
   - "which-metal-tier-is-best-for-families"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Search the provider directory belonging to the exact plan under consideration, then call the practice and confirm participation in that specific plan for the coming plan year. The directory is the starting point and the phone call is the verification, because directories lag contract changes."
 speakableText: "Network verification is a two-step process, and the second step is the one that prevents the expensive surprise. Directories are published on a delay while provider contracts change continuously, so a listing can survive a network relationship by weeks or months. In the Las Vegas valley the stakes are higher than average, because provider groups contract plan by plan rather than company by company, and the same medical group can participate on one plan and sit outside the network on another plan sold by the same insurer. Facility status, anesthesiology, radiology and laboratory services each carry separate contracts, so a verified surgeon is not the same thing as a verified surgery."
 faq:
@@ -70,7 +70,7 @@ Plans that cover nothing outside the network except emergencies turn every verif
 
 Every open enrollment, and again before any scheduled procedure. Auto-renewal changes nothing about the plan name and can change a great deal about the roster underneath it.
 
-Nevada open enrollment runs November 1 through December 31 with coverage starting January 1, and window shopping on [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) opens October 1. That October month exists for exactly this work. The dates themselves are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). A household that starts calling in late December has no room to switch plans if a call comes back wrong.
+Nevada open enrollment runs November 1 through January 15, with a plan selected by December 31 starting January 1, and window shopping on [Nevada Health Link](https://www.nevadahealthlink.com/) opens October 1. That October month exists for exactly this work. The dates themselves are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). A household that starts calling in late December can still switch plans if a call comes back wrong, but not without pushing the coverage start to February 1.
 
 ## What happens when a directory listing turns out to be wrong?
 

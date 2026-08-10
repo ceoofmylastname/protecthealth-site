@@ -8,7 +8,7 @@ siblings:
   - "how-do-freelancers-estimate-income-for-health-subsidies"
   - "can-freelancers-write-off-health-insurance-premiums"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "No. Rideshare and delivery platforms classify drivers and couriers as independent contractors, so the platforms do not provide health insurance to those workers. Coverage comes from the individual market, a spouse's plan, or Medicaid instead."
 speakableText: "Employer group health coverage attaches to employment, and independent contractor status is precisely what gig platforms rely on, so no benefits packet arrives no matter how many hours a week the driving or delivering takes. Occupational accident coverage, injury protection that applies only while an order is active, telehealth discounts and market-specific stipends do appear inside driver apps, and none of those products are comprehensive major medical coverage. The workable replacement for most Clark County gig earners is an individual plan through Nevada Health Link, where premium tax credits run on net self-employment income after mileage and equipment rather than on gross platform payouts. Nevada expanded Medicaid, so a slow stretch between convention cycles can open a door that stays shut in most states."
 faq:
@@ -86,9 +86,9 @@ Advance credits get reconciled against actual income on the federal return, so a
 
 ## When can a Nevada gig worker enroll?
 
-Open enrollment through Nevada Health Link runs November 1 through December 31, with coverage starting January 1. Medicaid enrolls year round, and a qualifying life event opens a special enrollment period outside the window.
+Open enrollment through Nevada Health Link runs November 1 through January 15. A plan selected by December 31 starts January 1, and a plan selected between January 1 and January 15 starts February 1. Medicaid enrolls year round, and a qualifying life event opens a special enrollment period outside the window.
 
-The old January 15 close is gone, retired by the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule) beginning with the 2027 plan year. Two weeks of runway disappeared, and those were exactly the weeks a gig worker was most likely to use, because late December in this town is peak earning season for anyone driving, delivering or working events.
+Those first two weeks of January are exactly the weeks a gig worker is most likely to need, because late December in this town is peak earning season for anyone driving, delivering or working events. A driver who spends that stretch working rather than shopping for coverage still has a door open, at the cost of a coverage start pushed to February 1.
 
 Losing a W-2 job and going full time gig counts as loss of coverage and opens a special enrollment period. That is the moment most gig careers begin, and the moment that enrollment right most often expires unused.
 

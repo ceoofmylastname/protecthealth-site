@@ -8,7 +8,7 @@ siblings:
   - "can-an-s-corp-owner-use-an-ichra"
   - "how-does-ichra-reimbursement-work"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "The employer's reimbursement stops, but the health plan continues. The individual policy belongs to the employee rather than the company, so coverage stays in force as long as the premium keeps getting paid."
 speakableText: "Nothing happens to the insurance on the last day of work, because the policy was purchased in the employee's own name and was never employer property. The doctors, the network, the prescription formulary and the progress already made toward the deductible all carry forward untouched. What ends is the funding, which means the departing employee picks up the full premium instead of the portion the allowance covered. Losing employer contributions generally counts as a qualifying event, which opens a window to change plans or to apply for a premium tax credit based on the new household income."
 faq:
@@ -54,7 +54,7 @@ Generally yes. Losing employer contributions toward coverage is normally treated
 
 That window matters because the right plan on an employer's dime is often the wrong plan on a personal budget. A gold-tier plan that made sense with a few hundred dollars a month behind it may not survive the full premium. The rules that govern these windows are laid out in [what is a qualifying life event](/qa/what-is-a-qualifying-life-event), and the annual calendar sits in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
-Timing is not generous. Special enrollment periods typically run 60 days from the event, and [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) is where the application gets filed for anyone living in the state. Missing the window means waiting for open enrollment, which now runs November 1 through December 31 and no longer extends into January.
+Timing is not generous. Special enrollment periods typically run 60 days from the event, and [Nevada Health Link](https://www.nevadahealthlink.com/) is where the application gets filed for anyone living in the state. Missing the window means waiting for open enrollment, which runs November 1 through January 15 and does not reopen until the following November.
 
 ## Do premium tax credits come back once the reimbursement stops?
 

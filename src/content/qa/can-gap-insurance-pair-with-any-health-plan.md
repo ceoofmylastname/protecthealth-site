@@ -8,7 +8,7 @@ siblings:
   - "is-hospital-indemnity-the-same-as-gap-insurance"
   - "is-gap-health-insurance-worth-it"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Usually yes, because GAP coverage is sold as a standalone supplemental policy that pays on its own contract triggers rather than coordinating with a primary plan. Compatibility is rarely the obstacle. Fit is, and health savings account eligibility is the one place where stacking coverage can create a real problem."
 speakableText: "Supplemental policies in this category pay on events written into their own contracts, so the primary plan's company, network and metal tier are largely irrelevant to whether a benefit gets paid. That independence is why the products layer easily onto marketplace coverage, employer group coverage and most other major medical arrangements. The genuine exception involves health savings account eligibility, where holding certain other coverage alongside a qualified high-deductible plan can affect the ability to contribute, which makes that a question for a licensed tax professional before any purchase. Whether a supplement belongs on a particular plan is a separate question from whether it can attach, and the honest answer is often that a richer primary plan solves the same problem more reliably."
 faq:
@@ -80,7 +80,7 @@ What changes is the arbitrage. When an employer subsidizes the richer plan optio
 
 The primary plan first, always. ACA-compliant coverage gets secured during open enrollment, and only after that does a supplement get priced against whatever exposure remains.
 
-Nevada open enrollment runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/), with coverage starting January 1 and window shopping opening October 1.
+Nevada open enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/), with a plan selected by December 31 starting January 1, a plan selected after that starting February 1, and window shopping opening October 1.
 
 After that, four items from the supplemental contract itself: the triggering events, the benefit amounts, any waiting period, and the renewal terms. Terms and availability vary by policy, and product-specific questions belong with the [Nevada Division of Insurance](https://doi.nv.gov/), which regulates insurance products and licenses producers across the state. The service overview sits at [GAP health insurance](/services/gap-health-insurance), the product architecture in [what is GAP health insurance](/blog-post/what-is-gap-health-insurance).
 

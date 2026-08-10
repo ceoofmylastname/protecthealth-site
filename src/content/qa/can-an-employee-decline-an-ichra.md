@@ -8,7 +8,7 @@ siblings:
   - "is-an-ichra-cheaper-than-group-health-insurance"
   - "can-an-ichra-reimburse-medicare-premiums"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Yes. The rules require an opportunity to opt out at least once a year, so participation is always a choice. Whether declining preserves premium tax credit eligibility depends entirely on whether the offer meets the affordability standard."
 speakableText: "Refusing the arrangement is never the hard part, because the opt-out right is built into the regulation itself. The consequential question is what refusing costs, and the answer splits along the affordability line. Turning down an offer that meets the affordability standard leaves the household with no employer money and no marketplace credit, which is the worst of the available outcomes. Turning down an offer that fails the standard is a real financial decision, because the premium tax credit remains on the table and may be worth more than the allowance."
 faq:
@@ -77,6 +77,6 @@ Four things, and none of them take long once the numbers are in hand.
 
 **The doctors.** Networks in the Las Vegas valley shift between plan years, so a plan that kept a specific physician last year is not guaranteed to keep the same one next year.
 
-**The calendar.** Nevada open enrollment runs November 1 through December 31 through Nevada Health Link, and an ICHRA offer also opens a special enrollment period. The dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and the side-by-side comparison lives in [ICHRA versus marketplace health insurance](/blog-post/ichra-vs-marketplace-health-insurance).
+**The calendar.** Nevada open enrollment runs November 1 through January 15 through Nevada Health Link, a plan selected by December 31 starts January 1, and an ICHRA offer also opens a special enrollment period. The dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada), and the side-by-side comparison lives in [ICHRA versus marketplace health insurance](/blog-post/ichra-vs-marketplace-health-insurance).
 
 We are insurance nerds, not tax professionals. Once the decision touches income reconciliation or a tax return, a licensed tax professional belongs in the conversation. Everything upstream is worth booking a conversation over while the 90 day window is still open rather than after the deadline passes.

@@ -8,9 +8,9 @@ siblings:
   - "what-is-a-qualifying-life-event"
   - "what-happens-if-you-miss-open-enrollment-in-nevada"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "Only with a qualifying life event, which opens a special enrollment period through Nevada Health Link that generally runs 60 days. Medicaid and Nevada Check Up enroll year round for income-eligible households, and without either path the remaining products carry serious coverage trade-offs."
-speakableText: "The marketplace closes at the end of December and does not reopen on request. Two doors stay available afterward: a life change such as coverage ending, a marriage, a birth or a permanent move, and the state program for households whose income qualifies at any point in the year. What is still advertised in between is not major medical, and the difference shows up at exactly the wrong moment, because those products can exclude pre-existing conditions, cap what they pay and skip whole categories of essential coverage. Nothing in that category caps a catastrophic year the way a compliant plan does."
+speakableText: "The marketplace closes on January 15 and does not reopen on request. Two doors stay available afterward: a life change such as coverage ending, a marriage, a birth or a permanent move, and the state program for households whose income qualifies at any point in the year. What is still advertised in between is not major medical, and the difference shows up at exactly the wrong moment, because those products can exclude pre-existing conditions, cap what they pay and skip whole categories of essential coverage. Nothing in that category caps a catastrophic year the way a compliant plan does."
 faq:
   - q: "What opens the marketplace outside the annual window?"
     a: "A qualifying life event: losing other coverage, marriage or divorce, a birth or adoption, or a permanent move. Each generally opens a 60-day special enrollment period and usually requires documentation."
@@ -42,7 +42,7 @@ A change in income, which is the assumption that costs Nevadans the most.
 
 Income movement is not treated as an exceptional circumstance, and the monthly special enrollment period that had served the lowest-income households was repealed. A rideshare driver whose earnings collapse in March cannot use that collapse to buy a plan in April. A Realtor between closings cannot either. The income drop should still be reported by anyone already enrolled, because the credit adjusts for the remaining months, but it does not create a new enrollment opportunity where none existed.
 
-That change arrived alongside the compressed enrollment calendar in the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule), and the rest of the rules taking effect are collected on the [2027 ACA changes page](/aca-changes). Worth noting alongside it: Nevada open enrollment now closes December 31 rather than January 15, so the mid-January safety net a lot of local memory still relies on is gone. Both the retired date and the current one matter, because a household planning around January is planning around a closed marketplace.
+That change arrived in the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule), and the rest of the rules taking effect are collected on the [2027 ACA changes page](/aca-changes). Worth noting alongside it: Nevada open enrollment runs November 1 through January 15, so the mid-January safety net a lot of local memory relies on is still there. What it costs is a month of coverage, because a plan selected by December 31 starts January 1 and a plan selected in the first half of January does not start until February 1.
 
 ## What is actually for sale without a qualifying event?
 
@@ -69,7 +69,7 @@ So the practical sequence for anyone sitting uninsured mid-year looks like this.
 1. **Look for an overlooked event.** A move, a spouse's job change, a COBRA end date, a child aging off a parent's plan. Qualifying events hide in plain sight, and households routinely discover one they did not know counted. What remains if none applies is covered in [what happens if you miss open enrollment in Nevada](/qa/what-happens-if-you-miss-open-enrollment-in-nevada).
 2. **Check Medicaid eligibility.** No window applies, and a lean quarter in Clark County moves more households across that line than most people expect.
 3. **Label any stopgap as a stopgap.** If a short-term product is the right call for a defined stretch, buy it knowing exactly what it excludes and put an end date on it.
-4. **Enroll properly on November 1.** Window shopping opens October 1, and Nevada Health Link publishes the calendar on its [when to enroll page](https://nevadahealthlink.com/get-help/when-to-enroll/). The full walkthrough is in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
+4. **Enroll properly on November 1.** Window shopping opens October 1, the window stays open through January 15, and [Nevada Health Link](https://www.nevadahealthlink.com/) publishes the calendar. The full walkthrough is in the [Nevada open enrollment guide](/blog-post/nevada-open-enrollment-health-insurance).
 
 We are insurance nerds, not tax professionals. Premium tax credits taken during a special enrollment period are reconciled against actual income on the federal return, and Nevada has no state income tax, so that return is the only place any of it settles. When the projection meets a Schedule C, a licensed tax professional belongs in the conversation.
 

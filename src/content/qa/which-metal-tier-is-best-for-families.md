@@ -8,7 +8,7 @@ siblings:
   - "what-is-an-out-of-pocket-maximum"
   - "how-do-you-check-if-a-doctor-is-in-network"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer: "No single metal tier is best for every family. Tiers describe only how covered costs split between a plan and a member, so the right tier is decided by realistic annual usage, by savings available to absorb a bad year, and by whether the household qualifies for cost-sharing reductions, which attach only to Silver plans."
 speakableText: "Bronze, Silver, Gold and Platinum are cost-sharing labels, and a label carries no information about which Las Vegas valley doctors participate or how a plan prices a maintenance prescription. Choosing between them is arithmetic run twice, once against a realistic year built from actual visits and refills, and once against a catastrophic year capped at the annual ceiling. Households eligible for cost-sharing reductions face a different calculation entirely, because those reductions are available only on Silver plans and disappear the moment a different tier is selected. Federal rules now allow a plan to shift what it pays without changing tier or name, which makes re-running the comparison each plan year more important than settling on a favorite tier."
 faq:
@@ -89,4 +89,4 @@ A family spread from Henderson to Summerlin to North Las Vegas is asking one net
 
 One more reason to re-run the comparison annually rather than renewing on instinct. Actuarial value ranges widened to plus two and minus four percentage points for most plans, and plus five and minus four for expanded bronze, under the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule). A plan can therefore pay less than last year while keeping its tier and its name, and the Nevada consequences are collected on the [ACA changes page](/aca-changes).
 
-Window shopping on Nevada Health Link opens October 1 and enrollment runs [November 1 through December 31](https://nevadahealthlink.com/get-help/when-to-enroll/). Families who would rather run both cost passes with someone who does it daily can [talk to a broker](/talk-to-a-broker) at no charge.
+Window shopping on Nevada Health Link opens October 1 and enrollment runs [November 1 through January 15](https://www.nevadahealthlink.com/). Families who would rather run both cost passes with someone who does it daily can [talk to a broker](/talk-to-a-broker) at no charge.

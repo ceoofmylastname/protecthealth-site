@@ -5,8 +5,11 @@
 // and Affordability rule for plan year 2027, and national coverage of it is
 // written for HealthCare.gov states. Nevada runs its own exchange, so several
 // of the harshest provisions were explicitly NOT finalized for state
-// marketplaces, and Nevada's deadline is December 31 rather than the federal
-// December 15. A Nevadan reading national coverage gets the wrong deadline and
+// marketplaces, and Nevada's window runs to January 15 rather than the federal
+// December 15. NOTE (Aug 10 2026): the rule's provision forcing every exchange
+// to close by Dec 31 was VACATED in June 2026 and the HHS appeal is pending, so
+// Nevada kept Jan 15. Re-check this page each fall until the case resolves.
+// A Nevadan reading national coverage gets the wrong deadline and
 // a handful of rules that do not apply. Sorting Nevada from federal is the
 // entire value of the page, and no competitor is doing it.
 //
@@ -19,26 +22,29 @@ import { SITE, breadcrumbSchema, speakableSchema } from '../lib/site';
 
 const pageUrl = `${SITE.domain}/aca-changes`;
 const description =
-  'The ACA marketplace rules changed for the 2027 plan year. What actually applies to Nevadans, what stops at the state line, and why Nevada enrollment ends December 31 rather than the federal December 15.';
+  'The ACA marketplace rules changed for the 2027 plan year. What actually applies to Nevadans, what stops at the state line, and why Nevada enrollment runs to January 15 rather than the federal December 15.';
 
 const speakable =
-  'The ACA marketplace rules changed for the 2027 plan year under a federal rule finalized by the Centers for Medicare and Medicaid Services. Nevada open enrollment now runs November 1 through December 31, not the January 15 deadline used in past years, and not the December 15 deadline that applies to states on the federal HealthCare.gov platform. Because Nevada operates a state-based marketplace through Nevada Health Link, several of the strictest new provisions were not finalized for Nevada at all, including the five dollar premium on automatic re-enrollments and mandatory pre-enrollment verification for special enrollment periods. The changes that do reach Nevadans center on stricter income verification, a shorter enrollment window, and the repeal of the monthly special enrollment period for lower income households.';
+  'The ACA marketplace rules changed for the 2027 plan year under a federal rule finalized by the Centers for Medicare and Medicaid Services. Nevada open enrollment runs November 1 through January 15, not the December 15 deadline that applies to states on the federal HealthCare.gov platform. A plan selected by December 31 takes effect January 1, and a plan selected between January 1 and January 15 takes effect February 1. Because Nevada operates a state-based marketplace through Nevada Health Link, several of the strictest new provisions were not finalized for Nevada at all, including the five dollar premium on automatic re-enrollments and mandatory pre-enrollment verification for special enrollment periods. The provision that would have shortened the Nevada window to a December 31 close was vacated by a federal court in June 2026 and the appeal is pending. The changes that do reach Nevadans center on stricter income verification and the repeal of the monthly special enrollment period for lower income households.';
 
 const CMS = 'https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule';
-const NVHL = 'https://nevadahealthlink.com/get-help/when-to-enroll/';
+const NVHL = 'https://www.nevadahealthlink.com/';
 
 // Nevada open enrollment for plan year 2027. Both dates drive the countdown.
 const OPEN = '2026-11-01T00:00:00-08:00';
-const CLOSE = '2026-12-31T23:59:59-08:00';
+const CLOSE = '2027-01-15T23:59:59-08:00';
+// Dec 31 is not the close, it is the cutoff for Jan 1 coverage. The countdown
+// tracks it separately so the page can show the deadline that actually costs money.
+const JAN1_CUTOFF = '2026-12-31T23:59:59-08:00';
 
 const CHANGES = [
   {
     scope: 'nv',
-    title: 'The window closes December 31',
-    lede: 'Nevada open enrollment runs November 1 through December 31. Coverage selected in that window starts January 1.',
+    title: 'The window runs to January 15, but December 31 is the date that costs money',
+    lede: 'Nevada open enrollment runs November 1 through January 15. A plan selected by December 31 starts January 1. A plan selected after that starts February 1.',
     detail:
-      'The January 15 deadline Nevadans used in past years is retired. Federal rules now require every exchange in the country to close by December 31 and to run no longer than nine calendar weeks. Nevada Health Link sets its own dates inside those limits and publishes November 1 through December 31. National articles saying December 15 are describing states on the federal platform, not Nevada.',
-    source: 'CMS final rule, standardizing the annual Open Enrollment Period',
+      'The rule would have forced every exchange in the country to close by December 31 and to run no longer than nine calendar weeks. A federal court vacated that provision in June 2026, the appeal is pending, and Nevada Health Link kept the January 15 close. So the deadline most Nevadans remember is still the real one. What trips people is the tier inside it: waiting until January is not missing the window, it is choosing to start the year with a month uncovered. National articles saying December 15 are describing states on the federal platform, not Nevada.',
+    source: 'CMS final rule as vacated in part, June 2026; Nevada Health Link calendar',
   },
   {
     scope: 'nv',
@@ -107,9 +113,9 @@ const CHANGES = [
   {
     scope: 'fed',
     title: 'December 15 is not the Nevada deadline',
-    lede: 'The federal platform closes December 15. Nevada has until December 31.',
+    lede: 'The federal platform closes December 15. Nevada runs to January 15.',
     detail:
-      'This is the single most repeated error in national coverage as it reaches Nevadans, and it costs people sixteen days of decision time. Sixteen days is the difference between checking whether a specific Henderson pediatrician is still in network and picking whichever plan sorts cheapest.',
+      'This is the single most repeated error in national coverage as it reaches Nevadans, and it costs people a full month of decision time. That month is the difference between checking whether a specific Henderson pediatrician is still in network and picking whichever plan sorts cheapest.',
     source: 'CMS final rule, federal platform Open Enrollment Period',
   },
 ];
@@ -117,11 +123,11 @@ const CHANGES = [
 const faq = [
   {
     q: 'When does Nevada open enrollment end for the 2027 plan year?',
-    a: 'December 31. Nevada open enrollment runs November 1 through December 31, and coverage selected during that window starts January 1. The January 15 deadline used in past years no longer applies.',
+    a: 'January 15. Nevada open enrollment runs November 1 through January 15. A plan selected by December 31 starts January 1, and a plan selected between January 1 and January 15 starts February 1.',
   },
   {
     q: 'Why do national articles say open enrollment ends December 15?',
-    a: 'December 15 is the deadline for states that use the federal HealthCare.gov platform. Nevada operates a state-based marketplace through Nevada Health Link, and state marketplaces may run through December 31 under the federal rule.',
+    a: 'December 15 is the deadline for states that use the federal HealthCare.gov platform. Nevada operates a state-based marketplace through Nevada Health Link and sets its own calendar, which runs through January 15.',
   },
   {
     q: 'Which new ACA rules do not apply in Nevada?',
@@ -180,7 +186,7 @@ const schemas = [
 
       <div id="ai-summary" class="acap-ai">{speakable}</div>
 
-      <div class="acap-countdown" id="acapCount" data-open={OPEN} data-close={CLOSE}>
+      <div class="acap-countdown" id="acapCount" data-open={OPEN} data-close={CLOSE} data-jan1={JAN1_CUTOFF}>
         <div class="acap-cd-label" id="acapCdLabel">Nevada open enrollment opens in</div>
         <div class="acap-cd-units">
           <div class="acap-unit"><b id="cdD">000</b><span>days</span></div>
@@ -188,7 +194,7 @@ const schemas = [
           <div class="acap-unit"><b id="cdM">00</b><span>min</span></div>
           <div class="acap-unit"><b id="cdS">00</b><span>sec</span></div>
         </div>
-        <div class="acap-cd-foot" id="acapCdFoot">November 1 to December 31, 2026 · Coverage starts January 1</div>
+        <div class="acap-cd-foot" id="acapCdFoot">November 1, 2026 to January 15, 2027 · Enroll by December 31 for January 1 coverage</div>
       </div>
     </div>
   </section>
@@ -196,21 +202,22 @@ const schemas = [
   <section class="section acap-window-sec">
     <div class="container">
       <div class="section-label">The headline number</div>
-      <h2 class="acap-h2">How much enrollment time did Nevada actually lose?</h2>
+      <h2 class="acap-h2">How much enrollment time does Nevada actually have?</h2>
       <p class="acap-p">
-        Fifteen days, not thirty. Nevada keeps sixteen days that states on the federal platform
-        lose entirely, and that gap is where most of the confusion this autumn will come from.
+        Seventy-six days, which is thirty-one more than a household on the federal platform gets.
+        Nevada kept its window when the provision that would have cut it was struck down, and that
+        gap is where most of the confusion this autumn will come from.
       </p>
 
       <div class="acap-bars">
         <div class="acap-bar-row">
-          <span class="acap-bl">Previously</span>
-          <div class="acap-track"><div class="acap-fill acap-f-old" style="--w:100%"><b>Nov 1 to Jan 15</b></div></div>
+          <span class="acap-bl">Nevada</span>
+          <div class="acap-track"><div class="acap-fill acap-f-nv" style="--w:100%"><b>Nov 1 to Jan 15</b></div></div>
           <span class="acap-bv">76 days</span>
         </div>
         <div class="acap-bar-row">
-          <span class="acap-bl">Nevada now</span>
-          <div class="acap-track"><div class="acap-fill acap-f-nv" style="--w:80%"><b>Nov 1 to Dec 31</b></div></div>
+          <span class="acap-bl">If the vacated rule had held</span>
+          <div class="acap-track"><div class="acap-fill acap-f-old" style="--w:80%"><b>Nov 1 to Dec 31</b></div></div>
           <span class="acap-bv">61 days</span>
         </div>
         <div class="acap-bar-row">
@@ -220,9 +227,11 @@ const schemas = [
         </div>
       </div>
       <p class="acap-note">
-        Nevada Health Link opens window shopping on October 1, a month before enrollment starts.
-        Using that month is the cheapest way to buy back the time the rule took away. The full
-        Nevada calendar sits in <a href="/qa/when-is-open-enrollment-in-nevada">when is open enrollment in Nevada</a>.
+        The number that matters inside those 76 days is December 31, because a plan selected after
+        it does not start until February 1. Nevada Health Link also opens window shopping on
+        October 1, a month before enrollment starts, and using that month is the cheapest way to
+        arrive at the deadline already decided. The full Nevada calendar sits in
+        <a href="/qa/when-is-open-enrollment-in-nevada">when is open enrollment in Nevada</a>.
       </p>
     </div>
   </section>
@@ -482,6 +491,7 @@ const schemas = [
     if (!box) return;
     const open = new Date(box.dataset.open).getTime();
     const close = new Date(box.dataset.close).getTime();
+    const jan1Cutoff = new Date(box.dataset.jan1).getTime();
     const label = document.getElementById('acapCdLabel');
     const foot = document.getElementById('acapCdFoot');
     const els = { d: document.getElementById('cdD'), h: document.getElementById('cdH'), m: document.getElementById('cdM'), s: document.getElementById('cdS') };
@@ -493,11 +503,15 @@ const schemas = [
       if (now < open) {
         target = open;
         text = 'Nevada open enrollment opens in';
-        footText = 'November 1 to December 31, 2026 · Coverage starts January 1';
+        footText = 'November 1, 2026 to January 15, 2027 · Enroll by December 31 for January 1 coverage';
+      } else if (now < jan1Cutoff) {
+        target = jan1Cutoff;
+        text = 'Time left for January 1 coverage';
+        footText = 'Enroll by December 31 to be covered on January 1 · The window itself runs to January 15';
       } else if (now < close) {
         target = close;
         text = 'Nevada open enrollment closes in';
-        footText = 'Enrollment is open now · Coverage starts January 1';
+        footText = 'The January 1 cutoff has passed · A plan selected by January 15 starts February 1';
       } else {
         label.textContent = 'Nevada open enrollment is closed';
         foot.textContent = 'A qualifying life event may still open a special enrollment period. Nevada Medicaid enrolls year round.';

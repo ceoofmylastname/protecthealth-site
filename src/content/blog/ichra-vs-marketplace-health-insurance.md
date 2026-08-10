@@ -5,7 +5,7 @@ category: "Comparison"
 funnelStage: "MOFU"
 cluster: "ichra"
 datePublished: "2026-07-21"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "A marketplace plan bought directly can come with premium tax credits; an ICHRA reimburses individual plan premiums with employer money, tax-free."
   - "An employee offered an affordable ICHRA generally loses premium tax-credit eligibility. The two benefits do not stack."
@@ -39,7 +39,7 @@ The honest version of this comparison has no winner. It has arithmetic, and the 
 
 A marketplace plan is bought by the household. An ICHRA is funded by an employer. Both end in individual coverage.
 
-**Direct marketplace** means a household buys a plan through [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/), the state-based exchange run by the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange), and may qualify for premium tax credits based on projected household income.
+**Direct marketplace** means a household buys a plan through [Nevada Health Link](https://www.nevadahealthlink.com/), the state-based exchange run by the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange), and may qualify for premium tax credits based on projected household income.
 
 **ICHRA** means an employer sets a fixed monthly allowance and reimburses the employee's individual plan premium tax-free. The full mechanics are in [the ICHRA guide](/blog-post/what-is-an-ichra).
 
@@ -111,11 +111,11 @@ There is also an administrative cost that rarely makes the sales pitch. An ICHRA
 
 ## What is the timing consideration in Nevada?
 
-Nevada open enrollment now runs November 1 through December 31, shortened from the old January 15 close by a federal rule that applies to every exchange beginning with the 2027 plan year. The dates are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+Nevada open enrollment runs November 1 through January 15. Select a plan by December 31 and coverage starts January 1. Enroll between January 1 and January 15 and coverage starts February 1. The dates are covered in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
-For an employer, that compressed window matters. An ICHRA offer opens a special enrollment period for affected employees, but announcing an arrangement in mid-December and expecting twelve people to research plans, verify their doctors and enroll before the year turns is asking for a bad outcome. Announce in October, and the conversation is calm.
+For an employer, that calendar matters. An ICHRA offer opens a special enrollment period for affected employees, but announcing an arrangement in mid-December and expecting twelve people to research plans, verify their doctors and enroll before the December 31 cutoff is asking for a bad outcome. Announce in October, and the conversation is calm.
 
-For an employee weighing an offer, the same compression applies. Two weeks of decision time disappeared.
+For an employee weighing an offer, the same calendar applies. An offer that lands in December leaves days rather than weeks to compare plans against the December 31 date for January 1 coverage, and enrolling in the first two weeks of January pushes the start to February 1.
 
 ## What questions should you ask before choosing?
 

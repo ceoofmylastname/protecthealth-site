@@ -5,7 +5,7 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "ichra"
 datePublished: "2026-07-21"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "Self-employed Nevadans have five real coverage paths: a marketplace plan through Nevada Health Link with premium tax credits, a spouse's employer plan, Medicaid if income qualifies, a small-group plan where the business has eligible employees, and tax-advantaged structures such as an ICHRA or QSEHRA."
   - "Premium tax credits are calculated on net self-employment income after business expenses, which is why many self-employed Nevadans qualify without realizing it."
@@ -39,7 +39,7 @@ Here is the actual map. Five real paths, what each one requires, and the entity 
 
 This is the workhorse, and for most self-employed Nevadans it is the answer.
 
-Individual plans are bought through [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/), the state-based exchange operated by the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange). Nevada runs its own marketplace rather than using the federal platform, which is why a Nevadan who starts on healthcare.gov gets redirected.
+Individual plans are bought through [Nevada Health Link](https://www.nevadahealthlink.com/), the state-based exchange operated by the [Silver State Health Insurance Exchange](/blog-post/silver-state-health-insurance-exchange). Nevada runs its own marketplace rather than using the federal platform, which is why a Nevadan who starts on healthcare.gov gets redirected.
 
 The part that changes the math for self-employed people: **premium tax credits are calculated on net income after business expenses, not gross revenue.** A Las Vegas contractor invoicing $95,000 who legitimately deducts vehicle, tools, insurance and home office expenses may have a net figure far lower than the number on their invoices, and that lower figure is what the subsidy calculation uses. The [IRS explains how the premium tax credit is figured](https://www.irs.gov/affordable-care-act/individuals-and-families/the-premium-tax-credit-the-basics), and it gets reconciled against actual income when the return is filed.
 
@@ -47,7 +47,7 @@ Plenty of self-employed Nevadans assume they earn too much to qualify and never 
 
 The catch is the estimate itself. Credits are advanced during the year based on a projection, and if the year comes in higher than projected, the difference gets settled at tax time. For anyone whose income arrives in lumps, and that is most of this valley's 1099 workforce, the projection deserves real attention. That problem is covered in [how freelancers estimate income for health subsidies](/qa/how-do-freelancers-estimate-income-for-health-subsidies).
 
-**Timing note:** Nevada open enrollment now runs November 1 through December 31. The old January 15 close is gone, retired by a federal rule that applies to every exchange beginning with the 2027 plan year. Dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
+**Timing note:** Nevada open enrollment runs November 1 through January 15. Select a plan by December 31 and coverage starts January 1. Enroll between January 1 and January 15 and coverage starts February 1. Dates are laid out in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada).
 
 ## Path 2: A spouse's employer plan
 

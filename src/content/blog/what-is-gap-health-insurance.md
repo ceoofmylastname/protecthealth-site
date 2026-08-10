@@ -5,7 +5,7 @@ category: "Guide"
 funnelStage: "TOFU"
 cluster: "nevada-core"
 datePublished: "2026-07-22"
-dateModified: "2026-07-27"
+dateModified: "2026-08-10"
 quickAnswer:
   - "GAP health insurance is supplemental coverage that pays a defined cash benefit toward the deductible, copays and coinsurance left behind by a primary major medical plan."
   - "GAP coverage never replaces major medical coverage and carries none of the protections an ACA-compliant plan provides."
@@ -117,7 +117,7 @@ Frequently, a lower-deductible plan or a funded health savings account. Both sol
 
 A lower-deductible plan simply moves the exposure into the premium, where it is predictable and where any subsidy the household qualifies for can help pay it. A qualified high-deductible plan paired with a health savings account creates a dedicated pool of money that is tax-advantaged going in, spends on qualified medical expenses, and stays with the household when the year ends quietly instead of disappearing like an unused premium. We are insurance nerds, not tax professionals, and the contribution rules and tax treatment of a health savings account are exactly where a licensed tax professional belongs in the conversation.
 
-The order of operations does not change. Secure ACA-compliant coverage during open enrollment, which in Nevada runs November 1 through December 31 with coverage starting January 1, per [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/) and detailed in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). Then evaluate whether a supplement earns its premium.
+The order of operations does not change. Secure ACA-compliant coverage during open enrollment, which in Nevada runs November 1 through January 15, with a plan selected by December 31 starting January 1, per [Nevada Health Link](https://www.nevadahealthlink.com/) and detailed in [when is open enrollment in Nevada](/qa/when-is-open-enrollment-in-nevada). Then evaluate whether a supplement earns its premium.
 
 Re-evaluating annually matters more than it used to, because plans can now change what they pay without changing their names. Actuarial value ranges widened under the [2025 Marketplace Integrity and Affordability Final Rule](https://www.cms.gov/newsroom/fact-sheets/2025-marketplace-integrity-and-affordability-final-rule), and the Nevada-specific consequences are collected on the [ACA changes page](/aca-changes). A deductible that made GAP sensible last year can move enough to make it unnecessary, or newly necessary, this year.
 

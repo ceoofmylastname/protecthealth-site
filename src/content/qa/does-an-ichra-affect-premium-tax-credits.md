@@ -59,7 +59,7 @@ Household income splits it further. Two employees earning identical wages can ha
 
 ## What should a household actually compare?
 
-Two annual numbers, against the same plan. The total ICHRA allowance for the year versus the total premium tax credit the household would otherwise receive on [Nevada Health Link](https://nevadahealthlink.com/get-help/when-to-enroll/), the state exchange run by the Silver State Health Insurance Exchange.
+Two annual numbers, against the same plan. The total ICHRA allowance for the year versus the total premium tax credit the household would otherwise receive on [Nevada Health Link](https://www.nevadahealthlink.com/), the state exchange run by the Silver State Health Insurance Exchange.
 
 Bigger number usually wins, with two caveats worth naming. An allowance can also be written to reimburse qualified medical expenses beyond premiums, which adds value the raw premium comparison misses. And an ICHRA allowance is fixed for the plan year, while a premium tax credit tracks income and gets reconciled on the tax return.
 
