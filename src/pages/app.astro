@@ -1,1006 +1,877 @@
 ---
-import Base from '../layouts/Base.astro';
 
-// Agent dashboard, CRM phase 1. Static page, same trust model as /admin:
-// every byte is fetched in the browser with the anon key, and Row Level
-// Security decides what comes back. An agent's ph_leads query returns ONLY
-// rows where agent_id is theirs; the page never has to filter, because the
-// database already did. Admins have their own view at /admin.
+// ProtectHealth CRM — the broker/admin app.
+//
+// Trust model (unchanged from phase 1): every byte ships to the browser with
+// the ANON key. Row Level Security decides what comes back. No query here
+// filters by ownership — the database already does. A broker's ph_leads /
+// ph_contacts read returns only their own rows; an admin's returns everything.
+// If a page ever adds a JS ownership filter, that is a bug even when it looks
+// right. See "Access Control Audit" in the project.
+//
+// Auth (login / claim / recover / reset) is verbatim the flow shipped Aug 10 —
+// password login, magic link for recovery only. The post-auth shell below is
+// the new part: demo-styled sidebar CRM (Dashboard, Contacts, Leads, Pipeline,
+// Calendar) reading live data. Admins additionally get links to /admin.
 const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
 const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 ---
 
-<Base title="My Leads, ProtectHealth" description="Agent dashboard." noindex={true}>
-  <section class="ag" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
-    <div class="container">
+<!-- Standalone document on purpose: the CRM is a full-screen app and must NOT
+     inherit the marketing site's header, footer, or .btn arrow chrome from
+     Base.astro. -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ProtectHealth CRM</title>
+  <link rel="icon" href="/assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet" />
+  <style>html,body{margin:0;padding:0;height:100%;background:#f4f7fc;overflow:hidden}</style>
+</head>
+<body>
+  <div class="ph" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON} data-logo={LOGO}>
 
+    <!-- ============ AUTH GATES (shown before the app) ============ -->
+    <div class="ag-shell" data-gate>
       <div class="ag-view" data-view="loading">
         <div class="ag-center"><p class="ag-muted">Checking your session…</p></div>
       </div>
 
       <div class="ag-view" data-view="signin" hidden>
-        <div class="ag-center">
-          <div class="ag-card ag-login">
-            <span class="section-label">ProtectHealth</span>
-            <h1>Broker sign-in</h1>
-            <p class="ag-muted">Sign in with your email and password.</p>
-            <form class="ag-login-form">
-              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
-              <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
-              <button type="submit" class="btn no-arrow">Sign In</button>
-            </form>
-            <p class="ag-status" role="status" aria-live="polite"></p>
-            <p class="ag-muted ag-small"><a href="#" class="ag-go-forgot">Forgot your password?</a></p>
-          </div>
-        </div>
+        <div class="ag-center"><div class="ag-card">
+          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
+          <h1>Broker sign-in</h1>
+          <p class="ag-muted">Sign in with your email and password.</p>
+          <form class="ag-login-form">
+            <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
+            <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <button type="submit" class="ag-btn">Sign In</button>
+          </form>
+          <p class="ag-status" role="status" aria-live="polite"></p>
+          <p class="ag-muted ag-small"><a href="#" class="ag-go-forgot">Forgot your password?</a></p>
+        </div></div>
       </div>
 
       <div class="ag-view" data-view="forgot" hidden>
-        <div class="ag-center">
-          <div class="ag-card ag-login">
-            <span class="section-label">ProtectHealth</span>
-            <h1>Reset your password</h1>
-            <p class="ag-muted">Enter your work email and we'll send you a link to set a new password.</p>
-            <form class="ag-forgot-form">
-              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
-              <button type="submit" class="btn no-arrow">Send Reset Link</button>
-            </form>
-            <p class="ag-status" role="status" aria-live="polite"></p>
-            <p class="ag-muted ag-small"><a href="#" class="ag-go-signin">Back to sign in</a></p>
-          </div>
-        </div>
+        <div class="ag-center"><div class="ag-card">
+          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
+          <h1>Reset your password</h1>
+          <p class="ag-muted">Enter your work email and we'll send you a link to set a new password.</p>
+          <form class="ag-forgot-form">
+            <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
+            <button type="submit" class="ag-btn">Send Reset Link</button>
+          </form>
+          <p class="ag-status" role="status" aria-live="polite"></p>
+          <p class="ag-muted ag-small"><a href="#" class="ag-go-signin">Back to sign in</a></p>
+        </div></div>
       </div>
 
-      <!-- Shown after a recovery link lands, and after a claim token checks out.
-           Same form both times: pick a password, get signed in. -->
       <div class="ag-view" data-view="setpassword" hidden>
-        <div class="ag-center">
-          <div class="ag-card ag-login">
-            <span class="section-label">ProtectHealth</span>
-            <h1 class="ag-setpw-title">Set your password</h1>
-            <p class="ag-muted ag-setpw-intro">Choose a password for your account.</p>
-            <form class="ag-setpw-form">
-              <input type="email" name="email" autocomplete="username" hidden readonly />
-              <input type="password" name="password" placeholder="New password" autocomplete="new-password" required minlength="10" />
-              <input type="password" name="confirm" placeholder="Confirm password" autocomplete="new-password" required minlength="10" />
-              <button type="submit" class="btn no-arrow">Save Password</button>
-            </form>
-            <p class="ag-status" role="status" aria-live="polite"></p>
-            <p class="ag-muted ag-small">At least 10 characters.</p>
-          </div>
-        </div>
+        <div class="ag-center"><div class="ag-card">
+          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
+          <h1 class="ag-setpw-title">Set your password</h1>
+          <p class="ag-muted ag-setpw-intro">Choose a password for your account.</p>
+          <form class="ag-setpw-form">
+            <input type="email" name="email" autocomplete="username" hidden readonly />
+            <input type="password" name="password" placeholder="New password" autocomplete="new-password" required minlength="10" />
+            <input type="password" name="confirm" placeholder="Confirm password" autocomplete="new-password" required minlength="10" />
+            <button type="submit" class="ag-btn">Save Password</button>
+          </form>
+          <p class="ag-status" role="status" aria-live="polite"></p>
+          <p class="ag-muted ag-small">At least 10 characters.</p>
+        </div></div>
       </div>
 
       <div class="ag-view" data-view="denied" hidden>
-        <div class="ag-center">
-          <div class="ag-card ag-login">
-            <span class="section-label">Not authorised</span>
-            <h1>No access</h1>
-            <p class="ag-muted">You're signed in as <b data-who></b>, but that address isn't on the agent roster. If you're an admin, your dashboard is at <a href="/admin">/admin</a>. Otherwise ask the office to add you.</p>
-            <button type="button" class="btn ghost no-arrow ag-signout">Sign out</button>
-          </div>
-        </div>
+        <div class="ag-center"><div class="ag-card">
+          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
+          <h1>No access</h1>
+          <p class="ag-muted">You're signed in as <b data-who></b>, but that address isn't on the broker roster. If you're an admin, your dashboard is at <a href="/admin">/admin</a>. Otherwise ask the office to add you.</p>
+          <button type="button" class="ag-btn ghost ag-signout">Sign out</button>
+        </div></div>
       </div>
-
-      <div class="ag-view" data-view="app" hidden>
-        <header class="ag-head">
-          <div>
-            <span class="section-label">ProtectHealth Agents</span>
-            <h1>My leads</h1>
-          </div>
-          <div class="ag-head-right">
-            <span class="ag-muted ag-who" data-who></span>
-            <button type="button" class="btn ghost no-arrow ag-signout">Sign out</button>
-          </div>
-        </header>
-
-        <div class="ag-stats">
-          <div class="ag-stat spot"><b data-stat="mine">, </b><span>My leads</span></div>
-          <div class="ag-stat spot"><b data-stat="upcoming">, </b><span>Upcoming conversations</span></div>
-          <div class="ag-stat spot"><b data-stat="week">, </b><span>New this week</span></div>
-        </div>
-
-        <div class="ag-tabs" role="tablist">
-          <button type="button" class="ag-tab is-on" data-tab="leads">Leads</button>
-          <button type="button" class="ag-tab" data-tab="contacts">Contacts</button>
-        </div>
-
-        <div data-pane="leads">
-        <div class="ag-toolbar">
-          <input type="search" class="ag-search" placeholder="Search name, email or phone…" aria-label="Search" />
-          <div class="ag-filters" role="group" aria-label="Filter">
-            <button type="button" class="ag-chip is-on" data-filter="all">All</button>
-            <button type="button" class="ag-chip" data-filter="upcoming">Upcoming</button>
-            <button type="button" class="ag-chip" data-filter="booking">Bookings</button>
-            <button type="button" class="ag-chip" data-filter="form">Enquiries</button>
-          </div>
-          <button type="button" class="ag-refresh" title="Refresh">↻</button>
-        </div>
-
-        <div class="ag-split">
-          <div class="ag-list" role="list"></div>
-          <aside class="ag-detail">
-            <div class="ag-detail-empty ag-muted">Pick a lead on the left to see everything they told us and every email they've been sent.</div>
-            <div class="ag-detail-body" hidden></div>
-          </aside>
-        </div>
-        </div>
-
-        <!-- The full contact book, mirrored from GoHighLevel every 5 minutes.
-             Same page for admins and agents: RLS decides whether "everything"
-             means the whole book or just the contacts assigned to you.
-             Airtable-shaped: full-bleed sortable table, tag filter, and a
-             slide-over drawer for the record instead of a fixed side panel. -->
-        <div data-pane="contacts" hidden class="ag-full">
-          <div class="ag-toolbar">
-            <input type="search" class="ag-csearch" placeholder="Search name, email or phone…" aria-label="Search contacts" />
-            <input type="search" class="ag-ctagf" list="ag-taglist" placeholder="Filter by tag…" aria-label="Filter by tag" />
-            <datalist id="ag-taglist"></datalist>
-            <button type="button" class="ag-chip ag-cnewest" title="Reset to newest first">&darr; Newest</button>
-            <span class="ag-muted" data-ccount>Loading…</span>
-          </div>
-          <div class="ag-tablewrap">
-            <table class="ag-table">
-              <thead><tr>
-                <th data-sort="last_name">Name</th>
-                <th data-sort="email">Email</th>
-                <th>Phone</th>
-                <th data-sort="date_of_birth">Birthday</th>
-                <th>Tags</th>
-                <th>Assigned to</th>
-                <th data-sort="ghl_date_added">Added</th>
-              </tr></thead>
-              <tbody class="ag-tbody"></tbody>
-            </table>
-          </div>
-          <div class="ag-pager">
-            <button type="button" class="ag-chip ag-cprev">&larr; Prev</button>
-            <span class="ag-muted ag-cpage"></span>
-            <button type="button" class="ag-chip ag-cnext">Next &rarr;</button>
-          </div>
-          <!-- Contact card: the whole record on one screen. Left = who they
-               are, middle = everything the system has done, right = what is
-               scheduled and what humans have written down. -->
-          <div class="ag-modal" hidden>
-            <div class="ag-modal-card">
-              <button type="button" class="ag-drawer-x" aria-label="Close">&times;</button>
-              <div class="ag-card-cols">
-                <div class="ag-col ag-col-left"></div>
-                <div class="ag-col ag-col-mid">
-                  <h3 class="ag-colh">Activity</h3>
-                  <div class="ag-timeline"><p class="ag-muted">Loading…</p></div>
-                </div>
-                <div class="ag-col ag-col-right">
-                  <h3 class="ag-colh">Appointments</h3>
-                  <div class="ag-appts"></div>
-                  <h3 class="ag-colh" style="margin-top:18px;">Notes</h3>
-                  <div class="ag-notes"></div>
-                  <form class="ag-note-form">
-                    <textarea rows="3" placeholder="Add a note…" required></textarea>
-                    <button type="submit" class="btn no-arrow">Add Note</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
-  </section>
-</Base>
 
-<style is:global>
-  .ag { padding: 40px 0 80px; min-height: 70vh; background: var(--bg-soft); }
-  .ag-center { display: grid; place-items: center; min-height: 60vh; }
-  .ag-card { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 18px; padding: 34px; box-shadow: 0 18px 44px rgba(8, 29, 61, 0.08); }
-  .ag-login { max-width: 420px; width: 100%; }
-  .ag-login h1 { margin: 4px 0 10px; }
-  .ag-login-form, .ag-forgot-form, .ag-setpw-form { display: grid; gap: 10px; margin-top: 16px; }
-  .ag-login-form input, .ag-forgot-form input, .ag-setpw-form input { border: 1.5px solid rgba(15, 53, 103, 0.16); border-radius: 11px; padding: 12px 14px; font-size: 1rem; font-family: var(--font); }
-  .ag-login-form input:focus, .ag-forgot-form input:focus, .ag-setpw-form input:focus { outline: none; border-color: var(--blue); }
-  /* The username field on the set-password form exists for password managers,
-     not for people. Keep [hidden] winning over the grid item display above. */
-  .ag-login-form input[hidden], .ag-forgot-form input[hidden], .ag-setpw-form input[hidden] { display: none; }
-  .ag-small { font-size: 0.86rem; margin-top: 12px; }
-  .ag-small a { color: var(--blue); text-decoration: underline; text-underline-offset: 2px; }
-  .ag-status { margin-top: 10px; font-size: 0.9rem; color: var(--muted); min-height: 1.2em; }
-  .ag-status.is-bad { color: #c0392b; }
-  .ag-muted { color: var(--muted); }
+    <!-- ============ THE APP (shown after auth) ============ -->
+    <div id="app" data-app hidden>
+      <aside id="sidebar">
+        <div class="brand"><span class="logo-chip"><img src={LOGO} alt="ProtectHealth" /></span></div>
+        <nav id="nav"></nav>
+        <div class="foot">
+          <div data-who-name style="color:#cdd9ec;font-weight:650"></div>
+          <div data-who style="font-size:.7rem"></div>
+          <button type="button" class="ag-signout" style="margin-top:10px;color:#9fb2cc;font-size:.78rem;text-decoration:underline">Sign out</button>
+        </div>
+      </aside>
 
-  .ag-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-  .ag-head h1 { margin: 2px 0 0; }
-  .ag-head-right { display: flex; align-items: center; gap: 14px; }
+      <div id="main">
+        <header id="topbar">
+          <div>
+            <div id="page-title">Dashboard</div>
+            <div id="page-sub">A live look at your leads, appointments and pipeline</div>
+          </div>
+          <div class="searchbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="global-search" placeholder="Search your contacts and leads…" />
+          </div>
+          <div class="tz-chip" id="clock">Vegas</div>
+          <div class="avatar" id="avatar" style="background:var(--grad)">JM</div>
+        </header>
+        <div id="view"><div class="empty"><div class="big">◐</div>Loading…</div></div>
+      </div>
+    </div>
 
-  .ag-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .ag-stat { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 14px; padding: 16px 18px; }
-  .ag-stat b { display: block; font-size: 1.7rem; color: var(--navy); font-family: var(--font-display); }
-  .ag-stat span { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+    <!-- drawer + toast, shared by all modules -->
+    <div id="overlay"></div>
+    <aside id="drawer"></aside>
+    <div class="toast" id="toast"></div>
+  </div>
 
-  .ag-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid rgba(15, 53, 103, 0.08); }
-  .ag-tab { border: none; background: none; padding: 10px 16px 12px; font-family: var(--font); font-size: 0.95rem; font-weight: 800; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-  .ag-tab.is-on { color: var(--blue); border-bottom-color: var(--blue); }
-  .ag-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
-  .ag-ctag { display: inline-block; background: rgba(25,123,255,0.09); color: var(--blue); border-radius: 99px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700; margin: 0 4px 4px 0; cursor: pointer; border: none; font-family: var(--font); }
-  .ag-ctag:hover { background: rgba(25,123,255,0.18); }
-
-  /* Contacts pane breaks out of the site container: a table earns its width. */
-  .ag-full { position: relative; left: 50%; transform: translateX(-50%); width: min(96vw, 1680px); }
-  .ag-ctagf { flex: 0 1 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
-  .ag-ctagf:focus { outline: none; border-color: var(--blue); }
-  .ag-tablewrap { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 14px; overflow: auto; max-height: 72vh; }
-  .ag-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 960px; }
-  .ag-table thead th { position: sticky; top: 0; z-index: 2; background: #f7fafd; text-align: left; padding: 12px 14px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid rgba(15, 53, 103, 0.12); white-space: nowrap; }
-  .ag-table thead th[data-sort] { cursor: pointer; user-select: none; }
-  .ag-table thead th[data-sort]:hover { color: var(--blue); }
-  .ag-table thead th.is-sorted { color: var(--blue); }
-  .ag-table thead th.is-sorted::after { content: ' ↓'; }
-  .ag-table thead th.is-sorted.asc::after { content: ' ↑'; }
-  .ag-table tbody td { padding: 10px 14px; border-bottom: 1px solid rgba(15, 53, 103, 0.06); color: var(--ink); vertical-align: middle; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ag-table tbody tr { cursor: pointer; }
-  .ag-table tbody tr:hover td { background: rgba(25, 123, 255, 0.045); }
-  .ag-table tbody tr.is-on td { background: rgba(25, 123, 255, 0.09); }
-  .ag-tname { font-weight: 700; color: var(--navy); }
-  .ag-towner.none { color: var(--muted); font-weight: 500; }
-  .ag-towner { font-weight: 700; color: var(--blue); }
-
-  .ag-drawer-x { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 1.7rem; color: var(--muted); cursor: pointer; line-height: 1; z-index: 2; }
-  .ag-drawer-x:hover { color: var(--navy); }
-
-  .ag-modal { position: fixed; inset: 0; background: rgba(8, 29, 61, 0.45); z-index: 70; display: grid; place-items: center; padding: 24px; }
-  /* display:grid on the class outranks the UA stylesheet's [hidden] rule, so
-     without this the empty card shell shows the moment the tab opens. */
-  .ag-modal[hidden] { display: none; }
-  .ag-modal-card { position: relative; background: #f7fafd; border-radius: 20px; width: min(1480px, 96vw); height: min(860px, 92vh); box-shadow: 0 30px 80px rgba(8, 29, 61, 0.35); overflow: hidden; }
-  .ag-card-cols { display: grid; grid-template-columns: 300px minmax(0, 1fr) 330px; gap: 0; height: 100%; }
-  .ag-col { overflow-y: auto; padding: 26px 22px; }
-  .ag-col-left { background: #fff; border-right: 1px solid rgba(15, 53, 103, 0.08); }
-  .ag-col-right { background: #fff; border-left: 1px solid rgba(15, 53, 103, 0.08); }
-  .ag-colh { margin: 0 0 12px; font-size: 0.74rem; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); }
-
-  .ag-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #19c8ff); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; margin-bottom: 10px; }
-  .ag-cardname { margin: 0 0 2px; font-size: 1.25rem; color: var(--navy); }
-  .ag-cardsub { color: var(--muted); font-size: 0.84rem; margin: 0 0 16px; }
-  .ag-kvline { padding: 7px 0; border-bottom: 1px solid rgba(15, 53, 103, 0.06); font-size: 0.88rem; }
-  .ag-kvline b { display: block; font-size: 0.7rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 1px; }
-  .ag-kvline span, .ag-kvline a { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
-
-  .ag-tl-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(15, 53, 103, 0.06); }
-  .ag-tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex: none; background: var(--blue); }
-  .ag-tl-dot.sent { background: #27ae60; }
-  .ag-tl-dot.pending { background: #f39c12; }
-  .ag-tl-dot.failed, .ag-tl-dot.skipped { background: #c0392b; }
-  .ag-tl-dot.event { background: #0f3567; }
-  .ag-tl-title { font-weight: 700; color: var(--navy); font-size: 0.92rem; }
-  .ag-tl-sub { color: var(--muted); font-size: 0.8rem; }
-  .ag-tl-when { margin-left: auto; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
-
-  .ag-appt { background: #f2f7fb; border: 1px solid #e2e9f1; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; }
-  .ag-appt b { color: var(--navy); display: block; }
-  .ag-note { background: #fffbea; border: 1px solid #f3e8b8; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; white-space: pre-wrap; }
-  .ag-note small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.74rem; }
-  .ag-note-form { display: grid; gap: 8px; margin-top: 10px; }
-  .ag-note-form textarea { border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 11px; padding: 10px 12px; font-family: var(--font); font-size: 0.9rem; resize: vertical; }
-  .ag-note-form textarea:focus { outline: none; border-color: var(--blue); }
-
-  @media (max-width: 1000px) {
-    .ag-card-cols { grid-template-columns: 1fr; overflow-y: auto; }
-    .ag-col { overflow: visible; }
-    .ag-modal-card { height: 94vh; }
+  <style is:global>
+  /* ProtectHealth brand tokens (from the demo, matched to global.css) */
+  .ph{
+    --navy:#0f3567; --navy2:#17457e; --navy-deep:#081d3d;
+    --blue:#197bff; --cyan:#19c8ff; --accent:#007db3;
+    --teal:#0D9488; --amber:#D97706; --violet:#7C3AED; --rose:#DB2777;
+    --green:#15803d; --red:#b91c1c;
+    --ink:#0f172a; --ink2:#42536b; --muted:#8494ab;
+    --bg:#f4f7fc; --card:#ffffff; --line:#e3e9f2; --line2:#eef2f8;
+    --grad:linear-gradient(92deg,var(--blue),var(--cyan) 70%,var(--accent));
+    --radius:14px; --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -12px rgba(15,23,42,.12);
+    --font:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,-apple-system,sans-serif;
   }
+  .ph, .ph *{box-sizing:border-box}
+  .ph button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:inherit;color:inherit}
+  .ph input,.ph select,.ph textarea{font-family:inherit;font-size:.92rem;color:var(--ink)}
 
-  .ag-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
-  .ag-search { flex: 1; min-width: 220px; border: 1.5px solid rgba(15, 53, 103, 0.14); border-radius: 99px; padding: 10px 18px; font-size: 0.95rem; font-family: var(--font); background: #fff; }
-  .ag-search:focus { outline: none; border-color: var(--blue); }
-  .ag-filters { display: flex; gap: 6px; }
-  .ag-chip { border: 1.5px solid rgba(15, 53, 103, 0.14); background: #fff; border-radius: 99px; padding: 8px 15px; font-size: 0.85rem; font-weight: 700; color: var(--muted); cursor: pointer; font-family: var(--font); }
-  .ag-chip.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
-  .ag-refresh { border: 1.5px solid rgba(15, 53, 103, 0.14); background: #fff; border-radius: 99px; width: 40px; height: 40px; cursor: pointer; font-size: 1rem; color: var(--navy); }
+  /* ---- auth gates ---- */
+  .ag-shell[hidden]{display:none}
+  .ag-center{min-height:100vh;display:grid;place-items:center;background:var(--bg);padding:20px}
+  .ag-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:34px 32px;max-width:420px;width:100%;text-align:left}
+  .ag-logo{height:34px;width:auto;margin-bottom:18px;display:block}
+  .ag-card h1{font-size:1.5rem;font-weight:800;letter-spacing:-.5px;color:var(--navy);margin:0 0 8px}
+  .ag-muted{color:var(--muted);font-size:.92rem;line-height:1.5}
+  .ag-small{font-size:.86rem;margin-top:12px}
+  .ag-small a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+  .ag-login-form,.ag-forgot-form,.ag-setpw-form{display:grid;gap:10px;margin-top:18px}
+  .ag-login-form input,.ag-forgot-form input,.ag-setpw-form input{border:1.5px solid rgba(15,53,103,.16);border-radius:11px;padding:12px 14px;font-size:1rem}
+  .ag-login-form input:focus,.ag-forgot-form input:focus,.ag-setpw-form input:focus{outline:none;border-color:var(--blue)}
+  .ag-login-form input[hidden],.ag-forgot-form input[hidden],.ag-setpw-form input[hidden]{display:none}
+  .ag-btn{background:var(--grad);color:#fff;border-radius:99px;padding:12px 18px;font-weight:700;font-size:.95rem;box-shadow:0 4px 14px -5px rgba(25,123,255,.55);transition:transform .12s}
+  .ag-btn:active{transform:scale(.98)}
+  .ag-btn.ghost{background:none;border:1px solid var(--line);color:var(--ink2);box-shadow:none}
+  .ag-status{margin-top:10px;font-size:.9rem;color:var(--muted);min-height:1.2em}
+  .ag-status.is-bad{color:#c0392b}
 
-  .ag-split { display: grid; grid-template-columns: minmax(300px, 5fr) minmax(320px, 6fr); gap: 16px; align-items: start; }
-  .ag-list { display: grid; gap: 8px; max-height: 72vh; overflow: auto; padding-right: 4px; }
-  .ag-row { display: flex; justify-content: space-between; gap: 12px; text-align: left; width: 100%; background: #fff; border: 1.5px solid rgba(15, 53, 103, 0.1); border-radius: 13px; padding: 13px 16px; cursor: pointer; font-family: var(--font); }
-  .ag-row:hover { border-color: rgba(25, 123, 255, 0.4); }
-  .ag-row.is-on { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
-  .ag-row-name { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--navy); font-size: 0.97rem; }
-  .ag-row-sub { display: block; color: var(--muted); font-size: 0.84rem; margin-top: 2px; }
-  .ag-row-when { text-align: right; font-size: 0.85rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
-  .ag-row-when small { display: block; font-weight: 600; color: var(--muted); }
-  .ag-tag { font-size: 0.66rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 99px; padding: 3px 9px; }
-  .ag-tag.booking { background: rgba(25,123,255,0.12); color: var(--blue); }
-  .ag-tag.form { background: rgba(90,111,133,0.12); color: var(--muted); }
-  .ag-tag.past { background: rgba(15,53,103,0.09); color: var(--navy); }
+  /* ---- shell ---- */
+  #app{display:grid;grid-template-columns:232px 1fr;height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font)}
+  #app[hidden]{display:none}
+  #sidebar{background:linear-gradient(170deg,var(--navy-deep) 0%,var(--navy) 55%,var(--navy2) 100%);color:#dbe6f5;display:flex;flex-direction:column;overflow-y:auto}
+  .brand{padding:16px 14px 12px}
+  .brand .logo-chip{background:#fff;border-radius:13px;padding:10px 12px;display:block;box-shadow:0 6px 18px -8px rgba(8,29,61,.7)}
+  .brand .logo-chip img{display:block;width:100%;height:auto}
+  .nav-sec{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5f7396;padding:14px 20px 6px}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:9px 18px;margin:1px 10px;border-radius:10px;font-size:.9rem;font-weight:500;color:#b9c8dd;transition:background .15s,color .15s;position:relative;white-space:nowrap;width:calc(100% - 20px);text-align:left}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav-item.active{background:rgba(25,123,255,.22);color:#fff;font-weight:650}
+  .nav-item.active::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--grad)}
+  .nav-item svg{width:17px;height:17px;flex:none;opacity:.85}
+  .nav-item .count{margin-left:auto;font-size:.68rem;font-weight:700;background:rgba(255,255,255,.1);padding:2px 7px;border-radius:99px;color:#9fb2cc}
+  #sidebar .foot{margin-top:auto;padding:14px 18px 18px;font-size:.72rem;color:#5f7396;line-height:1.5}
 
-  .ag-detail { background: #fff; border: 1px solid rgba(15, 53, 103, 0.1); border-radius: 16px; padding: 26px; position: sticky; top: 90px; max-height: 78vh; overflow: auto; }
-  .ag-detail h2 { margin: 0 0 4px; }
-  .ag-kv { display: grid; grid-template-columns: minmax(140px, 2fr) 3fr; gap: 7px 14px; margin: 16px 0 0; }
-  .ag-kv dt { color: var(--muted); font-size: 0.92rem; }
-  .ag-kv dd { margin: 0; font-weight: 700; color: var(--ink); font-size: 0.92rem; overflow-wrap: anywhere; }
-  .ag-sec { border-top: 1px solid rgba(15, 53, 103, 0.1); margin-top: 20px; padding-top: 16px; }
-  .ag-sec h3 { margin: 0 0 8px; font-size: 0.78rem; letter-spacing: 1.6px; text-transform: uppercase; color: var(--muted); }
-  .ag-mail { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(15, 53, 103, 0.06); font-size: 0.9rem; }
-  .ag-mail:last-child { border-bottom: none; }
-  .ag-mail-kind { font-weight: 700; color: var(--navy); display: block; }
-  .ag-mail-sub { color: var(--muted); font-size: 0.8rem; }
-  .ag-mail-when { margin-left: auto; color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
-  .ag-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-  .ag-dot.sent { background: #27ae60; }
-  .ag-dot.pending { background: #f39c12; }
-  .ag-dot.failed, .ag-dot.skipped { background: #c0392b; }
+  #main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  #topbar{display:flex;align-items:center;gap:14px;padding:12px 26px;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex:none;z-index:20}
+  #page-title{font-size:1.22rem;font-weight:800;letter-spacing:-.4px}
+  #page-sub{font-size:.78rem;color:var(--muted);margin-top:1px}
+  .searchbox{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 14px;width:270px}
+  .searchbox input{border:none;outline:none;background:none;width:100%}
+  .searchbox svg{width:15px;height:15px;color:var(--muted);flex:none}
+  .tz-chip{font-size:.74rem;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 12px;white-space:nowrap}
+  .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;color:#fff;flex:none}
 
-  @media (max-width: 900px) {
-    .ag-split { grid-template-columns: 1fr; }
-    .ag-detail { position: static; max-height: none; }
-    .ag-list { max-height: none; }
-  }
-</style>
+  #view{flex:1;overflow-y:auto;padding:22px 26px 60px;scroll-behavior:smooth}
+  .view-grid{display:grid;gap:16px}
 
-<script>
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .card-h{display:flex;align-items:center;gap:10px;padding:15px 18px 0}
+  .card-h h3{font-size:.95rem;font-weight:750;letter-spacing:-.2px}
+  .card-h .sub{font-size:.75rem;color:var(--muted)}
+  .card-h .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .card-b{padding:14px 18px 16px}
+  .grad-label{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .stat{padding:16px 18px}
+  .stat .lbl{font-size:.74rem;font-weight:650;color:var(--ink2)}
+  .stat .num{font-size:1.9rem;font-weight:800;letter-spacing:-1px;margin-top:5px;font-variant-numeric:tabular-nums}
+  .stat .delta{font-size:.74rem;font-weight:650;margin-top:3px}
+  .stat .delta.up{color:var(--green)} .stat .delta.flat{color:var(--muted)}
+  .stat .tick{position:absolute;top:0;left:18px;right:18px;height:3px;border-radius:0 0 4px 4px;background:var(--grad);opacity:.85}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:99px;font-size:.85rem;font-weight:650;transition:transform .12s;white-space:nowrap}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 14px -5px rgba(25,123,255,.55)}
+  .btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--ink2)}
+  .btn-sm{padding:5px 11px;font-size:.78rem}
+
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--line2);color:var(--ink2);white-space:nowrap}
+  .chip.tag{background:#e7f2f8;color:#005f88}
+  .pill-status{display:inline-flex;align-items:center;gap:6px;font-size:.73rem;font-weight:700;padding:3px 10px;border-radius:99px}
+  .st-green{background:#e7f5ec;color:#15803d}.st-blue{background:#e8effd;color:#1d4ed8}
+  .st-amber{background:#fdf1e2;color:#b45309}.st-red{background:#fdeaea;color:#b91c1c}
+  .st-gray{background:var(--line2);color:var(--ink2)}.st-violet{background:#f1eafd;color:#6d28d9}
+  .st-teal{background:#e2f5f2;color:#0f766e}
+
+  table.data{width:100%;border-collapse:collapse;font-size:.86rem}
+  table.data th{text-align:left;font-size:.7rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:2;white-space:nowrap}
+  table.data td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  table.data tr.rowlink{cursor:pointer;transition:background .12s}
+  table.data tr.rowlink:hover{background:#f7faff}
+  .cell-name{display:flex;align-items:center;gap:10px;font-weight:650}
+  .cell-sub{font-size:.74rem;color:var(--muted);font-weight:400;margin-top:1px}
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--line2)}
+  .toolbar select,.toolbar input[type=text]{border:1px solid var(--line);border-radius:9px;padding:7px 11px;background:var(--card);outline:none}
+  .toolbar select:focus,.toolbar input:focus{border-color:var(--blue)}
+  .pager{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:.8rem;color:var(--ink2)}
+  .pager button{border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--card)}
+  .pager button:disabled{opacity:.4;cursor:default}
+  .avatar-sm{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.68rem;font-weight:700;color:#fff;flex:none}
+
+  #overlay{position:fixed;inset:0;background:rgba(10,25,48,.45);opacity:0;pointer-events:none;transition:opacity .22s;z-index:50}
+  #overlay.on{opacity:1;pointer-events:auto}
+  #drawer{position:fixed;top:0;right:-560px;width:560px;max-width:94vw;height:100vh;background:var(--card);z-index:60;transition:right .26s cubic-bezier(.3,.8,.3,1);box-shadow:-18px 0 50px -20px rgba(10,25,48,.35);display:flex;flex-direction:column}
+  #drawer.on{right:0}
+  .drawer-h{padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:14px;flex:none}
+  .drawer-b{flex:1;overflow-y:auto;padding:18px 22px 40px}
+  .drawer-x{margin-left:auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:7px 12px;font-size:.85rem}
+  .kv .k{color:var(--muted);font-weight:600;font-size:.78rem;padding-top:1px}
+  .kv .v{font-weight:550}
+  .section-t{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+  .section-t::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  #kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:18px;align-items:flex-start}
+  .kcol{flex:0 0 268px;background:#eef2f9;border:1px solid var(--line);border-radius:14px;max-height:calc(100vh - 240px);display:flex;flex-direction:column}
+  .kcol-h{padding:12px 14px 8px;flex:none}
+  .kcol-h .t{display:flex;align-items:center;gap:8px;font-size:.83rem;font-weight:750}
+  .kcol-h .meta{font-size:.72rem;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+  .kcol-b{padding:4px 10px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:60px}
+  .kcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:grab;box-shadow:0 1px 2px rgba(15,23,42,.06);transition:box-shadow .15s,transform .15s}
+  .kcard:hover{box-shadow:0 6px 16px -6px rgba(15,23,42,.18)}
+  .kcard.dragging{opacity:.45;transform:rotate(2deg)}
+  .kcard .nm{font-weight:700;font-size:.87rem}
+  .kcard .meta{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:.72rem;color:var(--muted)}
+  .kcol-b.dropover{outline:2px dashed var(--blue);outline-offset:-4px;border-radius:11px;background:#e8effd66}
+
+  .cal-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .cal-title{font-size:1.15rem;font-weight:800;letter-spacing:-.3px;min-width:190px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border-left:1px solid var(--line);border-top:1px solid var(--line);border-radius:0 0 12px 12px;overflow:hidden}
+  .cal-dow{background:#f0f4fa;font-size:.7rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .cal-cell{background:var(--card);min-height:104px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;position:relative;overflow:hidden}
+  .cal-cell.dim{background:#f8fafd}
+  .cal-cell .dnum{font-size:.76rem;font-weight:700;color:var(--ink2);width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+  .cal-cell.today .dnum{background:var(--blue);color:#fff}
+  .cal-ev{font-size:.7rem;font-weight:650;padding:2px 7px;border-radius:6px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;background:var(--blue)}
+  .cal-ev.bday{background:#fdf1e2;color:#b45309}
+
+  .feed-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:.84rem}
+  .feed-item:last-child{border-bottom:none}
+  .feed-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:.8rem;background:#e8effd}
+  .feed-item .when{margin-left:auto;font-size:.72rem;color:var(--muted);white-space:nowrap;padding-top:2px}
+  .empty{padding:44px 20px;text-align:center;color:var(--muted);font-size:.88rem}
+  .empty .big{font-size:1.7rem;margin-bottom:8px}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;transition:all .25s;z-index:100;box-shadow:0 16px 40px -10px rgba(10,25,48,.6)}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  .spark path.line{fill:none;stroke-width:2;stroke-linecap:round}
+  .spark path.area{opacity:.12}
+  @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
+  </style>
+
+  <script>
   import { createClient } from '@supabase/supabase-js';
 
-  const root = document.querySelector('.ag');
+  const root = document.querySelector('.ph');
   if (root) {
     const sb = createClient(
       root.getAttribute('data-supabase-url'),
       root.getAttribute('data-supabase-anon'),
       { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
     );
+    const LOGO = root.getAttribute('data-logo');
 
-    const $ = (s) => root.querySelector(s);
-    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const gate = root.querySelector('[data-gate]');
+    const app = root.querySelector('[data-app]');
+    const $ = (s, r = root) => r.querySelector(s);
+    const $$ = (s, r = root) => Array.from(r.querySelectorAll(s));
     const view = (name) =>
       $$('.ag-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== name));
 
-    let leads = [];
-    let emailsByLead = new Map();
-    let selected = null;
-    let filter = 'all';
-    let query = '';
-
     const TZ = 'America/Los_Angeles';
-    const fmtDateTime = (iso) =>
-      new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    const fmtFull = (iso) =>
-      new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const nameOf = (l) => [l.first_name, l.last_name].filter(Boolean).join(' ') || l.email || l.phone || 'Unknown';
+    const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric' }) : '';
+    const fmtDateTime = (iso) => iso ? new Date(iso).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    const fmtFull = (iso) => iso ? new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    const nameOf = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || r.phone || 'Unknown';
+    const fmtPhone = (p) => { const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, ''); return d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : (p || ''); };
+    const initials = (n) => String(n || '?').trim().split(/\s+/).slice(0,2).map((w) => w[0]).join('').toUpperCase();
+    const AV = ['#197bff','#0D9488','#7C3AED','#D97706','#DB2777','#007db3','#15803d'];
+    const avColor = (s) => AV[[...String(s||'')].reduce((a,c)=>a+c.charCodeAt(0),0) % AV.length];
 
-    const MAIL_LABEL = {
-      confirmation: 'Booking confirmation',
-      reminder_24h: '24-hour reminder',
-      reminder_1h: '1-hour reminder',
+    const toast = (msg) => {
+      const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2200);
     };
 
-    // ---------- auth ----------
-    // Password is the login. Magic link survives only as the recovery path,
-    // because a broker who has lost their password still has their inbox.
+    // ================= AUTH (verbatim from the Aug 10 flow) =================
     const AUTH_FN = `${root.getAttribute('data-supabase-url')}/functions/v1/ph-auth`;
-
     const authPost = async (body) => {
-      const res = await fetch(AUTH_FN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      let json = {};
-      try { json = await res.json(); } catch { /* non-JSON error page */ }
+      const res = await fetch(AUTH_FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      let json = {}; try { json = await res.json(); } catch {}
       return { ok: res.ok, status: res.status, json };
     };
-
-    // Each view owns its own status line, so clear the one being left behind.
-    const statusIn = (viewName) => root.querySelector(`.ag-view[data-view="${viewName}"] .ag-status`);
-    const setStatus = (viewName, text, bad = false) => {
-      const el = statusIn(viewName);
-      if (!el) return;
-      el.textContent = text;
-      el.classList.toggle('is-bad', Boolean(bad));
-    };
+    const statusIn = (v) => root.querySelector(`.ag-view[data-view="${v}"] .ag-status`);
+    const setStatus = (v, text, bad = false) => { const el = statusIn(v); if (!el) return; el.textContent = text; el.classList.toggle('is-bad', !!bad); };
 
     $('.ag-go-forgot')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      setStatus('signin', '');
-      const typed = root.querySelector('.ag-login-form')?.email?.value?.trim();
-      if (typed) root.querySelector('.ag-forgot-form').email.value = typed;
+      e.preventDefault(); setStatus('signin', '');
+      const typed = $('.ag-login-form')?.email?.value?.trim();
+      if (typed) $('.ag-forgot-form').email.value = typed;
       view('forgot');
     });
-
-    $('.ag-go-signin')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      setStatus('forgot', '');
-      view('signin');
-    });
+    $('.ag-go-signin')?.addEventListener('click', (e) => { e.preventDefault(); setStatus('forgot', ''); view('signin'); });
 
     $('.ag-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value;
-      btn.disabled = true;
-      setStatus('signin', 'Signing in…');
-
+      const email = e.target.email.value.trim(); const password = e.target.password.value;
+      btn.disabled = true; setStatus('signin', 'Signing in…');
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) {
-        btn.disabled = false;
-        // Supabase says "Invalid login credentials" for both a wrong password
-        // and an address with no account. Keep it that way: telling a stranger
-        // which addresses exist is an invitation.
-        setStatus('signin', 'That email and password did not match. Try again, or use Forgot your password.', true);
-        return;
-      }
+      if (error) { btn.disabled = false; setStatus('signin', 'That email and password did not match. Try again, or use Forgot your password.', true); return; }
       e.target.password.value = '';
-      const who = data?.session?.user?.email ?? email;
-      $$('[data-who]').forEach((el) => (el.textContent = who));
-      await load(who);
+      await enter(data?.session?.user?.email ?? email);
     });
 
     $('.ag-forgot-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.disabled = true;
+      const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
       setStatus('forgot', 'Sending…');
-      // The endpoint answers identically whether or not the address is on the
-      // roster, so mirror that here rather than leaking the difference in the UI.
       await authPost({ action: 'recover', email: e.target.email.value.trim() });
       btn.disabled = false;
       setStatus('forgot', 'If that address is on the roster, a reset link is on its way. It expires in 60 minutes.');
     });
 
-    // Used by both the claim link and the recovery link. claimToken is set only
-    // in the claim case; recovery arrives as a real session from the emailed link.
     let claimToken = null;
-
     $('.ag-setpw-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const password = e.target.password.value;
-      const confirm = e.target.confirm.value;
-
+      const password = e.target.password.value, confirm = e.target.confirm.value;
       if (password !== confirm) { setStatus('setpassword', 'Those two passwords do not match.', true); return; }
       if (password.length < 10) { setStatus('setpassword', 'Password must be at least 10 characters.', true); return; }
-
-      btn.disabled = true;
-      setStatus('setpassword', 'Saving…');
-
+      btn.disabled = true; setStatus('setpassword', 'Saving…');
       if (claimToken) {
         const { ok, json } = await authPost({ action: 'claim', token: claimToken, password });
-        if (!ok) {
-          btn.disabled = false;
-          setStatus('setpassword', json.error || 'That link is no longer valid.', true);
-          return;
-        }
-        // Password is set but there is no session yet; sign in with what they
-        // just chose, which also proves the credentials work before they leave.
+        if (!ok) { btn.disabled = false; setStatus('setpassword', json.error || 'That link is no longer valid.', true); return; }
         const { error } = await sb.auth.signInWithPassword({ email: json.email, password });
-        if (error) {
-          btn.disabled = false;
-          setStatus('setpassword', 'Password saved. Please sign in.', true);
-          view('signin');
-          return;
-        }
-        claimToken = null;
-        history.replaceState({}, '', '/app');
-        $$('[data-who]').forEach((el) => (el.textContent = json.email));
-        await load(json.email);
-        return;
+        if (error) { btn.disabled = false; setStatus('setpassword', 'Password saved. Please sign in.', true); view('signin'); return; }
+        claimToken = null; history.replaceState({}, '', '/app');
+        await enter(json.email); return;
       }
-
-      // Recovery: the emailed link already established a session.
       const { error } = await sb.auth.updateUser({ password });
-      if (error) {
-        btn.disabled = false;
-        setStatus('setpassword', error.message, true);
-        return;
-      }
+      if (error) { btn.disabled = false; setStatus('setpassword', error.message, true); return; }
       const { data } = await sb.auth.getSession();
       const who = data?.session?.user?.email;
       if (!who) { view('signin'); return; }
       history.replaceState({}, '', '/app');
-      $$('[data-who]').forEach((el) => (el.textContent = who));
-      await load(who);
+      await enter(who);
     });
 
-    $$('.ag-signout').forEach((b) =>
-      b.addEventListener('click', async () => {
-        await sb.auth.signOut();
-        location.reload();
-      }),
-    );
+    $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
-    // ---------- data ----------
-    async function load(sessionEmail) {
-      // Authorisation is a data question, not a flag: can this email find
-      // itself on the roster? RLS only returns the agent's own row (admins see
-      // all rows, so we match on email to be exact either way).
-      // Match on the auth user id, not the email string. A broker's roster email
-      // can change (37 of them are still on personal domains) and matching on
-      // email would quietly strand them on the "no access" screen. Admins see
-      // every roster row, so an unfiltered .limit(1) would hand them a stranger's
-      // name; the uid filter is what keeps this exact for them too.
+    // ================= SESSION → APP =================
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0 };
+
+    async function enter(email) {
+      $$('[data-who]').forEach((el) => (el.textContent = email));
+
       const { data: authUser } = await sb.auth.getUser();
       const uid = authUser?.user?.id ?? null;
-
+      // Identity by UID first (roster emails change); email fallback only for a
+      // roster row not yet linked to a login.
       let me = null;
       if (uid) {
-        const { data } = await sb
-          .from('ph_agents')
-          .select('id, full_name, is_active')
-          .eq('auth_user_id', uid)
-          .limit(1);
+        const { data } = await sb.from('ph_agents').select('id, full_name, is_active').eq('auth_user_id', uid).limit(1);
         me = data?.[0] ?? null;
       }
       if (!me) {
-        // Only reachable for a roster row that was never linked to a login.
-        const { data } = await sb
-          .from('ph_agents')
-          .select('id, full_name, is_active')
-          .ilike('email', sessionEmail)
-          .limit(1);
+        const { data } = await sb.from('ph_agents').select('id, full_name, is_active').ilike('email', email).limit(1);
         me = data?.[0] ?? null;
       }
-      if (!me || !me.is_active) { view('denied'); return; }
-      myName = me.full_name || sessionEmail;
+      // Admin check is independent of the roster: some admins are not brokers.
+      const { data: adminRows } = await sb.from('ph_admins').select('email').limit(1);
+      state.isAdmin = Array.isArray(adminRows) && adminRows.length > 0;
 
-      view('app');
-      // No .eq('agent_id', ...) anywhere, RLS already restricts this query to
-      // the signed-in agent's leads. The page cannot ask for more than it may
-      // see, which is the entire point of doing security in the database.
-      const [{ data: l }, { data: e }] = await Promise.all([
-        sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(1000),
-        sb.from('ph_emails').select('*').order('scheduled_for', { ascending: true }).limit(4000),
+      if (!me && !state.isAdmin) { view('denied'); return; }
+      state.me = me || { full_name: email };
+
+      gate.hidden = true; app.hidden = false;
+      const nm = state.me.full_name || email;
+      $('[data-who-name]').textContent = nm;
+      $('#avatar').textContent = initials(nm);
+      startClock();
+      buildNav();
+      await loadData();
+      go(location.hash.replace('#', '') || 'dashboard');
+    }
+
+    function startClock() {
+      const tick = () => {
+        try {
+          $('#clock').textContent = new Date().toLocaleString('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' · Vegas';
+        } catch {}
+      };
+      tick(); setInterval(tick, 30000);
+    }
+
+    // ---- nav ----
+    const IC = {
+      dashboard: '<path d="M3 12h7V3H3zm0 9h7v-7H3zm11 0h7V12h-7zm0-18v7h7V3z"/>',
+      contacts: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/>',
+      leads: '<path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>',
+      pipeline: '<path d="M4 4h16M6.5 4l3 7v9l5-2v-7l3-7"/>',
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/>',
+      admin: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
+    };
+    function navItem(id, label, count, extraAttr = '') {
+      const c = (count != null) ? `<span class="count">${count}</span>` : '';
+      return `<button class="nav-item" data-route="${id}" ${extraAttr}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC[id] || IC.dashboard}</svg>${label}${c}</button>`;
+    }
+    function buildNav() {
+      const n = $('#nav');
+      let html = '<div class="nav-sec">Overview</div>';
+      html += navItem('dashboard', 'Dashboard');
+      html += '<div class="nav-sec">CRM</div>';
+      html += navItem('contacts', 'Contacts', state.contactCount);
+      html += navItem('leads', 'Leads', state.leads.length);
+      html += navItem('pipeline', 'Pipeline');
+      html += navItem('calendar', 'Calendar');
+      if (state.isAdmin) {
+        html += '<div class="nav-sec">Admin</div>';
+        html += `<a class="nav-item" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.leads}</svg>All Leads</a>`;
+        html += `<a class="nav-item" href="/admin/campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.calendar}</svg>Campaigns</a>`;
+        html += `<a class="nav-item" href="/admin/staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>Staff</a>`;
+      }
+      n.innerHTML = html;
+      $$('.nav-item[data-route]', n).forEach((b) => b.addEventListener('click', () => go(b.dataset.route)));
+    }
+
+    // ---- data load (RLS scopes everything to this user automatically) ----
+    async function loadData() {
+      const [leadsRes, stagesRes, calsRes, cntRes] = await Promise.all([
+        sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
+        sb.from('ph_stages').select('*').order('sort_order'),
+        sb.from('ph_agent_calendars').select('*'),
+        sb.from('ph_contacts').select('*', { count: 'exact', head: true }),
       ]);
-      leads = l ?? [];
-      emailsByLead = new Map();
-      for (const row of e ?? []) {
-        if (!emailsByLead.has(row.lead_id)) emailsByLead.set(row.lead_id, []);
-        emailsByLead.get(row.lead_id).push(row);
-      }
-      renderStats();
-      renderList();
+      state.leads = leadsRes.data ?? [];
+      state.stages = stagesRes.data ?? [];
+      state.calendars = calsRes.data ?? [];
+      state.contactCount = cntRes.count ?? 0;
     }
 
-    function renderStats() {
+    // ---- router ----
+    const TITLES = {
+      dashboard: ['Dashboard', 'A live look at your leads, appointments and pipeline'],
+      contacts: ['Contacts', 'Your book — search, tags, birthdays'],
+      leads: ['Leads', 'Everyone assigned to you, newest first'],
+      pipeline: ['Pipeline', 'Drag a lead to move it through your stages'],
+      calendar: ['Calendar', 'Your upcoming appointments'],
+    };
+    let currentRoute = null;
+    function go(route) {
+      if (!TITLES[route]) route = 'dashboard';
+      currentRoute = route;
+      history.replaceState({}, '', '#' + route);
+      $('#page-title').textContent = TITLES[route][0];
+      $('#page-sub').textContent = TITLES[route][1];
+      $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
+      root.classList.remove('nav-open');
+      const v = $('#view'); v.scrollTop = 0;
+      ({ dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar }[route])(v);
+    }
+    window.addEventListener('hashchange', () => { const r = location.hash.replace('#', ''); if (r && r !== currentRoute && TITLES[r]) go(r); });
+
+    // ---- status → pill ----
+    function stageOf(lead) { return state.stages.find((s) => s.id === lead.stage_id) || null; }
+    function stagePill(lead) {
+      const s = stageOf(lead);
+      if (!s) return '<span class="pill-status st-gray">No stage</span>';
+      const cls = s.is_won ? 'st-green' : s.is_lost ? 'st-red' : s.key === 'appt' ? 'st-violet' : s.key === 'contacted' ? 'st-amber' : 'st-blue';
+      return `<span class="pill-status ${cls}">${esc(s.label)}</span>`;
+    }
+
+    // ================= DASHBOARD =================
+    function renderDashboard(v) {
       const now = Date.now();
-      const weekAgo = now - 7 * 86400_000;
-      const set = (k, v) => ($(`[data-stat="${k}"]`).textContent = String(v));
-      set('mine', leads.length);
-      set('upcoming', leads.filter((l) => l.appointment_start && new Date(l.appointment_start) > now).length);
-      set('week', leads.filter((l) => new Date(l.created_at).getTime() > weekAgo).length);
+      const d30 = now - 30 * 864e5, d60 = now - 60 * 864e5;
+      const last30 = state.leads.filter((l) => +new Date(l.created_at) >= d30);
+      const prev30 = state.leads.filter((l) => { const t = +new Date(l.created_at); return t >= d60 && t < d30; });
+      const bookings = state.leads.filter((l) => l.appointment_start);
+      const weekEnd = now + 7 * 864e5;
+      const apptsWeek = bookings.filter((l) => { const t = +new Date(l.appointment_start); return t >= now && t <= weekEnd; });
+      const won = state.leads.filter((l) => { const s = stageOf(l); return s && s.is_won; });
+      const openLeads = state.leads.filter((l) => { const s = stageOf(l); return !s || (!s.is_won && !s.is_lost); });
+      const delta = prev30.length ? Math.round((last30.length - prev30.length) / prev30.length * 100) : null;
+
+      // sparkline of leads/day over 30 days
+      const days = []; for (let i = 29; i >= 0; i--) { const d = new Date(now - i * 864e5); days.push({ label: d, n: 0 }); }
+      last30.forEach((l) => { const idx = Math.floor((+new Date(l.created_at) - d30) / 864e5); if (idx >= 0 && idx < 30) days[idx].n++; });
+      const max = Math.max(1, ...days.map((d) => d.n));
+      const W = 620, H = 120;
+      const pts = days.map((d, i) => [i / 29 * W, H - (d.n / max) * (H - 10) - 4]);
+      const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+      const area = line + ` L${W} ${H} L0 ${H} Z`;
+
+      const upNext = bookings.filter((l) => +new Date(l.appointment_start) >= now)
+        .sort((a, b) => +new Date(a.appointment_start) - +new Date(b.appointment_start)).slice(0, 6);
+      const recent = state.leads.slice(0, 8);
+
+      v.innerHTML = `
+      <div class="view-grid">
+        <div class="stat-row">
+          ${statCard('New leads · 30 days', last30.length, delta == null ? '' : `<span class="delta ${delta>=0?'up':'flat'}">${delta>=0?'▲':'▼'} ${Math.abs(delta)}% vs prior 30</span>`)}
+          ${statCard('Appointments · this week', apptsWeek.length, `<span class="delta flat">${bookings.length} upcoming total</span>`)}
+          ${statCard('Open leads', openLeads.length, `<span class="delta flat">in your pipeline</span>`)}
+          ${statCard('Won · lifetime', won.length, `<span class="delta up">closed</span>`)}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px">
+          <div class="card">
+            <div class="card-h"><span class="grad-label">Intake</span><h3 style="margin-left:8px">Leads — last 30 days</h3></div>
+            <div class="card-b">
+              <svg class="spark" viewBox="0 0 ${W} ${H}" style="width:100%;height:150px" preserveAspectRatio="none">
+                <path class="area" d="${area}" fill="var(--blue)"/>
+                <path class="line" d="${line}" stroke="var(--blue)"/>
+              </svg>
+              <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:4px">
+                <span>${fmtDate(days[0].label)}</span><span>${fmtDate(days[15].label)}</span><span>${fmtDate(days[29].label)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><span class="grad-label">Today</span><h3 style="margin-left:8px">Up next</h3></div>
+            <div class="card-b" style="padding-top:6px">
+              ${upNext.length ? upNext.map((l) => `
+                <div class="feed-item">
+                  <div class="feed-ic">📅</div>
+                  <div><div style="font-weight:650">${esc(nameOf(l))}</div><div class="cell-sub">${esc(fmtFull(l.appointment_start))}</div></div>
+                  <span class="pill-status st-green" style="margin-left:auto">Confirmed</span>
+                </div>`).join('') : '<div class="empty" style="padding:24px">No upcoming appointments.</div>'}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><span class="grad-label">Activity</span><h3 style="margin-left:8px">Recent leads</h3><div class="right"><button class="btn btn-ghost btn-sm" data-goto="leads">View all →</button></div></div>
+          <div class="card-b" style="padding:6px 0 0">
+            <table class="data"><thead><tr><th>Name</th><th>Stage</th><th>Source</th><th>Added</th></tr></thead>
+            <tbody>${recent.map((l) => `
+              <tr class="rowlink" data-lead="${l.id}">
+                <td><div class="cell-name"><span class="avatar-sm" style="background:${avColor(nameOf(l))}">${initials(nameOf(l))}</span><div>${esc(nameOf(l))}<div class="cell-sub">${esc(l.email || l.phone || '')}</div></div></div></td>
+                <td>${stagePill(l)}</td><td><span class="chip">${esc(l.source_form || l.page || 'web')}</span></td><td class="cell-sub">${esc(fmtDate(l.created_at))}</td>
+              </tr>`).join('') || '<tr><td colspan="4"><div class="empty">No leads yet.</div></td></tr>'}
+            </tbody></table>
+          </div>
+        </div>
+      </div>`;
+      $$('[data-goto]', v).forEach((b) => b.addEventListener('click', () => go(b.dataset.goto)));
+      $$('tr[data-lead]', v).forEach((r) => r.addEventListener('click', () => openLead(r.dataset.lead)));
     }
+    const statCard = (lbl, num, delta) => `<div class="card stat"><div class="tick"></div><div class="lbl">${lbl}</div><div class="num">${num}</div>${delta}</div>`;
 
-    function visible() {
-      const now = Date.now();
-      return leads.filter((l) => {
-        if (filter === 'booking' && l.kind !== 'booking') return false;
-        if (filter === 'form' && l.kind !== 'form') return false;
-        if (filter === 'upcoming' && !(l.appointment_start && new Date(l.appointment_start) > now)) return false;
-        if (query) {
-          const hay = `${l.first_name ?? ''} ${l.last_name ?? ''} ${l.email ?? ''} ${l.phone ?? ''}`.toLowerCase();
-          if (!hay.includes(query)) return false;
-        }
-        return true;
-      });
+    // ================= CONTACTS =================
+    let cPage = 0, cQuery = '', cTag = '';
+    function renderContacts(v) {
+      v.innerHTML = `
+      <div class="card">
+        <div class="toolbar">
+          <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:240px"/>
+          <select id="c-tag"><option value="">All tags</option></select>
+          <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
+        </div>
+        <div id="c-table"></div>
+        <div class="pager" id="c-pager"></div>
+      </div>`;
+      const search = $('#c-search', v);
+      let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; loadContacts(v); }, 250); });
+      $('#c-tag', v).addEventListener('change', (e) => { cTag = e.target.value; cPage = 0; loadContacts(v); });
+      loadTags(v); loadContacts(v);
     }
-
-    function renderList() {
-      const list = $('.ag-list');
-      const rows = visible();
-      if (!rows.length) {
-        list.innerHTML = '<p class="ag-muted" style="padding:14px;">No leads here yet. New assignments appear within a minute of landing.</p>';
-        return;
-      }
-      const now = Date.now();
-      list.innerHTML = rows
-        .map((l) => {
-          const upcoming = l.appointment_start && new Date(l.appointment_start) > now;
-          const tag = l.kind === 'booking'
-            ? `<span class="ag-tag ${upcoming ? 'booking' : 'past'}">${upcoming ? 'Upcoming' : 'Booking'}</span>`
-            : '<span class="ag-tag form">Enquiry</span>';
-          const when = l.appointment_start
-            ? `${fmtDateTime(l.appointment_start)}<small>appointment</small>`
-            : `${fmtDateTime(l.created_at)}<small>enquired</small>`;
-          return `<button type="button" class="ag-row${selected === l.id ? ' is-on' : ''}" role="listitem" data-id="${l.id}">
-            <span>
-              <span class="ag-row-name">${tag}${esc(nameOf(l))}</span>
-              <span class="ag-row-sub">${esc(l.email || '')}${l.phone ? ' · ' + esc(l.phone) : ''}</span>
-            </span>
-            <span class="ag-row-when">${when}</span>
-          </button>`;
-        })
-        .join('');
-      list.querySelectorAll('.ag-row').forEach((b) =>
-        b.addEventListener('click', () => { selected = b.getAttribute('data-id'); renderList(); renderDetail(); }),
-      );
+    async function loadTags(v) {
+      let data = null;
+      try { ({ data } = await sb.rpc('ph_contact_tags')); } catch { return; }
+      if (!data) return;
+      const sel = $('#c-tag', v); if (!sel) return;
+      data.slice(0, 60).forEach((row) => { const o = document.createElement('option'); o.value = row.tag || row; o.textContent = (row.tag || row) + (row.uses ? ` (${row.uses})` : ''); sel.appendChild(o); });
     }
-
-    function renderDetail() {
-      const lead = leads.find((l) => l.id === selected);
-      const empty = $('.ag-detail-empty');
-      const body = $('.ag-detail-body');
-      if (!lead) { empty.hidden = false; body.hidden = true; return; }
-      empty.hidden = true; body.hidden = false;
-
-      const answers = [
-        ['Which best describes you', lead.role],
-        ['Business structure', lead.structure],
-        ['Current coverage', lead.coverage],
-        ['What matters most', lead.priority],
-        ['Notes', lead.notes],
-      ].filter(([, v]) => v);
-
-      const mails = emailsByLead.get(lead.id) ?? [];
-
-      body.innerHTML = `
-        <h2>${esc(nameOf(lead))}</h2>
-        <p class="ag-muted">${lead.kind === 'booking' ? 'Booked a conversation' : 'Form enquiry'} · ${fmtFull(lead.created_at)}</p>
-
-        <dl class="ag-kv">
-          ${lead.email ? `<dt>Email</dt><dd><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></dd>` : ''}
-          ${lead.phone ? `<dt>Phone</dt><dd><a href="tel:${esc(String(lead.phone).replace(/\D/g, ''))}">${esc(lead.phone)}</a></dd>` : ''}
-          ${lead.appointment_start ? `<dt>Appointment</dt><dd>${fmtFull(lead.appointment_start)}</dd>` : ''}
-          ${lead.timezone ? `<dt>Their timezone</dt><dd>${esc(lead.timezone)}</dd>` : ''}
-          ${lead.source_form ? `<dt>Source</dt><dd>${esc(lead.source_form)}</dd>` : ''}
-        </dl>
-
-        ${answers.length ? `<div class="ag-sec"><h3>What they told us</h3>
-          <dl class="ag-kv">${answers.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
-        </div>` : ''}
-
-        <div class="ag-sec">
-          <h3>Emails (${mails.length})</h3>
-          ${mails.length ? mails.map((m) => `
-            <div class="ag-mail">
-              <span class="ag-dot ${m.status}"></span>
-              <span>
-                <span class="ag-mail-kind">${MAIL_LABEL[m.kind] ?? m.kind}</span>
-                <span class="ag-mail-sub">${m.status === 'sent' ? 'Delivered to Resend' : m.status === 'pending' ? 'Queued' : esc(m.error || m.status)}</span>
-              </span>
-              <span class="ag-mail-when">${fmtDateTime(m.sent_at || m.scheduled_for)}</span>
-            </div>`).join('')
-            : '<p class="ag-muted">No emails for this person.</p>'}
-        </div>`;
-    }
-
-    // ---------- contacts pane ----------
-    // 8k+ rows, so unlike leads this is paged server-side. RLS scopes the
-    // query identically for both roles: an admin pages through the whole
-    // book, an agent pages through only their own, same code path.
-    const CPAGE = 50;
-    let cPage = 0;
-    let cQuery = '';
-    let cTotal = 0;
-    let cRows = [];
-    let cSelected = null;
-    let cLoaded = false;
-    let roster = new Map(); // agent_id -> full_name (admins get all rows, agents their own)
-    let myName = ''; // signed-in agent's display name, stamped onto notes
-
-    const fmtDob = (d) => d
-      ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' })
-      : null;
-
-    // Sort state lives server-side in the query, Airtable-style: click a
-    // column header to sort the whole book by it, not just the visible page.
-    let cSort = { field: 'ghl_date_added', dir: 'desc' };
-    let cTag = '';
-
-    async function loadContacts() {
-      if (!roster.size) {
-        const { data: ags } = await sb.from('ph_agents').select('id, full_name');
-        (ags ?? []).forEach((a) => roster.set(a.id, a.full_name));
-        // Tag autocomplete. The RPC runs with the caller's rights, so an
-        // agent's suggestion list is built only from their own book.
-        const { data: tags } = await sb.rpc('ph_contact_tags');
-        const dl = root.querySelector('#ag-taglist');
-        if (dl) dl.innerHTML = (tags ?? []).map((t) => `<option value="${esc(t.tag)}">`).join('');
-      }
-      let q = sb.from('ph_contacts')
-        .select('*', { count: 'exact' })
-        .order(cSort.field, { ascending: cSort.dir === 'asc', nullsFirst: false })
-        .range(cPage * CPAGE, cPage * CPAGE + CPAGE - 1);
+    async function loadContacts(v) {
+      const per = 25;
+      let q = sb.from('ph_contacts').select('*', { count: 'exact' }).order('ghl_date_added', { ascending: false, nullsFirst: false });
+      if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`); }
       if (cTag) q = q.contains('tags', [cTag]);
-      if (cQuery) {
-        // Characters with meaning in PostgREST or-filters are stripped rather
-        // than escaped; nobody's name needs a comma or paren to be findable.
-        const s = cQuery.replace(/[,()%]/g, '');
-        q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`);
-      }
-      const { data, count, error } = await q;
-      if (error) { $('[data-ccount]').textContent = 'Could not load contacts.'; return; }
-      cRows = data ?? [];
-      cTotal = count ?? 0;
-      renderContacts();
+      q = q.range(cPage * per, cPage * per + per - 1);
+      const { data, count } = await q;
+      const rows = data ?? [];
+      const tbl = $('#c-table', v);
+      tbl.innerHTML = `<table class="data"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Tags</th><th>Added</th></tr></thead><tbody>${
+        rows.map((c) => `<tr class="rowlink" data-contact="${esc(c.ghl_contact_id)}">
+          <td><div class="cell-name"><span class="avatar-sm" style="background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>${esc(nameOf(c))}</div></td>
+          <td class="cell-sub">${esc(c.email || '')}</td><td class="cell-sub">${esc(fmtPhone(c.phone))}</td>
+          <td>${(c.tags || []).slice(0,3).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</td>
+          <td class="cell-sub">${esc(fmtDate(c.ghl_date_added))}</td></tr>`).join('') || '<tr><td colspan="5"><div class="empty">No contacts match.</div></td></tr>'
+      }</tbody></table>`;
+      // PostgREST returns the exact total in Content-Range; guard for the null
+      // case (e.g. header not exposed) by falling back to the page length.
+      const total = count ?? rows.length;
+      $('#c-count', v).textContent = total.toLocaleString() + ' contact' + (total === 1 ? '' : 's');
+      const pages = Math.max(1, Math.ceil(total / per));
+      $('#c-pager', v).innerHTML = `<button ${cPage<=0?'disabled':''} data-pg="prev">← Prev</button><span>Page ${cPage+1} of ${Math.max(1,pages)}</span><button ${cPage>=pages-1?'disabled':''} data-pg="next">Next →</button>`;
+      $$('[data-pg]', v).forEach((b) => b.addEventListener('click', () => { cPage += b.dataset.pg === 'next' ? 1 : -1; loadContacts(v); }));
+      $$('tr[data-contact]', v).forEach((r) => r.addEventListener('click', () => openContact(r.dataset.contact, rows)));
     }
 
-    function renderContacts() {
-      $('[data-ccount]').textContent = `${cTotal.toLocaleString()} contact${cTotal === 1 ? '' : 's'}${cTag ? ` tagged “${cTag}”` : ''}`;
-      const pages = Math.max(1, Math.ceil(cTotal / CPAGE));
-      $('.ag-cpage').textContent = `Page ${cPage + 1} of ${pages}`;
-      $('.ag-cprev').disabled = cPage === 0;
-      $('.ag-cnext').disabled = cPage >= pages - 1;
+    // ================= LEADS =================
+    let lFilter = 'all', lQuery = '';
+    function renderLeads(v) {
+      const stageOpts = ['<option value="all">All stages</option>', ...state.stages.map((s) => `<option value="${s.id}">${esc(s.label)}</option>`)].join('');
+      v.innerHTML = `
+      <div class="card">
+        <div class="toolbar">
+          <input type="text" id="l-search" placeholder="Search leads…" value="${esc(lQuery)}" style="min-width:220px"/>
+          <select id="l-stage">${stageOpts}</select>
+          <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="l-count"></span>
+        </div>
+        <div id="l-table"></div>
+      </div>`;
+      const s = $('#l-search', v); let t;
+      s.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { lQuery = s.value.trim().toLowerCase(); paintLeads(v); }, 200); });
+      $('#l-stage', v).value = lFilter;
+      $('#l-stage', v).addEventListener('change', (e) => { lFilter = e.target.value; paintLeads(v); });
+      paintLeads(v);
+    }
+    function paintLeads(v) {
+      let rows = state.leads;
+      if (lFilter !== 'all') rows = rows.filter((l) => l.stage_id === lFilter);
+      if (lQuery) rows = rows.filter((l) => (nameOf(l) + ' ' + (l.email||'') + ' ' + (l.phone||'')).toLowerCase().includes(lQuery));
+      $('#l-count', v).textContent = rows.length + ' leads';
+      $('#l-table', v).innerHTML = `<table class="data"><thead><tr><th>Name</th><th>Stage</th><th>Type</th><th>Source</th><th>Appointment</th><th>Added</th></tr></thead><tbody>${
+        rows.map((l) => `<tr class="rowlink" data-lead="${l.id}">
+          <td><div class="cell-name"><span class="avatar-sm" style="background:${avColor(nameOf(l))}">${initials(nameOf(l))}</span><div>${esc(nameOf(l))}<div class="cell-sub">${esc(l.email || l.phone || '')}</div></div></div></td>
+          <td>${stagePill(l)}</td><td><span class="chip">${esc(l.kind || 'form')}</span></td><td class="cell-sub">${esc(l.source_form || l.page || 'web')}</td>
+          <td class="cell-sub">${l.appointment_start ? esc(fmtDateTime(l.appointment_start)) : '—'}</td><td class="cell-sub">${esc(fmtDate(l.created_at))}</td></tr>`).join('') || '<tr><td colspan="6"><div class="empty">No leads match.</div></td></tr>'
+      }</tbody></table>`;
+      $$('tr[data-lead]', v).forEach((r) => r.addEventListener('click', () => openLead(r.dataset.lead)));
+    }
 
-      $$('.ag-table thead th[data-sort]').forEach((th) => {
-        th.classList.toggle('is-sorted', th.getAttribute('data-sort') === cSort.field);
-        th.classList.toggle('asc', th.getAttribute('data-sort') === cSort.field && cSort.dir === 'asc');
+    // ================= PIPELINE (kanban, real drag → stage_id) =================
+    function renderPipeline(v) {
+      const cols = state.stages.slice().sort((a, b) => a.sort_order - b.sort_order);
+      v.innerHTML = `<div id="kanban">${cols.map((s) => {
+        const items = state.leads.filter((l) => l.stage_id === s.id);
+        const dot = s.is_won ? 'var(--green)' : s.is_lost ? 'var(--red)' : s.key === 'appt' ? 'var(--violet)' : s.key === 'contacted' ? 'var(--amber)' : 'var(--blue)';
+        return `<div class="kcol">
+          <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.label)}</div><div class="meta">${items.length} lead${items.length===1?'':'s'}</div></div>
+          <div class="kcol-b" data-stage="${s.id}">${items.map(kcard).join('')}</div>
+        </div>`;
+      }).join('')}</div>`;
+      wireKanban(v);
+    }
+    const kcard = (l) => `<div class="kcard" draggable="true" data-lead="${l.id}">
+      <div class="nm">${esc(nameOf(l))}</div>
+      <div class="meta"><span class="chip">${esc(l.kind || 'form')}</span>${l.appointment_start ? '📅 ' + esc(fmtDate(l.appointment_start)) : esc(fmtDate(l.created_at))}</div></div>`;
+    function wireKanban(v) {
+      let dragId = null;
+      $$('.kcard', v).forEach((c) => {
+        c.addEventListener('dragstart', () => { dragId = c.dataset.lead; c.classList.add('dragging'); });
+        c.addEventListener('dragend', () => { dragId = null; c.classList.remove('dragging'); });
+        c.addEventListener('click', () => openLead(c.dataset.lead));
       });
-
-      const tbody = $('.ag-tbody');
-      if (!cRows.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="ag-muted" style="padding:20px;">No contacts match.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = cRows.map((c) => {
-        const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || c.phone || 'Unknown';
-        const owner = c.agent_id ? (roster.get(c.agent_id) || 'Assigned') : 'Unassigned';
-        const tags = (c.tags ?? []).slice(0, 3).map((t) => `<button type="button" class="ag-ctag" data-tag="${esc(t)}">${esc(t)}</button>`).join('')
-          + ((c.tags ?? []).length > 3 ? `<span class="ag-muted">+${c.tags.length - 3}</span>` : '');
-        return `<tr class="${cSelected === c.ghl_contact_id ? 'is-on' : ''}" data-cid="${c.ghl_contact_id}">
-          <td class="ag-tname" title="${esc(name)}">${esc(name)}</td>
-          <td title="${esc(c.email || '')}">${esc(c.email || ', ')}</td>
-          <td>${esc(c.phone || ', ')}</td>
-          <td>${c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : ', '}</td>
-          <td>${tags || ', '}</td>
-          <td class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</td>
-          <td>${c.ghl_date_added ? fmtDateTime(c.ghl_date_added) : ', '}</td>
-        </tr>`;
-      }).join('');
-
-      tbody.querySelectorAll('tr[data-cid]').forEach((tr) =>
-        tr.addEventListener('click', (ev) => {
-          // A click on a tag chip filters by that tag instead of opening the row.
-          const chip = ev.target.closest('.ag-ctag');
-          if (chip) {
-            cTag = chip.getAttribute('data-tag');
-            $('.ag-ctagf').value = cTag;
-            cPage = 0;
-            loadContacts();
-            return;
-          }
-          cSelected = tr.getAttribute('data-cid');
-          renderContacts();
-          renderContactDetail();
-        }),
-      );
+      $$('.kcol-b', v).forEach((col) => {
+        col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('dropover'); });
+        col.addEventListener('dragleave', () => col.classList.remove('dropover'));
+        col.addEventListener('drop', async (e) => {
+          e.preventDefault(); col.classList.remove('dropover');
+          if (!dragId) return;
+          const stageId = col.dataset.stage;
+          const lead = state.leads.find((l) => l.id === dragId);
+          if (!lead || lead.stage_id === stageId) return;
+          const prev = lead.stage_id; lead.stage_id = stageId; // optimistic
+          renderPipeline(v);
+          const { error } = await sb.from('ph_leads').update({ stage_id: stageId }).eq('id', dragId);
+          if (error) { lead.stage_id = prev; renderPipeline(v); toast('Could not move that lead.'); }
+          else { const s = state.stages.find((x) => x.id === stageId); toast('Moved to ' + (s ? s.label : 'stage')); }
+        });
+      });
     }
 
-    // ---------- contact card ----------
-    let fieldDefs = null; // id -> {name, data_type}
-
-    const kv = (label, value) => value
-      ? `<div class="ag-kvline"><b>${esc(label)}</b><span>${value}</span></div>` : '';
-
-    // Custom field values arrive raw from the mirror. Dates render as dates,
-    // arrays join, and anything unreadable is skipped rather than shown ugly.
-    function fieldValue(v, type) {
-      if (v === null || v === undefined || v === '') return null;
-      if (Array.isArray(v)) return v.map((x) => esc(String(x))).join(', ');
-      const s = String(v);
-      if (type === 'DATE' || /^\d{4}-\d{2}-\d{2}T/.test(s)) {
-        const d = new Date(s);
-        if (!Number.isNaN(d.getTime())) return esc(d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }));
+    // ================= CALENDAR (month grid from appointments) =================
+    let calMonth = null;
+    function renderCalendar(v) {
+      if (!calMonth) { const n = new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+      const y = calMonth.getFullYear(), m = calMonth.getMonth();
+      const first = new Date(y, m, 1), start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7)); // Mon-first
+      const appts = state.leads.filter((l) => l.appointment_start);
+      const byDay = {};
+      appts.forEach((l) => { const d = new Date(l.appointment_start); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(l); });
+      const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
+      const title = calMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      let cells = '';
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        const k = d.toLocaleDateString('en-CA');
+        const dim = d.getMonth() !== m ? 'dim' : '';
+        const today = k === todayKey ? 'today' : '';
+        const evs = (byDay[k] || []).slice(0, 3).map((l) => `<div class="cal-ev" data-lead="${l.id}">${new Date(l.appointment_start).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(nameOf(l))}</div>`).join('');
+        const more = (byDay[k] || []).length > 3 ? `<div class="cell-sub" style="margin-top:2px">+${byDay[k].length - 3} more</div>` : '';
+        cells += `<div class="cal-cell ${dim} ${today}"><div class="dnum">${d.getDate()}</div>${evs}${more}</div>`;
       }
-      return esc(s.length > 300 ? s.slice(0, 300) + '…' : s);
+      v.innerHTML = `
+        <div class="cal-head">
+          <button class="btn btn-ghost btn-sm" data-mo="-1">←</button>
+          <div class="cal-title">${title}</div>
+          <button class="btn btn-ghost btn-sm" data-mo="1">→</button>
+          <button class="btn btn-ghost btn-sm" data-mo="0">Today</button>
+          <span style="margin-left:auto;font-size:.8rem;color:var(--muted)">${appts.length} appointment${appts.length===1?'':'s'} on your calendar</span>
+        </div>
+        <div class="card" style="padding:0">
+          <div class="cal-grid">${dows.map((d) => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div>
+        </div>`;
+      $$('[data-mo]', v).forEach((b) => b.addEventListener('click', () => {
+        const d = +b.dataset.mo;
+        if (d === 0) { const n = new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+        else calMonth = new Date(y, m + d, 1);
+        renderCalendar(v);
+      }));
+      $$('.cal-ev[data-lead]', v).forEach((e) => e.addEventListener('click', () => openLead(e.dataset.lead)));
     }
 
-    async function renderContactDetail() {
-      const c = cRows.find((x) => x.ghl_contact_id === cSelected);
-      const modal = $('.ag-modal');
-      if (!c) { modal.hidden = true; return; }
-      modal.hidden = false;
+    // ================= DRAWERS =================
+    function openDrawer(html) { $('#drawer').innerHTML = html; $('#drawer').classList.add('on'); $('#overlay').classList.add('on'); }
+    function closeDrawer() { $('#drawer').classList.remove('on'); $('#overlay').classList.remove('on'); }
+    $('#overlay').addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
-      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || 'Unknown';
-      const initials = ((c.first_name?.[0] ?? '') + (c.last_name?.[0] ?? '')).toUpperCase() || '?';
-      const place = [c.city, c.state, c.postal_code].filter(Boolean).join(', ');
-      const owner = c.agent_id ? (roster.get(c.agent_id) || 'Assigned') : 'Unassigned';
-
-      if (!fieldDefs) {
-        const { data: defs } = await sb.from('ph_field_defs').select('id, name, data_type');
-        fieldDefs = new Map((defs ?? []).map((d) => [d.id, d]));
-      }
-      const customRows = (c.custom_fields ?? [])
-        .map((f) => {
-          const def = fieldDefs.get(f.id);
-          const val = fieldValue(f.value ?? f.field_value, def?.data_type);
-          return def && val ? kv(def.name, val) : '';
-        })
-        .join('');
-
-      $('.ag-col-left').innerHTML = `
-        <div class="ag-avatar">${esc(initials)}</div>
-        <h2 class="ag-cardname">${esc(name)}</h2>
-        <p class="ag-cardsub">Updated ${c.ghl_date_updated ? fmtDateTime(c.ghl_date_updated) : ', '} · syncs every 5 min</p>
-        <h3 class="ag-colh">Owner</h3>
-        <div class="ag-kvline"><span class="ag-towner${c.agent_id ? '' : ' none'}">${esc(owner)}</span></div>
-        <h3 class="ag-colh" style="margin-top:16px;">Tags</h3>
-        <div>${(c.tags ?? []).length ? c.tags.map((t) => `<span class="ag-ctag">${esc(t)}</span>`).join('') : '<span class="ag-muted">None</span>'}</div>
-        <h3 class="ag-colh" style="margin-top:16px;">Contact info</h3>
-        ${kv('Email', c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '')}
-        ${kv('Phone', c.phone ? `<a href="tel:${esc(String(c.phone).replace(/\D/g, ''))}">${esc(c.phone)}</a>` : '')}
-        ${kv('Birthday', c.date_of_birth ? esc(fmtDob(c.date_of_birth)) : '')}
-        ${kv('Location', place ? esc(place) : '')}
-        ${kv('Source', c.source ? esc(c.source) : '')}
-        ${c.dnd ? kv('DND', 'Do not disturb, excluded from sends') : ''}
-        ${customRows ? `<h3 class="ag-colh" style="margin-top:16px;">Custom fields</h3>${customRows}` : ''}`;
-
-      $('.ag-timeline').innerHTML = '<p class="ag-muted">Loading…</p>';
-      $('.ag-appts').innerHTML = '<p class="ag-muted">Loading…</p>';
-      $('.ag-notes').innerHTML = '';
-
-      // Everything our system knows about this person, merged into one feed.
-      // GHL-side conversation history is not mirrored (yet). This shows what
-      // OUR stack has done, which after cutover is everything.
-      const { data: contactLeads } = await sb.from('ph_leads').select('*').eq('ghl_contact_id', c.ghl_contact_id);
-      const leadIds = (contactLeads ?? []).map((l) => l.id);
-      const [{ data: mails }, { data: notes }] = await Promise.all([
-        leadIds.length
-          ? sb.from('ph_emails').select('*').in('lead_id', leadIds).order('scheduled_for')
-          : Promise.resolve({ data: [] }),
-        sb.from('ph_notes').select('*').eq('contact_id', c.ghl_contact_id).order('created_at', { ascending: false }),
-      ]);
-
-      const events = [];
-      if (c.ghl_date_added) events.push({ at: c.ghl_date_added, dot: 'event', title: 'Contact created', sub: c.source || 'GoHighLevel' });
-      for (const l of contactLeads ?? []) {
-        events.push({ at: l.created_at, dot: 'event',
-          title: l.kind === 'booking' ? 'Booked a conversation online' : 'Submitted a website form',
-          sub: l.source_form || '' });
-      }
-      for (const m of mails ?? []) {
-        events.push({ at: m.sent_at || m.scheduled_for, dot: m.status,
-          title: `Email: ${MAIL_LABEL[m.kind] ?? m.kind}`,
-          sub: m.status === 'sent' ? 'Delivered to Resend' : m.status === 'pending' ? 'Queued' : (m.error || m.status) });
-      }
-      events.sort((a, b) => new Date(b.at) - new Date(a.at));
-      $('.ag-timeline').innerHTML = events.length
-        ? events.map((e) => `<div class="ag-tl-item"><span class="ag-tl-dot ${e.dot}"></span>
-            <span><span class="ag-tl-title">${esc(e.title)}</span><br><span class="ag-tl-sub">${esc(e.sub)}</span></span>
-            <span class="ag-tl-when">${e.at ? fmtDateTime(e.at) : ''}</span></div>`).join('')
-        : '<p class="ag-muted">No activity in our system yet. Texts and automations will land here as those pieces come online.</p>';
-
-      const appts = (contactLeads ?? []).filter((l) => l.appointment_start);
-      $('.ag-appts').innerHTML = appts.length
-        ? appts.map((l) => `<div class="ag-appt"><b>${fmtFull(l.appointment_start)}</b>
-            <span class="ag-muted">${new Date(l.appointment_start) > Date.now() ? 'Upcoming' : 'Past'} · booked ${fmtDateTime(l.created_at)}</span></div>`).join('')
-        : '<p class="ag-muted">No appointments on file.</p>';
-
-      renderNotes(notes ?? []);
+    async function openLead(id) {
+      const l = state.leads.find((x) => x.id === id); if (!l) return;
+      const { data: emails } = await sb.from('ph_emails').select('*').eq('lead_id', id).order('scheduled_for');
+      const answers = [['Role', l.role], ['Structure', l.structure], ['Coverage', l.coverage], ['Priority', l.priority]].filter((r) => r[1]);
+      openDrawer(`
+        <div class="drawer-h">
+          <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(nameOf(l))}">${initials(nameOf(l))}</span>
+          <div><div style="font-size:1.15rem;font-weight:800">${esc(nameOf(l))}</div><div class="cell-sub">${esc(l.email || '')} ${l.phone ? '· ' + esc(fmtPhone(l.phone)) : ''}</div><div style="margin-top:6px">${stagePill(l)}</div></div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">
+          <div class="kv">
+            <div class="k">Type</div><div class="v">${esc(l.kind || 'form')}</div>
+            <div class="k">Source</div><div class="v">${esc(l.source_form || l.page || 'web')}</div>
+            <div class="k">Added</div><div class="v">${esc(fmtFull(l.created_at))}</div>
+            ${l.appointment_start ? `<div class="k">Appointment</div><div class="v">${esc(fmtFull(l.appointment_start))}</div>` : ''}
+          </div>
+          ${answers.length ? `<div class="section-t">Intake answers</div><div class="kv">${answers.map((a) => `<div class="k">${esc(a[0])}</div><div class="v">${esc(a[1])}</div>`).join('')}</div>` : ''}
+          ${l.notes ? `<div class="section-t">Notes</div><div style="font-size:.86rem;line-height:1.6;white-space:pre-wrap">${esc(l.notes)}</div>` : ''}
+          <div class="section-t">Emails to this lead</div>
+          ${(emails && emails.length) ? emails.map((e) => `<div class="feed-item"><div class="feed-ic">✉️</div><div><div style="font-weight:650">${esc(e.subject || e.kind)}</div><div class="cell-sub">${esc(e.status)} · ${esc(fmtDateTime(e.sent_at || e.scheduled_for))}</div></div></div>`).join('') : '<div class="cell-sub">None yet.</div>'}
+          <div class="section-t">Move stage</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">${state.stages.map((s) => `<button class="btn ${s.id===l.stage_id?'btn-primary':'btn-ghost'} btn-sm" data-setstage="${s.id}">${esc(s.label)}</button>`).join('')}</div>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      const paintStageControls = () => {
+        // Update the pill and the button row in place — do NOT reopen the drawer,
+        // which would leave the overlay covering the page.
+        const pillHost = $('#drawer .drawer-h > div > div:last-child');
+        if (pillHost) pillHost.innerHTML = stagePill(l);
+        $$('#drawer [data-setstage]').forEach((btn) => {
+          const on = btn.dataset.setstage === l.stage_id;
+          btn.classList.toggle('btn-primary', on);
+          btn.classList.toggle('btn-ghost', !on);
+        });
+      };
+      $$('[data-setstage]').forEach((b) => b.addEventListener('click', async () => {
+        const stageId = b.dataset.setstage; if (stageId === l.stage_id) return;
+        const prev = l.stage_id; l.stage_id = stageId; paintStageControls();
+        const { error } = await sb.from('ph_leads').update({ stage_id: stageId }).eq('id', id);
+        if (error) { l.stage_id = prev; paintStageControls(); toast('Could not update stage.'); }
+        else { toast('Stage updated'); if (currentRoute === 'pipeline') go('pipeline'); }
+      }));
     }
 
-    function renderNotes(notes) {
-      $('.ag-notes').innerHTML = notes.length
-        ? notes.map((n) => `<div class="ag-note">${esc(n.body)}<small>${esc(n.author_name || n.author_email || '')} · ${fmtDateTime(n.created_at)}</small></div>`).join('')
-        : '<p class="ag-muted">No notes yet.</p>';
+    async function openContact(cid, cached) {
+      const c = (cached || []).find((x) => x.ghl_contact_id === cid);
+      if (!c) return;
+      const cf = c.custom_fields || {};
+      openDrawer(`
+        <div class="drawer-h">
+          <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
+          <div><div style="font-size:1.15rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">
+          <div class="kv">
+            ${c.date_of_birth ? `<div class="k">Birthday</div><div class="v">${esc(new Date(c.date_of_birth).toLocaleDateString('en-US',{timeZone:'UTC',month:'long',day:'numeric',year:'numeric'}))}</div>` : ''}
+            ${(c.city||c.state) ? `<div class="k">Location</div><div class="v">${esc([c.city, c.state].filter(Boolean).join(', '))}</div>` : ''}
+            <div class="k">Source</div><div class="v">${esc(c.source || '—')}</div>
+            <div class="k">Added</div><div class="v">${esc(fmtDate(c.ghl_date_added))}</div>
+          </div>
+          ${(c.tags && c.tags.length) ? `<div class="section-t">Tags</div><div>${c.tags.map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</div>` : ''}
+          ${Object.keys(cf).length ? `<div class="section-t">Custom fields</div><div class="kv">${Object.entries(cf).slice(0,20).map(([k,val]) => `<div class="k">${esc(k)}</div><div class="v">${esc(typeof val==='object'?JSON.stringify(val):val)}</div>`).join('')}</div>` : ''}
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
     }
 
-    $('.ag-note-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const ta = e.target.querySelector('textarea');
-      const body = ta.value.trim();
-      if (!body || !cSelected) return;
-      const { error } = await sb.from('ph_notes').insert({ contact_id: cSelected, body, author_name: myName });
-      if (!error) {
-        ta.value = '';
-        const { data: notes } = await sb.from('ph_notes').select('*').eq('contact_id', cSelected).order('created_at', { ascending: false });
-        renderNotes(notes ?? []);
-      }
+    // global search → jump to contacts filtered
+    $('#global-search').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      cQuery = e.target.value.trim(); cPage = 0; go('contacts');
     });
 
-    $('.ag-drawer-x').addEventListener('click', () => { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); });
-    $('.ag-modal').addEventListener('click', (e) => {
-      if (e.target === $('.ag-modal')) { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !$('.ag-modal').hidden) { cSelected = null; $('.ag-modal').hidden = true; renderContacts(); }
-    });
-
-    $$('.ag-table thead th[data-sort]').forEach((th) =>
-      th.addEventListener('click', () => {
-        const f = th.getAttribute('data-sort');
-        // Same column toggles direction; a new column starts descending,
-        // which is the useful default for dates and the harmless one for text.
-        cSort = { field: f, dir: cSort.field === f && cSort.dir === 'desc' ? 'asc' : 'desc' };
-        cPage = 0;
-        loadContacts();
-      }),
-    );
-
-    $('.ag-cnewest').addEventListener('click', () => {
-      cSort = { field: 'ghl_date_added', dir: 'desc' };
-      cQuery = ''; cTag = ''; cPage = 0; cSelected = null;
-      $('.ag-csearch').value = ''; $('.ag-ctagf').value = '';
-      $('.ag-drawer').hidden = true;
-      loadContacts();
-    });
-
-    let cTagTimer;
-    $('.ag-ctagf').addEventListener('input', (e) => {
-      clearTimeout(cTagTimer);
-      cTagTimer = setTimeout(() => { cTag = e.target.value.trim(); cPage = 0; loadContacts(); }, 300);
-    });
-
-    $$('.ag-tab').forEach((t) =>
-      t.addEventListener('click', () => {
-        $$('.ag-tab').forEach((x) => x.classList.remove('is-on'));
-        t.classList.add('is-on');
-        const tab = t.getAttribute('data-tab');
-        $$('[data-pane]').forEach((p) => (p.hidden = p.getAttribute('data-pane') !== tab));
-        if (tab === 'contacts' && !cLoaded) { cLoaded = true; loadContacts(); }
-      }),
-    );
-    let cTimer;
-    $('.ag-csearch').addEventListener('input', (e) => {
-      clearTimeout(cTimer);
-      cTimer = setTimeout(() => { cQuery = e.target.value.trim(); cPage = 0; loadContacts(); }, 300);
-    });
-    $('.ag-cprev').addEventListener('click', () => { if (cPage > 0) { cPage--; loadContacts(); } });
-    $('.ag-cnext').addEventListener('click', () => { cPage++; loadContacts(); });
-
-    // ---------- toolbar ----------
-    $('.ag-search').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); renderList(); });
-    $$('.ag-chip').forEach((c) =>
-      c.addEventListener('click', () => {
-        $$('.ag-chip').forEach((x) => x.classList.remove('is-on'));
-        c.classList.add('is-on');
-        filter = c.getAttribute('data-filter');
-        renderList();
-      }),
-    );
-    $('.ag-refresh').addEventListener('click', async () => {
-      const { data } = await sb.auth.getSession();
-      if (data?.session?.user?.email) load(data.session.user.email);
-    });
-
-    // ---------- boot ----------
-    // Three ways to arrive: a claim link from the office, a recovery link from
-    // Forgot password, or normally.
+    // ================= BOOT (verbatim auth arrival logic) =================
     (async () => {
       const params = new URLSearchParams(location.search);
       const token = params.get('claim');
-
       if (token) {
         view('loading');
         const { ok, json } = await authPost({ action: 'claim_info', token });
         if (ok && json.ok) {
           claimToken = token;
-          const form = root.querySelector('.ag-setpw-form');
-          form.email.value = json.email || '';
-          root.querySelector('.ag-setpw-title').textContent = 'Welcome, ' + (String(json.full_name || '').split(' ')[0] || 'there');
-          root.querySelector('.ag-setpw-intro').textContent =
-            'Set a password for ' + (json.email || 'your account') + '. You will use it to sign in from now on.';
-          view('setpassword');
-          return;
+          $('.ag-setpw-form').email.value = json.email || '';
+          $('.ag-setpw-title').textContent = 'Welcome, ' + (String(json.full_name || '').split(' ')[0] || 'there');
+          $('.ag-setpw-intro').textContent = 'Set a password for ' + (json.email || 'your account') + '. You will use it to sign in from now on.';
+          view('setpassword'); return;
         }
-        const why = {
-          used: 'That link has already been used. Sign in below, or use Forgot your password.',
-          expired: 'That link has expired. Use Forgot your password below and we will send a fresh one.',
-          invalid: 'That link is not valid. Check you copied the whole thing, or ask the office to resend it.',
-        }[json.reason] || 'That link is not valid.';
-        view('signin');
-        setStatus('signin', why, true);
-        return;
+        const why = { used: 'That link has already been used. Sign in below, or use Forgot your password.', expired: 'That link has expired. Use Forgot your password below and we will send a fresh one.', invalid: 'That link is not valid. Check you copied the whole thing, or ask the office to resend it.' }[json.reason] || 'That link is not valid.';
+        view('signin'); setStatus('signin', why, true); return;
       }
-
-      // Supabase parses the recovery link's tokens out of the URL fragment and
-      // establishes a session, then fires PASSWORD_RECOVERY. Until the new
-      // password is saved, that session must not be treated as a normal sign-in.
       let recovering = false;
       sb.auth.onAuthStateChange((event) => {
         if (event !== 'PASSWORD_RECOVERY') return;
-        recovering = true;
-        claimToken = null;
-        root.querySelector('.ag-setpw-title').textContent = 'Choose a new password';
-        root.querySelector('.ag-setpw-intro').textContent = 'Pick something you will remember. At least 10 characters.';
+        recovering = true; claimToken = null;
+        $('.ag-setpw-title').textContent = 'Choose a new password';
+        $('.ag-setpw-intro').textContent = 'Pick something you will remember. At least 10 characters.';
         view('setpassword');
       });
-
-      // Never leave anyone stranded on "Checking your session…". If the session
-      // lookup throws or stalls (blocked storage, private window, flaky wifi in
-      // a room full of people signing in at once), fall through to the form,
-      // which is the one screen that can always recover the situation.
       let settled = false;
       const toSignin = () => { if (!settled) { settled = true; view('signin'); } };
       const stall = setTimeout(toSignin, 8000);
-
       try {
         const { data } = await sb.auth.getSession();
         const email = data?.session?.user?.email;
@@ -1008,13 +879,13 @@ const SUPABASE_ANON =
         if (recovering) { settled = true; return; }
         if (!email) { toSignin(); return; }
         settled = true;
-        $$('[data-who]').forEach((el) => (el.textContent = email));
-        await load(email);
+        await enter(email);
       } catch (err) {
-        clearTimeout(stall);
-        toSignin();
+        clearTimeout(stall); toSignin();
         setStatus('signin', 'Could not check your session. Please sign in.', true);
       }
     })();
   }
-</script>
+  </script>
+</body>
+</html>
