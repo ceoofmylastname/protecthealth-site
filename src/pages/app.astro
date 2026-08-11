@@ -480,7 +480,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [] };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [] };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -495,7 +495,28 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       'Not Interested': 'st-gray', 'No Answer': 'st-gray', 'Wrong Number': 'st-red', 'Do Not Call': 'st-red',
     }[d] || 'st-gray');
 
+    // Identity guard: /app and /admin share one Supabase session per browser,
+    // so signing into one as a different person silently swaps the token under
+    // any open tab. Without this, a tab keeps showing the OLD person's name
+    // while every query runs as the NEW session (e.g. an admin's all-access
+    // view rendered under a broker's name). If the live session user changes,
+    // reload so the UI rebinds to who is actually signed in.
+    let bootEmail = null;
+    sb.auth.onAuthStateChange((_e, session) => {
+      const now = session?.user?.email || null;
+      if (bootEmail && now && now.toLowerCase() !== bootEmail.toLowerCase()) location.reload();
+    });
+    window.addEventListener('focus', async () => {
+      if (!bootEmail) return;
+      try {
+        const { data } = await sb.auth.getSession();
+        const now = data?.session?.user?.email;
+        if (now && now.toLowerCase() !== bootEmail.toLowerCase()) location.reload();
+      } catch {}
+    });
+
     async function enter(email) {
+      bootEmail = email;
       $$('[data-who]').forEach((el) => (el.textContent = email));
 
       // Prefer the LOCAL session for the uid — it is present the instant login
@@ -742,7 +763,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes, tagRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
@@ -755,6 +776,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         sb.from('ph_agent_scheduling').select('*'),
         sb.from('ph_companies').select('*').order('name'),
         sb.from('ph_custom_fields').select('*').eq('is_active', true).order('position'),
+        sb.from('ph_tags').select('*').eq('is_active', true).order('position'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
@@ -769,6 +791,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       state.mySched = (schedRes.data || []).find((s) => s.agent_id === (state.me && state.me.id)) || (schedRes.data || [])[0] || null;
       state.companies = coRes.data ?? [];
       state.customFields = cfRes.data ?? [];
+      state.adminTags = tagRes.data ?? [];
     }
 
     // Unified appointment feed: GHL-mirror leads that carry an appointment_start
@@ -1207,6 +1230,13 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <button class="btn btn-primary btn-sm" type="submit">Add field</button>
             <p class="cell-sub" id="cf-status" style="margin-top:8px"></p>
           </form>
+          <div class="section-t">Tags brokers can use</div>
+          <div id="tg-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+          <form id="tg-form" style="display:flex;gap:8px;margin-top:10px">
+            <input name="name" placeholder="New tag, e.g. VIP" style="flex:1"/>
+            <button class="btn btn-primary btn-sm" type="submit">Add tag</button>
+          </form>
+          <p class="cell-sub" id="tg-status" style="margin-top:6px"></p>
         </div>`);
       $('[data-x]').addEventListener('click', closeDrawer);
       const wireDeletes = () => $$('#cf-list [data-cf-del]').forEach((b) => b.addEventListener('click', async () => {
@@ -1230,6 +1260,26 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         state.customFields.push(data);
         $('#cf-list').innerHTML = rows(); wireDeletes();
         f.reset(); $('#cf-status').textContent = 'Added — it now shows on every contact card.';
+      });
+
+      // Tag vocabulary (admin-only writes; brokers pick from this list).
+      const paintTags = () => {
+        $('#tg-list').innerHTML = state.adminTags.map((t) => `<span class="fchip">${esc(t.name)}<button data-tg-del="${t.id}" aria-label="Remove">✕</button></span>`).join('') || '<span class="cell-sub">No tags yet.</span>';
+        $$('#tg-list [data-tg-del]').forEach((b) => b.addEventListener('click', async () => {
+          const { error } = await sb.from('ph_tags').update({ is_active: false }).eq('id', b.dataset.tgDel);
+          if (error) { toast('Could not remove tag.'); return; }
+          state.adminTags = state.adminTags.filter((t) => t.id !== b.dataset.tgDel);
+          paintTags(); toast('Tag removed');
+        }));
+      };
+      paintTags();
+      $('#tg-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = e.target.name.value.trim().toLowerCase(); if (!name) return;
+        const { data, error } = await sb.from('ph_tags').insert({ name, position: 100 + state.adminTags.length }).select('*').single();
+        if (error) { $('#tg-status').textContent = 'Could not add: ' + error.message; return; }
+        state.adminTags.push(data); e.target.reset(); paintTags();
+        $('#tg-status').textContent = 'Added — brokers can use it now.';
       });
     }
 
@@ -1280,6 +1330,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <div class="field"><label>Disposition</label><select name="disposition">${dispOpts}</select>
               <div class="hint">Setting this to <b>Active Client</b> marks the client in-force and records you as the writing agent.</div>
             </div>
+            <div class="section-t">Tags</div>
+            <div>${state.adminTags.map((t) => `<label class="pickbox"><input type="checkbox" data-tagpick="${esc(t.name)}"/> ${esc(t.name)}</label>`).join(' ') || '<span class="cell-sub">No tags defined yet — admins add them under Manage fields.</span>'}</div>
 
             <div class="section-t">Lines of insurance</div>
             <div class="hint" style="margin-bottom:8px">Each line you check creates a deal in that pipeline.</div>
@@ -1322,7 +1374,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       // Local id keeps this out of the GHL sync's path entirely.
       const id = 'local:' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
       const row = {
-        ghl_contact_id: id, origin: 'crm', tags: [], dnd: false, synced_at: new Date().toISOString(),
+        ghl_contact_id: id, origin: 'crm', tags: $$('[data-tagpick]').filter((x) => x.checked).map((x) => x.getAttribute('data-tagpick')), dnd: false, synced_at: new Date().toISOString(),
         first_name: first, last_name: g('last_name'), company: g('company'), company_id: form.elements['company_id']?.value || null, email: g('email'),
         phone: g('phone'), date_of_birth: g('date_of_birth'), street_address: g('street_address'),
         city: g('city'), state: (g('state') || '').toUpperCase() || null, postal_code: g('postal_code'),
@@ -1345,11 +1397,19 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       loadContacts(listView);
     }
     async function loadTags(v) {
-      let data = null;
-      try { ({ data } = await sb.rpc('ph_contact_tags')); } catch { return; }
-      if (!data) return;
+      // Admin-defined tags first, then any other tags that exist in THIS
+      // user's own book (ph_contact_tags is RLS-scoped, so a broker only ever
+      // sees tags on their own contacts).
       const sel = $('#c-tag', v); if (!sel) return;
-      data.slice(0, 60).forEach((row) => { const o = document.createElement('option'); o.value = row.tag || row; o.textContent = (row.tag || row) + (row.uses ? ` (${row.uses})` : ''); sel.appendChild(o); });
+      const seen = new Set();
+      state.adminTags.forEach((t) => { seen.add(t.name.toLowerCase()); const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
+      try {
+        const { data } = await sb.rpc('ph_contact_tags');
+        (data || []).slice(0, 60).forEach((row) => {
+          const tag = row.tag || row; if (seen.has(String(tag).toLowerCase())) return;
+          const o = document.createElement('option'); o.value = tag; o.textContent = tag + (row.uses ? ` (${row.uses})` : ''); sel.appendChild(o);
+        });
+      } catch {}
       if (cFilters.tag) sel.value = cFilters.tag;
     }
     async function loadContacts(v) {
@@ -1806,7 +1866,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
           <div id="rec-carriers">${carrierNames.map((n) => `<span class="chip">${esc(n)}</span>`).join(' ') || '<span class="cell-sub">None selected</span>'}</div>
           ${deps.length ? `<div class="section-t">Dependents</div>${deps.map((d) => `<div class="feed-item"><div class="feed-ic">👤</div><div><div style="font-weight:650">${esc([d.first_name, d.last_name].filter(Boolean).join(' ') || d.relation)}</div><div class="cell-sub">${esc(d.relation)}${d.dob ? ' · ' + esc(d.dob) : ''}</div></div></div>`).join('')}` : ''}
-          ${(c.tags && c.tags.length) ? `<div class="section-t">Tags</div><div>${c.tags.map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</div>` : ''}
+          <div class="section-t">Tags <button class="btn btn-ghost btn-sm" id="rec-edit-tags" style="margin-left:auto">Edit</button></div>
+          <div id="rec-tags">${(c.tags || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
         </div></div>
 
         <div class="card"><div class="card-h"><span class="grad-label">Activity</span></div><div class="card-b" id="rec-activity">
@@ -1836,6 +1897,32 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
       $('#rec-edit-carriers').addEventListener('click', () => editContactCarriers(cid, linkedIds));
       $('#rec-company')?.addEventListener('click', (e) => { e.preventDefault(); openCompany(c.company_id); });
+
+      // Tags: broker picks from the admin-defined list; legacy imported tags
+      // on the record are preserved untouched.
+      $('#rec-edit-tags').addEventListener('click', () => {
+        const adminNames = state.adminTags.map((t) => t.name);
+        const cur = c.tags || [];
+        openDrawer(`
+          <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Tags</div><div class="cell-sub">${esc(nameOf(c))} — pick from the office list</div></div><button class="drawer-x" data-x>✕</button></div>
+          <div class="drawer-b">
+            <div style="display:flex;flex-wrap:wrap;gap:8px">${adminNames.map((t) => `<label class="pickbox"><input type="checkbox" data-tp="${esc(t)}" ${cur.some((x) => x.toLowerCase() === t.toLowerCase()) ? 'checked' : ''}/> ${esc(t)}</label>`).join('') || '<span class="cell-sub">No tags defined — ask an admin to add some under Manage fields.</span>'}</div>
+            <button class="btn btn-primary" id="tp-save" style="margin-top:16px">Save tags</button>
+            <p class="cell-sub" id="tp-status" style="margin-top:8px"></p>
+          </div>`);
+        $('[data-x]').addEventListener('click', closeDrawer);
+        $('#tp-save').addEventListener('click', async () => {
+          const lowerAdmin = adminNames.map((t) => t.toLowerCase());
+          const legacy = cur.filter((t) => !lowerAdmin.includes(t.toLowerCase()));
+          const picked = $$('[data-tp]').filter((x) => x.checked).map((x) => x.getAttribute('data-tp'));
+          const next = legacy.concat(picked);
+          const { error } = await sb.from('ph_contacts').update({ tags: next }).eq('ghl_contact_id', cid);
+          if (error) { $('#tp-status').textContent = 'Could not save: ' + error.message; return; }
+          c.tags = next;
+          $('#rec-tags').innerHTML = next.map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>';
+          closeDrawer(); toast('Tags updated');
+        });
+      });
 
       // "How we met" + custom fields autosave on change/blur.
       const saveField = async (patch, okMsg) => {
