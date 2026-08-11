@@ -560,25 +560,50 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const btn = $('#ob-save'); btn.disabled = true; setObStatus('Saving…');
       let headshot_url = state.me.headshot_url || null;
 
-      // Resolve a reliable uid from the LOCAL session. getUser() does a server
-      // round-trip and can return null right after login, which previously left
-      // state.uid empty and made the upload path "undefined/…" — storage RLS then
-      // (correctly) rejected it. getSession reads the stored session, so user.id
-      // is always present when signed in.
-      let uid = state.uid;
-      if (!uid) {
-        const { data: s } = await sb.auth.getSession();
-        uid = s?.session?.user?.id ?? null;
-        state.uid = uid;
+      // Storage RLS on broker-photos grants INSERT to the `authenticated` role
+      // ONLY, so the upload request must carry a valid, unexpired user token.
+      // On a page reload Supabase restores the session as INITIAL_SESSION (not
+      // SIGNED_IN), and the short-lived access token can go stale while the
+      // broker sits on this form. When that happens the SDK's storage upload
+      // sends a token the server rejects, the request is treated as `anon`,
+      // and the insert fails with "new row violates row-level security policy"
+      // even though the path carries the correct uid. Force a fresh token here
+      // and send it explicitly so auth.uid() is always set server-side.
+      let { data: { session } } = await sb.auth.getSession();
+      const stale = !session?.expires_at || (session.expires_at * 1000 - Date.now() < 120000);
+      if (session && stale) {
+        const r = await sb.auth.refreshSession();
+        if (r?.data?.session) session = r.data.session;
       }
-      if (!uid) { btn.disabled = false; setObStatus('Your session expired. Please sign out and back in.', true); return; }
+      const token = session?.access_token || null;
+      let uid = session?.user?.id || state.uid || null;
+      state.uid = uid;
+      if (!uid || !token) { btn.disabled = false; setObStatus('Your session expired. Please sign out and back in.', true); return; }
 
       // Upload the headshot into the broker's own folder (RLS-scoped by uid).
+      // Explicit fetch with the bearer token, bypassing any SDK header-refresh
+      // timing so the request is unambiguously authenticated.
       if (pendingHeadshotFile) {
         const ext = (pendingHeadshotFile.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
         const path = `${uid}/headshot-${Date.now()}.${ext}`;
-        const { error: upErr } = await sb.storage.from('broker-photos').upload(path, pendingHeadshotFile, { upsert: true, contentType: pendingHeadshotFile.type });
-        if (upErr) { btn.disabled = false; setObStatus('Photo upload failed: ' + upErr.message, true); return; }
+        const base = root.getAttribute('data-supabase-url');
+        const anon = root.getAttribute('data-supabase-anon');
+        const resp = await fetch(`${base}/storage/v1/object/broker-photos/${path}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            apikey: anon,
+            'x-upsert': 'true',
+            'Content-Type': pendingHeadshotFile.type || 'application/octet-stream',
+          },
+          body: pendingHeadshotFile,
+        });
+        if (!resp.ok) {
+          const detail = await resp.text().catch(() => '');
+          btn.disabled = false;
+          setObStatus('Photo upload failed (' + resp.status + '). ' + detail, true);
+          return;
+        }
         const { data: pub } = sb.storage.from('broker-photos').getPublicUrl(path);
         headshot_url = pub?.publicUrl || headshot_url;
       }
