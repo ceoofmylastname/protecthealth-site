@@ -327,6 +327,18 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
+  /* People | Companies toggle, policies, inline custom fields */
+  .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .seg-btn{background:#fff;border:0;padding:9px 16px;font-weight:650;color:var(--muted);cursor:pointer;font-size:.88rem}
+  .seg-btn.on{background:var(--blue);color:#fff}
+  .pol-row{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color .12s, box-shadow .12s}
+  .pol-row:hover{border-color:#bcd0ee;box-shadow:0 4px 12px rgba(11,42,74,.07)}
+  .pol-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+  .pol-prem{font-weight:750;color:var(--navy);font-size:.95rem;margin-top:2px}
+  .pol-prem em{color:var(--muted);font-style:normal;font-weight:600;font-size:.8rem}
+  .cf-inline{width:100%;border:1px solid transparent;border-radius:8px;padding:4px 6px;font-family:inherit;font-size:.86rem;color:var(--navy);background:transparent;transition:border-color .12s, background .12s}
+  .cf-inline:hover{border-color:var(--line);background:#fbfdff}
+  .cf-inline:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,201,.12)}
   /* Availability editor */
   .av-days{display:flex;flex-direction:column;gap:2px}
   .av-day{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 4px;border-bottom:1px solid var(--line)}
@@ -452,10 +464,13 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [] };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
+    const POLICY_STATUSES = ['Quoted', 'Applied', 'Pending', 'Issued', 'Active', 'Lapsed', 'Cancelled', 'Declined'];
+    const PREMIUM_FREQS = ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Single'];
+    const fmtMoney = (n) => n == null || n === '' ? '' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     // Matches the pipeline lines one-to-one, so a checked line maps straight to
     // its pipeline (see ph_cov_to_line). Legacy labels still map server-side.
     const COVERAGE_TYPES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Annuities', 'Group Benefits', 'Supplements', 'Accident / Gap'];
@@ -711,7 +726,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
@@ -722,6 +737,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         sb.from('ph_opportunities').select('*').order('created_at', { ascending: false }),
         sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at'),
         sb.from('ph_agent_scheduling').select('*'),
+        sb.from('ph_companies').select('*').order('name'),
+        sb.from('ph_custom_fields').select('*').eq('is_active', true).order('position'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
@@ -734,6 +751,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       state.appts = apptRes.data ?? [];
       // RLS returns only this agent's scheduling row (admins may get several).
       state.mySched = (schedRes.data || []).find((s) => s.agent_id === (state.me && state.me.id)) || (schedRes.data || [])[0] || null;
+      state.companies = coRes.data ?? [];
+      state.customFields = cfRes.data ?? [];
     }
 
     // Unified appointment feed: GHL-mirror leads that carry an appointment_start
@@ -912,25 +931,219 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ================= CONTACTS =================
     let cPage = 0, cQuery = '', cTag = '';
+    let cMode = 'people'; // 'people' | 'companies'
     function renderContacts(v) {
       v.innerHTML = `
       <div class="card">
         <div class="toolbar">
-          <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:240px"/>
-          <select id="c-tag"><option value="">All tags</option></select>
-          <button class="btn btn-primary btn-sm" id="c-add">+ Add Contact</button>
+          <div class="seg" role="group">
+            <button class="seg-btn ${cMode==='people'?'on':''}" data-cmode="people">People</button>
+            <button class="seg-btn ${cMode==='companies'?'on':''}" data-cmode="companies">Companies</button>
+          </div>
+          <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:220px"/>
+          <select id="c-tag" ${cMode==='companies'?'hidden':''}><option value="">All tags</option></select>
+          ${cMode==='people'
+            ? '<button class="btn btn-primary btn-sm" id="c-add">+ Add Contact</button>'
+            : '<button class="btn btn-primary btn-sm" id="co-add">+ Add Company</button>'}
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-carriers">Manage carriers</button>' : ''}
+          ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-fields">Manage fields</button>' : ''}
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
         </div>
         <div id="c-table"></div>
         <div class="pager" id="c-pager"></div>
       </div>`;
+      $$('[data-cmode]', v).forEach((b) => b.addEventListener('click', () => { cMode = b.dataset.cmode; renderContacts(v); }));
       const search = $('#c-search', v);
-      let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; loadContacts(v); }, 250); });
-      $('#c-tag', v).addEventListener('change', (e) => { cTag = e.target.value; cPage = 0; loadContacts(v); });
-      $('#c-add', v).addEventListener('click', () => openAddContact(v));
+      let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; cMode === 'people' ? loadContacts(v) : renderCompanies(v); }, 250); });
+      $('#c-tag', v)?.addEventListener('change', (e) => { cTag = e.target.value; cPage = 0; loadContacts(v); });
+      $('#c-add', v)?.addEventListener('click', () => openAddContact(v));
+      $('#co-add', v)?.addEventListener('click', () => openCompanyForm(null, v));
       $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
-      loadTags(v); loadContacts(v);
+      $('#c-fields', v)?.addEventListener('click', openFieldManager);
+      if (cMode === 'people') { loadTags(v); loadContacts(v); }
+      else renderCompanies(v);
+    }
+
+    // ---- Companies list ----
+    function renderCompanies(v) {
+      const q = cQuery.toLowerCase();
+      const rows = state.companies.filter((co) => !q || (co.name || '').toLowerCase().includes(q));
+      $('#c-count', v).textContent = `${rows.length} compan${rows.length === 1 ? 'y' : 'ies'}`;
+      $('#c-table', v).innerHTML = rows.length ? `<table class="data"><thead><tr><th>Company</th><th>Industry</th><th>Phone</th><th>City</th><th>Added</th></tr></thead><tbody>${
+        rows.map((co) => `<tr data-co="${co.id}" style="cursor:pointer"><td style="font-weight:650">${esc(co.name)}</td><td class="cell-sub">${esc(co.industry || '—')}</td><td class="cell-sub">${esc(fmtPhone(co.phone) || '—')}</td><td class="cell-sub">${esc(co.city || '—')}</td><td class="cell-sub">${esc(fmtDate(co.created_at))}</td></tr>`).join('')
+      }</tbody></table>` : '<div class="empty" style="padding:30px">No companies yet. Add one for group/employer business — the people you add under it become regular contacts automatically.</div>';
+      $('#c-pager', v).innerHTML = '';
+      $$('[data-co]', v).forEach((r) => r.addEventListener('click', () => openCompany(r.dataset.co)));
+    }
+
+    function openCompanyForm(co, listView) {
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">${co ? 'Edit company' : 'Add Company'}</div><div class="cell-sub">Group / employer record</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b"><form id="co-form">
+          <div class="field"><label>Company name *</label><input name="name" required value="${esc(co?.name || '')}"/></div>
+          <div class="grid2">
+            <div class="field"><label>Industry</label><input name="industry" value="${esc(co?.industry || '')}"/></div>
+            <div class="field"><label>Employees</label><input name="employee_count" type="number" min="1" value="${esc(co?.employee_count ?? '')}"/></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Phone</label><input name="phone" inputmode="tel" value="${esc(co?.phone || '')}"/></div>
+            <div class="field"><label>Email</label><input name="email" type="email" value="${esc(co?.email || '')}"/></div>
+          </div>
+          <div class="field"><label>Street address</label><input name="street_address" value="${esc(co?.street_address || '')}"/></div>
+          <div class="grid3">
+            <div class="field"><label>City</label><input name="city" value="${esc(co?.city || '')}"/></div>
+            <div class="field"><label>State</label><input name="state" maxlength="2" style="text-transform:uppercase" value="${esc(co?.state || '')}"/></div>
+            <div class="field"><label>Zip</label><input name="postal_code" inputmode="numeric" value="${esc(co?.postal_code || '')}"/></div>
+          </div>
+          <div class="field"><label>Notes</label><textarea name="notes" rows="2">${esc(co?.notes || '')}</textarea></div>
+          <button class="btn btn-primary" type="submit">${co ? 'Save changes' : 'Add company'}</button>
+          <p class="cell-sub" id="co-status" style="margin-top:8px"></p>
+        </form></div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#co-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const patch = {
+          agent_id: co ? co.agent_id : state.me.id,
+          name: f.name.value.trim(), industry: f.industry.value.trim() || null,
+          employee_count: f.employee_count.value ? parseInt(f.employee_count.value, 10) : null,
+          phone: f.phone.value.trim() || null, email: f.email.value.trim() || null,
+          street_address: f.street_address.value.trim() || null, city: f.city.value.trim() || null,
+          state: f.state.value.trim().toUpperCase() || null, postal_code: f.postal_code.value.trim() || null,
+          notes: f.notes.value.trim() || null, updated_at: new Date().toISOString(),
+        };
+        const q = co ? sb.from('ph_companies').update(patch).eq('id', co.id).select('*').single()
+                     : sb.from('ph_companies').insert(patch).select('*').single();
+        const { data, error } = await q;
+        if (error) { $('#co-status').textContent = 'Could not save: ' + error.message; return; }
+        if (co) { const i = state.companies.findIndex((x) => x.id === co.id); if (i >= 0) state.companies[i] = data; }
+        else state.companies.push(data);
+        state.companies.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        closeDrawer(); toast(co ? 'Company updated' : 'Company added');
+        if (co) openCompany(data.id); else if (listView && currentRoute === 'contacts') renderCompanies(listView);
+      });
+    }
+
+    // Company record drawer: company data + the people tied to it.
+    async function openCompany(coId) {
+      const co = state.companies.find((x) => x.id === coId); if (!co) return;
+      const { data: people } = await sb.from('ph_contacts').select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition').eq('company_id', coId).order('first_name');
+      openDrawer(`
+        <div class="drawer-h">
+          <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(co.name)}">${initials(co.name)}</span>
+          <div><div style="font-size:1.15rem;font-weight:800">${esc(co.name)}</div><div class="cell-sub">${esc([co.industry, co.city].filter(Boolean).join(' · ') || 'Company')}</div></div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">
+          <div class="kv">
+            ${co.phone ? `<div class="k">Phone</div><div class="v">${esc(fmtPhone(co.phone))}</div>` : ''}
+            ${co.email ? `<div class="k">Email</div><div class="v">${esc(co.email)}</div>` : ''}
+            ${co.employee_count ? `<div class="k">Employees</div><div class="v">${esc(co.employee_count)}</div>` : ''}
+            ${(co.street_address || co.city) ? `<div class="k">Address</div><div class="v">${esc([co.street_address, co.city, [co.state, co.postal_code].filter(Boolean).join(' ')].filter(Boolean).join(', '))}</div>` : ''}
+          </div>
+          ${co.notes ? `<div class="section-t">Notes</div><div style="font-size:.86rem;line-height:1.6;white-space:pre-wrap">${esc(co.notes)}</div>` : ''}
+          <div class="section-t">People at ${esc(co.name)} <button class="btn btn-ghost btn-sm" id="co-addperson" style="margin-left:auto">+ Add person</button></div>
+          <div id="co-people">${(people && people.length) ? people.map((p) => `
+            <div class="feed-item" data-open-contact="${p.ghl_contact_id}" style="cursor:pointer">
+              <div class="feed-ic">👤</div>
+              <div><div style="font-weight:650">${esc([p.first_name, p.last_name].filter(Boolean).join(' '))}</div>
+              <div class="cell-sub">${esc([p.job_title, p.email, fmtPhone(p.phone)].filter(Boolean).join(' · ') || '—')}</div></div>
+              <span class="pill-status ${dispClass(p.disposition)}" style="margin-left:auto">${esc(p.disposition || '—')}</span>
+            </div>`).join('') : '<div class="cell-sub">No people yet — add the owner and key contacts.</div>'}</div>
+          <div class="section-t"></div>
+          <button class="btn btn-ghost btn-sm" id="co-edit">Edit company</button>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#co-edit').addEventListener('click', () => openCompanyForm(co, null));
+      $$('#co-people [data-open-contact]').forEach((el) => el.addEventListener('click', () => { closeDrawer(); openContact(el.dataset.openContact); }));
+      $('#co-addperson').addEventListener('click', () => openCompanyPersonForm(co));
+    }
+
+    // Adding a person under a company creates a full contact, linked both ways.
+    function openCompanyPersonForm(co) {
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Add person at ${esc(co.name)}</div><div class="cell-sub">They become a contact in your book automatically</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b"><form id="cp-form">
+          <div class="grid2">
+            <div class="field"><label>First name *</label><input name="first_name" required/></div>
+            <div class="field"><label>Last name</label><input name="last_name"/></div>
+          </div>
+          <div class="field"><label>Role / title</label><input name="job_title" placeholder="Owner, HR Manager, Employee…"/></div>
+          <div class="grid2">
+            <div class="field"><label>Email</label><input name="email" type="email"/></div>
+            <div class="field"><label>Phone</label><input name="phone" inputmode="tel"/></div>
+          </div>
+          <div class="field"><label>Hire date (optional)</label><input name="hire_date" type="date"/></div>
+          <button class="btn btn-primary" type="submit">Add person</button>
+          <p class="cell-sub" id="cp-status" style="margin-top:8px"></p>
+        </form></div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#cp-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const cid = 'crm:' + crypto.randomUUID();
+        const custom = {};
+        if (f.hire_date.value) custom.hire_date = f.hire_date.value;
+        const { error } = await sb.from('ph_contacts').insert({
+          ghl_contact_id: cid, origin: 'crm', agent_id: state.me.id,
+          first_name: f.first_name.value.trim(), last_name: f.last_name.value.trim() || null,
+          email: f.email.value.trim() || null, phone: f.phone.value.trim() || null,
+          company: co.name, company_id: co.id, job_title: f.job_title.value.trim() || null,
+          custom, disposition: 'Lead', tags: [], dnd: false, source: 'Group / ' + co.name,
+          ghl_date_added: new Date().toISOString(), synced_at: new Date().toISOString(),
+        });
+        if (error) { $('#cp-status').textContent = 'Could not add: ' + error.message; return; }
+        state.contactCount++;
+        toast('Person added to ' + co.name);
+        openCompany(co.id);
+      });
+    }
+
+    // ---- Admin: custom field manager ----
+    function openFieldManager() {
+      const rows = () => state.customFields.map((f) => `
+        <div class="feed-item"><div class="feed-ic">▦</div>
+          <div><div style="font-weight:650">${esc(f.label)}</div><div class="cell-sub">${esc(f.field_type)}${f.options ? ' · ' + (f.options || []).join(', ') : ''}</div></div>
+          <button class="btn btn-ghost btn-sm" data-cf-del="${f.id}" style="margin-left:auto">Remove</button>
+        </div>`).join('') || '<div class="cell-sub">No custom fields yet.</div>';
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Contact card fields</div><div class="cell-sub">These appear in Client data on every contact, for every agent</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div id="cf-list">${rows()}</div>
+          <div class="section-t">Add a field</div>
+          <form id="cf-form">
+            <div class="field"><label>Label *</label><input name="label" required placeholder="e.g. Medicare Number"/></div>
+            <div class="grid2">
+              <div class="field"><label>Type</label><select name="field_type"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="select">Dropdown</option></select></div>
+              <div class="field"><label>Dropdown options</label><input name="options" placeholder="Comma-separated"/></div>
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit">Add field</button>
+            <p class="cell-sub" id="cf-status" style="margin-top:8px"></p>
+          </form>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      const wireDeletes = () => $$('#cf-list [data-cf-del]').forEach((b) => b.addEventListener('click', async () => {
+        const id = b.dataset.cfDel;
+        const { error } = await sb.from('ph_custom_fields').update({ is_active: false }).eq('id', id);
+        if (error) { toast('Could not remove field.'); return; }
+        state.customFields = state.customFields.filter((f) => f.id !== id);
+        $('#cf-list').innerHTML = rows(); wireDeletes(); toast('Field removed');
+      }));
+      wireDeletes();
+      $('#cf-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const label = f.label.value.trim(); if (!label) return;
+        const key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        const type = f.field_type.value;
+        const opts = type === 'select' ? f.options.value.split(',').map((s) => s.trim()).filter(Boolean) : null;
+        if (type === 'select' && (!opts || !opts.length)) { $('#cf-status').textContent = 'Dropdown needs at least one option.'; return; }
+        const { data, error } = await sb.from('ph_custom_fields').insert({ key, label, field_type: type, options: opts, position: 100 + state.customFields.length }).select('*').single();
+        if (error) { $('#cf-status').textContent = 'Could not add: ' + error.message; return; }
+        state.customFields.push(data);
+        $('#cf-list').innerHTML = rows(); wireDeletes();
+        f.reset(); $('#cf-status').textContent = 'Added — it now shows on every contact card.';
+      });
     }
 
     // ================= ADD CONTACT (slide-in form) =================
@@ -962,7 +1175,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
               <div class="field"><label>First name *</label><input name="first_name" required/></div>
               <div class="field"><label>Last name</label><input name="last_name"/></div>
             </div>
-            <div class="field"><label>Company</label><input name="company"/></div>
+            <div class="grid2">
+              <div class="field"><label>Company (text)</label><input name="company"/></div>
+              <div class="field"><label>Link to company</label><select name="company_id"><option value="">None</option>${state.companies.map((co) => `<option value="${co.id}">${esc(co.name)}</option>`).join('')}</select></div>
+            </div>
             <div class="grid2">
               <div class="field"><label>Date of birth</label><input name="date_of_birth" type="date"/></div>
               <div class="field"><label>Phone</label><input name="phone" inputmode="tel"/></div>
@@ -1020,7 +1236,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const id = 'local:' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
       const row = {
         ghl_contact_id: id, origin: 'crm', tags: [], dnd: false, synced_at: new Date().toISOString(),
-        first_name: first, last_name: g('last_name'), company: g('company'), email: g('email'),
+        first_name: first, last_name: g('last_name'), company: g('company'), company_id: form.elements['company_id']?.value || null, email: g('email'),
         phone: g('phone'), date_of_birth: g('date_of_birth'), street_address: g('street_address'),
         city: g('city'), state: (g('state') || '').toUpperCase() || null, postal_code: g('postal_code'),
         disposition: form.elements['disposition'].value, coverage_types: coverage, dependents,
@@ -1364,13 +1580,35 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === 'contacts'));
       const v = $('#view'); v.scrollTop = 0;
 
-      // Pull the carriers linked to this client (RLS-scoped).
-      const { data: links } = await sb.from('ph_contact_carriers').select('carrier_id').eq('contact_id', cid);
+      // Pull the carriers linked to this client (RLS-scoped) + their policies.
+      const [{ data: links }, { data: policies }] = await Promise.all([
+        sb.from('ph_contact_carriers').select('carrier_id').eq('contact_id', cid),
+        sb.from('ph_policies').select('*').eq('contact_id', cid).order('created_at', { ascending: false }),
+      ]);
       const linkedIds = new Set((links || []).map((r) => r.carrier_id));
       const carrierNames = state.carriers.filter((x) => linkedIds.has(x.id)).map((x) => x.name);
       const deps = Array.isArray(c.dependents) ? c.dependents : [];
       const dob = c.date_of_birth ? new Date(c.date_of_birth).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' }) : '';
       const dispSel = DISPOSITIONS.map((d) => `<option ${d === c.disposition ? 'selected' : ''}>${esc(d)}</option>`).join('');
+      const linkedCo = c.company_id ? state.companies.find((x) => x.id === c.company_id) : null;
+      const custom = c.custom || {};
+      const polStatusClass = (s) => ({ Active: 'st-green', Issued: 'st-green', Pending: 'st-amber', Applied: 'st-amber', Quoted: 'st-blue', Lapsed: 'st-red', Cancelled: 'st-red', Declined: 'st-red' }[s] || 'st-gray');
+      const policyRow = (p) => `
+        <div class="pol-row" data-pol="${p.id}">
+          <div class="pol-top"><b>${esc(p.line)}</b><span class="pill-status ${polStatusClass(p.status)}">${esc(p.status)}</span></div>
+          <div class="cell-sub">${esc([p.carrier_name, p.policy_number ? '#' + p.policy_number : ''].filter(Boolean).join(' · ') || 'No carrier yet')}</div>
+          ${p.premium != null ? `<div class="pol-prem">${fmtMoney(p.premium)} <em>/ ${esc((p.premium_freq || 'Monthly').toLowerCase())}</em></div>` : ''}
+          ${p.renewal_date ? `<div class="cell-sub">Renews ${esc(new Date(p.renewal_date).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }))}</div>` : ''}
+        </div>`;
+      const customFieldRow = (f) => {
+        const val = custom[f.key] ?? '';
+        if (f.field_type === 'select') {
+          const opts = ['<option value=""></option>'].concat((f.options || []).map((o) => `<option ${o === val ? 'selected' : ''}>${esc(o)}</option>`)).join('');
+          return `<div class="k">${esc(f.label)}</div><div class="v"><select class="cf-inline" data-cf="${esc(f.key)}">${opts}</select></div>`;
+        }
+        const type = f.field_type === 'number' ? 'number' : f.field_type === 'date' ? 'date' : 'text';
+        return `<div class="k">${esc(f.label)}</div><div class="v"><input class="cf-inline" type="${type}" data-cf="${esc(f.key)}" value="${esc(val)}"/></div>`;
+      };
 
       v.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
@@ -1384,15 +1622,20 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <div class="kv">
             <div class="k">First name</div><div class="v">${esc(c.first_name || '—')}</div>
             <div class="k">Last name</div><div class="v">${esc(c.last_name || '—')}</div>
-            <div class="k">Company</div><div class="v">${esc(c.company || '—')}</div>
+            <div class="k">Company</div><div class="v">${linkedCo ? `<a href="#" id="rec-company" style="color:var(--blue);font-weight:650;text-decoration:none">${esc(linkedCo.name)}</a>` : esc(c.company || '—')}</div>
+            ${c.job_title ? `<div class="k">Role / title</div><div class="v">${esc(c.job_title)}</div>` : ''}
             <div class="k">Date of birth</div><div class="v">${esc(dob || '—')}</div>
             <div class="k">Email</div><div class="v">${esc(c.email || '—')}</div>
             <div class="k">Phone</div><div class="v">${esc(fmtPhone(c.phone) || '—')}</div>
             <div class="k">Address</div><div class="v">${esc([c.street_address, c.city, [c.state, c.postal_code].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '—')}</div>
+            <div class="k">How we met</div><div class="v"><input class="cf-inline" id="rec-source" value="${esc(c.source || '')}" placeholder="Referral, website, event…"/></div>
+            ${state.customFields.map(customFieldRow).join('')}
           </div>
           <div class="section-t">Disposition</div>
           <select id="rec-disp" class="rec-select">${dispSel}</select>
           <div class="hint" id="rec-disp-hint">Active Client marks the client in-force (issued) and records you as the writing agent.</div>
+          <div class="section-t">Policies <button class="btn btn-ghost btn-sm" id="rec-add-policy" style="margin-left:auto">+ Add</button></div>
+          <div id="rec-policies">${(policies && policies.length) ? policies.map(policyRow).join('') : '<span class="cell-sub">None yet — add what you quote or write for this client.</span>'}</div>
           <div class="section-t">Lines of insurance</div>
           <div>${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
           <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
@@ -1427,6 +1670,101 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       });
 
       $('#rec-edit-carriers').addEventListener('click', () => editContactCarriers(cid, linkedIds));
+      $('#rec-company')?.addEventListener('click', (e) => { e.preventDefault(); openCompany(c.company_id); });
+
+      // "How we met" + custom fields autosave on change/blur.
+      const saveField = async (patch, okMsg) => {
+        const { error } = await sb.from('ph_contacts').update(patch).eq('ghl_contact_id', cid);
+        if (error) toast('Could not save.'); else if (okMsg) toast(okMsg);
+        return !error;
+      };
+      let srcT;
+      $('#rec-source')?.addEventListener('change', (e) => {
+        clearTimeout(srcT);
+        srcT = setTimeout(async () => { if (await saveField({ source: e.target.value.trim() || null })) { c.source = e.target.value.trim(); toast('Saved'); } }, 200);
+      });
+      $$('.cf-inline[data-cf]', v).forEach((inp) => inp.addEventListener('change', async () => {
+        const key = inp.getAttribute('data-cf');
+        const next = Object.assign({}, c.custom || {});
+        if (inp.value === '' || inp.value == null) delete next[key]; else next[key] = inp.value;
+        if (await saveField({ custom: next })) { c.custom = next; toast('Saved'); }
+      }));
+
+      // ---- Policies: add / edit drawer ----
+      let recPolicies = policies || [];
+      const repaintPolicies = () => {
+        $('#rec-policies').innerHTML = recPolicies.length ? recPolicies.map(policyRow).join('') : '<span class="cell-sub">None yet — add what you quote or write for this client.</span>';
+        $$('#rec-policies [data-pol]').forEach((el) => el.addEventListener('click', () => openPolicyForm(recPolicies.find((p) => p.id === el.dataset.pol))));
+      };
+      function openPolicyForm(pol) {
+        const lineOpts = COVERAGE_TYPES.map((l) => `<option ${pol && pol.line === l ? 'selected' : ''}>${esc(l)}</option>`).join('');
+        const carOpts = ['<option value=""></option>'].concat(state.carriers.map((x) => `<option value="${x.id}" ${pol && pol.carrier_id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`)).join('');
+        const stOpts = POLICY_STATUSES.map((s) => `<option ${pol && pol.status === s ? 'selected' : (!pol && s === 'Quoted' ? 'selected' : '')}>${esc(s)}</option>`).join('');
+        const frOpts = PREMIUM_FREQS.map((f) => `<option ${pol && pol.premium_freq === f ? 'selected' : (!pol && f === 'Monthly' ? 'selected' : '')}>${esc(f)}</option>`).join('');
+        openDrawer(`
+          <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">${pol ? 'Edit policy' : 'Add policy'}</div><div class="cell-sub">${esc(nameOf(c))}</div></div><button class="drawer-x" data-x>✕</button></div>
+          <div class="drawer-b"><form id="pol-form">
+            <div class="grid2">
+              <div class="field"><label>Line of insurance *</label><select name="line">${lineOpts}</select></div>
+              <div class="field"><label>Status</label><select name="status">${stOpts}</select></div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label>Carrier</label><select name="carrier_id">${carOpts}</select></div>
+              <div class="field"><label>Policy #</label><input name="policy_number" value="${esc(pol?.policy_number || '')}"/></div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label>Premium</label><input name="premium" type="number" step="0.01" min="0" placeholder="0.00" value="${esc(pol?.premium ?? '')}"/></div>
+              <div class="field"><label>Frequency</label><select name="premium_freq">${frOpts}</select></div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label>Effective date</label><input name="effective_date" type="date" value="${esc(pol?.effective_date || '')}"/></div>
+              <div class="field"><label>Renewal date</label><input name="renewal_date" type="date" value="${esc(pol?.renewal_date || '')}"/></div>
+            </div>
+            <div class="field"><label>Notes</label><textarea name="notes" rows="2">${esc(pol?.notes || '')}</textarea></div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-primary" type="submit">${pol ? 'Save policy' : 'Add policy'}</button>
+              ${pol ? '<button class="btn btn-ghost btn-sm" type="button" id="pol-del">Delete</button>' : ''}
+            </div>
+            <p class="cell-sub" id="pol-status" style="margin-top:8px"></p>
+          </form></div>`);
+        $('[data-x]').addEventListener('click', closeDrawer);
+        $('#pol-del')?.addEventListener('click', async () => {
+          if (!confirm('Delete this policy?')) return;
+          const { error } = await sb.from('ph_policies').delete().eq('id', pol.id);
+          if (error) { $('#pol-status').textContent = 'Could not delete: ' + error.message; return; }
+          recPolicies = recPolicies.filter((p) => p.id !== pol.id);
+          repaintPolicies(); closeDrawer(); toast('Policy deleted');
+        });
+        $('#pol-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = e.target;
+          const carId = f.carrier_id.value || null;
+          const patch = {
+            contact_id: cid, agent_id: pol ? pol.agent_id : (c.agent_id || state.me.id),
+            line: f.line.value, status: f.status.value,
+            carrier_id: carId, carrier_name: carId ? (state.carriers.find((x) => x.id === carId)?.name ?? null) : null,
+            policy_number: f.policy_number.value.trim() || null,
+            premium: f.premium.value !== '' ? parseFloat(f.premium.value) : null,
+            premium_freq: f.premium_freq.value,
+            effective_date: f.effective_date.value || null, renewal_date: f.renewal_date.value || null,
+            notes: f.notes.value.trim() || null, updated_at: new Date().toISOString(),
+          };
+          const q = pol ? sb.from('ph_policies').update(patch).eq('id', pol.id).select('*').single()
+                        : sb.from('ph_policies').insert(patch).select('*').single();
+          const { data, error } = await q;
+          if (error) { $('#pol-status').textContent = 'Could not save: ' + error.message; return; }
+          if (pol) { const i = recPolicies.findIndex((p) => p.id === pol.id); if (i >= 0) recPolicies[i] = data; }
+          else {
+            recPolicies.unshift(data);
+            // The DB trigger unions the line into coverage_types (which auto-creates
+            // the pipeline deal) — mirror it locally so the card reflects it now.
+            if (!(c.coverage_types || []).includes(data.line)) { c.coverage_types = (c.coverage_types || []).concat(data.line); reloadOpps(); }
+          }
+          repaintPolicies(); closeDrawer(); toast(pol ? 'Policy updated' : 'Policy added — now in your pipeline too');
+        });
+      }
+      $('#rec-add-policy').addEventListener('click', () => openPolicyForm(null));
+      $$('#rec-policies [data-pol]').forEach((el) => el.addEventListener('click', () => openPolicyForm(recPolicies.find((p) => p.id === el.dataset.pol))));
 
       // Activity: emails + notes + record events, newest first.
       loadContactActivity(cid, c);
