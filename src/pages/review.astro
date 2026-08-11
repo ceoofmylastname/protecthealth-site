@@ -79,6 +79,13 @@ const title = 'Leave a Review — ProtectHealth';
       }
       $('#rv-google').href = GOOGLE_REVIEW_URL;
 
+      // Record the review-link click (fire-and-forget) so admin sees who opened it.
+      if (contactId) {
+        try {
+          fetch(FN_URL + '/ph-review', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify({ action: 'visit', contact_id: contactId }) });
+        } catch (_e) {}
+      }
+
       async function call(body) {
         try {
           const r = await fetch(FN_URL + '/ph-review', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(body) });

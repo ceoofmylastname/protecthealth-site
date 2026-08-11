@@ -105,6 +105,15 @@ const SUPABASE_ANON =
           </div>
         </details>
 
+        <details class="ad-addbroker rv-track">
+          <summary>★ Review tracking — who got it, who clicked, who rated</summary>
+          <div class="rv-body">
+            <p class="ab-hint ad-muted">Every review request that went out, whether the client opened the link, and the star they chose. Updates each time you open this.</p>
+            <div class="rvt-summary ad-muted">Open to load review activity…</div>
+            <div class="rvt-wrap"><table class="rvt-table"><tbody></tbody></table></div>
+          </div>
+        </details>
+
         <div class="ad-toolbar">
           <input type="search" class="ad-search" placeholder="Search name, email or phone…" aria-label="Search" />
           <div class="ad-filters" role="group" aria-label="Filter">
@@ -183,6 +192,13 @@ const SUPABASE_ANON =
   .ad-addbroker > summary { cursor: pointer; padding: 14px 18px; font-weight: 600; color: var(--navy); list-style: none; }
   .ad-addbroker > summary::-webkit-details-marker { display: none; }
   .ad-addbroker[open] > summary { border-bottom: 1px solid var(--line); }
+  .rv-body { padding: 16px 18px; }
+  .rvt-summary { font-size: .92rem; margin: 6px 0 14px; line-height: 1.7; }
+  .rvt-wrap { max-height: 460px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .rvt-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .rvt-table td { padding: 10px 12px; border-bottom: 1px solid #eef2f8; vertical-align: top; }
+  .rvt-table tr:last-child td { border-bottom: 0; }
+  .rvt-table tr.rvt-head td { position: sticky; top: 0; background: #f6f9fe; font-weight: 700; color: var(--navy); font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; }
   .ab-form { padding: 16px 18px; }
   .ab-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .ab-row input { flex: 1 1 200px; min-width: 0; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; }
@@ -420,6 +436,45 @@ const SUPABASE_ANON =
         sendBtn.disabled = false; testBtn.disabled = false;
         refreshCount();
       });
+    }
+
+    // ---------- review tracking ----------
+    const rvTrack = $('.rv-track');
+    if (rvTrack) {
+      const summaryEl = $('.rvt-summary'), tbody = $('.rvt-table tbody');
+      const fmt = (t) => t ? new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      const esch = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      async function loadTracking() {
+        summaryEl.textContent = 'Loading…'; tbody.innerHTML = '';
+        const { data, error } = await sb.rpc('ph_review_tracking');
+        if (error) { summaryEl.textContent = 'Could not load tracking.'; return; }
+        const rows = data || [];
+        const sent = rows.length;
+        const clicked = rows.filter((r) => r.clicked_at).length;
+        const rated = rows.filter((r) => r.rating != null).length;
+        const hi = rows.filter((r) => r.rating >= 4).length;
+        const lo = rows.filter((r) => r.rating != null && r.rating <= 3).length;
+        const pct = sent ? Math.round(clicked / sent * 100) : 0;
+        summaryEl.innerHTML = `<b style="color:#0b2a4a">${sent.toLocaleString()}</b> sent &nbsp;·&nbsp; <b style="color:#0b2a4a">${clicked.toLocaleString()}</b> clicked (${pct}%) &nbsp;·&nbsp; <b style="color:#0b2a4a">${rated.toLocaleString()}</b> rated &nbsp;·&nbsp; <b style="color:#0ea472">${hi}</b> sent to Google (4–5★) &nbsp;·&nbsp; <b style="color:#c0392b">${lo}</b> private feedback (1–3★)`;
+        const engaged = rows.filter((r) => r.clicked_at || r.rating != null);
+        const show = engaged.length ? engaged : rows.slice(0, 100);
+        tbody.innerHTML = `<tr class="rvt-head"><td>Client</td><td>Broker</td><td>Sent</td><td>Clicked</td><td>Stars</td><td>Feedback</td></tr>` +
+          show.map((r) => {
+            const stars = r.rating != null ? '★'.repeat(r.rating) + '<span style="color:#d8e0ec">' + '★'.repeat(5 - r.rating) + '</span>' : '<span class="ad-muted">—</span>';
+            const starColor = r.rating >= 4 ? '#f5b301' : r.rating != null ? '#e67e22' : '#d8e0ec';
+            return `<tr>
+              <td><div style="font-weight:600">${esch(r.client_name || '—')}</div><div class="ad-muted" style="font-size:.8rem">${esch(r.client_email || '')}</div></td>
+              <td class="ad-muted">${esch(r.agent_name || '—')}</td>
+              <td class="ad-muted">${fmt(r.sent_at)}${r.status === 'failed' ? ' <span style="color:#c0392b">(failed)</span>' : ''}</td>
+              <td>${r.clicked_at ? '<span style="color:#0ea472;font-weight:700">✓ ' + fmt(r.clicked_at) + '</span>' : '<span class="ad-muted">—</span>'}</td>
+              <td style="color:${starColor};font-weight:700;letter-spacing:1px">${stars}</td>
+              <td class="ad-muted" style="font-size:.82rem;max-width:220px">${esch(r.feedback || '')}</td>
+            </tr>`;
+          }).join('');
+        if (!engaged.length && sent) summaryEl.innerHTML += ' &nbsp;— no clicks or ratings yet; showing the most recent sends.';
+      }
+      let loadedT = false;
+      rvTrack.addEventListener('toggle', () => { if (rvTrack.open && !loadedT) { loadedT = true; loadTracking(); } });
     }
 
     // ---------- data ----------
