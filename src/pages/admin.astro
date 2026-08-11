@@ -461,11 +461,18 @@ const SUPABASE_ANON =
         sendBtn.disabled = true; testBtn.disabled = true;
         let total = 0;
         try {
-          for (let i = 0; i < 60; i++) {   // up to 60 batches (250 each) per run
+          for (let i = 0; i < 60; i++) {   // up to 60 batches (150 each) per run
             if (!(await freshSession())) { statusEl.textContent = 'Session expired mid-send. Sign back in and click again to continue where it left off.'; statusEl.classList.add('is-bad'); break; }
             statusEl.textContent = `Sending… ${total.toLocaleString()} sent so far.`;
-            const { data, error } = await sb.functions.invoke('ph-review-blast', { body: { action: 'send', limit: 250 } });
+            const { data, error } = await sb.functions.invoke('ph-review-blast', { body: { action: 'send', limit: 150 } });
             if (error || !data?.ok) { statusEl.textContent = data?.error || 'Send failed — click again to resume.'; statusEl.classList.add('is-bad'); break; }
+            if (data.busy) {
+              // A campaign pass holds the send lock (keeps combined rate under
+              // Resend's 2/sec). Wait it out and retry — doesn't burn a batch slot.
+              statusEl.textContent = `Waiting for a campaign send to finish… ${total.toLocaleString()} sent so far.`;
+              await new Promise((r) => setTimeout(r, 30000));
+              i--; continue;
+            }
             total += data.sent || 0;
             if ((data.remaining || 0) <= 0 || (data.batch || 0) === 0) { statusEl.textContent = `Done. ${total.toLocaleString()} review requests sent.`; statusEl.classList.add('is-good'); break; }
           }
