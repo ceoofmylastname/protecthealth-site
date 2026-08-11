@@ -107,8 +107,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         <div class="foot">
           <div data-who-name style="color:#cdd9ec;font-weight:650"></div>
           <div data-who style="font-size:.7rem"></div>
-          <div style="margin-top:10px;display:flex;gap:12px">
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
             <button type="button" id="edit-profile" style="color:#9fb2cc;font-size:.78rem;text-decoration:underline">Edit profile</button>
+            <button type="button" id="change-password" style="color:#9fb2cc;font-size:.78rem;text-decoration:underline">Password</button>
             <button type="button" class="ag-signout" style="color:#9fb2cc;font-size:.78rem;text-decoration:underline">Sign out</button>
           </div>
         </div>
@@ -560,6 +561,41 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     }
 
     $('#edit-profile')?.addEventListener('click', () => { if (state.email) openOnboarding(state.email, { editing: true }); });
+
+    // Change password from inside the app. Works for any signed-in session —
+    // including one that arrived via a magic link — so a broker who used
+    // Forgot password can set a real password here and use it from then on.
+    $('#change-password')?.addEventListener('click', () => {
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Change password</div><div class="cell-sub">${esc(state.email || '')}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b"><form id="pw-form">
+          <div class="field"><label>New password</label><input name="pw1" type="password" minlength="10" required autocomplete="new-password" placeholder="At least 10 characters"/></div>
+          <div class="field"><label>Confirm new password</label><input name="pw2" type="password" minlength="10" required autocomplete="new-password"/></div>
+          <button class="btn btn-primary" type="submit">Save password</button>
+          <p class="cell-sub" id="pw-status" style="margin-top:10px"></p>
+        </form></div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#pw-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target, st = $('#pw-status');
+        const pw1 = f.pw1.value, pw2 = f.pw2.value;
+        if (pw1.length < 10) { st.textContent = 'Use at least 10 characters.'; return; }
+        if (pw1 !== pw2) { st.textContent = 'Those passwords do not match.'; return; }
+        const btn = f.querySelector('button'); btn.disabled = true; st.textContent = 'Saving…';
+        // A stale token makes updateUser fail quietly — refresh first if near expiry.
+        let { data: { session } } = await sb.auth.getSession();
+        const stale = !session?.expires_at || (session.expires_at * 1000 - Date.now() < 120000);
+        if (session && stale) { const r = await sb.auth.refreshSession(); if (r?.data?.session) session = r.data.session; }
+        const { error } = await sb.auth.updateUser({ password: pw1 });
+        btn.disabled = false;
+        if (error) {
+          st.textContent = /same/i.test(error.message) ? 'That is already your current password.' : 'Could not save: ' + error.message;
+          return;
+        }
+        closeDrawer();
+        toast('Password updated — use it next time you sign in');
+      });
+    });
 
     function enterApp(email) {
       state.email = email;
