@@ -72,6 +72,20 @@ const SUPABASE_ANON =
           The send log erases itself 30 days after each email goes out. The all-time counter is what survives.
         </p>
 
+        <details class="am-panel">
+          <summary>⚙ Automatic emails — every email the system sends on its own</summary>
+          <div class="am-body">
+            <p class="ad-muted" style="font-size:.85rem;margin:0 0 14px">These fire from triggers, not campaigns — nothing here needs sending by hand. Click <b>Preview</b> to see the email exactly as recipients get it (rendered with sample data).</p>
+            <div class="am-list"></div>
+          </div>
+        </details>
+        <div class="am-modal" hidden>
+          <div class="am-modal-card">
+            <div class="am-modal-head"><b class="am-modal-title"></b><button type="button" class="am-modal-x">✕</button></div>
+            <iframe class="am-frame" title="Email preview"></iframe>
+          </div>
+        </div>
+
         <div class="ad-split cm-split">
           <div class="cm-list" role="list"></div>
           <aside class="ad-detail cm-detail">
@@ -90,6 +104,29 @@ const SUPABASE_ANON =
   .cm .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
   .cm .ad-nav a.is-on, .cm .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
   .cm-note { margin: -10px 0 20px; font-size: 0.85rem; }
+
+  /* Automatic emails catalog */
+  .am-panel { border: 1.5px solid var(--line); border-radius: 14px; background: #fff; margin: 0 0 22px; overflow: hidden; }
+  .am-panel > summary { cursor: pointer; padding: 14px 18px; font-weight: 700; color: #0f3567; list-style: none; }
+  .am-panel > summary::-webkit-details-marker { display: none; }
+  .am-panel[open] > summary { border-bottom: 1px solid var(--line); }
+  .am-body { padding: 16px 18px; }
+  .am-group { font-size: .68rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+  .am-group:first-child { margin-top: 0; }
+  .am-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 2px; border-bottom: 1px solid #eef2f8; }
+  .am-row:last-child { border-bottom: 0; }
+  .am-main { display: grid; gap: 2px; min-width: 0; }
+  .am-main > b { color: var(--ink); font-size: .95rem; }
+  .am-main > span { color: var(--muted); font-size: .82rem; }
+  .am-to { color: #0f3567; }
+  .am-main > em { color: var(--muted); font-size: .8rem; font-style: italic; }
+  .am-note { display: block; color: #8493a6; font-size: .78rem; font-style: normal; margin-top: 2px; }
+  .am-modal { position: fixed; inset: 0; background: rgba(11,42,74,.5); z-index: 90; display: grid; place-items: center; padding: 20px; }
+  .am-modal[hidden] { display: none; }
+  .am-modal-card { background: #fff; border-radius: 16px; width: min(680px, 100%); height: min(86vh, 900px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(11,42,74,.35); }
+  .am-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); color: #0f3567; }
+  .am-modal-x { background: none; border: 0; font-size: 1rem; cursor: pointer; color: var(--muted); }
+  .am-frame { flex: 1; border: 0; width: 100%; background: #eef3fb; }
 
   .cm-split { display: grid; grid-template-columns: 330px 1fr; gap: 22px; align-items: start; }
   @media (max-width: 900px) { .cm-split { grid-template-columns: 1fr; } }
@@ -420,7 +457,8 @@ const SUPABASE_ANON =
         <div class="cm-controls">
           <div class="cm-field">
             <label>${isHoliday ? 'Audience tag (required)' : 'Audience tag (optional filter)'}</label>
-            <input type="text" class="cm-tag" value="${esc(c.audience_tag ?? '')}" placeholder="${isHoliday ? 'e.g. client' : 'blank = everyone with a birthday'}" list="cm-taglist" />
+            <input type="text" class="cm-tag" value="${esc(c.audience_tag ?? '')}" placeholder="${isHoliday ? "e.g. client — or 'everyone' for all active emails" : 'blank = everyone with a birthday'}" list="cm-taglist" />
+            <div class="cm-hint" style="font-size:.78rem;color:var(--muted);margin-top:4px">Type <b>everyone</b> to include every contact with an email (skips do-not-contact). Each email automatically carries that contact's assigned agent — name, phone, and their booking link.</div>
           </div>
           <div class="cm-field">
             <label>Send at</label>
@@ -601,6 +639,66 @@ const SUPABASE_ANON =
         });
       }
     }
+
+    // ---------- automatic emails catalog ----------
+    // Every transactional email the system fires on its own, with a live
+    // preview rendered from the same layouts the edge functions use, filled
+    // with sample data. Update this list when a new automatic email ships.
+    (function autoEmailCatalog() {
+      const SITE = 'https://www.protecthealth.com';
+      const LOGO = SITE + '/assets/email-logo.png';
+      const LOGO_SM = SITE + '/assets/email-logo-sm.png';
+      const GIFT = SITE + '/assets/gift-card-100.png';
+      const S = { client: 'Maria Gonzalez', clientFirst: 'Maria', agent: 'John Melvin', agentFirst: 'John', agentEmail: 'john@protectnv.com', agentPhone: '(702) 555-0142', when: 'Tuesday, August 18 at 10:00 AM PDT' };
+
+      const shell = (headline, inner, opts = {}) => `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="margin:0;background:${opts.bg || '#eef3fb'};padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+  <table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(11,42,74,.10)">
+    <tr><td style="padding:24px 28px 18px" align="left"><img src="${LOGO}" alt="ProtectHealth" width="210" style="display:block;height:auto;border:0"></td></tr>
+    <tr><td style="height:4px;background:linear-gradient(90deg,#2563c9,#123f6b);font-size:0;line-height:0">&nbsp;</td></tr>
+    <tr><td style="padding:26px 30px 8px">${headline ? `<h1 style="margin:0 0 14px;color:#0b2a4a;font-size:22px;line-height:1.25">${headline}</h1>` : ''}${inner}</td></tr>
+    <tr><td style="padding:18px 30px 28px"><div style="border-top:1px solid #e6edf6;padding-top:16px;color:#5b6b7c;font-size:12px;line-height:1.6"><img src="${LOGO_SM}" alt="ProtectHealth" width="140" style="display:block;height:auto;border:0;margin-bottom:8px">ProtectHealth &middot; Las Vegas, Nevada</div></td></tr>
+  </table></body></html>`;
+      const agentCard = `<table role="presentation" cellpadding="0" cellspacing="0" style="background:#f6f9fe;border:1px solid #e6edf6;border-radius:14px;width:100%"><tr><td style="padding:16px"><div style="font-weight:800;color:#0b2a4a;font-size:17px">${S.agent}</div><div style="color:#5b6b7c;font-size:13px;margin-top:2px">Licensed Insurance Broker &middot; ProtectHealth</div><div style="margin-top:7px;font-size:14px;color:#2563c9;font-weight:600">${S.agentPhone} &nbsp;&middot;&nbsp; ${S.agentEmail}</div></td></tr></table>`;
+      const btn = (label) => `<p style="margin:14px 0 0"><a href="#" style="background:#2563c9;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:14px;display:inline-block">${label}</a></p>`;
+
+      const CATALOG = [
+        { g: 'Accounts', name: 'Broker set-up link', trig: 'Admin adds a broker login', to: 'Broker', subj: 'Set up your ProtectHealth login', html: () => shell('Welcome to ProtectHealth', `<p style="color:#334155;font-size:15px;line-height:1.6;margin:0 0 12px">Your CRM login has been created. Click below to set your password — the link works once.</p>${btn('Set my password')}`) },
+        { g: 'Accounts', name: 'Password reset / magic link', trig: 'Forgot password at /app or /admin', to: 'Broker or admin', subj: 'Reset your password', note: 'Sent by the auth system (Supabase) — template configured there, not in this codebase.' },
+        { g: 'Main-site booking', name: 'Booking confirmation (+ calendar invite)', trig: 'Books at /talk-to-a-broker', to: 'Client', subj: "You're booked for {date}", note: 'Navy booking template with .ics attachment, broker card, Google/Outlook buttons. 24-hour and 1-hour reminders follow automatically.' },
+        { g: 'Main-site booking', name: 'House alert: new booking / inquiry', trig: 'Every website lead', to: 'Janet (corporate)', subj: 'New booking: {name}', note: 'Dense internal card: appointment, intake answers, call/email buttons. Reply goes straight to the lead.' },
+        { g: 'Main-site booking', name: 'Agent alert: lead assigned', trig: 'Owner assignment lands', to: 'Assigned agent', subj: 'Your lead: {name}', note: 'Same internal card, addressed to the owning agent.' },
+        { g: 'Agent calendars', name: 'Native booking confirmation', trig: 'Books on an agent page (/book/…)', to: 'Client', subj: 'Your appointment with {agent} is booked', html: () => shell(`You're booked with ${S.agent}`, `<p style="margin:0 0 12px;color:#0f172a;font-size:16px"><b>${S.when}</b></p><p style="margin:0 0 12px;color:#334155;font-size:15px;line-height:1.6">${S.agentFirst} will reach out at this time for a 30-minute conversation. No pressure, no obligation.</p><p style="margin:0;color:#5b6b7c;font-size:14px">Need to change it? Just reply to this email.</p>`) },
+        { g: 'Agent calendars', name: 'Native booking: agent notification', trig: 'Same booking', to: 'Agent', subj: 'New booking: {name}', html: () => shell('New appointment booked', `<p style="margin:0 0 12px;color:#0f172a;font-size:16px"><b>${S.when}</b></p><p style="margin:0 0 10px;color:#334155;font-size:15px">${S.client} &middot; maria@example.com &middot; (702) 555-0117 &middot; Medicare</p>${btn('Open ProtectHealth')}`) },
+        { g: 'Agent calendars', name: 'Reminders: 24-hour & 1-hour', trig: 'Before a native appointment', to: 'Client (+1-hr heads-up to agent)', subj: 'Reminder: your appointment with {agent}', html: () => shell(`See you soon, ${S.clientFirst}`, `<p style="margin:0 0 12px;color:#0f172a;font-size:16px"><b>${S.when}</b></p><p style="margin:0 0 12px;color:#334155;font-size:15px;line-height:1.6">This is a friendly reminder of your upcoming conversation with ${S.agentFirst} at ProtectHealth.</p><p style="margin:0;color:#5b6b7c;font-size:14px">Need to reschedule? Just reply to this email.</p>`) },
+        { g: 'Lead routing', name: 'New lead assigned (round robin)', trig: 'Rotation assigns a website lead', to: 'Agent', subj: 'New lead assigned to you: {name}', html: () => shell('You have a new lead', `<p style="margin:0 0 10px;color:#0f172a;font-size:16px"><b>${S.client}</b> &middot; maria@example.com &middot; (702) 555-0117</p><div style="background:#f6f9fe;border:1px solid #e6edf6;border-radius:12px;padding:14px;margin:0 0 14px"><p style="margin:0 0 8px;font-size:14px;color:#334155"><b style="color:#0b2a4a">Describes them:</b> Realtor / 1099</p><p style="margin:0;font-size:14px;color:#334155"><b style="color:#0b2a4a">What matters most:</b> Keeping my doctors</p></div>${btn('Open your CRM')}<p style="margin:12px 0 0;color:#5b6b7c;font-size:13px">Reach out fast — speed to lead wins.</p>`) },
+        { g: 'Lead routing', name: 'Welcome — meet your broker', trig: 'Same assignment', to: 'Client', subj: 'Welcome to ProtectHealth — meet your broker, {agent}', html: () => shell(`Welcome, ${S.clientFirst} — you're in good hands`, `<p style="margin:0 0 14px;color:#334155;font-size:15px;line-height:1.6">Thanks for reaching out to ProtectHealth. A licensed broker has been personally assigned to you and will be in touch shortly.</p>${agentCard}${btn('Book time with ' + S.agentFirst)}`) },
+        { g: 'Lead routing', name: '60-minute reassignment', trig: 'Lead unclaimed for an hour', to: 'Jason', subj: 'Reassigned to you: {name} (unclaimed for 60 minutes)', html: () => shell('A lead has been reassigned to you', `<p style="margin:0 0 12px;color:#0f172a;font-size:16px"><b>${S.client}</b> &middot; maria@example.com</p><p style="margin:0 0 12px;color:#334155;font-size:15px;line-height:1.6">This lead sat unclaimed for over 60 minutes, so it's now in your book — lead, contact record and all.</p>${btn('Open your CRM')}`) },
+        { g: 'Client milestones', name: 'Commission qualified 🎉', trig: 'Disposition → Active Client', to: 'Writing agent', subj: 'Congratulations — {client} qualifies for commission payout', html: () => shell(`Nice work, ${S.agentFirst} 🎉`, `<p style="margin:0 0 12px;color:#0f172a;font-size:16px"><b>${S.client}</b> is now marked <b>Active Client</b> in your CRM — this client qualifies for commission payout.</p><p style="margin:0 0 12px;color:#334155;font-size:15px;line-height:1.6">You're on record as the writing agent. Keep the record complete (carrier, policy, premium) so payout processing is smooth.</p>${btn('Open the client record')}`) },
+        { g: 'Client milestones', name: 'Review request ($100 gift card)', trig: 'Active Client (auto) or admin blast', to: 'Client', subj: '{first}, your experience matters to us', html: () => `<!DOCTYPE html><html><body style="margin:0;background:#dbe9f7;padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,sans-serif"><table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden"><tr><td style="padding:24px 28px 18px"><img src="${LOGO}" width="210" style="display:block;border:0"></td></tr><tr><td style="height:4px;background:linear-gradient(90deg,#2563c9,#123f6b)"></td></tr><tr><td style="padding:26px 30px;text-align:center"><h1 style="font-family:Georgia,serif;color:#0b2a4a;font-size:30px;margin:2px 0 18px">Your Experience Matters to Us</h1><p style="color:#334155;font-size:15px;line-height:1.6">Hello ${S.clientFirst}, would you mind taking 30 seconds to tell us about the experience you had with <b>${S.agent}</b>? Leave a personal review and be entered to win our monthly drawing for a <b>$100 VISA Gift Card!</b></p><img src="${GIFT}" width="440" style="width:100%;max-width:440px;height:auto;display:block;margin:10px auto"><p style="margin:18px 0 0"><a href="#" style="background:#0b2a4a;color:#fff;text-decoration:none;padding:16px 44px;border-radius:999px;font-weight:750;font-size:16px;display:inline-block">Write a Review</a></p><div style="text-align:left;margin-top:22px">${agentCard}</div></td></tr></table></body></html>` },
+        { g: 'Client milestones', name: 'Low-star feedback alert', trig: 'Client leaves 1–3★ private feedback', to: 'Agent + Janet', subj: 'Follow up: {n}-star feedback from {client}', html: () => shell(`Client feedback for ${S.agent}`, `<p style="margin:0 0 12px;color:#0f172a;font-size:16px">A client left <b>2-star</b> feedback that needs a personal follow-up.</p><p style="margin:0 0 8px;color:#334155;font-size:15px">${S.client} &middot; maria@example.com</p><p style="margin:0 0 14px;color:#334155;font-size:15px;line-height:1.6;background:#f6f9fe;border:1px solid #e6edf6;border-radius:12px;padding:14px">"I waited two weeks for a call back."</p><p style="margin:0;color:#5b6b7c;font-size:14px">Reach out promptly — they were told someone would contact them.</p>`) },
+        { g: 'Campaigns', name: 'Birthday & holiday campaigns', trig: 'Dates + audience tags (this page)', to: 'Tagged contacts', subj: 'Per campaign', note: 'Managed in the list below — each one automatically carries the assigned agent and their booking link.' },
+      ];
+
+      const list = $('.am-list'); if (!list) return;
+      const groups = [...new Set(CATALOG.map((e) => e.g))];
+      list.innerHTML = groups.map((g) => `<div class="am-group">${g}</div>` +
+        CATALOG.filter((e) => e.g === g).map((e, i) => `
+          <div class="am-row">
+            <div class="am-main"><b>${e.name}</b><span>${e.trig} &nbsp;→&nbsp; <b class="am-to">${e.to}</b></span><em>"${e.subj}"</em>${e.note ? `<i class="am-note">${e.note}</i>` : ''}</div>
+            ${e.html ? `<button type="button" class="cm-btn am-preview" data-am="${CATALOG.indexOf(e)}">Preview</button>` : ''}
+          </div>`).join('')).join('');
+
+      const modal = $('.am-modal'), frame = $('.am-frame'), title = $('.am-modal-title');
+      list.querySelectorAll('.am-preview').forEach((b) => b.addEventListener('click', () => {
+        const e = CATALOG[+b.dataset.am];
+        title.textContent = e.name;
+        frame.srcdoc = e.html();
+        modal.hidden = false;
+      }));
+      $('.am-modal-x').addEventListener('click', () => { modal.hidden = true; frame.srcdoc = ''; });
+      modal.addEventListener('click', (ev) => { if (ev.target === modal) { modal.hidden = true; frame.srcdoc = ''; } });
+    })();
 
     // ---------- boot ----------
     sb.auth.getSession().then(({ data }) => {
