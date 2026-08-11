@@ -474,8 +474,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
       // First login: a broker who hasn't finished their profile lands on the
       // onboarding form before the dashboard — Rob's "collect it all in the room"
-      // step. Admins with no roster row skip it.
-      if (me && !me.onboarding_completed_at) { openOnboarding(email); return; }
+      // step. Admins are never gated by it (they may not want a broker landing
+      // page); they can still build one anytime via Edit profile.
+      if (me && !me.onboarding_completed_at && !state.isAdmin) { openOnboarding(email); return; }
       enterApp(email);
     }
 
