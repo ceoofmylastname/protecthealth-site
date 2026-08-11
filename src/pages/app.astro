@@ -107,7 +107,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         <div class="foot">
           <div data-who-name style="color:#cdd9ec;font-weight:650"></div>
           <div data-who style="font-size:.7rem"></div>
-          <button type="button" class="ag-signout" style="margin-top:10px;color:#9fb2cc;font-size:.78rem;text-decoration:underline">Sign out</button>
+          <div style="margin-top:10px;display:flex;gap:12px">
+            <button type="button" id="edit-profile" style="color:#9fb2cc;font-size:.78rem;text-decoration:underline">Edit profile</button>
+            <button type="button" class="ag-signout" style="color:#9fb2cc;font-size:.78rem;text-decoration:underline">Sign out</button>
+          </div>
         </div>
       </aside>
 
@@ -127,6 +130,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         <div id="view"><div class="empty"><div class="big">◐</div>Loading…</div></div>
       </div>
     </div>
+
+    <!-- onboarding: first-login profile capture (headshot, bio, socials, lines) -->
+    <div id="onboarding" hidden></div>
 
     <!-- drawer + toast, shared by all modules -->
     <div id="overlay"></div>
@@ -308,6 +314,16 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
   .rec-grid .card-b{max-height:none}
   @media(max-width:1150px){.rec-grid{grid-template-columns:1fr}}
+
+  /* onboarding */
+  #onboarding{position:fixed;inset:0;z-index:90;background:var(--bg)}
+  #onboarding[hidden]{display:none}
+  .ob-scroll{height:100vh;overflow-y:auto;display:flex;justify-content:center;padding:32px 20px 60px}
+  .ob-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:34px 34px 30px;max-width:560px;width:100%;height:max-content}
+  .ob-card h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;color:var(--navy);margin:14px 0 8px}
+  .ob-photo{display:flex;gap:16px;align-items:flex-start}
+  .ob-photo-preview{width:96px;height:96px;border-radius:14px;background:#eef2f9;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none;color:var(--muted);font-size:.72rem;text-align:center}
+  .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
   </style>
@@ -430,13 +446,14 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const uid = authUser?.user?.id ?? null;
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
+      const PROFILE_COLS = 'id, full_name, is_active, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
       let me = null;
       if (uid) {
-        const { data } = await sb.from('ph_agents').select('id, full_name, is_active').eq('auth_user_id', uid).limit(1);
+        const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
         me = data?.[0] ?? null;
       }
       if (!me) {
-        const { data } = await sb.from('ph_agents').select('id, full_name, is_active').ilike('email', email).limit(1);
+        const { data } = await sb.from('ph_agents').select(PROFILE_COLS).ilike('email', email).limit(1);
         me = data?.[0] ?? null;
       }
       // Admin check is independent of the roster: some admins are not brokers.
@@ -445,15 +462,128 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
       if (!me && !state.isAdmin) { view('denied'); return; }
       state.me = me || { full_name: email };
+      state.uid = uid;
 
-      gate.hidden = true; app.hidden = false;
+      // First login: a broker who hasn't finished their profile lands on the
+      // onboarding form before the dashboard — Rob's "collect it all in the room"
+      // step. Admins with no roster row skip it.
+      if (me && !me.onboarding_completed_at) { openOnboarding(email); return; }
+      enterApp(email);
+    }
+
+    $('#edit-profile')?.addEventListener('click', () => { if (state.email) openOnboarding(state.email, { editing: true }); });
+
+    function enterApp(email) {
+      state.email = email;
+      $$('[data-who]').forEach((el) => (el.textContent = email));
+      gate.hidden = true; $('#onboarding').hidden = true; app.hidden = false;
       const nm = state.me.full_name || email;
       $('[data-who-name]').textContent = nm;
       $('#avatar').textContent = initials(nm);
       startClock();
       buildNav();
-      await loadData();
-      go(location.hash.replace('#', '') || 'dashboard');
+      loadData().then(() => go(location.hash.replace('#', '') || 'dashboard'));
+    }
+
+    // ================= ONBOARDING / PROFILE =================
+    const BROKER_LINES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Annuities', 'Group Benefits', 'Supplements', 'Accident / Gap'];
+    let pendingHeadshotFile = null;
+
+    function openOnboarding(email, opts = {}) {
+      const editing = opts.editing === true;
+      const me = state.me;
+      const socials = me.social_links || {};
+      const lines = new Set(me.lines_of_insurance || []);
+      const firstName = String(me.full_name || '').split(' ')[0] || 'there';
+      const lineOpts = BROKER_LINES.map((l) => `<label class="pickbox"><input type="checkbox" data-line="${esc(l)}" ${lines.has(l) ? 'checked' : ''}/> ${esc(l)}</label>`).join('');
+      const el = $('#onboarding');
+      el.innerHTML = `
+        <div class="ob-scroll"><div class="ob-card">
+          <img class="ag-logo" src="${LOGO}" alt="ProtectHealth" />
+          <h1>${editing ? 'Edit your profile' : 'Welcome, ' + esc(firstName)}</h1>
+          <p class="ag-muted">${editing ? 'Update how you appear on your landing page and Meet the Team.' : 'This sets up your ProtectHealth landing page and your Meet the Team profile. Takes two minutes.'}</p>
+
+          <div class="section-t">Headshot</div>
+          <div class="ob-photo">
+            <div class="ob-photo-preview" id="ob-preview">${me.headshot_url ? `<img src="${esc(me.headshot_url)}" alt=""/>` : '<span>No photo yet</span>'}</div>
+            <div>
+              <label class="btn btn-ghost btn-sm" style="cursor:pointer">Choose photo<input type="file" id="ob-file" accept="image/png,image/jpeg,image/webp" hidden/></label>
+              <div class="hint">A clear, front-facing photo. JPG or PNG, up to 8&nbsp;MB. You can retake it anytime.</div>
+            </div>
+          </div>
+
+          <div class="section-t">Short bio</div>
+          <textarea id="ob-bio" class="rec-select" rows="4" maxlength="600" placeholder="A few sentences prospects will read on your page. Who you help and how.">${esc(me.bio || '')}</textarea>
+
+          <div class="section-t">Social links <span class="ag-muted" style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+          <div class="field"><label>LinkedIn</label><input id="ob-linkedin" value="${esc(socials.linkedin || '')}" placeholder="https://linkedin.com/in/…"/></div>
+          <div class="grid2">
+            <div class="field"><label>Facebook</label><input id="ob-facebook" value="${esc(socials.facebook || '')}" placeholder="https://facebook.com/…"/></div>
+            <div class="field"><label>Instagram</label><input id="ob-instagram" value="${esc(socials.instagram || '')}" placeholder="https://instagram.com/…"/></div>
+          </div>
+          <div class="field"><label>Website</label><input id="ob-website" value="${esc(socials.website || '')}" placeholder="https://…"/></div>
+
+          <div class="section-t">Lines of insurance you write</div>
+          <div class="hint" style="margin-bottom:8px">This decides which sections show on your landing page — a Medicare writer won't show a health-only page.</div>
+          <div class="pickgrid">${lineOpts}</div>
+
+          <div style="display:flex;gap:10px;margin-top:24px;align-items:center">
+            <button class="ag-btn" id="ob-save">${editing ? 'Save profile' : 'Save & continue'}</button>
+            ${editing ? '<button class="btn btn-ghost" id="ob-cancel">Cancel</button>' : '<button class="btn btn-ghost" id="ob-skip">Skip for now</button>'}
+            <span class="ag-status ob-status" style="min-height:1em"></span>
+          </div>
+        </div></div>`;
+      gate.hidden = true; app.hidden = editing ? false : true; el.hidden = false;
+      if (editing) app.hidden = true; // full-screen while editing too
+
+      pendingHeadshotFile = null;
+      $('#ob-file').addEventListener('change', (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        if (f.size > 8 * 1024 * 1024) { setObStatus('That image is over 8 MB. Choose a smaller one.', true); return; }
+        pendingHeadshotFile = f;
+        const rd = new FileReader();
+        rd.onload = () => { $('#ob-preview').innerHTML = `<img src="${rd.result}" alt=""/>`; };
+        rd.readAsDataURL(f);
+      });
+      $('#ob-save').addEventListener('click', () => saveOnboarding(email, editing));
+      $('#ob-skip')?.addEventListener('click', () => enterApp(email));
+      $('#ob-cancel')?.addEventListener('click', () => enterApp(email));
+    }
+    const setObStatus = (t, bad = false) => { const el = $('.ob-status'); if (el) { el.textContent = t; el.classList.toggle('is-bad', !!bad); } };
+
+    async function saveOnboarding(email, editing) {
+      const btn = $('#ob-save'); btn.disabled = true; setObStatus('Saving…');
+      let headshot_url = state.me.headshot_url || null;
+
+      // Upload the headshot into the broker's own folder (RLS-scoped by uid).
+      if (pendingHeadshotFile) {
+        const ext = (pendingHeadshotFile.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+        const path = `${state.uid}/headshot-${Date.now()}.${ext}`;
+        const { error: upErr } = await sb.storage.from('broker-photos').upload(path, pendingHeadshotFile, { upsert: true, contentType: pendingHeadshotFile.type });
+        if (upErr) { btn.disabled = false; setObStatus('Photo upload failed: ' + upErr.message, true); return; }
+        const { data: pub } = sb.storage.from('broker-photos').getPublicUrl(path);
+        headshot_url = pub?.publicUrl || headshot_url;
+      }
+
+      const social_links = {};
+      for (const k of ['linkedin', 'facebook', 'instagram', 'website']) {
+        const v = $('#ob-' + k)?.value?.trim();
+        if (v) social_links[k] = v;
+      }
+      const lines_of_insurance = $$('[data-line]').filter((c) => c.checked).map((c) => c.getAttribute('data-line'));
+      const patch = {
+        bio: $('#ob-bio').value.trim() || null,
+        headshot_url,
+        social_links,
+        lines_of_insurance,
+        onboarding_completed_at: new Date().toISOString(),
+      };
+      const { error } = await sb.from('ph_agents').update(patch).eq('auth_user_id', state.uid);
+      if (error) { btn.disabled = false; setObStatus('Could not save: ' + error.message, true); return; }
+
+      Object.assign(state.me, patch);
+      toast(editing ? 'Profile updated' : 'Profile saved');
+      enterApp(email);
     }
 
     function startClock() {
