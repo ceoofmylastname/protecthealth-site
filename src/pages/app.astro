@@ -580,32 +580,28 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       state.uid = uid;
       if (!uid || !token) { btn.disabled = false; setObStatus('Your session expired. Please sign out and back in.', true); return; }
 
-      // Upload the headshot into the broker's own folder (RLS-scoped by uid).
-      // Explicit fetch with the bearer token, bypassing any SDK header-refresh
-      // timing so the request is unambiguously authenticated.
+      // Upload the headshot through the server (ph-upload-headshot). The browser
+      // could not reliably attach a Storage-valid token to a direct upload, so
+      // the file is handed to a function that verifies the caller and writes it
+      // with the service role. The stored path stays pinned to this uid, so a
+      // broker can still only ever write into their own folder.
       if (pendingHeadshotFile) {
-        const ext = (pendingHeadshotFile.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
-        const path = `${uid}/headshot-${Date.now()}.${ext}`;
         const base = root.getAttribute('data-supabase-url');
         const anon = root.getAttribute('data-supabase-anon');
-        const resp = await fetch(`${base}/storage/v1/object/broker-photos/${path}`, {
+        const fd = new FormData();
+        fd.append('file', pendingHeadshotFile);
+        const resp = await fetch(`${base}/functions/v1/ph-upload-headshot`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            apikey: anon,
-            'x-upsert': 'true',
-            'Content-Type': pendingHeadshotFile.type || 'application/octet-stream',
-          },
-          body: pendingHeadshotFile,
+          headers: { Authorization: `Bearer ${token}`, apikey: anon },
+          body: fd,
         });
-        if (!resp.ok) {
-          const detail = await resp.text().catch(() => '');
+        const up = await resp.json().catch(() => ({}));
+        if (!resp.ok || !up?.url) {
           btn.disabled = false;
-          setObStatus('Photo upload failed (' + resp.status + '). ' + detail, true);
+          setObStatus('Photo upload failed: ' + (up?.error || ('error ' + resp.status)), true);
           return;
         }
-        const { data: pub } = sb.storage.from('broker-photos').getPublicUrl(path);
-        headshot_url = pub?.publicUrl || headshot_url;
+        headshot_url = up.url;
       }
 
       const social_links = {};
