@@ -1,0 +1,168 @@
+---
+// Native booking widget for broker landing + calendar pages. Talks to the
+// ph-book edge function: loads open slots for this agent, lets the visitor pick
+// a time and enter details, and books it. The booking creates a contact in that
+// agent's CRM and their pipeline deal. No GoHighLevel.
+interface Props {
+  agentId: string;
+  agentName: string;
+  lines?: string[];
+  variant?: 'card' | 'page';
+}
+const { agentId, agentName, lines = [], variant = 'card' } = Astro.props;
+const first = (agentName || '').trim().split(/\s+/)[0] || 'us';
+const FN_URL = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+<div class:list={['sched', variant === 'page' && 'sched-full']} data-agent={agentId} id="sched">
+  <div class="sched-head">
+    <div class="sched-title">Book time with {first}</div>
+    <div class="sched-sub">Times shown in Las Vegas time. Pick a slot and you're set.</div>
+  </div>
+  <div class="sched-status">Loading available times…</div>
+  <div class="sched-cal" hidden>
+    <div class="sched-days"></div>
+    <div class="sched-times"></div>
+  </div>
+  <form class="sched-form" hidden>
+    <div class="sched-chosen"></div>
+    <div class="sched-row">
+      <label>Your name<input name="name" required autocomplete="name" /></label>
+    </div>
+    <div class="sched-row two">
+      <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+      <label>Phone<input name="phone" inputmode="tel" autocomplete="tel" /></label>
+    </div>
+    {lines.length > 0 && (
+      <div class="sched-row">
+        <label>What's this about?
+          <select name="line">
+            <option value="">Not sure yet</option>
+            {lines.map((l) => <option value={l}>{l}</option>)}
+          </select>
+        </label>
+      </div>
+    )}
+    <div class="sched-row">
+      <label>Anything we should know? (optional)<textarea name="notes" rows="2"></textarea></label>
+    </div>
+    <div class="sched-actions">
+      <button type="submit" class="sched-btn">Confirm booking</button>
+      <button type="button" class="sched-back">← Pick another time</button>
+    </div>
+  </form>
+  <div class="sched-done" hidden></div>
+  <p class="sched-err" role="alert"></p>
+</div>
+
+<script is:inline define:vars={{ agentId, FN_URL, ANON, agentFirst: first }}>
+  (function () {
+    const root = document.getElementById('sched');
+    if (!root) return;
+    const FN = FN_URL + '/ph-book';
+    const $ = (s) => root.querySelector(s);
+    const statusEl = $('.sched-status'), cal = $('.sched-cal'), daysEl = $('.sched-days'),
+      timesEl = $('.sched-times'), form = $('.sched-form'), doneEl = $('.sched-done'), errEl = $('.sched-err');
+    let data = null, selDay = null, chosen = null;
+
+    async function call(body) {
+      const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(body) });
+      return { ok: r.ok, data: await r.json().catch(() => ({})) };
+    }
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    function dayLabel(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d, 12));
+      return { wd: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }), md: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) };
+    }
+
+    async function load() {
+      const { ok, data: d } = await call({ action: 'slots', agent_id: agentId });
+      if (!ok || !d || !Array.isArray(d.days) || !d.days.length) {
+        statusEl.textContent = 'No open times online right now — call or email using the buttons above and we’ll get you set.';
+        return;
+      }
+      data = d; selDay = d.days[0].date;
+      statusEl.hidden = true; cal.hidden = false;
+      renderDays(); renderTimes();
+    }
+    function renderDays() {
+      daysEl.innerHTML = data.days.map((day) => {
+        const l = dayLabel(day.date);
+        return `<button type="button" class="sched-day${day.date === selDay ? ' on' : ''}" data-date="${day.date}"><span>${l.wd}</span><b>${l.md}</b></button>`;
+      }).join('');
+      daysEl.querySelectorAll('.sched-day').forEach((b) => b.addEventListener('click', () => { selDay = b.dataset.date; renderDays(); renderTimes(); }));
+    }
+    function renderTimes() {
+      const day = data.days.find((x) => x.date === selDay);
+      timesEl.innerHTML = (day ? day.slots : []).map((s) => `<button type="button" class="sched-time" data-iso="${s.start_at}" data-label="${esc(s.label)}">${esc(s.label)}</button>`).join('');
+      timesEl.querySelectorAll('.sched-time').forEach((b) => b.addEventListener('click', () => {
+        const l = dayLabel(selDay);
+        chosen = { iso: b.dataset.iso, label: b.dataset.label, day: `${l.wd}, ${l.md}` };
+        showForm();
+      }));
+    }
+    function showForm() {
+      cal.hidden = true; form.hidden = false; errEl.textContent = '';
+      form.querySelector('.sched-chosen').innerHTML = `<b>${esc(chosen.day)} at ${esc(chosen.label)}</b> — 30 minutes with ${esc(agentFirst)}`;
+    }
+    $('.sched-back').addEventListener('click', () => { form.hidden = true; cal.hidden = false; });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errEl.textContent = '';
+      const btn = form.querySelector('.sched-btn'); btn.disabled = true; btn.textContent = 'Booking…';
+      const body = {
+        action: 'book', agent_id: agentId, start_at: chosen.iso,
+        name: form.name.value.trim(), email: form.email.value.trim(), phone: form.phone.value.trim(),
+        line: form.line ? form.line.value : '', notes: form.notes.value.trim(),
+      };
+      const { ok, data: res } = await call(body);
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      if (!ok || !res.ok) {
+        errEl.textContent = res.error || 'Something went wrong. Please try another time.';
+        if (res.error && /taken|available/i.test(res.error)) { form.hidden = true; cal.hidden = false; load(); }
+        return;
+      }
+      form.hidden = true; cal.hidden = true;
+      doneEl.hidden = false;
+      doneEl.innerHTML = `<div class="sched-check">✓</div><h3>You're booked</h3><p><b>${esc(res.when)}</b> with ${esc(res.agent)}.</p><p>A confirmation is on its way to your email.</p>`;
+    });
+
+    load();
+  })();
+</script>
+
+<style>
+  .sched { --navy:#0b2a4a; --blue:#2563c9; --line:#e2e8f0; --muted:#5b6b7c; border:1.5px solid var(--line); border-radius:18px; background:#fff; padding:22px; box-shadow:0 14px 40px rgba(11,42,74,.10); }
+  .sched-full { box-shadow:none; }
+  .sched-head { margin-bottom:14px; }
+  .sched-title { font-weight:800; font-size:1.15rem; color:var(--navy); }
+  .sched-sub { color:var(--muted); font-size:.88rem; margin-top:2px; }
+  .sched-status { color:var(--muted); padding:14px 0; }
+  .sched-days { display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; }
+  .sched-day { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 12px; border:1.5px solid var(--line); border-radius:12px; background:#fff; cursor:pointer; min-width:58px; }
+  .sched-day span { font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .sched-day b { color:var(--navy); font-size:.9rem; }
+  .sched-day.on { border-color:var(--navy); background:#eef4ff; }
+  .sched-times { display:grid; grid-template-columns:repeat(auto-fill, minmax(84px,1fr)); gap:8px; margin-top:12px; }
+  .sched-time { padding:10px 6px; border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--navy); font-weight:600; cursor:pointer; font-size:.9rem; }
+  .sched-time:hover { border-color:var(--blue); color:var(--blue); }
+  .sched-chosen { background:#eef4ff; border-radius:10px; padding:10px 12px; color:var(--navy); margin-bottom:14px; font-size:.95rem; }
+  .sched-row { margin-bottom:12px; }
+  .sched-row.two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .sched label { display:block; font-size:.82rem; font-weight:700; color:var(--navy); }
+  .sched input, .sched select, .sched textarea { width:100%; margin-top:5px; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:.95rem; font-family:inherit; box-sizing:border-box; }
+  .sched input:focus, .sched select:focus, .sched textarea:focus { outline:none; border-color:var(--blue); }
+  .sched-actions { display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap; }
+  .sched-btn { background:var(--navy); color:#fff; border:0; border-radius:11px; padding:13px 26px; font-weight:700; cursor:pointer; }
+  .sched-btn:hover { background:var(--blue); }
+  .sched-btn:disabled { opacity:.6; }
+  .sched-back { background:none; border:0; color:var(--muted); cursor:pointer; font-weight:600; }
+  .sched-err { color:#c0392b; margin:10px 0 0; min-height:1em; font-size:.9rem; }
+  .sched-done { text-align:center; padding:18px 6px; }
+  .sched-check { width:52px; height:52px; margin:0 auto 12px; border-radius:50%; background:#0a7d3c; color:#fff; font-size:1.7rem; display:grid; place-items:center; }
+  .sched-done h3 { color:var(--navy); margin:0 0 6px; }
+  .sched-done p { color:var(--muted); margin:4px 0; }
+  @media (max-width:520px){ .sched-row.two { grid-template-columns:1fr; } }
+</style>

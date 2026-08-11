@@ -160,3 +160,20 @@ export const brokerSlug = (name: string): string =>
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-') || 'broker';
+
+// Shared Higgsfield imagery for every broker landing page (same set for all).
+// Hotlinked to the Higgsfield CDN like the rest of the site's art; localizing
+// these into /public is the standing image-localization roadmap item.
+const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3HO1vPQtOhOaysTUBeL4ts348h5';
+export const HERO_IMAGE = `${HF}/hf_20260811_163432_1d96896a-d3d9-46f7-866b-0d973bb61349.png`;
+export const LINE_IMAGES: Record<string, string> = {
+  'Health': `${HF}/hf_20260811_164110_4b217399-b52c-4b32-b6ec-251afa98af0d.png`,
+  'Medicare': `${HF}/hf_20260811_163907_8aa4b71d-2434-4298-a9ac-b63f9703dd0f.png`,
+  'Life': `${HF}/hf_20260811_164110_09d0a5a8-ad63-484a-9417-1dab93eeadc7.png`,
+  'Annuities': `${HF}/hf_20260811_164333_62478d30-80e6-45da-918b-0ee1bf6f60e8.png`,
+  'Group Benefits': `${HF}/hf_20260811_163907_538aca83-a6d9-4035-b02b-ea9715693485.png`,
+  'Supplements': `${HF}/hf_20260811_164110_80fafd25-1854-4a93-ac48-aac32d49cb8a.png`,
+  'Dental': `${HF}/hf_20260811_163907_c3721c59-25a8-48ba-9dc2-7c0f0e075670.png`,
+  'Vision': `${HF}/hf_20260811_163907_027eeea0-05ee-4bcb-95e4-f8ba6b8ef621.png`,
+  'Accident / Gap': `${HF}/hf_20260811_164110_06aac9ae-f4f2-439c-aa7b-eefbb85c2d64.png`,
+};

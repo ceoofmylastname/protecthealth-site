@@ -1,0 +1,68 @@
+---
+// Dedicated per-agent calendar/booking page. Shareable link; booking drops the
+// contact into that agent's CRM. Static per onboarded broker.
+import { createClient } from '@supabase/supabase-js';
+import Base from '../../layouts/Base.astro';
+import BrokerScheduler from '../../components/BrokerScheduler.astro';
+import { SITE } from '../../lib/site';
+import { brokerSlug } from '../../lib/broker-lines';
+
+export async function getStaticPaths() {
+  const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+  let brokers = [];
+  try {
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } });
+    const { data, error } = await sb.rpc('ph_public_brokers');
+    if (!error && Array.isArray(data)) brokers = data;
+  } catch (_e) { brokers = []; }
+  const seen = new Map();
+  return brokers.map((b) => {
+    let slug = brokerSlug(b.full_name);
+    if (seen.has(slug)) { const n = seen.get(slug) + 1; seen.set(slug, n); slug = `${slug}-${n}`; }
+    else seen.set(slug, 1);
+    return { params: { slug }, props: { broker: b } };
+  });
+}
+
+const { broker } = Astro.props;
+const slug = Astro.params.slug;
+const firstName = (broker.full_name || '').trim().split(/\s+/)[0] || 'us';
+const lines = Array.isArray(broker.lines_of_insurance) ? broker.lines_of_insurance : [];
+const OFFICE_PHONE = '800-240-8185';
+const phone = (broker.phone && String(broker.phone).trim()) || OFFICE_PHONE;
+const telHref = 'tel:+1' + phone.replace(/\D/g, '').replace(/^1/, '');
+const email = broker.email && String(broker.email).trim() ? String(broker.email).trim() : null;
+const pageUrl = `${SITE.domain}/book/${slug}`;
+const title = `Book time with ${broker.full_name} — ProtectHealth`;
+const description = `Schedule a conversation with ${broker.full_name}, a licensed ProtectHealth insurance broker in Las Vegas.`;
+---
+<Base title={title} description={description} canonical={pageUrl}>
+  <main class="bk">
+    <section class="bk-inner">
+      <div class="bk-head">
+        {broker.headshot_url && <img class="bk-photo" src={broker.headshot_url} alt={broker.full_name} width="88" height="88" />}
+        <div>
+          <p class="bk-eyebrow">ProtectHealth · Las Vegas</p>
+          <h1>Book time with {broker.full_name}</h1>
+          <p class="bk-sub">{broker.title || 'Licensed Insurance Broker'} · 30-minute conversation, no pressure. Prefer to talk now? Call <a href={telHref}>{phone}</a>{email && <> or email <a href={`mailto:${email}`}>{email}</a></>}.</p>
+        </div>
+      </div>
+      <BrokerScheduler agentId={broker.id} agentName={broker.full_name} lines={lines} variant="page" />
+      <p class="bk-back"><a href={`/broker/${slug}`}>← See {firstName}'s full page</a></p>
+    </section>
+  </main>
+  <style>
+    .bk { background:#f4f7fc; min-height:70vh; padding:48px 0; }
+    .bk-inner { max-width:640px; margin:0 auto; padding:0 22px; }
+    .bk-head { display:flex; gap:18px; align-items:center; margin-bottom:24px; }
+    .bk-photo { width:88px; height:88px; border-radius:16px; object-fit:cover; box-shadow:0 10px 26px rgba(11,42,74,.16); flex:none; }
+    .bk-eyebrow { text-transform:uppercase; letter-spacing:2px; font-size:.7rem; font-weight:800; color:#2563c9; margin:0 0 6px; }
+    .bk-head h1 { color:#0b2a4a; font-size:clamp(1.5rem,3.5vw,2rem); margin:0 0 6px; line-height:1.1; }
+    .bk-sub { color:#5b6b7c; line-height:1.55; margin:0; font-size:.95rem; }
+    .bk-sub a { color:#2563c9; font-weight:600; }
+    .bk-back { text-align:center; margin-top:22px; }
+    .bk-back a { color:#5b6b7c; font-weight:600; text-decoration:none; }
+    @media (max-width:520px){ .bk-head { flex-direction:column; text-align:center; align-items:center; } }
+  </style>
+</Base>

@@ -1,30 +1,25 @@
 ---
-// Broker landing page. One uniform, ProtectHealth-branded template per broker,
-// generated statically from the roster at build time (item 48-55). Populated
-// from onboarding: headshot, bio, social links, lines of insurance. The lines a
-// broker writes decide which content blocks render. Booking link embedded.
-//
-// Static on purpose: the whole strategic point (item 55) is that when a prospect
-// googles the agent, a real ProtectHealth page ranks. New/updated brokers publish
-// on the next deploy. Reads the public, onboarded-only broker source with the
-// anon key at build time.
+// Broker landing page — a real conversion page, /employers-style. Static per
+// onboarded broker at build time. Hero image + headline on top, per-line feature
+// sections with shared imagery, internal + external links, call/email CTAs, a
+// native booking widget (books into this agent's CRM), and the agent's bio +
+// photo at the bottom. Populated from onboarding via the anon-readable
+// ph_public_brokers source.
 import { createClient } from '@supabase/supabase-js';
 import Base from '../../layouts/Base.astro';
+import BrokerScheduler from '../../components/BrokerScheduler.astro';
 import { SITE } from '../../lib/site';
-import { LINE_BLOCKS, brokerSlug } from '../../lib/broker-lines';
+import { LINE_BLOCKS, LINE_IMAGES, HERO_IMAGE, brokerSlug } from '../../lib/broker-lines';
 
 export async function getStaticPaths() {
   const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
-  const SUPABASE_ANON =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
   let brokers = [];
   try {
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } });
     const { data, error } = await sb.rpc('ph_public_brokers');
     if (!error && Array.isArray(data)) brokers = data;
-  } catch (_e) {
-    brokers = []; // never fail the whole build over the roster fetch
-  }
+  } catch (_e) { brokers = []; }
   const seen = new Map();
   return brokers.map((b) => {
     let slug = brokerSlug(b.full_name);
@@ -35,136 +30,214 @@ export async function getStaticPaths() {
 }
 
 const { broker } = Astro.props;
+const slug = Astro.params.slug;
 const firstName = (broker.full_name || '').trim().split(/\s+/)[0] || 'us';
 const lines = Array.isArray(broker.lines_of_insurance) ? broker.lines_of_insurance : [];
 const blocks = lines.map((l) => LINE_BLOCKS[l]).filter(Boolean);
 const social = broker.social_links || {};
 const socialLinks = [
-  { k: 'linkedin', label: 'LinkedIn', url: social.linkedin },
-  { k: 'facebook', label: 'Facebook', url: social.facebook },
-  { k: 'instagram', label: 'Instagram', url: social.instagram },
-  { k: 'website', label: 'Website', url: social.website },
+  { label: 'LinkedIn', url: social.linkedin },
+  { label: 'Facebook', url: social.facebook },
+  { label: 'Instagram', url: social.instagram },
+  { label: 'Website', url: social.website },
 ].filter((s) => s.url);
-const bookingUrl = (broker.booking_url && String(broker.booking_url).trim()) || '/talk-to-a-broker';
-const pageUrl = `${SITE.domain}/broker/${Astro.params.slug}`;
-const title = `${broker.full_name} — ProtectHealth Insurance Broker`;
-const description = (broker.bio || `Work with ${broker.full_name}, a licensed ProtectHealth insurance broker in Nevada.`).replace(/\s+/g, ' ').trim().slice(0, 155);
+
+const OFFICE_PHONE = '800-240-8185';
+const phone = (broker.phone && String(broker.phone).trim()) || OFFICE_PHONE;
+const telHref = 'tel:+1' + phone.replace(/\D/g, '').replace(/^1/, '');
+const email = broker.email && String(broker.email).trim() ? String(broker.email).trim() : null;
+
+const pageUrl = `${SITE.domain}/broker/${slug}`;
+const bookUrl = `/book/${slug}`;
+const title = `${broker.full_name} — ProtectHealth Insurance Broker, Las Vegas`;
+const description = (broker.bio || `Work with ${broker.full_name}, a licensed ProtectHealth insurance broker in Nevada. Book a conversation.`).replace(/\s+/g, ' ').trim().slice(0, 155);
 
 const sameAs = socialLinks.map((s) => s.url);
 const schemas = [
   {
-    '@context': 'https://schema.org',
-    '@type': 'ProfilePage',
+    '@context': 'https://schema.org', '@type': 'ProfilePage',
     mainEntity: {
-      '@type': 'Person',
-      '@id': `${pageUrl}#person`,
-      name: broker.full_name,
-      jobTitle: broker.title || 'Licensed Insurance Broker',
+      '@type': 'Person', '@id': `${pageUrl}#person`,
+      name: broker.full_name, jobTitle: broker.title || 'Licensed Insurance Broker',
       ...(broker.headshot_url ? { image: broker.headshot_url } : {}),
-      url: pageUrl,
+      url: pageUrl, telephone: phone, ...(email ? { email } : {}),
       worksFor: { '@type': 'Organization', '@id': `${SITE.domain}/#organization` },
-      ...(sameAs.length ? { sameAs } : {}),
+      areaServed: 'Las Vegas, Nevada', ...(sameAs.length ? { sameAs } : {}),
     },
   },
 ];
+const linesSummary = lines.length
+  ? lines.slice(0, 3).join(', ').replace('Accident / Gap', 'accident & gap') + (lines.length > 3 ? ' and more' : '')
+  : 'health, life and more';
 ---
-<Base title={title} description={description} canonical={pageUrl} ogImage={broker.headshot_url} schemas={schemas}>
-  <main class="bl">
-    <section class="bl-hero">
-      <div class="bl-wrap bl-hero-grid">
-        <div class="bl-photo">
-          {broker.headshot_url
-            ? <img src={broker.headshot_url} alt={`${broker.full_name}, ProtectHealth insurance broker`} width="180" height="180" />
-            : <div class="bl-photo-fallback">{(broker.full_name || 'PH').split(/\s+/).map((w) => w[0]).slice(0, 2).join('')}</div>}
-        </div>
-        <div class="bl-intro">
-          <p class="bl-eyebrow">ProtectHealth Insurance</p>
-          <h1>{broker.full_name}</h1>
-          <p class="bl-role">{broker.title || 'Licensed Insurance Broker'} · Las Vegas, Nevada</p>
-          {broker.bio && <p class="bl-bio">{broker.bio}</p>}
-          <div class="bl-cta-row">
-            <a class="bl-btn" href={bookingUrl}>Talk to {firstName}</a>
-            {socialLinks.length > 0 && (
-              <div class="bl-social">
-                {socialLinks.map((s) => <a href={s.url} target="_blank" rel="noopener">{s.label}</a>)}
-              </div>
-            )}
-          </div>
+<Base title={title} description={description} canonical={pageUrl} ogImage={HERO_IMAGE} schemas={schemas}>
+  <main class="lb">
+    <!-- HERO -->
+    <section class="lb-hero">
+      <div class="lb-hero-img" style={`background-image:url('${HERO_IMAGE}')`}></div>
+      <div class="lb-hero-tint"></div>
+      <div class="lb-wrap lb-hero-inner">
+        <p class="lb-kick"><i></i> ProtectHealth · Las Vegas, Nevada</p>
+        <h1 class="lb-h1">Coverage built around your life.<br /><span class="lb-grad">Not the other way around.</span></h1>
+        <p class="lb-lead">Work with {firstName}, a licensed ProtectHealth broker. One straightforward conversation, genuine options across {linesSummary}, and zero pressure. The product should serve the strategy — never become it.</p>
+        <div class="lb-hero-cta">
+          <a class="lb-btn" href="#book">Book with {firstName}</a>
+          <a class="lb-btn ghost" href={telHref}>Call {firstName}</a>
         </div>
       </div>
     </section>
 
+    <!-- LINES -->
     {blocks.length > 0 && (
-      <section class="bl-lines">
-        <div class="bl-wrap">
-          <h2 class="bl-h2">How {firstName} can help</h2>
-          <p class="bl-sub">The product should serve the strategy — not become the strategy. Here's where {firstName} works.</p>
-          <div class="bl-grid">
-            {blocks.map((b) => (
-              <article class="bl-card">
-                <p class="bl-card-eyebrow">{b.eyebrow}</p>
-                <h3>{b.title}</h3>
-                <p class="bl-card-body">{b.body}</p>
-                <ul class="bl-points">
-                  {b.points.map((p) => <li>{p}</li>)}
-                </ul>
-                <a class="bl-link" href={bookingUrl}>{b.cta} →</a>
-              </article>
-            ))}
+      <section class="lb-lines">
+        <div class="lb-wrap">
+          <div class="lb-sec-head">
+            <p class="lb-eyebrow">What {firstName} helps with</p>
+            <h2>Real coverage for real situations</h2>
           </div>
+          {blocks.map((b, i) => (
+            <div class:list={['lb-feature', i % 2 === 1 && 'rev']}>
+              <div class="lb-feature-img" style={`background-image:url('${LINE_IMAGES[b.key] || HERO_IMAGE}')`}></div>
+              <div class="lb-feature-body">
+                <p class="lb-eyebrow">{b.eyebrow}</p>
+                <h3>{b.title}</h3>
+                <p>{b.body}</p>
+                <ul class="lb-points">{b.points.map((p) => <li>{p}</li>)}</ul>
+                <a class="lb-link" href="#book">{b.cta} →</a>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     )}
 
-    <section class="bl-close">
-      <div class="bl-wrap bl-close-inner">
-        <h2>Ready when you are</h2>
-        <p>Book a straightforward conversation with {firstName}. No pressure, no jargon — just a licensed broker who'll help you make sense of your options.</p>
-        <a class="bl-btn bl-btn-light" href={bookingUrl}>Talk to {firstName}</a>
+    <!-- STRATEGY + LINKS (internal + external) -->
+    <section class="lb-strategy">
+      <div class="lb-wrap lb-strategy-grid">
+        <div>
+          <p class="lb-eyebrow">Why a ProtectHealth broker</p>
+          <h2>Local, licensed, and Nevada-specific</h2>
+          <p>{firstName} is a licensed broker who works Nevada plans every day — from <a href="https://www.nevadahealthlink.com/" target="_blank" rel="noopener">Nevada Health Link</a> marketplace coverage to <a href="https://www.medicare.gov/" target="_blank" rel="noopener">Medicare</a> and everything around it. Not sure where to start? See who we are on our <a href="/our-team">team page</a>, or read how we help the <a href="/self-employed">self-employed</a> and <a href="/employers">business owners</a>.</p>
+          <p>Every plan is regulated by the <a href="https://doi.nv.gov/" target="_blank" rel="noopener">Nevada Division of Insurance</a>, and we'll always tell you where the lines are. We're insurance nerds, not tax professionals — where taxes or business structure come up, we bring one in.</p>
+          <div class="lb-strategy-cta">
+            <a class="lb-btn" href="#book">Book a conversation</a>
+            {email && <a class="lb-btn ghost" href={`mailto:${email}`}>Email {firstName}</a>}
+          </div>
+        </div>
+        <div class="lb-quote">
+          <p>“The product should serve the strategy — not become the strategy.”</p>
+          <span>The ProtectHealth approach</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOK -->
+    <section class="lb-book" id="book">
+      <div class="lb-wrap lb-book-grid">
+        <div class="lb-book-copy">
+          <p class="lb-eyebrow">Book time with {firstName}</p>
+          <h2>Grab a time that works for you</h2>
+          <p>Pick a slot below and you're set — {firstName} will meet you then. Prefer to talk now? Call <a href={telHref}>{phone}</a>{email && <> or email <a href={`mailto:${email}`}>{email}</a></>}.</p>
+          <p class="lb-book-note">A dedicated calendar page lives at <a href={bookUrl}>{`protecthealth.com${bookUrl}`}</a> — share it anywhere.</p>
+        </div>
+        <div class="lb-book-widget">
+          <BrokerScheduler agentId={broker.id} agentName={broker.full_name} lines={lines} />
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENT (bottom) -->
+    <section class="lb-agent">
+      <div class="lb-wrap lb-agent-inner">
+        {broker.headshot_url
+          ? <img class="lb-agent-photo" src={broker.headshot_url} alt={`${broker.full_name}, ProtectHealth broker`} width="140" height="140" />
+          : <div class="lb-agent-photo fallback">{(broker.full_name || 'PH').split(/\s+/).map((w) => w[0]).slice(0, 2).join('')}</div>}
+        <div class="lb-agent-body">
+          <p class="lb-eyebrow">Your broker</p>
+          <h2>{broker.full_name}</h2>
+          <p class="lb-agent-role">{broker.title || 'Licensed Insurance Broker'} · ProtectHealth · Las Vegas, Nevada</p>
+          {broker.bio && <p class="lb-agent-bio">{broker.bio}</p>}
+          <div class="lb-agent-cta">
+            <a class="lb-btn sm" href="#book">Book with {firstName}</a>
+            <a class="lb-btn sm ghost" href={telHref}>Call</a>
+            {email && <a class="lb-btn sm ghost" href={`mailto:${email}`}>Email</a>}
+            {socialLinks.map((s) => <a class="lb-agent-social" href={s.url} target="_blank" rel="noopener">{s.label}</a>)}
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <style>
-    .bl { --navy: #0b2a4a; --blue: #2563c9; --ink: #0f172a; --muted: #5b6b7c; --line: #e2e8f0; }
-    .bl-wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
-    .bl-hero { background: linear-gradient(180deg, #eef4ff 0%, #f7fafc 100%); padding: 56px 0 48px; }
-    .bl-hero-grid { display: grid; grid-template-columns: 180px 1fr; gap: 32px; align-items: center; }
-    .bl-photo img { width: 180px; height: 180px; border-radius: 20px; object-fit: cover; box-shadow: 0 12px 34px rgba(11,42,74,.18); }
-    .bl-photo-fallback { width: 180px; height: 180px; border-radius: 20px; display: grid; place-items: center; font-size: 3rem; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--navy), var(--blue)); }
-    .bl-eyebrow { text-transform: uppercase; letter-spacing: 2px; font-size: .72rem; font-weight: 800; color: var(--blue); margin: 0 0 6px; }
-    .bl-intro h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); line-height: 1.05; margin: 0 0 6px; color: var(--navy); }
-    .bl-role { color: var(--muted); font-weight: 600; margin: 0 0 14px; }
-    .bl-bio { color: var(--ink); font-size: 1.05rem; line-height: 1.6; margin: 0 0 20px; max-width: 60ch; }
-    .bl-cta-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-    .bl-btn { display: inline-block; background: var(--navy); color: #fff; text-decoration: none; font-weight: 700; padding: 14px 26px; border-radius: 12px; box-shadow: 0 8px 22px rgba(11,42,74,.22); }
-    .bl-btn:hover { background: var(--blue); }
-    .bl-btn-light { background: #fff; color: var(--navy); }
-    .bl-btn-light:hover { background: #eef4ff; color: var(--navy); }
-    .bl-social { display: flex; gap: 14px; flex-wrap: wrap; }
-    .bl-social a { color: var(--blue); font-weight: 600; text-decoration: none; font-size: .95rem; }
-    .bl-social a:hover { text-decoration: underline; }
-    .bl-lines { padding: 56px 0; }
-    .bl-h2 { font-size: clamp(1.5rem, 3vw, 2rem); color: var(--navy); margin: 0 0 6px; }
-    .bl-sub { color: var(--muted); margin: 0 0 30px; max-width: 62ch; }
-    .bl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 20px; }
-    .bl-card { border: 1.5px solid var(--line); border-radius: 16px; padding: 24px; background: #fff; }
-    .bl-card-eyebrow { text-transform: uppercase; letter-spacing: 1.5px; font-size: .68rem; font-weight: 800; color: var(--blue); margin: 0 0 8px; }
-    .bl-card h3 { font-size: 1.18rem; color: var(--navy); margin: 0 0 10px; line-height: 1.25; }
-    .bl-card-body { color: var(--ink); line-height: 1.6; margin: 0 0 14px; }
-    .bl-points { list-style: none; padding: 0; margin: 0 0 16px; }
-    .bl-points li { position: relative; padding-left: 22px; margin-bottom: 8px; color: var(--ink); line-height: 1.5; }
-    .bl-points li::before { content: '✓'; position: absolute; left: 0; color: var(--blue); font-weight: 800; }
-    .bl-link { color: var(--navy); font-weight: 700; text-decoration: none; }
-    .bl-link:hover { color: var(--blue); }
-    .bl-close { background: linear-gradient(135deg, var(--navy), #14396a); color: #fff; padding: 60px 0; }
-    .bl-close-inner { text-align: center; }
-    .bl-close h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0 0 12px; }
-    .bl-close p { color: #cfe0f7; max-width: 56ch; margin: 0 auto 26px; line-height: 1.6; }
-    @media (max-width: 640px) {
-      .bl-hero-grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-      .bl-bio { max-width: none; }
-      .bl-cta-row { justify-content: center; }
+    .lb { --navy:#0b2a4a; --blue:#2563c9; --ink:#0f172a; --muted:#5b6b7c; --line:#e2e8f0; }
+    .lb-wrap { max-width:1120px; margin:0 auto; padding:0 22px; }
+    .lb-eyebrow { text-transform:uppercase; letter-spacing:2px; font-size:.72rem; font-weight:800; color:var(--blue); margin:0 0 8px; }
+    .lb-btn { display:inline-block; background:var(--navy); color:#fff; text-decoration:none; font-weight:700; padding:14px 26px; border-radius:12px; box-shadow:0 8px 22px rgba(11,42,74,.2); }
+    .lb-btn:hover { background:var(--blue); }
+    .lb-btn.ghost { background:rgba(255,255,255,.14); box-shadow:none; border:1.5px solid rgba(255,255,255,.5); }
+    .lb-btn.sm { padding:10px 18px; font-size:.9rem; }
+    .lb-lines .lb-btn.ghost, .lb-strategy .lb-btn.ghost, .lb-agent .lb-btn.ghost { background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+    .lb-agent .lb-btn.ghost:hover, .lb-strategy .lb-btn.ghost:hover { background:#eef4ff; color:var(--navy); }
+
+    .lb-hero { position:relative; min-height:520px; display:flex; align-items:center; overflow:hidden; }
+    .lb-hero-img { position:absolute; inset:0; background-size:cover; background-position:center; }
+    .lb-hero-tint { position:absolute; inset:0; background:linear-gradient(100deg, rgba(8,24,44,.86) 0%, rgba(8,24,44,.62) 42%, rgba(8,24,44,.12) 100%); }
+    .lb-hero-inner { position:relative; padding:80px 22px; color:#fff; }
+    .lb-kick { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:.85rem; color:#cfe0f7; margin:0 0 16px; }
+    .lb-kick i { width:8px; height:8px; border-radius:50%; background:#4ea1ff; display:inline-block; }
+    .lb-h1 { font-size:clamp(2.1rem,5vw,3.4rem); line-height:1.03; margin:0 0 18px; max-width:16ch; }
+    .lb-grad { background:linear-gradient(90deg,#7db8ff,#bcd6ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .lb-lead { font-size:1.1rem; line-height:1.6; color:#e6eefb; max-width:56ch; margin:0 0 26px; }
+    .lb-hero-cta { display:flex; gap:14px; flex-wrap:wrap; }
+
+    .lb-lines { padding:64px 0 24px; }
+    .lb-sec-head { text-align:center; margin-bottom:34px; }
+    .lb-sec-head h2, .lb-strategy h2, .lb-book h2, .lb-agent h2 { color:var(--navy); font-size:clamp(1.6rem,3vw,2.1rem); margin:0; }
+    .lb-feature { display:grid; grid-template-columns:1fr 1fr; gap:36px; align-items:center; margin-bottom:40px; }
+    .lb-feature.rev .lb-feature-img { order:2; }
+    .lb-feature-img { height:300px; border-radius:18px; background-size:cover; background-position:center; box-shadow:0 14px 40px rgba(11,42,74,.14); }
+    .lb-feature-body h3 { color:var(--navy); font-size:1.4rem; margin:0 0 12px; line-height:1.2; }
+    .lb-feature-body p { color:var(--ink); line-height:1.65; margin:0 0 14px; }
+    .lb-points { list-style:none; padding:0; margin:0 0 16px; }
+    .lb-points li { position:relative; padding-left:24px; margin-bottom:9px; color:var(--ink); line-height:1.5; }
+    .lb-points li::before { content:'✓'; position:absolute; left:0; color:var(--blue); font-weight:800; }
+    .lb-link { color:var(--navy); font-weight:700; text-decoration:none; }
+    .lb-link:hover { color:var(--blue); }
+
+    .lb-strategy { background:#f6f9ff; padding:60px 0; }
+    .lb-strategy-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:40px; align-items:center; }
+    .lb-strategy p { color:var(--ink); line-height:1.7; margin:14px 0; }
+    .lb-strategy a { color:var(--blue); font-weight:600; }
+    .lb-strategy-cta { display:flex; gap:14px; flex-wrap:wrap; margin-top:22px; }
+    .lb-quote { background:var(--navy); color:#fff; border-radius:18px; padding:34px; }
+    .lb-quote p { font-size:1.3rem; line-height:1.4; font-weight:600; margin:0 0 12px; }
+    .lb-quote span { color:#9fc0ee; font-size:.85rem; text-transform:uppercase; letter-spacing:1.5px; }
+
+    .lb-book { padding:64px 0; }
+    .lb-book-grid { display:grid; grid-template-columns:1fr 1.05fr; gap:40px; align-items:start; }
+    .lb-book-copy p { color:var(--ink); line-height:1.65; margin:14px 0; }
+    .lb-book-copy a { color:var(--blue); font-weight:600; }
+    .lb-book-note { font-size:.9rem; color:var(--muted) !important; }
+
+    .lb-agent { background:linear-gradient(135deg,var(--navy),#14396a); color:#fff; padding:56px 0; }
+    .lb-agent-inner { display:grid; grid-template-columns:140px 1fr; gap:28px; align-items:center; }
+    .lb-agent-photo { width:140px; height:140px; border-radius:18px; object-fit:cover; box-shadow:0 12px 30px rgba(0,0,0,.3); }
+    .lb-agent-photo.fallback { display:grid; place-items:center; font-size:2.4rem; font-weight:800; background:rgba(255,255,255,.14); }
+    .lb-agent h2 { color:#fff; }
+    .lb-agent .lb-eyebrow { color:#7db8ff; }
+    .lb-agent-role { color:#cfe0f7; font-weight:600; margin:4px 0 12px; }
+    .lb-agent-bio { color:#e6eefb; line-height:1.65; max-width:62ch; margin:0 0 18px; }
+    .lb-agent-cta { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .lb-agent-social { color:#bcd6ff; font-weight:600; text-decoration:none; }
+    .lb-agent-social:hover { text-decoration:underline; }
+
+    @media (max-width:860px){
+      .lb-feature, .lb-strategy-grid, .lb-book-grid, .lb-agent-inner { grid-template-columns:1fr; }
+      .lb-feature.rev .lb-feature-img { order:0; }
+      .lb-feature-img { height:220px; }
+      .lb-agent-inner { text-align:center; justify-items:center; }
+      .lb-agent-bio { max-width:none; }
+      .lb-agent-cta { justify-content:center; }
     }
   </style>
 </Base>
