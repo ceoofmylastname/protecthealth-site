@@ -38,7 +38,11 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 <body>
   <div class="ph" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON} data-logo={LOGO}>
 
-    <!-- ============ AUTH GATES (shown before the app) ============ -->
+    <!-- ============ AUTH GATES (shown before the app) ============
+         Split-screen sign-in: form left, branded hero right. All the class
+         hooks the auth JS depends on (.ag-login-form, .ag-forgot-form,
+         .ag-setpw-form, .ag-status, .ag-go-forgot, .ag-go-signin, .ag-signout,
+         data-view names) are unchanged — this is a reskin, not a rewire. -->
     <div class="ag-shell" data-gate>
       <div class="ag-view" data-view="loading">
         <div class="ag-center"><p class="ag-muted">Checking your session…</p></div>
@@ -46,46 +50,77 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
       <div class="ag-view" data-view="signin" hidden>
         <div class="ag-center"><div class="ag-card">
-          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
-          <h1>Broker sign-in</h1>
-          <p class="ag-muted">Sign in with your email and password.</p>
+          <img class="ag-logo ag-anim d1" src={LOGO} alt="ProtectHealth" />
+          <h1 class="ag-anim d2">Welcome back</h1>
+          <p class="ag-muted ag-anim d3">Sign in to your broker dashboard.</p>
           <form class="ag-login-form">
-            <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
-            <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
-            <button type="submit" class="ag-btn">Sign In</button>
+            <label class="ag-field ag-anim d4">
+              <span>Email address</span>
+              <div class="ag-input"><input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required /></div>
+            </label>
+            <label class="ag-field ag-anim d5">
+              <span>Password</span>
+              <div class="ag-input has-eye">
+                <input type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
+                <button type="button" class="pw-eye" aria-label="Show or hide password">
+                  <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                </button>
+              </div>
+            </label>
+            <div class="ag-row ag-anim d6">
+              <span class="ag-hint">Trouble signing in?</span>
+              <a href="#" class="ag-go-forgot">Reset password</a>
+            </div>
+            <button type="submit" class="ag-btn ag-anim d7">Sign In</button>
           </form>
           <p class="ag-status" role="status" aria-live="polite"></p>
-          <p class="ag-muted ag-small"><a href="#" class="ag-go-forgot">Forgot your password?</a></p>
+          <p class="ag-muted ag-small ag-anim d8">New to ProtectHealth? Your login is created by the office. Use the claim link in your welcome email, or ask the office to resend it.</p>
         </div></div>
       </div>
 
       <div class="ag-view" data-view="forgot" hidden>
         <div class="ag-center"><div class="ag-card">
-          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
-          <h1>Reset your password</h1>
-          <p class="ag-muted">Enter your work email and we'll send you a link to set a new password.</p>
+          <img class="ag-logo ag-anim d1" src={LOGO} alt="ProtectHealth" />
+          <h1 class="ag-anim d2">Reset your password</h1>
+          <p class="ag-muted ag-anim d3">Enter your work email and we'll send you a link to set a new password.</p>
           <form class="ag-forgot-form">
-            <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required />
-            <button type="submit" class="ag-btn">Send Reset Link</button>
+            <label class="ag-field ag-anim d4">
+              <span>Email address</span>
+              <div class="ag-input"><input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required /></div>
+            </label>
+            <button type="submit" class="ag-btn ag-anim d5">Send Reset Link</button>
           </form>
           <p class="ag-status" role="status" aria-live="polite"></p>
-          <p class="ag-muted ag-small"><a href="#" class="ag-go-signin">Back to sign in</a></p>
+          <p class="ag-muted ag-small ag-anim d6"><a href="#" class="ag-go-signin">← Back to sign in</a></p>
         </div></div>
       </div>
 
       <div class="ag-view" data-view="setpassword" hidden>
         <div class="ag-center"><div class="ag-card">
-          <img class="ag-logo" src={LOGO} alt="ProtectHealth" />
-          <h1 class="ag-setpw-title">Set your password</h1>
-          <p class="ag-muted ag-setpw-intro">Choose a password for your account.</p>
+          <img class="ag-logo ag-anim d1" src={LOGO} alt="ProtectHealth" />
+          <h1 class="ag-setpw-title ag-anim d2">Set your password</h1>
+          <p class="ag-muted ag-setpw-intro ag-anim d3">Choose a password for your account.</p>
           <form class="ag-setpw-form">
             <input type="email" name="email" autocomplete="username" hidden readonly />
-            <input type="password" name="password" placeholder="New password" autocomplete="new-password" required minlength="10" />
-            <input type="password" name="confirm" placeholder="Confirm password" autocomplete="new-password" required minlength="10" />
-            <button type="submit" class="ag-btn">Save Password</button>
+            <label class="ag-field ag-anim d4">
+              <span>New password</span>
+              <div class="ag-input has-eye">
+                <input type="password" name="password" placeholder="At least 10 characters" autocomplete="new-password" required minlength="10" />
+                <button type="button" class="pw-eye" aria-label="Show or hide password">
+                  <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                </button>
+              </div>
+            </label>
+            <label class="ag-field ag-anim d5">
+              <span>Confirm password</span>
+              <div class="ag-input"><input type="password" name="confirm" placeholder="Type it again" autocomplete="new-password" required minlength="10" /></div>
+            </label>
+            <button type="submit" class="ag-btn ag-anim d6">Save Password</button>
           </form>
           <p class="ag-status" role="status" aria-live="polite"></p>
-          <p class="ag-muted ag-small">At least 10 characters.</p>
+          <p class="ag-muted ag-small ag-anim d7">At least 10 characters.</p>
         </div></div>
       </div>
 
@@ -97,6 +132,27 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <button type="button" class="ag-btn ghost ag-signout">Sign out</button>
         </div></div>
       </div>
+
+      <!-- Right column: branded hero. Decorative only — hidden from smaller
+           screens and screen readers. -->
+      <aside class="ag-hero" aria-hidden="true">
+        <div class="ag-hero-inner">
+          <div class="ag-hero-top ag-anim d3">
+            <span class="ag-hero-pill">Broker Portal</span>
+          </div>
+          <div class="ag-hero-bottom">
+            <blockquote class="ag-quote ag-anim d5">
+              <p>"The product should serve the strategy — not become the strategy."</p>
+              <cite>The ProtectHealth way</cite>
+            </blockquote>
+            <div class="ag-chips">
+              <div class="ag-chip ag-anim d6"><b>60+</b><span>licensed brokers</span></div>
+              <div class="ag-chip ag-anim d7"><b>8,000+</b><span>clients served</span></div>
+              <div class="ag-chip ag-anim d8"><b>Las Vegas</b><span>Nevada, home base</span></div>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <!-- ============ THE APP (shown after auth) ============ -->
@@ -158,24 +214,69 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .ph button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:inherit;color:inherit}
   .ph input,.ph select,.ph textarea{font-family:inherit;font-size:.92rem;color:var(--ink)}
 
-  /* ---- auth gates ---- */
+  /* ---- auth gates: split-screen (form left, hero right) ---- */
+  .ag-shell{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:100vh;background:#fff;font-family:var(--font)}
   .ag-shell[hidden]{display:none}
-  .ag-center{min-height:100vh;display:grid;place-items:center;background:var(--bg);padding:20px}
-  .ag-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:34px 32px;max-width:420px;width:100%;text-align:left}
-  .ag-logo{height:34px;width:auto;margin-bottom:18px;display:block}
-  .ag-card h1{font-size:1.5rem;font-weight:800;letter-spacing:-.5px;color:var(--navy);margin:0 0 8px}
-  .ag-muted{color:var(--muted);font-size:.92rem;line-height:1.5}
-  .ag-small{font-size:.86rem;margin-top:12px}
+  .ag-view{min-width:0}
+  .ag-view[hidden]{display:none}
+  .ag-center{height:100vh;display:grid;place-items:center;padding:28px;overflow-y:auto}
+  .ag-card{max-width:400px;width:100%;text-align:left}
+  .ag-logo{height:38px;width:auto;margin-bottom:26px;display:block}
+  .ag-card h1{font-size:2.1rem;font-weight:750;letter-spacing:-1.2px;color:var(--navy-deep);margin:0 0 8px;line-height:1.1}
+  .ag-muted{color:var(--muted);font-size:.95rem;line-height:1.55}
+  .ag-small{font-size:.84rem;margin-top:14px}
   .ag-small a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
-  .ag-login-form,.ag-forgot-form,.ag-setpw-form{display:grid;gap:10px;margin-top:18px}
-  .ag-login-form input,.ag-forgot-form input,.ag-setpw-form input{border:1.5px solid rgba(15,53,103,.16);border-radius:11px;padding:12px 14px;font-size:1rem}
-  .ag-login-form input:focus,.ag-forgot-form input:focus,.ag-setpw-form input:focus{outline:none;border-color:var(--blue)}
-  .ag-login-form input[hidden],.ag-forgot-form input[hidden],.ag-setpw-form input[hidden]{display:none}
-  .ag-btn{background:var(--grad);color:#fff;border-radius:99px;padding:12px 18px;font-weight:700;font-size:.95rem;box-shadow:0 4px 14px -5px rgba(25,123,255,.55);transition:transform .12s}
-  .ag-btn:active{transform:scale(.98)}
-  .ag-btn.ghost{background:none;border:1px solid var(--line);color:var(--ink2);box-shadow:none}
-  .ag-status{margin-top:10px;font-size:.9rem;color:var(--muted);min-height:1.2em}
+  .ag-login-form,.ag-forgot-form,.ag-setpw-form{display:grid;gap:14px;margin-top:22px}
+  .ag-field{display:block}
+  .ag-field>span{display:block;font-size:.82rem;font-weight:650;color:var(--ink2);margin-bottom:6px}
+  .ag-input{position:relative;border:1.5px solid transparent;border-radius:15px;background:rgba(15,53,103,.055);transition:border-color .16s,background .16s,box-shadow .16s}
+  .ag-input:focus-within{border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(25,123,255,.13)}
+  .ag-input input{width:100%;border:none;background:transparent;padding:13px 15px;font-size:1rem;border-radius:15px}
+  .ag-input input:focus{outline:none}
+  .ag-input.has-eye input{padding-right:46px}
+  .pw-eye{position:absolute;top:0;right:4px;bottom:0;width:40px;display:grid;place-items:center;color:var(--muted);transition:color .15s}
+  .pw-eye:hover{color:var(--ink2)}
+  .pw-eye svg{width:19px;height:19px}
+  .pw-eye .eye-shut{display:none}
+  .pw-eye.on .eye-open{display:none}
+  .pw-eye.on .eye-shut{display:block}
+  .ag-row{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;margin-top:-2px}
+  .ag-hint{color:var(--muted)}
+  .ag-row a{color:var(--blue);font-weight:650;text-decoration:none}
+  .ag-row a:hover{text-decoration:underline;text-underline-offset:2px}
+  .ag-setpw-form input[hidden]{display:none}
+  .ph .ag-btn{background:var(--grad);color:#fff;border-radius:99px;padding:14px 18px;font-weight:700;font-size:.98rem;box-shadow:0 6px 18px -6px rgba(25,123,255,.6);transition:transform .12s,box-shadow .12s}
+  .ph .ag-btn:hover{box-shadow:0 8px 22px -6px rgba(25,123,255,.72)}
+  .ph .ag-btn:active{transform:scale(.98)}
+  .ph .ag-btn.ghost{background:none;border:1px solid var(--line);color:var(--ink2);box-shadow:none}
+  .ag-status{margin-top:12px;font-size:.9rem;color:var(--muted);min-height:1.2em}
   .ag-status.is-bad{color:#c0392b}
+
+  /* hero column */
+  .ag-hero{padding:16px 16px 16px 0;min-width:0}
+  .ag-hero-inner{height:100%;border-radius:26px;background:url('/assets/login-hero.webp') center/cover no-repeat,#081d3d;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:30px;overflow:hidden}
+  .ag-hero-pill{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#eaf3ff;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:8px 16px;border-radius:99px}
+  .ag-hero-bottom{display:grid;gap:14px}
+  .ag-quote{margin:0;background:rgba(10,26,52,.42);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:20px;padding:22px 24px;color:#fff}
+  .ag-quote p{margin:0 0 8px;font-size:1.18rem;font-weight:650;letter-spacing:-.3px;line-height:1.4}
+  .ag-quote cite{font-style:normal;font-size:.82rem;color:#9fc3ee;font-weight:600;letter-spacing:.04em}
+  .ag-chips{display:flex;gap:12px;flex-wrap:wrap}
+  .ag-chip{flex:1;min-width:120px;background:rgba(10,26,52,.38);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:16px;padding:14px 16px;color:#fff}
+  .ag-chip b{display:block;font-size:1.15rem;font-weight:800;letter-spacing:-.4px}
+  .ag-chip span{font-size:.76rem;color:#a9c6ea}
+
+  /* entrance animation: fade + rise + de-blur (restarts each view swap) */
+  .ag-anim{opacity:0;filter:blur(6px);transform:translateY(14px);animation:agIn .65s cubic-bezier(.22,1,.36,1) forwards}
+  .ag-anim.d1{animation-delay:.04s}.ag-anim.d2{animation-delay:.1s}.ag-anim.d3{animation-delay:.16s}
+  .ag-anim.d4{animation-delay:.22s}.ag-anim.d5{animation-delay:.28s}.ag-anim.d6{animation-delay:.34s}
+  .ag-anim.d7{animation-delay:.4s}.ag-anim.d8{animation-delay:.46s}
+  @keyframes agIn{to{opacity:1;filter:blur(0);transform:translateY(0)}}
+  @media (prefers-reduced-motion: reduce){.ag-anim{animation:none;opacity:1;filter:none;transform:none}}
+
+  @media (max-width: 920px){
+    .ag-shell{grid-template-columns:1fr}
+    .ag-hero{display:none}
+  }
 
   /* ---- shell ---- */
   #app{display:grid;grid-template-columns:232px 1fr;height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font)}
@@ -429,6 +530,15 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     };
     const statusIn = (v) => root.querySelector(`.ag-view[data-view="${v}"] .ag-status`);
     const setStatus = (v, text, bad = false) => { const el = statusIn(v); if (!el) return; el.textContent = text; el.classList.toggle('is-bad', !!bad); };
+
+    // Show/hide password toggles (the little eye inside password fields).
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('.pw-eye'); if (!b) return;
+      const input = b.parentElement.querySelector('input'); if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      b.classList.toggle('on', show);
+    });
 
     $('.ag-go-forgot')?.addEventListener('click', (e) => {
       e.preventDefault(); setStatus('signin', '');
