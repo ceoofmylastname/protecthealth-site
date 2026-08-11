@@ -132,6 +132,11 @@ const SUPABASE_ANON =
               <button type="button" class="ab-go rr-save">Save rotation</button>
             </div>
             <p class="rr-saved" role="status"></p>
+            <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px">
+              <p style="margin:0 0 4px;font-weight:700;color:var(--navy);font-size:.92rem">⏱ 60-minute reassignments</p>
+              <p class="ab-hint ad-muted" style="margin-top:0">Leads that sat unclaimed for an hour and were moved to Jason — who they were taken from, and when.</p>
+              <div class="rr-ttl-list ad-muted">Loading…</div>
+            </div>
           </div>
         </details>
 
@@ -228,6 +233,9 @@ const SUPABASE_ANON =
   .rr-check em { color: #5b6b7c; font-style: normal; font-size: .78rem; display: block; }
   .rr-row select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: .85rem; background: #fff; }
   .rr-row select:disabled { opacity: .45; }
+  .rr-ttl-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 9px 2px; border-bottom: 1px solid #eef2f8; }
+  .rr-ttl-row:last-child { border-bottom: 0; }
+  .rr-ttl-row b { color: var(--navy); font-size: .9rem; }
   .ab-form { padding: 16px 18px; }
   .ab-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .ab-row input { flex: 1 1 200px; min-width: 0; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; }
@@ -566,6 +574,30 @@ const SUPABASE_ANON =
         listEl.querySelectorAll('[data-rr-on]').forEach((cb) => cb.addEventListener('change', () => {
           listEl.querySelector(`[data-rr-w="${cb.dataset.rrOn}"]`).disabled = !cb.checked;
         }));
+        loadTtlHistory();
+      }
+
+      // Reassignment history: leads the TTL sweep moved to Jason.
+      async function loadTtlHistory() {
+        const host = $('.rr-ttl-list'); if (!host) return;
+        const { data: rows } = await sb.from('ph_leads')
+          .select('first_name, last_name, email, created_at, ttl_reassigned_at, ttl_from_agent_id, source_form, page')
+          .eq('assigned_via', 'rr_ttl')
+          .order('ttl_reassigned_at', { ascending: false }).limit(50);
+        if (!rows || !rows.length) { host.textContent = 'None yet — every routed lead has been claimed within the hour.'; return; }
+        const nameOfAgent = (id) => (agents.find((a) => a.id === id)?.full_name) || 'previous agent';
+        const fmt2 = (t) => t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        host.classList.remove('ad-muted');
+        host.innerHTML = rows.map((r) => {
+          const who = [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || 'Lead';
+          return `<div class="rr-ttl-row">
+            <div><b>${esch(who)}</b><span class="ad-muted" style="font-size:.8rem;display:block">${esch(r.email || '')}${r.source_form ? ' · ' + esch(r.source_form) : ''}</span></div>
+            <div class="ad-muted" style="font-size:.82rem;text-align:right">
+              <span style="color:#b45309;font-weight:650">${esch(nameOfAgent(r.ttl_from_agent_id))}</span> → <b style="color:#0b2a4a">Jason</b><br>
+              in ${fmt2(r.created_at)} · moved ${fmt2(r.ttl_reassigned_at)}
+            </div>
+          </div>`;
+        }).join('');
       }
       let loadedRR = false;
       rrPanel.addEventListener('toggle', () => { if (rrPanel.open && !loadedRR) { loadedRR = true; loadRR(); } });
