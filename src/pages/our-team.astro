@@ -17,13 +17,16 @@ const LEADER_SLUGS = ['brian-douglas', 'robert-morgen', 'brenda-morgen', 'jason-
 const leaders = LEADER_SLUGS.map((s) => TEAM.find((m) => m.slug === s)).filter(Boolean);
 const chris = TEAM.find((m) => m.slug === 'chris-bridgeforth');
 
-// Onboarded brokers, fetched at build time (same source as /broker/[slug]).
+// Onboarded brokers, fetched at build time. Uses ph_public_team, NOT
+// ph_public_brokers: the team RPC additionally excludes admins (email match
+// against ph_admins) and anyone flagged hide_from_team (test accounts), while
+// landing pages at /broker/[slug] keep building for everyone.
 const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
 let onboarded: any[] = [];
 try {
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } });
-  const { data, error } = await sb.rpc('ph_public_brokers');
+  const { data, error } = await sb.rpc('ph_public_team');
   if (!error && Array.isArray(data)) onboarded = data;
 } catch (_e) { onboarded = []; }
 
@@ -185,7 +188,10 @@ const schemas = [
   .ts-col-1 .ts-photo { height: 165px; }
   .ts-col-2 .ts-photo { height: 182px; }
   .ts-col-3 .ts-photo { height: 172px; }
-  .ts-photo img { width: 100%; height: 100%; object-fit: cover; display: block;
+  /* object-position keeps the FACE in frame no matter what shape the broker
+     uploads: portraits and selfies keep the head visible instead of cropping
+     it at the top of the card. */
+  .ts-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block;
     filter: grayscale(1) brightness(.8); transition: filter .45s ease, opacity .35s ease; }
   .ts.has-active .ts-photo:not(.on) img { opacity: .55; }
   .ts-photo.on img { filter: grayscale(0) brightness(1); }
