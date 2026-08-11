@@ -114,6 +114,19 @@ const SUPABASE_ANON =
           </div>
         </details>
 
+        <details class="ad-addbroker rr-panel">
+          <summary>⇄ Lead routing — round robin</summary>
+          <div class="rv-body">
+            <p class="ab-hint ad-muted">Pick which agents receive incoming website leads and each agent's share. <b>Double</b> and <b>Triple</b> get proportionally more leads, interleaved (a Double next to an Equal deals A&nbsp;B&nbsp;A&nbsp;A&nbsp;B&nbsp;A). Assigned leads land in that agent's contacts and calendar, the agent gets a new-lead email, and the lead gets a branded welcome introducing their broker. <b>While this list is empty, GoHighLevel keeps assigning — adding agents here is the cutover switch.</b></p>
+            <p class="rr-status ad-muted">Open to load…</p>
+            <div class="rr-list"></div>
+            <div class="ab-row" style="margin-top:12px">
+              <button type="button" class="ab-go rr-save">Save rotation</button>
+            </div>
+            <p class="rr-saved" role="status"></p>
+          </div>
+        </details>
+
         <div class="ad-toolbar">
           <input type="search" class="ad-search" placeholder="Search name, email or phone…" aria-label="Search" />
           <div class="ad-filters" role="group" aria-label="Filter">
@@ -199,6 +212,14 @@ const SUPABASE_ANON =
   .rvt-table td { padding: 10px 12px; border-bottom: 1px solid #eef2f8; vertical-align: top; }
   .rvt-table tr:last-child td { border-bottom: 0; }
   .rvt-table tr.rvt-head td { position: sticky; top: 0; background: #f6f9fe; font-weight: 700; color: var(--navy); font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; }
+  .rr-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 2px; border-bottom: 1px solid #eef2f8; }
+  .rr-row:last-child { border-bottom: 0; }
+  .rr-check { display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
+  .rr-check input { width: 17px; height: 17px; accent-color: #2563c9; flex: none; }
+  .rr-check b { color: var(--navy); font-size: .92rem; display: block; }
+  .rr-check em { color: #5b6b7c; font-style: normal; font-size: .78rem; display: block; }
+  .rr-row select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: .85rem; background: #fff; }
+  .rr-row select:disabled { opacity: .45; }
   .ab-form { padding: 16px 18px; }
   .ab-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .ab-row input { flex: 1 1 200px; min-width: 0; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; }
@@ -475,6 +496,63 @@ const SUPABASE_ANON =
       }
       let loadedT = false;
       rvTrack.addEventListener('toggle', () => { if (rvTrack.open && !loadedT) { loadedT = true; loadTracking(); } });
+    }
+
+    // ---------- round-robin lead routing ----------
+    const rrPanel = $('.rr-panel');
+    if (rrPanel) {
+      const statusEl = $('.rr-status'), listEl = $('.rr-list'), savedEl = $('.rr-saved');
+      const esch = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      let agents = [], rotation = [];
+      async function loadRR() {
+        statusEl.textContent = 'Loading…';
+        const [agRes, rrRes] = await Promise.all([
+          sb.from('ph_agents').select('id, full_name, email').eq('is_active', true).order('full_name'),
+          sb.from('ph_round_robin').select('*'),
+        ]);
+        agents = (agRes.data || []).filter((a) => a.email);
+        rotation = rrRes.data || [];
+        const inRot = rotation.filter((r) => r.is_active).length;
+        statusEl.innerHTML = inRot
+          ? `<b style="color:#0b7d55">Native routing is ON</b> — ${inRot} agent${inRot === 1 ? '' : 's'} in rotation.`
+          : '<b style="color:#b45309">Native routing is OFF</b> — rotation is empty, GoHighLevel is still assigning.';
+        listEl.innerHTML = agents.map((a) => {
+          const r = rotation.find((x) => x.agent_id === a.id);
+          const on = r && r.is_active, w = r ? r.weight : 1;
+          return `<div class="rr-row">
+            <label class="rr-check"><input type="checkbox" data-rr-on="${a.id}" ${on ? 'checked' : ''}><span><b>${esch(a.full_name)}</b><em>${esch(a.email)}</em></span></label>
+            <select data-rr-w="${a.id}" ${on ? '' : 'disabled'}>
+              <option value="1" ${w === 1 ? 'selected' : ''}>Equal share (1×)</option>
+              <option value="2" ${w === 2 ? 'selected' : ''}>Double (2×)</option>
+              <option value="3" ${w === 3 ? 'selected' : ''}>Triple (3×)</option>
+            </select>
+          </div>`;
+        }).join('') || '<p class="ad-muted">No active agents with an email on file.</p>';
+        listEl.querySelectorAll('[data-rr-on]').forEach((cb) => cb.addEventListener('change', () => {
+          listEl.querySelector(`[data-rr-w="${cb.dataset.rrOn}"]`).disabled = !cb.checked;
+        }));
+      }
+      let loadedRR = false;
+      rrPanel.addEventListener('toggle', () => { if (rrPanel.open && !loadedRR) { loadedRR = true; loadRR(); } });
+
+      $('.rr-save').addEventListener('click', async () => {
+        savedEl.classList.remove('is-good', 'is-bad'); savedEl.textContent = 'Saving…';
+        const rows = [], off = [];
+        listEl.querySelectorAll('[data-rr-on]').forEach((cb) => {
+          const id = cb.dataset.rrOn;
+          if (cb.checked) rows.push({ agent_id: id, weight: parseInt(listEl.querySelector(`[data-rr-w="${id}"]`).value, 10) || 1, is_active: true });
+          else if (rotation.some((r) => r.agent_id === id && r.is_active)) off.push(id);
+        });
+        let err = null;
+        if (rows.length) { const { error } = await sb.from('ph_round_robin').upsert(rows, { onConflict: 'agent_id' }); err = err || error; }
+        if (off.length) { const { error } = await sb.from('ph_round_robin').update({ is_active: false }).in('agent_id', off); err = err || error; }
+        if (err) { savedEl.textContent = 'Could not save: ' + err.message; savedEl.classList.add('is-bad'); return; }
+        savedEl.textContent = rows.length
+          ? `Saved — ${rows.length} agent${rows.length === 1 ? '' : 's'} in rotation. New website leads now route natively.`
+          : 'Saved — rotation is empty, GoHighLevel keeps assigning.';
+        savedEl.classList.add('is-good');
+        loadRR();
+      });
     }
 
     // ---------- data ----------
