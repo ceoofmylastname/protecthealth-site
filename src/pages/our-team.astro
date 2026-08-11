@@ -1,6 +1,41 @@
 ---
+// Two-tier team page (owner decision, Aug 11 2026 — resolves meeting items #4/#5):
+//   1. "Meet the Leaders"  — the five leadership profiles from TEAM (static).
+//   2. "Meet the Brokers"  — Chris (static) + every agent who has completed CRM
+//      onboarding with a headshot and bio, pulled from ph_public_brokers at
+//      build time. Onboarding fires the deploy hook, so a broker finishing
+//      their profile automatically appears here on the next auto-publish —
+//      no hand edits.
+// Leadership members are deduped out of the brokers list by slug in case one
+// of them also completes CRM onboarding.
+import { createClient } from '@supabase/supabase-js';
 import Base from '../layouts/Base.astro';
 import { SITE, TEAM, breadcrumbSchema } from '../lib/site';
+import { brokerSlug } from '../lib/broker-lines';
+
+const LEADER_SLUGS = ['brian-douglas', 'robert-morgen', 'brenda-morgen', 'jason-vasquez', 'janet-nevarez'];
+const leaders = LEADER_SLUGS.map((s) => TEAM.find((m) => m.slug === s)).filter(Boolean);
+const chris = TEAM.find((m) => m.slug === 'chris-bridgeforth');
+
+// Onboarded brokers, fetched at build time (same source as /broker/[slug]).
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+let onboarded: any[] = [];
+try {
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } });
+  const { data, error } = await sb.rpc('ph_public_brokers');
+  if (!error && Array.isArray(data)) onboarded = data;
+} catch (_e) { onboarded = []; }
+
+const TEAM_SLUGS = new Set(TEAM.map((m) => m.slug));
+const brokers = onboarded
+  .map((b) => ({ ...b, slug: brokerSlug(b.full_name) }))
+  .filter((b) => b.slug && !TEAM_SLUGS.has(b.slug));
+
+const snippet = (bio: string) => {
+  const s = String(bio || '').trim().replace(/\s+/g, ' ');
+  return s.length > 150 ? s.slice(0, 150).replace(/\s+\S*$/, '') + '…' : s;
+};
 
 const schemas = [
   breadcrumbSchema([
@@ -11,7 +46,7 @@ const schemas = [
 ---
 <Base
   title="Meet The ProtectHealth Team | Las Vegas Insurance Brokers"
-  description="Meet the ProtectHealth brokers, Robert Morgen, Brian Douglas, Brenda Morgen, Jason Vasquez, Janet Nevarez, and Chris Bridgeforth, the team behind Las Vegas's strategy-first insurance brokerage."
+  description="Meet the ProtectHealth leadership team and licensed brokers — the people behind Las Vegas's strategy-first insurance brokerage."
   schemas={schemas}
 >
   <section class="hero">
@@ -21,10 +56,16 @@ const schemas = [
       <p class="lead">A team of dedicated professionals who would rather ask the right questions than make the fast sale.</p>
     </div>
   </section>
+
+  <!-- ===== Tier 1: leadership ===== -->
   <section class="section">
     <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Leadership</div>
+        <h2 style="margin-top:0;">Meet the Leaders</h2>
+      </div>
       <div class="grid team-grid">
-        {TEAM.map((m) => (
+        {leaders.map((m) => (
           <a class="team-card" href={`/team-members/${m.slug}`}>
             <div class="photo"><img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" /></div>
             <h3>{m.name}</h3>
@@ -35,4 +76,41 @@ const schemas = [
       </div>
     </div>
   </section>
+
+  <!-- ===== Tier 2: brokers (Chris + everyone who has onboarded) ===== -->
+  <section class="section soft rounded-section">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Licensed Brokers</div>
+        <h2 style="margin-top:0;">Meet the Brokers</h2>
+        <p style="color:var(--muted);max-width:560px;margin:10px auto 0;">Licensed professionals across Nevada, each with their own page where you can read their story and book time directly.</p>
+      </div>
+      <div class="grid team-grid">
+        {chris && (
+          <a class="team-card" href={`/team-members/${chris.slug}`}>
+            <div class="photo"><img src={chris.photo} alt={`${chris.name}, ${chris.role} at ProtectHealth`} loading="lazy" /></div>
+            <h3>{chris.name}</h3>
+            <span class="role">{chris.role} · ProtectHealth</span>
+            <span class="tc-more">View Profile →</span>
+          </a>
+        )}
+        {brokers.map((b) => (
+          <a class="team-card" href={`/broker/${b.slug}`}>
+            <div class="photo"><img src={b.headshot_url} alt={`${b.full_name}, ${b.title || 'Licensed Broker'} at ProtectHealth`} loading="lazy" /></div>
+            <h3>{b.full_name}</h3>
+            <span class="role">{b.title || 'Licensed Broker'} · ProtectHealth</span>
+            {b.bio && <p class="tc-bio">{snippet(b.bio)}</p>}
+            <span class="tc-more">View Profile →</span>
+          </a>
+        ))}
+      </div>
+      {brokers.length === 0 && (
+        <p style="text-align:center;color:var(--muted);margin-top:18px;">More broker profiles are being added — check back soon.</p>
+      )}
+    </div>
+  </section>
 </Base>
+
+<style>
+  .tc-bio { color: var(--muted); font-size: .88rem; line-height: 1.5; margin: 8px 0 0; }
+</style>
