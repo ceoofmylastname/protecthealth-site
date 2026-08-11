@@ -327,6 +327,11 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
+  /* Web-inquiry intake answers inside the activity feed */
+  .act-answers{margin-top:8px;border-left:2px solid #d6e3f8;padding-left:10px;display:grid;gap:5px}
+  .act-answers div{font-size:.82rem;color:var(--navy);line-height:1.4}
+  .act-answers span{display:block;font-size:.64rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+  .act-note{margin-top:8px;background:#f6f9fe;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:.83rem;color:var(--navy);line-height:1.5}
   /* Contacts filters + columns */
   .fpanel{border-bottom:1px solid var(--line);background:#f9fbfe;padding:16px 18px}
   .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:12px}
@@ -746,8 +751,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       let html = '<div class="nav-sec">Overview</div>';
       html += navItem('dashboard', 'Dashboard');
       html += '<div class="nav-sec">CRM</div>';
+      // Leads is deliberately NOT a tab: a web inquiry is a contact with
+      // disposition 'Lead' (Rob's three-tab rule). The "New leads" filter on
+      // Contacts replaces it; #leads still routes for anyone with a bookmark.
       html += navItem('contacts', 'Contacts', state.contactCount);
-      html += navItem('leads', 'Leads', state.leads.length);
       html += navItem('pipeline', 'Pipeline');
       html += navItem('calendar', 'Calendar');
       html += navItem('availability', 'Availability');
@@ -994,6 +1001,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <button class="seg-btn ${cMode==='companies'?'on':''}" data-cmode="companies">Companies</button>
           </div>
           <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:220px"/>
+          ${cMode==='people' ? `<button class="btn ${cFilters.disposition==='Lead'?'btn-primary':'btn-ghost'} btn-sm" id="c-newleads">🔔 New leads</button>` : ''}
           ${cMode==='people' ? `<button class="btn btn-ghost btn-sm" id="c-filter-btn">⚙ Filters${activeFilterCount() ? ` <span class="fchip-n">${activeFilterCount()}</span>` : ''}</button>` : ''}
           ${cMode==='people' ? '<button class="btn btn-ghost btn-sm" id="c-cols-btn">☰ Columns</button>' : ''}
           ${cMode==='people'
@@ -1030,6 +1038,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $$('[data-cmode]', v).forEach((b) => b.addEventListener('click', () => { cMode = b.dataset.cmode; renderContacts(v); }));
       const search = $('#c-search', v);
       let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; cMode === 'people' ? loadContacts(v) : renderCompanies(v); }, 250); });
+      $('#c-newleads', v)?.addEventListener('click', () => {
+        cFilters.disposition = cFilters.disposition === 'Lead' ? '' : 'Lead';
+        cPage = 0; renderContacts(v);
+      });
       $('#c-filter-btn', v)?.addEventListener('click', () => { const p = $('#c-fpanel', v); p.hidden = !p.hidden; $('#c-colpop', v).hidden = true; });
       $('#c-cols-btn', v)?.addEventListener('click', () => { const p = $('#c-colpop', v); p.hidden = !p.hidden; $('#c-fpanel', v).hidden = true; });
       $('#c-apply', v)?.addEventListener('click', () => {
@@ -2030,8 +2042,32 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const items = [];
       items.push({ icon: '➕', title: 'Contact created', when: c.ghl_date_added });
       if (c.issued_at) items.push({ icon: '✅', title: 'Marked Active Client (in-force)', when: c.issued_at });
+
+      // Web inquiries live in ph_leads (the intake event log). Surface them HERE
+      // — what they told us on the form is the most useful thing a broker can
+      // read before the first call, and it used to be stranded on a separate tab.
+      const email = (c.email || '').toLowerCase();
+      const inquiries = state.leads.filter((l) =>
+        (l.ghl_contact_id && l.ghl_contact_id === c.ghl_contact_id) ||
+        (email && (l.email || '').toLowerCase() === email));
+      inquiries.forEach((l) => {
+        const answers = [['Describes them', l.role], ['Business structure', l.structure],
+          ['Current coverage', l.coverage], ['What matters most', l.priority]].filter((a) => a[1]);
+        const where = l.page ? ` on ${esc(l.page)}` : '';
+        const detail = [
+          answers.length ? `<div class="act-answers">${answers.map((a) => `<div><span>${esc(a[0])}</span>${esc(a[1])}</div>`).join('')}</div>` : '',
+          l.notes ? `<div class="act-note">“${esc(l.notes)}”</div>` : '',
+        ].join('');
+        items.push({
+          icon: l.kind === 'booking' ? '📅' : '📝',
+          title: l.kind === 'booking' ? `Booked a conversation${where}` : `Submitted the ${esc(l.source_form || 'website')} form${where}`,
+          when: l.created_at, detail,
+        });
+        if (l.appointment_start) items.push({ icon: '🗓️', title: 'Appointment set', when: l.appointment_start });
+      });
+
       items.sort((a, b) => +new Date(b.when || 0) - +new Date(a.when || 0));
-      host.innerHTML = items.map((i) => `<div class="feed-item"><div class="feed-ic">${i.icon}</div><div><div style="font-weight:650">${esc(i.title)}</div><div class="cell-sub">${esc(fmtDateTime(i.when))}</div></div></div>`).join('') || '<div class="cell-sub">No activity yet.</div>';
+      host.innerHTML = items.map((i) => `<div class="feed-item"><div class="feed-ic">${i.icon}</div><div style="min-width:0"><div style="font-weight:650">${i.title}</div><div class="cell-sub">${esc(fmtDateTime(i.when))}</div>${i.detail || ''}</div></div>`).join('') || '<div class="cell-sub">No activity yet.</div>';
     }
     async function loadContactAppointments(c) {
       const host = $('#rec-appts'); if (!host) return;
