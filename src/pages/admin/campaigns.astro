@@ -233,6 +233,7 @@ const SUPABASE_ANON =
 
     let campaigns = [];
     let templates = [];
+    let adminTags = [];
     let shell = null;
     let settings = null;
     let summary = new Map();
@@ -291,12 +292,14 @@ const SUPABASE_ANON =
       const from = today.toISOString().slice(0, 10);
       const to = new Date(today.getTime() + 30 * 86400000).toISOString().slice(0, 10);
 
-      const [{ data: c }, { data: t }, { data: s }, { data: cfg }] = await Promise.all([
+      const [{ data: c }, { data: t }, { data: s }, { data: cfg }, { data: tg }] = await Promise.all([
         sb.from('ph_campaigns').select('*').order('sort_order'),
         sb.from('ph_email_templates').select('*'),
         sb.rpc('ph_campaign_summary', { p_from: from, p_to: to }),
         sb.from('ph_settings').select('*').eq('id', true).maybeSingle(),
+        sb.from('ph_tags').select('name').eq('is_active', true).order('position'),
       ]);
+      adminTags = (tg ?? []).map((x) => x.name);
 
       campaigns = c ?? [];
       templates = (t ?? []).filter((x) => !x.is_shell);
@@ -449,16 +452,29 @@ const SUPABASE_ANON =
         <div class="cm-title"><h2>${esc(c.name)}</h2>
           <span class="cm-badge">${isHoliday ? 'Tag triggered' : 'Birthday triggered'}</span></div>
         <p class="ad-muted">${isHoliday
-          ? 'Everyone carrying the tag below receives this on the holiday.'
-          : 'Every contact with a date of birth receives this on their birthday. Add a tag to narrow it to part of the book.'}</p>
+          ? 'Pick who receives this on the holiday — everyone, agents only, a disposition, or a tag.'
+          : 'Every contact with a date of birth receives this on their birthday. Narrow it with an audience if you want.'}</p>
 
         <div class="cm-next">${nextLine}</div>
 
         <div class="cm-controls">
           <div class="cm-field">
             <label>${isHoliday ? 'Audience tag (required)' : 'Audience tag (optional filter)'}</label>
-            <input type="text" class="cm-tag" value="${esc(c.audience_tag ?? '')}" placeholder="${isHoliday ? "e.g. client — or 'everyone' for all active emails" : 'blank = everyone with a birthday'}" list="cm-taglist" />
-            <div class="cm-hint" style="font-size:.78rem;color:var(--muted);margin-top:4px">Type <b>everyone</b> to include every contact with an email (skips do-not-contact). Each email automatically carries that contact's assigned agent — name, phone, and their booking link.</div>
+            ${(() => {
+              const cur = (c.audience_tag ?? '').trim();
+              const opts = [
+                ['', isHoliday ? '— Choose an audience (required) —' : 'Everyone with a birthday'],
+                ['everyone', 'Everyone — all active emails'],
+                ['agents', 'Agents / brokers only'],
+                ['disp:Active Client', 'Disposition: Active Client'],
+                ['disp:Lead', 'Disposition: Lead'],
+                ['disp:Follow-Up', 'Disposition: Follow-Up'],
+                ...adminTags.map((t) => [t, 'Tag: ' + t]),
+              ];
+              if (cur && !opts.some(([v]) => v === cur)) opts.push([cur, 'Tag: ' + cur + ' (current)']);
+              return `<select class="cm-tag">${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+            })()}
+            <div class="cm-hint" style="font-size:.78rem;color:var(--muted);margin-top:4px">Every email automatically carries that contact's assigned agent — name, phone, and their booking link. "Do not contact" clients are always skipped.</div>
           </div>
           <div class="cm-field">
             <label>Send at</label>
@@ -481,8 +497,7 @@ const SUPABASE_ANON =
           <button type="button" class="cm-tab${tab === 'sent' ? ' is-on' : ''}" data-tab="sent">Already sent</button>
           <button type="button" class="cm-tab${tab === 'template' ? ' is-on' : ''}" data-tab="template">The email</button>
         </div>
-        <div class="cm-pane"></div>
-        <datalist id="cm-taglist"></datalist>`;
+        <div class="cm-pane"></div>`;
 
       $('.cm-body').querySelectorAll('.cm-tab').forEach((b) =>
         b.addEventListener('click', () => { tab = b.getAttribute('data-tab'); renderDetail(c); }));
@@ -505,17 +520,6 @@ const SUPABASE_ANON =
       });
 
       renderPane(c, tpl);
-      loadTags();
-    }
-
-    async function loadTags() {
-      const dl = $('#cm-taglist');
-      if (!dl || dl.dataset.filled) return;
-      // A flat list of the tags actually in use, so the field is a pick rather
-      // than a guess. Typos here are the difference between an email going to
-      // 900 people and going to nobody.
-      const { data } = await sb.rpc('ph_contact_tags');
-      if (data) { dl.innerHTML = data.map((t) => `<option value="${esc(t.tag)}">${esc(t.tag)} (${t.uses})</option>`).join(''); dl.dataset.filled = '1'; }
     }
 
     function renderPane(c, tpl) {
