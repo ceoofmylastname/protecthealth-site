@@ -775,6 +775,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
       v.innerHTML = `
       <div class="view-grid">
+        ${myPagesCard()}
         <div class="stat-row">
           ${statCard('New leads · 30 days', last30.length, delta == null ? '' : `<span class="delta ${delta>=0?'up':'flat'}">${delta>=0?'▲':'▼'} ${Math.abs(delta)}% vs prior 30</span>`)}
           ${statCard('Appointments · this week', apptsWeek.length, `<span class="delta flat">${bookings.length} upcoming total</span>`)}
@@ -824,8 +825,46 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       </div>`;
       $$('[data-goto]', v).forEach((b) => b.addEventListener('click', () => go(b.dataset.goto)));
       $$('tr[data-lead]', v).forEach((r) => r.addEventListener('click', () => openLead(r.dataset.lead)));
+      $$('[data-copy]', v).forEach((b) => b.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy); const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => (b.textContent = t), 1200); }
+        catch (_e) { toast('Could not copy — long-press the link to copy it.'); }
+      }));
     }
     const statCard = (lbl, num, delta) => `<div class="card stat"><div class="tick"></div><div class="lbl">${lbl}</div><div class="num">${num}</div>${delta}</div>`;
+
+    // Slug matches the static build (broker-lines.ts brokerSlug) so the links resolve.
+    function brokerSlug(name) {
+      return String(name || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-') || 'broker';
+    }
+    // Shown once a broker has completed onboarding — they have a landing + booking page.
+    function myPagesCard() {
+      if (!state.me?.onboarding_completed_at) return '';
+      const slug = brokerSlug(state.me.full_name);
+      const base = 'https://www.protecthealth.com';
+      return `<div class="card" style="border:1.5px solid #d3e2ff;background:linear-gradient(180deg,#f1f7ff,#ffffff)">
+        <div class="card-h"><span class="grad-label">Your pages</span><h3 style="margin-left:8px">Your landing page &amp; booking calendar</h3></div>
+        <div class="card-b" style="display:grid;gap:12px;padding-top:8px">
+          ${pageRow('Landing page', base + '/broker/' + slug, '🌐', 'Your public page — send it to prospects or link it in your bio.')}
+          ${pageRow('Booking calendar', base + '/book/' + slug, '📅', 'People pick a time here and it lands in your CRM automatically.')}
+          <div class="cell-sub" style="margin-top:2px">New or updated details go live the next time the site updates.</div>
+        </div>
+      </div>`;
+    }
+    function pageRow(label, url, icon, note) {
+      const short = url.replace(/^https?:\/\/(www\.)?/, '');
+      return `<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;background:#fff">
+        <div style="font-size:1.4rem;line-height:1">${icon}</div>
+        <div style="flex:1;min-width:190px">
+          <div style="font-weight:750;color:#0b2a4a">${label}</div>
+          <a href="${url}" target="_blank" rel="noopener" style="color:#2563c9;font-weight:600;word-break:break-all">${esc(short)}</a>
+          <div class="cell-sub" style="margin-top:2px">${esc(note)}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a class="btn btn-primary btn-sm" href="${url}" target="_blank" rel="noopener">View</a>
+          <button class="btn btn-ghost btn-sm" type="button" data-copy="${esc(url)}">Copy</button>
+        </div>
+      </div>`;
+    }
 
     // ================= CONTACTS =================
     let cPage = 0, cQuery = '', cTag = '';
