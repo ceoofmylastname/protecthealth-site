@@ -327,6 +327,22 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
+  /* Contacts filters + columns */
+  .fpanel{border-bottom:1px solid var(--line);background:#f9fbfe;padding:16px 18px}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:12px}
+  .ffield{display:flex;flex-direction:column;gap:5px}
+  .ffield>span{font-size:.7rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  .ffield select,.ffield input{padding:9px 10px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.88rem;background:#fff;color:var(--navy)}
+  .frange{display:flex;align-items:center;gap:6px}
+  .frange input{width:100%;min-width:0}
+  .frange span{color:var(--muted)}
+  .factions{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .fchips{display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--line)}
+  .fchip{display:inline-flex;align-items:center;gap:7px;background:#eaf1fd;border:1px solid #cddcf7;color:var(--blue);font-weight:650;font-size:.8rem;border-radius:999px;padding:5px 8px 5px 12px}
+  .fchip button{background:none;border:0;color:var(--blue);cursor:pointer;font-size:.72rem;padding:2px 4px;border-radius:50%}
+  .fchip button:hover{background:#d9e6fb}
+  .fchip-n{display:inline-grid;place-items:center;background:var(--blue);color:#fff;border-radius:999px;min-width:17px;height:17px;font-size:.68rem;font-weight:800;padding:0 4px;margin-left:4px}
+  .colpop{display:flex;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line);background:#f9fbfe}
   /* People | Companies toggle, policies, inline custom fields */
   .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden}
   .seg-btn{background:#fff;border:0;padding:9px 16px;font-weight:650;color:var(--muted);cursor:pointer;font-size:.88rem}
@@ -931,6 +947,20 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ================= CONTACTS =================
     let cPage = 0, cQuery = '', cTag = '';
+    // ---- Contacts filters + column preferences ----
+    const cFilters = { disposition: '', tag: '', company_id: '', line: '', polStatus: '', carrier_id: '', premMin: '', premMax: '', bdayMonth: '' };
+    const activeFilterCount = () => Object.values(cFilters).filter((x) => x !== '').length;
+    const FREQ_X = { Monthly: 12, Quarterly: 4, 'Semi-Annual': 2, Annual: 1, Single: 1 };
+    const MONTHS_L = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const ALL_COLS = [
+      { key: 'email', label: 'Email' }, { key: 'phone', label: 'Phone' }, { key: 'tags', label: 'Tags' },
+      { key: 'added', label: 'Added' }, { key: 'bday', label: 'Birthday' }, { key: 'company', label: 'Company' },
+      { key: 'disposition', label: 'Disposition' }, { key: 'lines', label: 'Lines' },
+      { key: 'carriers', label: 'Carriers' }, { key: 'policies', label: 'Policies' },
+    ];
+    let cCols;
+    try { cCols = JSON.parse(localStorage.getItem('ph_cols_v1')) || null; } catch { cCols = null; }
+    if (!Array.isArray(cCols) || !cCols.length) cCols = ['email', 'phone', 'tags', 'added'];
     let cMode = 'people'; // 'people' | 'companies'
     function renderContacts(v) {
       v.innerHTML = `
@@ -941,7 +971,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <button class="seg-btn ${cMode==='companies'?'on':''}" data-cmode="companies">Companies</button>
           </div>
           <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:220px"/>
-          <select id="c-tag" ${cMode==='companies'?'hidden':''}><option value="">All tags</option></select>
+          ${cMode==='people' ? `<button class="btn btn-ghost btn-sm" id="c-filter-btn">⚙ Filters${activeFilterCount() ? ` <span class="fchip-n">${activeFilterCount()}</span>` : ''}</button>` : ''}
+          ${cMode==='people' ? '<button class="btn btn-ghost btn-sm" id="c-cols-btn">☰ Columns</button>' : ''}
           ${cMode==='people'
             ? '<button class="btn btn-primary btn-sm" id="c-add">+ Add Contact</button>'
             : '<button class="btn btn-primary btn-sm" id="co-add">+ Add Company</button>'}
@@ -949,19 +980,75 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-fields">Manage fields</button>' : ''}
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
         </div>
+        <div class="fpanel" id="c-fpanel" hidden>
+          <div class="fgrid">
+            <label class="ffield"><span>Disposition</span><select data-f="disposition"><option value="">Any</option>${DISPOSITIONS.map((d)=>`<option ${cFilters.disposition===d?'selected':''}>${esc(d)}</option>`).join('')}</select></label>
+            <label class="ffield"><span>Tag</span><select data-f="tag" id="c-tag"><option value="">Any</option></select></label>
+            <label class="ffield"><span>Company</span><select data-f="company_id"><option value="">Any</option>${state.companies.map((co)=>`<option value="${co.id}" ${cFilters.company_id===co.id?'selected':''}>${esc(co.name)}</option>`).join('')}</select></label>
+            <label class="ffield"><span>Line of insurance</span><select data-f="line"><option value="">Any</option>${COVERAGE_TYPES.map((l)=>`<option ${cFilters.line===l?'selected':''}>${esc(l)}</option>`).join('')}</select></label>
+            <label class="ffield"><span>Policy status</span><select data-f="polStatus"><option value="">Any</option>${POLICY_STATUSES.map((s)=>`<option ${cFilters.polStatus===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label>
+            <label class="ffield"><span>Carrier</span><select data-f="carrier_id"><option value="">Any</option>${state.carriers.map((x)=>`<option value="${x.id}" ${cFilters.carrier_id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+            <label class="ffield"><span>Annual premium</span><div class="frange"><input type="number" data-f="premMin" placeholder="Min" value="${esc(cFilters.premMin)}"><span>–</span><input type="number" data-f="premMax" placeholder="Max" value="${esc(cFilters.premMax)}"></div></label>
+            <label class="ffield"><span>Birthday month</span><select data-f="bdayMonth"><option value="">Any</option>${MONTHS_L.map((m,i)=>`<option value="${i+1}" ${String(cFilters.bdayMonth)===String(i+1)?'selected':''}>${esc(m)}</option>`).join('')}</select></label>
+          </div>
+          <div class="factions">
+            <button class="btn btn-primary btn-sm" id="c-apply">Apply filters</button>
+            <button class="btn btn-ghost btn-sm" id="c-clear">Clear all</button>
+            <span class="cell-sub">Premium range uses each policy's annualized amount.</span>
+          </div>
+        </div>
+        <div class="fchips" id="c-chips"></div>
+        <div class="colpop" id="c-colpop" hidden>
+          ${ALL_COLS.map((col)=>`<label class="pickbox"><input type="checkbox" data-col="${col.key}" ${cCols.includes(col.key)?'checked':''}/> ${esc(col.label)}</label>`).join('')}
+        </div>
         <div id="c-table"></div>
         <div class="pager" id="c-pager"></div>
       </div>`;
       $$('[data-cmode]', v).forEach((b) => b.addEventListener('click', () => { cMode = b.dataset.cmode; renderContacts(v); }));
       const search = $('#c-search', v);
       let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; cMode === 'people' ? loadContacts(v) : renderCompanies(v); }, 250); });
-      $('#c-tag', v)?.addEventListener('change', (e) => { cTag = e.target.value; cPage = 0; loadContacts(v); });
+      $('#c-filter-btn', v)?.addEventListener('click', () => { const p = $('#c-fpanel', v); p.hidden = !p.hidden; $('#c-colpop', v).hidden = true; });
+      $('#c-cols-btn', v)?.addEventListener('click', () => { const p = $('#c-colpop', v); p.hidden = !p.hidden; $('#c-fpanel', v).hidden = true; });
+      $('#c-apply', v)?.addEventListener('click', () => {
+        $$('#c-fpanel [data-f]', v).forEach((el) => { cFilters[el.dataset.f] = el.value; });
+        cPage = 0; renderContacts(v);
+      });
+      $('#c-clear', v)?.addEventListener('click', () => {
+        Object.keys(cFilters).forEach((k) => cFilters[k] = ''); cPage = 0; renderContacts(v);
+      });
+      $$('#c-colpop [data-col]', v).forEach((cb) => cb.addEventListener('change', () => {
+        cCols = ALL_COLS.map((c) => c.key).filter((k) => $(`#c-colpop [data-col="${k}"]`, v).checked);
+        try { localStorage.setItem('ph_cols_v1', JSON.stringify(cCols)); } catch {}
+        loadContacts(v);
+      }));
       $('#c-add', v)?.addEventListener('click', () => openAddContact(v));
       $('#co-add', v)?.addEventListener('click', () => openCompanyForm(null, v));
       $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
       $('#c-fields', v)?.addEventListener('click', openFieldManager);
-      if (cMode === 'people') { loadTags(v); loadContacts(v); }
+      if (cMode === 'people') { paintFilterChips(v); loadTags(v); loadContacts(v); }
       else renderCompanies(v);
+    }
+
+    // Active filters as removable chips under the toolbar.
+    function paintFilterChips(v) {
+      const host = $('#c-chips', v); if (!host) return;
+      const chip = (key, label) => `<span class="fchip">${esc(label)}<button data-fx="${key}" aria-label="Remove">✕</button></span>`;
+      const parts = [];
+      if (cFilters.disposition) parts.push(chip('disposition', cFilters.disposition));
+      if (cFilters.tag) parts.push(chip('tag', 'Tag: ' + cFilters.tag));
+      if (cFilters.company_id) parts.push(chip('company_id', state.companies.find((x) => x.id === cFilters.company_id)?.name || 'Company'));
+      if (cFilters.line) parts.push(chip('line', cFilters.line));
+      if (cFilters.polStatus) parts.push(chip('polStatus', 'Policy: ' + cFilters.polStatus));
+      if (cFilters.carrier_id) parts.push(chip('carrier_id', state.carriers.find((x) => x.id === cFilters.carrier_id)?.name || 'Carrier'));
+      if (cFilters.premMin || cFilters.premMax) parts.push(chip('prem', `Premium ${cFilters.premMin ? fmtMoney(cFilters.premMin) : '$0'}–${cFilters.premMax ? fmtMoney(cFilters.premMax) : '∞'}/yr`));
+      if (cFilters.bdayMonth) parts.push(chip('bdayMonth', 'Birthday: ' + MONTHS_L[cFilters.bdayMonth - 1]));
+      host.innerHTML = parts.join('');
+      host.style.display = parts.length ? '' : 'none';
+      $$('[data-fx]', host).forEach((b) => b.addEventListener('click', () => {
+        if (b.dataset.fx === 'prem') { cFilters.premMin = ''; cFilters.premMax = ''; }
+        else cFilters[b.dataset.fx] = '';
+        cPage = 0; renderContacts(v);
+      }));
     }
 
     // ---- Companies list ----
@@ -1263,25 +1350,103 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       if (!data) return;
       const sel = $('#c-tag', v); if (!sel) return;
       data.slice(0, 60).forEach((row) => { const o = document.createElement('option'); o.value = row.tag || row; o.textContent = (row.tag || row) + (row.uses ? ` (${row.uses})` : ''); sel.appendChild(o); });
+      if (cFilters.tag) sel.value = cFilters.tag;
     }
     async function loadContacts(v) {
       const per = 25;
+
+      // Policy / carrier filters resolve to a set of contact ids first, then the
+      // main contacts query narrows to that set. Policies are RLS-scoped, so an
+      // agent only ever matches within their own book.
+      let idSet = null;
+      const needsPolicies = cFilters.polStatus || cFilters.premMin || cFilters.premMax ||
+        (cFilters.line && (cFilters.polStatus || cFilters.premMin || cFilters.premMax));
+      if (needsPolicies || cFilters.polStatus) {
+        let pq = sb.from('ph_policies').select('contact_id, premium, premium_freq');
+        if (cFilters.line) pq = pq.eq('line', cFilters.line);
+        if (cFilters.polStatus) pq = pq.eq('status', cFilters.polStatus);
+        if (cFilters.carrier_id) pq = pq.eq('carrier_id', cFilters.carrier_id);
+        const { data: pols } = await pq;
+        const min = cFilters.premMin !== '' ? parseFloat(cFilters.premMin) : null;
+        const max = cFilters.premMax !== '' ? parseFloat(cFilters.premMax) : null;
+        idSet = new Set((pols || []).filter((p) => {
+          if (min == null && max == null) return true;
+          if (p.premium == null) return false;
+          const annual = Number(p.premium) * (FREQ_X[p.premium_freq] || 12);
+          return (min == null || annual >= min) && (max == null || annual <= max);
+        }).map((p) => p.contact_id));
+      }
+      if (cFilters.carrier_id && !needsPolicies && !cFilters.polStatus) {
+        // Carrier filter alone: match via linked carriers OR any policy at that carrier.
+        const [{ data: links }, { data: pols }] = await Promise.all([
+          sb.from('ph_contact_carriers').select('contact_id').eq('carrier_id', cFilters.carrier_id),
+          sb.from('ph_policies').select('contact_id').eq('carrier_id', cFilters.carrier_id),
+        ]);
+        idSet = new Set([...(links || []).map((r) => r.contact_id), ...(pols || []).map((r) => r.contact_id)]);
+      }
+
+      const tbl = $('#c-table', v);
+      const cols = ALL_COLS.filter((c) => cCols.includes(c.key));
+      const header = `<tr><th>Name</th>${cols.map((c) => `<th>${esc(c.label)}</th>`).join('')}</tr>`;
+
+      if (idSet && idSet.size === 0) {
+        tbl.innerHTML = `<table class="data"><thead>${header}</thead><tbody><tr><td colspan="${cols.length + 1}"><div class="empty">No contacts match these filters.</div></td></tr></tbody></table>`;
+        $('#c-count', v).textContent = '0 contacts'; $('#c-pager', v).innerHTML = ''; return;
+      }
+
       let q = sb.from('ph_contacts').select('*', { count: 'exact' }).order('ghl_date_added', { ascending: false, nullsFirst: false });
       if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`); }
-      if (cTag) q = q.contains('tags', [cTag]);
+      if (cFilters.tag) q = q.contains('tags', [cFilters.tag]);
+      if (cFilters.disposition) q = q.eq('disposition', cFilters.disposition);
+      if (cFilters.company_id) q = q.eq('company_id', cFilters.company_id);
+      if (cFilters.line && !needsPolicies) q = q.contains('coverage_types', [cFilters.line]);
+      if (cFilters.bdayMonth) q = q.eq('bday_month', parseInt(cFilters.bdayMonth, 10));
+      if (idSet) q = q.in('ghl_contact_id', Array.from(idSet).slice(0, 900));
       q = q.range(cPage * per, cPage * per + per - 1);
       const { data, count } = await q;
       const rows = data ?? [];
-      const tbl = $('#c-table', v);
-      tbl.innerHTML = `<table class="data"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Tags</th><th>Added</th></tr></thead><tbody>${
+
+      // Enrich the visible page only, and only for the columns that need it.
+      const pageIds = rows.map((c) => c.ghl_contact_id);
+      let carrierMap = {}, policyMap = {};
+      if (pageIds.length && cCols.includes('carriers')) {
+        const { data: links } = await sb.from('ph_contact_carriers').select('contact_id, carrier_id').in('contact_id', pageIds);
+        (links || []).forEach((l) => {
+          const n = state.carriers.find((x) => x.id === l.carrier_id)?.name; if (!n) return;
+          (carrierMap[l.contact_id] ||= []).push(n);
+        });
+      }
+      if (pageIds.length && cCols.includes('policies')) {
+        const { data: pols } = await sb.from('ph_policies').select('contact_id, line, status, premium, premium_freq').in('contact_id', pageIds);
+        (pols || []).forEach((p) => { (policyMap[p.contact_id] ||= []).push(p); });
+      }
+
+      const cellFor = (key, c) => {
+        switch (key) {
+          case 'email': return `<td class="cell-sub">${esc(c.email || '')}</td>`;
+          case 'phone': return `<td class="cell-sub">${esc(fmtPhone(c.phone))}</td>`;
+          case 'tags': return `<td>${(c.tags || []).slice(0, 3).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</td>`;
+          case 'added': return `<td class="cell-sub">${esc(fmtDate(c.ghl_date_added))}</td>`;
+          case 'bday': return `<td class="cell-sub">${c.bday_month ? esc(MONTHS_L[c.bday_month - 1].slice(0, 3) + (c.bday_day ? ' ' + c.bday_day : '')) : '—'}</td>`;
+          case 'company': { const co = c.company_id ? state.companies.find((x) => x.id === c.company_id) : null; return `<td class="cell-sub">${esc(co?.name || c.company || '—')}</td>`; }
+          case 'disposition': return `<td><span class="pill-status ${dispClass(c.disposition)}">${esc(c.disposition || '—')}</span></td>`;
+          case 'lines': return `<td>${(c.coverage_types || []).slice(0, 3).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">—</span>'}</td>`;
+          case 'carriers': return `<td class="cell-sub">${esc((carrierMap[c.ghl_contact_id] || []).slice(0, 2).join(', ') || '—')}</td>`;
+          case 'policies': {
+            const pols = policyMap[c.ghl_contact_id] || [];
+            if (!pols.length) return '<td class="cell-sub">—</td>';
+            const annual = pols.reduce((s, p) => s + (p.premium != null ? Number(p.premium) * (FREQ_X[p.premium_freq] || 12) : 0), 0);
+            return `<td><div style="font-weight:650">${pols.length} ${pols.length === 1 ? 'policy' : 'policies'}</div>${annual ? `<div class="cell-sub">${fmtMoney(annual)}/yr</div>` : ''}</td>`;
+          }
+          default: return '<td></td>';
+        }
+      };
+
+      tbl.innerHTML = `<table class="data"><thead>${header}</thead><tbody>${
         rows.map((c) => `<tr class="rowlink" data-contact="${esc(c.ghl_contact_id)}">
           <td><div class="cell-name"><span class="avatar-sm" style="background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>${esc(nameOf(c))}</div></td>
-          <td class="cell-sub">${esc(c.email || '')}</td><td class="cell-sub">${esc(fmtPhone(c.phone))}</td>
-          <td>${(c.tags || []).slice(0,3).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</td>
-          <td class="cell-sub">${esc(fmtDate(c.ghl_date_added))}</td></tr>`).join('') || '<tr><td colspan="5"><div class="empty">No contacts match.</div></td></tr>'
+          ${cols.map((col) => cellFor(col.key, c)).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length + 1}"><div class="empty">No contacts match.</div></td></tr>`
       }</tbody></table>`;
-      // PostgREST returns the exact total in Content-Range; guard for the null
-      // case (e.g. header not exposed) by falling back to the page length.
       const total = count ?? rows.length;
       $('#c-count', v).textContent = total.toLocaleString() + ' contact' + (total === 1 ? '' : 's');
       const pages = Math.max(1, Math.ceil(total / per));
