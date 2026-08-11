@@ -435,3 +435,8 @@ export function speakableSchema(url: string) {
     },
   };
 }
+
+// Direct link people are sent to when they choose 4-5 stars on the review page.
+// Swap this for a cleaner "write a review" deep link anytime; it is the only
+// place the destination is defined (used by /review and the review-request email).
+export const GOOGLE_REVIEW_URL = 'https://www.google.com/search?q=protecthealth+google+review&sca_esv=b21e0fc4ad4b3263#lrd=0x80c8c3a1ee8daa15:0xa01196f04d3e4e0f,3,,,,';

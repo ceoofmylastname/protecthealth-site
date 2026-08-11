@@ -89,6 +89,22 @@ const SUPABASE_ANON =
           </form>
         </details>
 
+        <details class="ad-addbroker rv-panel">
+          <summary>★ Send review requests to active clients</summary>
+          <div class="rv-body">
+            <p class="ab-hint ad-muted">Sends the branded "Your Experience Matters" email to active clients (tagged <b>client</b>, with an email and an assigned broker). Each email carries that client's own broker and a Write-a-Review button. Already-emailed clients are skipped automatically. <b>Send a test to yourself first.</b></p>
+            <p class="rv-count ad-muted">Counting eligible clients…</p>
+            <div class="ab-row">
+              <input type="email" class="rv-test-email" placeholder="your@email.com — send a test here" autocomplete="off" />
+              <button type="button" class="ab-go rv-test-btn">Send test to me</button>
+            </div>
+            <div class="ab-row" style="margin-top:10px">
+              <button type="button" class="ab-go rv-send-btn" style="background:#0b2a4a">Send to ALL active clients</button>
+            </div>
+            <p class="rv-status" role="status"></p>
+          </div>
+        </details>
+
         <div class="ad-toolbar">
           <input type="search" class="ad-search" placeholder="Search name, email or phone…" aria-label="Search" />
           <div class="ad-filters" role="group" aria-label="Filter">
@@ -349,6 +365,60 @@ const SUPABASE_ANON =
         }
         abForm.reset();
         load();
+      });
+    }
+
+    // ---------- review-request blast ----------
+    async function freshSession() {
+      let { data: { session } } = await sb.auth.getSession();
+      const stale = !session?.expires_at || (session.expires_at * 1000 - Date.now() < 120000);
+      if (session && stale) { const r = await sb.auth.refreshSession(); if (r?.data?.session) session = r.data.session; }
+      return session;
+    }
+    const rvPanel = $('.rv-panel');
+    if (rvPanel) {
+      const countEl = $('.rv-count'), statusEl = $('.rv-status');
+      const testEmail = $('.rv-test-email'), testBtn = $('.rv-test-btn'), sendBtn = $('.rv-send-btn');
+      let counted = false;
+      async function refreshCount() {
+        try {
+          const { data } = await sb.functions.invoke('ph-review-blast', { body: { action: 'count' } });
+          if (data && typeof data.count === 'number') countEl.textContent = `${data.count.toLocaleString()} active clients have not been sent a review request yet.`;
+        } catch (_) { countEl.textContent = 'Could not load the eligible count.'; }
+      }
+      rvPanel.addEventListener('toggle', () => { if (rvPanel.open && !counted) { counted = true; refreshCount(); if (!testEmail.value) { const w = ($('[data-who]')?.textContent || '').trim(); if (w.includes('@')) testEmail.value = w; } } });
+
+      testBtn.addEventListener('click', async () => {
+        const to = testEmail.value.trim();
+        statusEl.classList.remove('is-good', 'is-bad');
+        if (!to) { statusEl.textContent = 'Enter an email to send the test to.'; statusEl.classList.add('is-bad'); return; }
+        testBtn.disabled = true; statusEl.textContent = 'Sending test…';
+        if (!(await freshSession())) { testBtn.disabled = false; statusEl.textContent = 'Session expired. Sign out and back in.'; statusEl.classList.add('is-bad'); return; }
+        try {
+          const { data, error } = await sb.functions.invoke('ph-review-blast', { body: { action: 'test', test_email: to } });
+          if (error || !data?.ok) { statusEl.textContent = data?.error || 'Test failed.'; statusEl.classList.add('is-bad'); }
+          else { statusEl.textContent = `Test sent to ${to}. Check your inbox.`; statusEl.classList.add('is-good'); }
+        } catch (e) { statusEl.textContent = 'Test failed.'; statusEl.classList.add('is-bad'); }
+        testBtn.disabled = false;
+      });
+
+      sendBtn.addEventListener('click', async () => {
+        statusEl.classList.remove('is-good', 'is-bad');
+        if (!confirm('Send the review-request email to ALL eligible active clients? This cannot be undone. Send a test to yourself first if you have not.')) return;
+        sendBtn.disabled = true; testBtn.disabled = true;
+        let total = 0;
+        try {
+          for (let i = 0; i < 60; i++) {   // up to 60 batches (250 each) per run
+            if (!(await freshSession())) { statusEl.textContent = 'Session expired mid-send. Sign back in and click again to continue where it left off.'; statusEl.classList.add('is-bad'); break; }
+            statusEl.textContent = `Sending… ${total.toLocaleString()} sent so far.`;
+            const { data, error } = await sb.functions.invoke('ph-review-blast', { body: { action: 'send', limit: 250 } });
+            if (error || !data?.ok) { statusEl.textContent = data?.error || 'Send failed — click again to resume.'; statusEl.classList.add('is-bad'); break; }
+            total += data.sent || 0;
+            if ((data.remaining || 0) <= 0 || (data.batch || 0) === 0) { statusEl.textContent = `Done. ${total.toLocaleString()} review requests sent.`; statusEl.classList.add('is-good'); break; }
+          }
+        } catch (e) { statusEl.textContent = 'Send interrupted — click again to resume.'; statusEl.classList.add('is-bad'); }
+        sendBtn.disabled = false; testBtn.disabled = false;
+        refreshCount();
       });
     }
 
