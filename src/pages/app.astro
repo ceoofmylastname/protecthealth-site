@@ -291,6 +291,23 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .toast.on{opacity:1;transform:translate(-50%,0)}
   .spark path.line{fill:none;stroke-width:2;stroke-linecap:round}
   .spark path.area{opacity:.12}
+
+  /* forms + record */
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:.74rem;font-weight:700;color:var(--ink2);margin-bottom:5px}
+  .field input,.field select,.rec-select{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:none;background:#fbfcfe;font-size:.9rem}
+  .field input:focus,.field select:focus,.rec-select:focus{border-color:var(--blue)}
+  textarea.rec-select{resize:vertical;min-height:60px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 80px 110px;gap:10px}
+  .pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+  .pickbox{display:flex;align-items:center;gap:7px;font-size:.84rem;padding:5px 2px;cursor:pointer}
+  .pickbox input{width:15px;height:15px;flex:none}
+  .dep-row{margin-bottom:10px;padding:10px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
+  .dep-row input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.85rem;background:#fff;width:100%}
+  .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
+  .rec-grid .card-b{max-height:none}
+  @media(max-width:1150px){.rec-grid{grid-template-columns:1fr}}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
   </style>
@@ -396,7 +413,15 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0 };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [] };
+
+    // Fixed vocabularies from Rob's spec.
+    const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
+    const COVERAGE_TYPES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Defined Benefit', 'Group Health', 'Group Dental', 'Group Vision'];
+    const dispClass = (d) => ({
+      'Active Client': 'st-green', 'Lead': 'st-blue', 'Follow-Up': 'st-amber',
+      'Not Interested': 'st-gray', 'No Answer': 'st-gray', 'Wrong Number': 'st-red', 'Do Not Call': 'st-red',
+    }[d] || 'st-gray');
 
     async function enter(email) {
       $$('[data-who]').forEach((el) => (el.textContent = email));
@@ -474,16 +499,23 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
         sb.from('ph_contacts').select('*', { count: 'exact', head: true }),
+        sb.from('ph_carriers').select('id, name, is_active').eq('is_active', true).order('name'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
       state.calendars = calsRes.data ?? [];
       state.contactCount = cntRes.count ?? 0;
+      state.carriers = carrRes.data ?? [];
+    }
+    async function reloadCarriers() {
+      const { data } = await sb.from('ph_carriers').select('id, name, is_active').order('name');
+      state.carriers = (data ?? []).filter((c) => c.is_active);
+      state.allCarriers = data ?? [];
     }
 
     // ---- router ----
@@ -605,6 +637,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         <div class="toolbar">
           <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:240px"/>
           <select id="c-tag"><option value="">All tags</option></select>
+          <button class="btn btn-primary btn-sm" id="c-add">+ Add Contact</button>
+          ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-carriers">Manage carriers</button>' : ''}
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
         </div>
         <div id="c-table"></div>
@@ -613,7 +647,116 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const search = $('#c-search', v);
       let t; search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { cQuery = search.value.trim(); cPage = 0; loadContacts(v); }, 250); });
       $('#c-tag', v).addEventListener('change', (e) => { cTag = e.target.value; cPage = 0; loadContacts(v); });
+      $('#c-add', v).addEventListener('click', () => openAddContact(v));
+      $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
       loadTags(v); loadContacts(v);
+    }
+
+    // ================= ADD CONTACT (slide-in form) =================
+    function depRow(i, relation) {
+      const isSpouse = relation === 'Spouse';
+      return `<div class="dep-row" data-dep="${i}">
+        <div style="font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:4px">${relation}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 130px;gap:8px">
+          <input data-dk="first_name" placeholder="First name"/>
+          <input data-dk="last_name" placeholder="Last name"/>
+          <input data-dk="dob" type="date" title="Date of birth"/>
+        </div>
+      </div>`;
+    }
+    function openAddContact(listView) {
+      const carrierOpts = state.carriers.map((c) => `<label class="pickbox"><input type="checkbox" data-carrier="${c.id}"/> ${esc(c.name)}</label>`).join('');
+      const covOpts = COVERAGE_TYPES.map((c) => `<label class="pickbox"><input type="checkbox" data-cov="${esc(c)}"/> ${esc(c)}</label>`).join('');
+      const dispOpts = DISPOSITIONS.map((d) => `<option value="${esc(d)}"${d==='Lead'?' selected':''}>${esc(d)}</option>`).join('');
+      const deps = [depRow(0, 'Spouse'), depRow(1, 'Child 1'), depRow(2, 'Child 2'), depRow(3, 'Child 3'), depRow(4, 'Child 4')].join('');
+      openDrawer(`
+        <div class="drawer-h">
+          <div><div style="font-size:1.15rem;font-weight:800">Add Contact</div><div class="cell-sub">Saved to your book automatically</div></div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">
+          <form id="add-form">
+            <div class="section-t">Client</div>
+            <div class="grid2">
+              <div class="field"><label>First name *</label><input name="first_name" required/></div>
+              <div class="field"><label>Last name</label><input name="last_name"/></div>
+            </div>
+            <div class="field"><label>Company</label><input name="company"/></div>
+            <div class="grid2">
+              <div class="field"><label>Date of birth</label><input name="date_of_birth" type="date"/></div>
+              <div class="field"><label>Phone</label><input name="phone" inputmode="tel"/></div>
+            </div>
+            <div class="field"><label>Email</label><input name="email" type="email"/></div>
+            <div class="field"><label>Street address</label><input name="street_address"/></div>
+            <div class="grid3">
+              <div class="field"><label>City</label><input name="city"/></div>
+              <div class="field"><label>State</label><input name="state" maxlength="2" style="text-transform:uppercase"/></div>
+              <div class="field"><label>Zip</label><input name="postal_code" inputmode="numeric"/></div>
+            </div>
+            <div class="field"><label>Disposition</label><select name="disposition">${dispOpts}</select>
+              <div class="hint">Setting this to <b>Active Client</b> marks the client in-force and records you as the writing agent.</div>
+            </div>
+
+            <div class="section-t">Coverage type</div>
+            <div class="pickgrid">${covOpts}</div>
+
+            <div class="section-t">Carriers</div>
+            <div class="pickgrid" id="carrier-pick">${carrierOpts || '<div class="cell-sub">No carriers yet.</div>'}</div>
+
+            <div class="section-t">Dependents</div>
+            ${deps}
+
+            <div style="display:flex;gap:10px;margin-top:22px">
+              <button type="submit" class="btn btn-primary">Save Contact</button>
+              <button type="button" class="btn btn-ghost" data-x>Cancel</button>
+            </div>
+            <p class="ag-status add-status" style="min-height:1.1em;margin-top:10px"></p>
+          </form>
+        </div>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      $('#add-form').addEventListener('submit', (e) => { e.preventDefault(); saveContact(e.target, listView); });
+    }
+
+    async function saveContact(form, listView) {
+      const status = $('.add-status');
+      const g = (n) => form.elements[n]?.value?.trim() || null;
+      const first = g('first_name');
+      if (!first) { status.textContent = 'First name is required.'; status.classList.add('is-bad'); return; }
+      const btn = form.querySelector('button[type="submit"]'); btn.disabled = true;
+      status.classList.remove('is-bad'); status.textContent = 'Saving…';
+
+      const coverage = $$('[data-cov]', form).filter((c) => c.checked).map((c) => c.getAttribute('data-cov'));
+      const carrierIds = $$('[data-carrier]', form).filter((c) => c.checked).map((c) => c.getAttribute('data-carrier'));
+      const dependents = $$('.dep-row', form).map((row, i) => {
+        const rel = i === 0 ? 'Spouse' : 'Child';
+        const d = {};
+        $$('[data-dk]', row).forEach((inp) => { if (inp.value.trim()) d[inp.getAttribute('data-dk')] = inp.value.trim(); });
+        return Object.keys(d).length ? { relation: rel, ...d } : null;
+      }).filter(Boolean);
+
+      // Local id keeps this out of the GHL sync's path entirely.
+      const id = 'local:' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+      const row = {
+        ghl_contact_id: id, origin: 'crm', tags: [], dnd: false, synced_at: new Date().toISOString(),
+        first_name: first, last_name: g('last_name'), company: g('company'), email: g('email'),
+        phone: g('phone'), date_of_birth: g('date_of_birth'), street_address: g('street_address'),
+        city: g('city'), state: (g('state') || '').toUpperCase() || null, postal_code: g('postal_code'),
+        disposition: form.elements['disposition'].value, coverage_types: coverage, dependents,
+        ghl_date_added: new Date().toISOString(),
+        // agent_id intentionally omitted — the intake trigger assigns the owner.
+      };
+      const { error } = await sb.from('ph_contacts').insert(row);
+      if (error) { btn.disabled = false; status.textContent = 'Could not save: ' + error.message; status.classList.add('is-bad'); return; }
+
+      if (carrierIds.length) {
+        const links = carrierIds.map((cid) => ({ contact_id: id, carrier_id: cid }));
+        const { error: cErr } = await sb.from('ph_contact_carriers').insert(links);
+        if (cErr) toast('Contact saved, but carriers did not attach.');
+      }
+      closeDrawer();
+      toast('Contact added to your book');
+      state.contactCount++; buildNav();
+      loadContacts(listView);
     }
     async function loadTags(v) {
       let data = null;
@@ -815,27 +958,176 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       }));
     }
 
+    // Contact record: full three-column view per Rob's layout —
+    // LEFT client data · MIDDLE activity · RIGHT notes + appointments.
     async function openContact(cid, cached) {
-      const c = (cached || []).find((x) => x.ghl_contact_id === cid);
+      let c = (cached || []).find((x) => x.ghl_contact_id === cid);
+      if (!c) { const { data } = await sb.from('ph_contacts').select('*').eq('ghl_contact_id', cid).maybeSingle(); c = data; }
       if (!c) return;
-      const cf = c.custom_fields || {};
-      openDrawer(`
-        <div class="drawer-h">
-          <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
-          <div><div style="font-size:1.15rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
-          <button class="drawer-x" data-x>✕</button>
-        </div>
-        <div class="drawer-b">
+      currentRoute = 'contact-record';
+      $('#page-title').textContent = nameOf(c);
+      $('#page-sub').textContent = 'Client record';
+      $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === 'contacts'));
+      const v = $('#view'); v.scrollTop = 0;
+
+      // Pull the carriers linked to this client (RLS-scoped).
+      const { data: links } = await sb.from('ph_contact_carriers').select('carrier_id').eq('contact_id', cid);
+      const linkedIds = new Set((links || []).map((r) => r.carrier_id));
+      const carrierNames = state.carriers.filter((x) => linkedIds.has(x.id)).map((x) => x.name);
+      const deps = Array.isArray(c.dependents) ? c.dependents : [];
+      const dob = c.date_of_birth ? new Date(c.date_of_birth).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' }) : '';
+      const dispSel = DISPOSITIONS.map((d) => `<option ${d === c.disposition ? 'selected' : ''}>${esc(d)}</option>`).join('');
+
+      v.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <button class="btn btn-ghost btn-sm" id="rec-back">← Contacts</button>
+        <span class="avatar-sm" style="width:40px;height:40px;font-size:.9rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
+        <div><div style="font-size:1.2rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
+        <span class="pill-status ${dispClass(c.disposition)}" id="rec-disp-pill" style="margin-left:8px">${esc(c.disposition || 'No disposition')}</span>
+      </div>
+      <div class="rec-grid">
+        <div class="card"><div class="card-h"><span class="grad-label">Client data</span></div><div class="card-b">
           <div class="kv">
-            ${c.date_of_birth ? `<div class="k">Birthday</div><div class="v">${esc(new Date(c.date_of_birth).toLocaleDateString('en-US',{timeZone:'UTC',month:'long',day:'numeric',year:'numeric'}))}</div>` : ''}
-            ${(c.city||c.state) ? `<div class="k">Location</div><div class="v">${esc([c.city, c.state].filter(Boolean).join(', '))}</div>` : ''}
-            <div class="k">Source</div><div class="v">${esc(c.source || '—')}</div>
-            <div class="k">Added</div><div class="v">${esc(fmtDate(c.ghl_date_added))}</div>
+            <div class="k">First name</div><div class="v">${esc(c.first_name || '—')}</div>
+            <div class="k">Last name</div><div class="v">${esc(c.last_name || '—')}</div>
+            <div class="k">Company</div><div class="v">${esc(c.company || '—')}</div>
+            <div class="k">Date of birth</div><div class="v">${esc(dob || '—')}</div>
+            <div class="k">Email</div><div class="v">${esc(c.email || '—')}</div>
+            <div class="k">Phone</div><div class="v">${esc(fmtPhone(c.phone) || '—')}</div>
+            <div class="k">Address</div><div class="v">${esc([c.street_address, c.city, [c.state, c.postal_code].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '—')}</div>
           </div>
+          <div class="section-t">Disposition</div>
+          <select id="rec-disp" class="rec-select">${dispSel}</select>
+          <div class="hint" id="rec-disp-hint">Active Client marks the client in-force (issued) and records you as the writing agent.</div>
+          <div class="section-t">Coverage</div>
+          <div>${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
+          <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
+          <div id="rec-carriers">${carrierNames.map((n) => `<span class="chip">${esc(n)}</span>`).join(' ') || '<span class="cell-sub">None selected</span>'}</div>
+          ${deps.length ? `<div class="section-t">Dependents</div>${deps.map((d) => `<div class="feed-item"><div class="feed-ic">👤</div><div><div style="font-weight:650">${esc([d.first_name, d.last_name].filter(Boolean).join(' ') || d.relation)}</div><div class="cell-sub">${esc(d.relation)}${d.dob ? ' · ' + esc(d.dob) : ''}</div></div></div>`).join('')}` : ''}
           ${(c.tags && c.tags.length) ? `<div class="section-t">Tags</div><div>${c.tags.map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ')}</div>` : ''}
-          ${Object.keys(cf).length ? `<div class="section-t">Custom fields</div><div class="kv">${Object.entries(cf).slice(0,20).map(([k,val]) => `<div class="k">${esc(k)}</div><div class="v">${esc(typeof val==='object'?JSON.stringify(val):val)}</div>`).join('')}</div>` : ''}
+        </div></div>
+
+        <div class="card"><div class="card-h"><span class="grad-label">Activity</span></div><div class="card-b" id="rec-activity">
+          <div class="cell-sub">Loading…</div>
+        </div></div>
+
+        <div class="card"><div class="card-h"><span class="grad-label">Notes & appointments</span></div><div class="card-b">
+          <div id="rec-appts"><div class="cell-sub">Loading…</div></div>
+          <div class="section-t">Notes</div>
+          <textarea id="rec-note" class="rec-select" rows="3" placeholder="Add a note…"></textarea>
+          <button class="btn btn-primary btn-sm" id="rec-note-save" style="margin-top:8px">Save note</button>
+          <div id="rec-notes" style="margin-top:12px"></div>
+        </div></div>
+      </div>`;
+
+      $('#rec-back').addEventListener('click', () => go('contacts'));
+
+      // disposition change → writes ph_contacts.disposition; DB trigger handles in-force.
+      $('#rec-disp').addEventListener('change', async (e) => {
+        const val = e.target.value; const prev = c.disposition;
+        const { error } = await sb.from('ph_contacts').update({ disposition: val }).eq('ghl_contact_id', cid);
+        if (error) { e.target.value = prev || ''; toast('Could not update disposition.'); return; }
+        c.disposition = val;
+        const pill = $('#rec-disp-pill'); pill.textContent = val; pill.className = 'pill-status ' + dispClass(val);
+        toast(val === 'Active Client' ? 'Marked Active Client — client is now in-force' : 'Disposition updated');
+      });
+
+      $('#rec-edit-carriers').addEventListener('click', () => editContactCarriers(cid, linkedIds));
+
+      // Activity: emails + notes + record events, newest first.
+      loadContactActivity(cid, c);
+      loadContactNotes(cid);
+      loadContactAppointments(c);
+      $('#rec-note-save').addEventListener('click', () => saveNote(cid));
+    }
+
+    async function loadContactActivity(cid, c) {
+      const host = $('#rec-activity'); if (!host) return;
+      const items = [];
+      items.push({ icon: '➕', title: 'Contact created', when: c.ghl_date_added });
+      if (c.issued_at) items.push({ icon: '✅', title: 'Marked Active Client (in-force)', when: c.issued_at });
+      items.sort((a, b) => +new Date(b.when || 0) - +new Date(a.when || 0));
+      host.innerHTML = items.map((i) => `<div class="feed-item"><div class="feed-ic">${i.icon}</div><div><div style="font-weight:650">${esc(i.title)}</div><div class="cell-sub">${esc(fmtDateTime(i.when))}</div></div></div>`).join('') || '<div class="cell-sub">No activity yet.</div>';
+    }
+    async function loadContactAppointments(c) {
+      const host = $('#rec-appts'); if (!host) return;
+      // Match any lead for this contact that has an appointment.
+      const appts = state.leads.filter((l) => l.ghl_contact_id === c.ghl_contact_id && l.appointment_start);
+      host.innerHTML = appts.length ? appts.map((l) => `<div class="feed-item"><div class="feed-ic">📅</div><div><div style="font-weight:650">${esc(fmtFull(l.appointment_start))}</div><div class="cell-sub">${esc(l.kind || 'appointment')}</div></div></div>`).join('') : '<div class="cell-sub">No appointments.</div>';
+    }
+    async function loadContactNotes(cid) {
+      const host = $('#rec-notes'); if (!host) return;
+      const { data } = await sb.from('ph_notes').select('*').eq('contact_id', cid).order('created_at', { ascending: false }).limit(50);
+      host.innerHTML = (data && data.length) ? data.map((n) => `<div class="feed-item"><div class="feed-ic">📝</div><div><div>${esc(n.body)}</div><div class="cell-sub">${esc(fmtDateTime(n.created_at))}</div></div></div>`).join('') : '<div class="cell-sub">No notes yet.</div>';
+    }
+    async function saveNote(cid) {
+      const ta = $('#rec-note'); const body = ta.value.trim(); if (!body) return;
+      const { error } = await sb.from('ph_notes').insert({ contact_id: cid, body });
+      if (error) { toast('Could not save note.'); return; }
+      ta.value = ''; toast('Note saved'); loadContactNotes(cid);
+    }
+
+    // Edit which carriers cover this client, in a small modal-like drawer section.
+    function editContactCarriers(cid, linkedIds) {
+      const opts = state.carriers.map((c) => `<label class="pickbox"><input type="checkbox" data-carrier="${c.id}" ${linkedIds.has(c.id) ? 'checked' : ''}/> ${esc(c.name)}</label>`).join('');
+      openDrawer(`
+        <div class="drawer-h"><div style="font-size:1.1rem;font-weight:800">Carriers for this client</div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div class="pickgrid">${opts || '<div class="cell-sub">No carriers.</div>'}</div>
+          <button class="btn btn-primary" id="cc-save" style="margin-top:18px">Save carriers</button>
         </div>`);
       $('[data-x]').addEventListener('click', closeDrawer);
+      $('#cc-save').addEventListener('click', async () => {
+        const want = new Set($$('#drawer [data-carrier]').filter((c) => c.checked).map((c) => c.getAttribute('data-carrier')));
+        const add = [...want].filter((id) => !linkedIds.has(id));
+        const remove = [...linkedIds].filter((id) => !want.has(id));
+        if (add.length) await sb.from('ph_contact_carriers').insert(add.map((carrier_id) => ({ contact_id: cid, carrier_id })));
+        for (const id of remove) await sb.from('ph_contact_carriers').delete().eq('contact_id', cid).eq('carrier_id', id);
+        closeDrawer(); toast('Carriers updated'); openContact(cid, null);
+      });
+    }
+
+    // ================= ADMIN: CARRIER MANAGER =================
+    async function openCarrierManager() {
+      await reloadCarriers();
+      const list = (state.allCarriers || []).map((c) => `
+        <div class="feed-item" data-cid="${c.id}">
+          <input class="cm-name" value="${esc(c.name)}" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px"/>
+          <label class="cell-sub" style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="cm-active" ${c.is_active ? 'checked' : ''}/> active</label>
+          <button class="btn btn-ghost btn-sm cm-save">Save</button>
+          <button class="btn btn-ghost btn-sm cm-del" style="color:var(--red)">Delete</button>
+        </div>`).join('');
+      openDrawer(`
+        <div class="drawer-h"><div style="font-size:1.1rem;font-weight:800">Carriers</div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div class="hint">Changes here apply for every user's dropdown.</div>
+          <div style="display:flex;gap:8px;margin:12px 0">
+            <input id="cm-new" placeholder="New carrier name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 11px"/>
+            <button class="btn btn-primary btn-sm" id="cm-add">Add</button>
+          </div>
+          <div id="cm-list">${list}</div>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#cm-add').addEventListener('click', async () => {
+        const name = $('#cm-new').value.trim(); if (!name) return;
+        const { error } = await sb.from('ph_carriers').insert({ name });
+        if (error) { toast(error.message.includes('duplicate') ? 'That carrier already exists.' : 'Could not add.'); return; }
+        toast('Carrier added'); openCarrierManager();
+      });
+      $$('#drawer [data-cid]').forEach((row) => {
+        const id = row.getAttribute('data-cid');
+        row.querySelector('.cm-save').addEventListener('click', async () => {
+          const name = row.querySelector('.cm-name').value.trim();
+          const is_active = row.querySelector('.cm-active').checked;
+          const { error } = await sb.from('ph_carriers').update({ name, is_active }).eq('id', id);
+          toast(error ? 'Could not save.' : 'Saved'); if (!error) reloadCarriers();
+        });
+        row.querySelector('.cm-del').addEventListener('click', async () => {
+          const { error } = await sb.from('ph_carriers').delete().eq('id', id);
+          if (error) { toast('In use — set inactive instead of deleting.'); return; }
+          toast('Deleted'); openCarrierManager();
+        });
+      });
     }
 
     // global search → jump to contacts filtered
