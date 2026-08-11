@@ -433,7 +433,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
-    const COVERAGE_TYPES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Defined Benefit', 'Group Health', 'Group Dental', 'Group Vision'];
+    // Matches the pipeline lines one-to-one, so a checked line maps straight to
+    // its pipeline (see ph_cov_to_line). Legacy labels still map server-side.
+    const COVERAGE_TYPES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Annuities', 'Group Benefits', 'Supplements', 'Accident / Gap'];
     const dispClass = (d) => ({
       'Active Client': 'st-green', 'Lead': 'st-blue', 'Follow-Up': 'st-amber',
       'Not Interested': 'st-gray', 'No Answer': 'st-gray', 'Wrong Number': 'st-red', 'Do Not Call': 'st-red',
@@ -484,10 +486,25 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       gate.hidden = true; $('#onboarding').hidden = true; app.hidden = false;
       const nm = state.me.full_name || email;
       $('[data-who-name]').textContent = nm;
-      $('#avatar').textContent = initials(nm);
+      paintAvatar();
       startClock();
       buildNav();
       loadData().then(() => go(location.hash.replace('#', '') || 'dashboard'));
+    }
+
+    // Top-right avatar: show the broker's headshot if they have one, else initials.
+    function paintAvatar() {
+      const av = $('#avatar'); if (!av) return;
+      const nm = state.me?.full_name || state.email || '';
+      if (state.me?.headshot_url) {
+        av.textContent = '';
+        av.style.background = 'transparent';
+        av.innerHTML = `<img src="${esc(state.me.headshot_url)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      } else {
+        av.innerHTML = '';
+        av.style.background = 'var(--grad)';
+        av.textContent = initials(nm);
+      }
     }
 
     // ================= ONBOARDING / PROFILE =================
@@ -876,7 +893,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
               <div class="hint">Setting this to <b>Active Client</b> marks the client in-force and records you as the writing agent.</div>
             </div>
 
-            <div class="section-t">Coverage type</div>
+            <div class="section-t">Lines of insurance</div>
+            <div class="hint" style="margin-bottom:8px">Each line you check creates a deal in that pipeline.</div>
             <div class="pickgrid">${covOpts}</div>
 
             <div class="section-t">Carriers</div>
@@ -1212,7 +1230,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <div class="section-t">Disposition</div>
           <select id="rec-disp" class="rec-select">${dispSel}</select>
           <div class="hint" id="rec-disp-hint">Active Client marks the client in-force (issued) and records you as the writing agent.</div>
-          <div class="section-t">Coverage</div>
+          <div class="section-t">Lines of insurance</div>
           <div>${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
           <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
           <div id="rec-carriers">${carrierNames.map((n) => `<span class="chip">${esc(n)}</span>`).join(' ') || '<span class="cell-sub">None selected</span>'}</div>
