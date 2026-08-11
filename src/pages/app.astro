@@ -429,7 +429,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [] };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [] };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -668,18 +668,28 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
         sb.from('ph_contacts').select('*', { count: 'exact', head: true }),
         sb.from('ph_carriers').select('id, name, is_active').eq('is_active', true).order('name'),
+        sb.from('ph_pipelines').select('*').eq('is_active', true).order('position'),
+        sb.from('ph_pipeline_stages').select('*').order('position'),
+        sb.from('ph_opportunities').select('*').order('created_at', { ascending: false }),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
       state.calendars = calsRes.data ?? [];
       state.contactCount = cntRes.count ?? 0;
       state.carriers = carrRes.data ?? [];
+      state.pipelines = pipeRes.data ?? [];
+      state.pipelineStages = pstgRes.data ?? [];
+      state.opps = oppRes.data ?? [];
+    }
+    async function reloadOpps() {
+      const { data } = await sb.from('ph_opportunities').select('*').order('created_at', { ascending: false });
+      state.opps = data ?? [];
     }
     async function reloadCarriers() {
       const { data } = await sb.from('ph_carriers').select('id, name, is_active').order('name');
@@ -692,7 +702,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       dashboard: ['Dashboard', 'A live look at your leads, appointments and pipeline'],
       contacts: ['Contacts', 'Your book — search, tags, birthdays'],
       leads: ['Leads', 'Everyone assigned to you, newest first'],
-      pipeline: ['Pipeline', 'Drag a lead to move it through your stages'],
+      pipeline: ['Pipeline', 'Your deals by line — drag a card to move it through the stages'],
       calendar: ['Calendar', 'Your upcoming appointments'],
     };
     let currentRoute = null;
@@ -925,6 +935,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       closeDrawer();
       toast('Contact added to your book');
       state.contactCount++; buildNav();
+      reloadOpps();
       loadContacts(listView);
     }
     async function loadTags(v) {
@@ -993,28 +1004,56 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $$('tr[data-lead]', v).forEach((r) => r.addEventListener('click', () => openLead(r.dataset.lead)));
     }
 
-    // ================= PIPELINE (kanban, real drag → stage_id) =================
-    function renderPipeline(v) {
-      const cols = state.stages.slice().sort((a, b) => a.sort_order - b.sort_order);
-      v.innerHTML = `<div id="kanban">${cols.map((s) => {
-        const items = state.leads.filter((l) => l.stage_id === s.id);
-        const dot = s.is_won ? 'var(--green)' : s.is_lost ? 'var(--red)' : s.key === 'appt' ? 'var(--violet)' : s.key === 'contacted' ? 'var(--amber)' : 'var(--blue)';
-        return `<div class="kcol">
-          <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.label)}</div><div class="meta">${items.length} lead${items.length===1?'':'s'}</div></div>
-          <div class="kcol-b" data-stage="${s.id}">${items.map(kcard).join('')}</div>
-        </div>`;
-      }).join('')}</div>`;
-      wireKanban(v);
+    // ============ PIPELINE (per-line opportunity board + line dropdown) ============
+    let pipeLineKey = null;
+    function pipeName(lk) { const p = state.pipelines.find((x) => x.line_key === lk); return p ? p.name : lk; }
+    // Which pipelines this user sees: an admin sees all; a broker sees the lines
+    // they wrote at onboarding, plus any line they already hold a deal in.
+    function visiblePipelines() {
+      if (state.isAdmin) return state.pipelines.slice();
+      const mine = new Set(state.me?.lines_of_insurance || []);
+      const withOpps = new Set(state.opps.map((o) => o.line_key));
+      return state.pipelines.filter((p) => mine.has(p.name) || withOpps.has(p.line_key));
     }
-    const kcard = (l) => `<div class="kcard" draggable="true" data-lead="${l.id}">
-      <div class="nm">${esc(nameOf(l))}</div>
-      <div class="meta"><span class="chip">${esc(l.kind || 'form')}</span>${l.appointment_start ? '📅 ' + esc(fmtDate(l.appointment_start)) : esc(fmtDate(l.created_at))}</div></div>`;
-    function wireKanban(v) {
-      let dragId = null;
+    function renderPipeline(v) {
+      const pipes = visiblePipelines().sort((a, b) => a.position - b.position);
+      if (!pipes.length) {
+        v.innerHTML = `<div class="card"><div class="empty">No pipelines to show yet. Pick the lines you write from <b>Edit profile</b> (bottom-left), or add a contact and choose a coverage type — the deal lands here automatically.</div></div>`;
+        return;
+      }
+      if (!pipeLineKey || !pipes.some((p) => p.line_key === pipeLineKey)) pipeLineKey = pipes[0].line_key;
+      const pipe = pipes.find((p) => p.line_key === pipeLineKey);
+      const stages = state.pipelineStages.filter((s) => s.pipeline_id === pipe.id).sort((a, b) => a.position - b.position);
+      const opts = pipes.map((p) => `<option value="${esc(p.line_key)}"${p.line_key === pipeLineKey ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
+      const total = state.opps.filter((o) => o.pipeline_id === pipe.id).length;
+      v.innerHTML = `
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0b2a4a">
+            <span>Pipeline</span>
+            <select id="pipe-line" style="padding:9px 12px;border:1.5px solid #d9e1ea;border-radius:10px;font-size:0.95rem;font-weight:600;background:#fff;color:#0b2a4a;min-width:190px">${opts}</select>
+          </label>
+          <div class="cell-sub">${total} deal${total === 1 ? '' : 's'} in ${esc(pipe.name)}</div>
+        </div>
+        <div id="kanban">${stages.map((s) => {
+          const items = state.opps.filter((o) => o.pipeline_id === pipe.id && o.stage_id === s.id);
+          const dot = s.is_won ? 'var(--green)' : s.is_lost ? 'var(--red)' : s.position === 1 ? 'var(--blue)' : s.position === 2 ? 'var(--amber)' : 'var(--violet)';
+          return `<div class="kcol">
+            <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.name)}</div><div class="meta">${items.length}</div></div>
+            <div class="kcol-b" data-stage="${s.id}">${items.map(oppCard).join('')}</div>
+          </div>`;
+        }).join('')}</div>`;
+      $('#pipe-line', v).addEventListener('change', (e) => { pipeLineKey = e.target.value; renderPipeline(v); });
+      wirePipe(v);
+    }
+    const oppCard = (o) => `<div class="kcard" draggable="true" data-opp="${o.id}" data-contact="${esc(o.contact_id)}">
+      <div class="nm">${esc(o.title || 'Untitled')}</div>
+      <div class="meta"><span class="chip">${esc(pipeName(o.line_key))}</span>${o.value ? '$' + Number(o.value).toLocaleString() : esc(fmtDate(o.created_at))}</div></div>`;
+    function wirePipe(v) {
+      let dragId = null, didDrag = false;
       $$('.kcard', v).forEach((c) => {
-        c.addEventListener('dragstart', () => { dragId = c.dataset.lead; c.classList.add('dragging'); });
-        c.addEventListener('dragend', () => { dragId = null; c.classList.remove('dragging'); });
-        c.addEventListener('click', () => openLead(c.dataset.lead));
+        c.addEventListener('dragstart', () => { dragId = c.dataset.opp; didDrag = true; c.classList.add('dragging'); });
+        c.addEventListener('dragend', () => { dragId = null; c.classList.remove('dragging'); setTimeout(() => { didDrag = false; }, 0); });
+        c.addEventListener('click', () => { if (!didDrag) openContact(c.dataset.contact); });
       });
       $$('.kcol-b', v).forEach((col) => {
         col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('dropover'); });
@@ -1023,13 +1062,18 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           e.preventDefault(); col.classList.remove('dropover');
           if (!dragId) return;
           const stageId = col.dataset.stage;
-          const lead = state.leads.find((l) => l.id === dragId);
-          if (!lead || lead.stage_id === stageId) return;
-          const prev = lead.stage_id; lead.stage_id = stageId; // optimistic
+          const o = state.opps.find((x) => x.id === dragId);
+          if (!o || o.stage_id === stageId) return;
+          const stage = state.pipelineStages.find((s) => s.id === stageId);
+          const prev = o.stage_id, prevStatus = o.status;
+          o.stage_id = stageId;
+          o.status = stage?.is_won ? 'won' : stage?.is_lost ? 'lost' : 'open';
           renderPipeline(v);
-          const { error } = await sb.from('ph_leads').update({ stage_id: stageId }).eq('id', dragId);
-          if (error) { lead.stage_id = prev; renderPipeline(v); toast('Could not move that lead.'); }
-          else { const s = state.stages.find((x) => x.id === stageId); toast('Moved to ' + (s ? s.label : 'stage')); }
+          const { error } = await sb.from('ph_opportunities')
+            .update({ stage_id: stageId, status: o.status, updated_at: new Date().toISOString() })
+            .eq('id', dragId);
+          if (error) { o.stage_id = prev; o.status = prevStatus; renderPipeline(v); toast('Could not move that deal.'); }
+          else { toast('Moved to ' + (stage ? stage.name : 'stage')); }
         });
       });
     }
