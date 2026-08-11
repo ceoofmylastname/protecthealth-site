@@ -430,7 +430,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [] };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [] };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -687,7 +687,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
@@ -696,6 +696,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         sb.from('ph_pipelines').select('*').eq('is_active', true).order('position'),
         sb.from('ph_pipeline_stages').select('*').order('position'),
         sb.from('ph_opportunities').select('*').order('created_at', { ascending: false }),
+        sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
@@ -705,6 +706,21 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       state.pipelines = pipeRes.data ?? [];
       state.pipelineStages = pstgRes.data ?? [];
       state.opps = oppRes.data ?? [];
+      state.appts = apptRes.data ?? [];
+    }
+
+    // Unified appointment feed: GHL-mirror leads that carry an appointment_start
+    // PLUS native bookings from ph_appointments (landing-page bookings, which
+    // create a contact — not a lead — so they'd otherwise be invisible here).
+    function apptEvents() {
+      const fromLeads = state.leads.filter((l) => l.appointment_start).map((l) => ({
+        id: l.id, when: l.appointment_start, name: nameOf(l), native: false,
+      }));
+      const fromNative = (state.appts || []).map((a) => ({
+        id: 'appt:' + a.id, when: a.start_at, name: a.invitee_name || 'Booking',
+        native: true, email: a.invitee_email, phone: a.invitee_phone, line: a.line_key,
+      }));
+      return fromLeads.concat(fromNative).sort((a, b) => +new Date(a.when) - +new Date(b.when));
     }
     async function reloadOpps() {
       const { data } = await sb.from('ph_opportunities').select('*').order('created_at', { ascending: false });
@@ -753,9 +769,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const d30 = now - 30 * 864e5, d60 = now - 60 * 864e5;
       const last30 = state.leads.filter((l) => +new Date(l.created_at) >= d30);
       const prev30 = state.leads.filter((l) => { const t = +new Date(l.created_at); return t >= d60 && t < d30; });
-      const bookings = state.leads.filter((l) => l.appointment_start);
+      const events = apptEvents();
+      const bookings = events.filter((e) => +new Date(e.when) >= now);
       const weekEnd = now + 7 * 864e5;
-      const apptsWeek = bookings.filter((l) => { const t = +new Date(l.appointment_start); return t >= now && t <= weekEnd; });
+      const apptsWeek = events.filter((e) => { const t = +new Date(e.when); return t >= now && t <= weekEnd; });
       const won = state.leads.filter((l) => { const s = stageOf(l); return s && s.is_won; });
       const openLeads = state.leads.filter((l) => { const s = stageOf(l); return !s || (!s.is_won && !s.is_lost); });
       const delta = prev30.length ? Math.round((last30.length - prev30.length) / prev30.length * 100) : null;
@@ -769,8 +786,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
       const area = line + ` L${W} ${H} L0 ${H} Z`;
 
-      const upNext = bookings.filter((l) => +new Date(l.appointment_start) >= now)
-        .sort((a, b) => +new Date(a.appointment_start) - +new Date(b.appointment_start)).slice(0, 6);
+      const upNext = bookings.slice(0, 6);
       const recent = state.leads.slice(0, 8);
 
       v.innerHTML = `
@@ -800,10 +816,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <div class="card">
             <div class="card-h"><span class="grad-label">Today</span><h3 style="margin-left:8px">Up next</h3></div>
             <div class="card-b" style="padding-top:6px">
-              ${upNext.length ? upNext.map((l) => `
+              ${upNext.length ? upNext.map((e) => `
                 <div class="feed-item">
                   <div class="feed-ic">📅</div>
-                  <div><div style="font-weight:650">${esc(nameOf(l))}</div><div class="cell-sub">${esc(fmtFull(l.appointment_start))}</div></div>
+                  <div><div style="font-weight:650">${esc(e.name)}</div><div class="cell-sub">${esc(fmtFull(e.when))}</div></div>
                   <span class="pill-status st-green" style="margin-left:auto">Confirmed</span>
                 </div>`).join('') : '<div class="empty" style="padding:24px">No upcoming appointments.</div>'}
             </div>
@@ -1143,9 +1159,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       if (!calMonth) { const n = new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
       const y = calMonth.getFullYear(), m = calMonth.getMonth();
       const first = new Date(y, m, 1), start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7)); // Mon-first
-      const appts = state.leads.filter((l) => l.appointment_start);
+      const appts = apptEvents();
       const byDay = {};
-      appts.forEach((l) => { const d = new Date(l.appointment_start); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(l); });
+      appts.forEach((e) => { const d = new Date(e.when); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(e); });
       const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
       const title = calMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -1155,7 +1171,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         const k = d.toLocaleDateString('en-CA');
         const dim = d.getMonth() !== m ? 'dim' : '';
         const today = k === todayKey ? 'today' : '';
-        const evs = (byDay[k] || []).slice(0, 3).map((l) => `<div class="cal-ev" data-lead="${l.id}">${new Date(l.appointment_start).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(nameOf(l))}</div>`).join('');
+        const evs = (byDay[k] || []).slice(0, 3).map((e) => `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? '' : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`).join('');
         const more = (byDay[k] || []).length > 3 ? `<div class="cell-sub" style="margin-top:2px">+${byDay[k].length - 3} more</div>` : '';
         cells += `<div class="cal-cell ${dim} ${today}"><div class="dnum">${d.getDate()}</div>${evs}${more}</div>`;
       }
