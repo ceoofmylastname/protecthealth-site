@@ -327,6 +327,28 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
+  /* Availability editor */
+  .av-days{display:flex;flex-direction:column;gap:2px}
+  .av-day{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 4px;border-bottom:1px solid var(--line)}
+  .av-day:last-child{border-bottom:0}
+  .av-toggle{display:flex;align-items:center;gap:10px;font-weight:650;color:var(--navy);cursor:pointer;min-width:120px}
+  .av-toggle input{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}
+  .av-times{display:flex;align-items:center;gap:8px}
+  .av-times input[type=time]{padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem;background:#fff;color:var(--navy)}
+  .av-times input:disabled{opacity:.4;background:#f6f9fe}
+  .av-to{color:var(--muted);font-size:.85rem}
+  .av-rules{display:grid;gap:14px}
+  .av-field{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .av-field>span{font-weight:650;color:var(--navy);font-size:.92rem}
+  .av-field select,.av-field input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem;background:#fff;color:var(--navy)}
+  .av-field input:disabled{opacity:.6;background:#f6f9fe}
+  .av-inline{display:flex;align-items:center;gap:8px}
+  .av-inline input{width:80px}
+  .av-inline em{color:var(--muted);font-style:normal;font-size:.88rem}
+  .av-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:4px}
+  .av-status{font-weight:650;font-size:.9rem}
+  .av-preview{margin-left:auto;color:var(--blue);font-weight:650;text-decoration:none;font-size:.9rem}
+  @media(max-width:560px){.av-day{flex-direction:column;align-items:flex-start;gap:8px}.av-field{flex-direction:column;align-items:flex-start;gap:6px}.av-preview{margin-left:0}}
   </style>
 
   <script>
@@ -430,7 +452,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [] };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -660,6 +682,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       leads: '<path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>',
       pipeline: '<path d="M4 4h16M6.5 4l3 7v9l5-2v-7l3-7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/>',
+      availability: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       admin: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
     };
     function navItem(id, label, count, extraAttr = '') {
@@ -675,6 +698,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       html += navItem('leads', 'Leads', state.leads.length);
       html += navItem('pipeline', 'Pipeline');
       html += navItem('calendar', 'Calendar');
+      html += navItem('availability', 'Availability');
       if (state.isAdmin) {
         html += '<div class="nav-sec">Admin</div>';
         html += `<a class="nav-item" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.leads}</svg>All Leads</a>`;
@@ -687,7 +711,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     // ---- data load (RLS scopes everything to this user automatically) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes] = await Promise.all([
         sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         sb.from('ph_agent_calendars').select('*'),
@@ -697,6 +721,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         sb.from('ph_pipeline_stages').select('*').order('position'),
         sb.from('ph_opportunities').select('*').order('created_at', { ascending: false }),
         sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at'),
+        sb.from('ph_agent_scheduling').select('*'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
@@ -707,6 +732,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       state.pipelineStages = pstgRes.data ?? [];
       state.opps = oppRes.data ?? [];
       state.appts = apptRes.data ?? [];
+      // RLS returns only this agent's scheduling row (admins may get several).
+      state.mySched = (schedRes.data || []).find((s) => s.agent_id === (state.me && state.me.id)) || (schedRes.data || [])[0] || null;
     }
 
     // Unified appointment feed: GHL-mirror leads that carry an appointment_start
@@ -739,6 +766,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       leads: ['Leads', 'Everyone assigned to you, newest first'],
       pipeline: ['Pipeline', 'Your deals by line — drag a card to move it through the stages'],
       calendar: ['Calendar', 'Your upcoming appointments'],
+      availability: ['Availability', 'Set the hours people can book you — this updates your booking page right away'],
     };
     let currentRoute = null;
     function go(route) {
@@ -750,7 +778,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
       root.classList.remove('nav-open');
       const v = $('#view'); v.scrollTop = 0;
-      ({ dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar }[route])(v);
+      ({ dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability }[route])(v);
     }
     window.addEventListener('hashchange', () => { const r = location.hash.replace('#', ''); if (r && r !== currentRoute && TITLES[r]) go(r); });
 
@@ -1150,6 +1178,84 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           if (error) { o.stage_id = prev; o.status = prevStatus; renderPipeline(v); toast('Could not move that deal.'); }
           else { toast('Moved to ' + (stage ? stage.name : 'stage')); }
         });
+      });
+    }
+
+    // ================= AVAILABILITY (broker sets their booking hours) =========
+    // Writes ph_agent_scheduling, which ph-book reads live — so saving here
+    // changes the slots on this broker's /book and /broker pages immediately,
+    // no site rebuild needed. Weekday keys match ph-book: Sun=0 … Sat=6.
+    function renderAvailability(v) {
+      const s = state.mySched || {};
+      const slot = s.slot_minutes || 30, advance = s.advance_days || 21, notice = s.min_notice_hours ?? 12;
+      const avail = s.availability || { '1': [['09:00', '17:00']], '2': [['09:00', '17:00']], '3': [['09:00', '17:00']], '4': [['09:00', '17:00']], '5': [['09:00', '17:00']] };
+      const DAYS = [['1', 'Monday'], ['2', 'Tuesday'], ['3', 'Wednesday'], ['4', 'Thursday'], ['5', 'Friday'], ['6', 'Saturday'], ['0', 'Sunday']];
+      const dayRow = (num, label) => {
+        const w = (avail[num] && avail[num][0]) || null;
+        const on = !!w, start = w ? w[0] : '09:00', end = w ? w[1] : '17:00';
+        return `<div class="av-day">
+          <label class="av-toggle"><input type="checkbox" data-day="${num}" ${on ? 'checked' : ''}><span>${label}</span></label>
+          <div class="av-times">
+            <input type="time" data-start="${num}" value="${start}" ${on ? '' : 'disabled'}>
+            <span class="av-to">to</span>
+            <input type="time" data-end="${num}" value="${end}" ${on ? '' : 'disabled'}>
+          </div>
+        </div>`;
+      };
+      const slotOpts = [15, 20, 30, 45, 60].map((m) => `<option value="${m}" ${m === slot ? 'selected' : ''}>${m} minutes</option>`).join('');
+      const slug = brokerSlug(state.me.full_name || '');
+      v.innerHTML = `
+        <div class="view-grid" style="max-width:780px">
+          <div class="card">
+            <div class="card-h"><span class="grad-label">Hours</span><h3 style="margin-left:8px">When can people book you?</h3></div>
+            <div class="card-b"><div class="av-days">${DAYS.map(([n, l]) => dayRow(n, l)).join('')}</div>
+              <p class="cell-sub" style="margin-top:12px">Turn a day off to remove it from your calendar entirely. Times are Las Vegas time.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="grad-label">Rules</span><h3 style="margin-left:8px">Booking settings</h3></div>
+            <div class="card-b av-rules">
+              <label class="av-field"><span>Appointment length</span><select id="av-slot">${slotOpts}</select></label>
+              <label class="av-field"><span>Let people book up to</span><div class="av-inline"><input type="number" id="av-advance" min="1" max="90" value="${advance}"><em>days ahead</em></div></label>
+              <label class="av-field"><span>Minimum notice</span><div class="av-inline"><input type="number" id="av-notice" min="0" max="168" value="${notice}"><em>hours before</em></div></label>
+              <label class="av-field"><span>Time zone</span><input type="text" value="Las Vegas (Pacific)" disabled></label>
+            </div>
+          </div>
+          <div class="av-actions">
+            <button class="btn" id="av-save">Save availability</button>
+            <span class="av-status" id="av-status"></span>
+            <a class="av-preview" href="/book/${slug}" target="_blank" rel="noopener">Preview my booking page →</a>
+          </div>
+        </div>`;
+      $$('[data-day]', v).forEach((cb) => cb.addEventListener('change', () => {
+        const n = cb.getAttribute('data-day');
+        $(`[data-start="${n}"]`, v).disabled = !cb.checked;
+        $(`[data-end="${n}"]`, v).disabled = !cb.checked;
+      }));
+      $('#av-save', v).addEventListener('click', async () => {
+        const btn = $('#av-save', v), st = $('#av-status', v);
+        const availability = {};
+        $$('[data-day]', v).forEach((cb) => {
+          if (!cb.checked) return;
+          const n = cb.getAttribute('data-day');
+          const start = $(`[data-start="${n}"]`, v).value || '09:00';
+          const end = $(`[data-end="${n}"]`, v).value || '17:00';
+          if (start < end) availability[n] = [[start, end]];
+        });
+        const patch = {
+          agent_id: state.me.id, timezone: 'America/Los_Angeles',
+          slot_minutes: parseInt($('#av-slot', v).value, 10) || 30,
+          advance_days: Math.max(1, Math.min(90, parseInt($('#av-advance', v).value, 10) || 21)),
+          min_notice_hours: Math.max(0, Math.min(168, parseInt($('#av-notice', v).value, 10) || 12)),
+          availability, updated_at: new Date().toISOString(),
+        };
+        btn.disabled = true; st.textContent = 'Saving…'; st.style.color = '';
+        const { error } = await sb.from('ph_agent_scheduling').upsert(patch, { onConflict: 'agent_id' });
+        btn.disabled = false;
+        if (error) { st.textContent = 'Could not save: ' + error.message; st.style.color = '#c0392b'; return; }
+        state.mySched = patch;
+        st.textContent = 'Saved — your booking page is updated.'; st.style.color = '#0ea472';
+        toast('Availability saved');
       });
     }
 
