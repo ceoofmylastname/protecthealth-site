@@ -87,7 +87,12 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
     function dayLabel(dateStr) {
       const [y, m, d] = dateStr.split('-').map(Number);
       const dt = new Date(Date.UTC(y, m - 1, d, 12));
-      return { wd: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }), md: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }), full: dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' }) };
+      return {
+        wd: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+        mo: dt.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }),
+        dnum: String(d),
+        full: dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' }),
+      };
     }
 
     async function load() {
@@ -103,7 +108,7 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
     function renderDays() {
       daysEl.innerHTML = data.days.map((day) => {
         const l = dayLabel(day.date);
-        return `<button type="button" class="sched-day${day.date === selDay ? ' on' : ''}" data-date="${day.date}"><span>${l.wd}</span><b>${l.md}</b></button>`;
+        return `<button type="button" class="sched-day${day.date === selDay ? ' on' : ''}" data-date="${day.date}"><span class="dwd">${l.wd}</span><b class="dnum">${l.dnum}</b><span class="dmo">${l.mo}</span></button>`;
       }).join('');
       daysEl.querySelectorAll('.sched-day').forEach((b) => b.addEventListener('click', () => { selDay = b.dataset.date; renderDays(); renderTimes(); }));
     }
@@ -184,7 +189,10 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
   })();
 </script>
 
-<style>
+<style is:global>
+  /* Global (not scoped) because the day + time pills are built at runtime via
+     innerHTML — Astro's scoped data-attribute never lands on them, so scoped
+     rules would silently skip them. Everything is namespaced under .sched. */
   .sched { --navy:#0b2a4a; --blue:#2563c9; --blueDk:#1d4ed8; --muted:#5b6b7c; --edge:#e6edf6; --bg:#f6f9fe;
     position:relative; isolation:isolate; }
   .sched-confetti { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; }
@@ -206,15 +214,19 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
   .sched-days { display:flex; gap:9px; overflow-x:auto; padding:2px 2px 12px; scrollbar-width:thin; scroll-snap-type:x proximity; }
   .sched-days::-webkit-scrollbar { height:6px; }
   .sched-days::-webkit-scrollbar-thumb { background:#cdd9ea; border-radius:6px; }
-  .sched-day { flex:0 0 auto; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap;
-    padding:9px 15px; border:1px solid var(--edge); border-radius:14px; background:var(--bg); cursor:pointer; min-width:62px;
-    transition:border-color .13s ease, background .13s ease, transform .13s ease; }
-  .sched-day:hover { border-color:#bcd0ee; background:#eef4fe; transform:translateY(-1px); }
-  .sched-day span { font-size:.64rem; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; font-weight:700; }
-  .sched-day b { color:var(--navy); font-size:.9rem; }
-  .sched-day.on { background:var(--blue); border-color:var(--blue); box-shadow:0 8px 18px rgba(37,99,201,.28); }
-  .sched-day.on span { color:rgba(255,255,255,.82); }
-  .sched-day.on b { color:#fff; }
+  /* Modern date cards: weekday / big number / month, stacked */
+  .sched-day { flex:0 0 auto; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; gap:1px; white-space:nowrap;
+    padding:11px 15px 10px; border:1px solid var(--edge); border-radius:16px; background:#fff; cursor:pointer; min-width:62px;
+    box-shadow:0 2px 8px rgba(11,42,74,.05); transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease; }
+  .sched-day:hover { transform:translateY(-3px); border-color:#bcd0ee; box-shadow:0 12px 24px rgba(37,99,201,.16); }
+  .sched-day .dwd { font-size:.6rem; font-weight:800; letter-spacing:.9px; text-transform:uppercase; color:#8493a6; }
+  .sched-day .dnum { font-size:1.24rem; font-weight:800; color:var(--navy); line-height:1.12; letter-spacing:-.5px; }
+  .sched-day .dmo { font-size:.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:#9aa7b8; }
+  .sched-day.on { background:linear-gradient(158deg,#3b74e6,#1d4ed8); border-color:transparent;
+    box-shadow:0 14px 28px rgba(37,99,201,.42); transform:translateY(-2px); }
+  .sched-day.on .dwd { color:rgba(255,255,255,.82); }
+  .sched-day.on .dnum { color:#fff; }
+  .sched-day.on .dmo { color:rgba(255,255,255,.72); }
 
   /* Wrapped time pills — compact, cohesive, no gradient */
   .sched-times { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); gap:9px; margin-top:14px; }
