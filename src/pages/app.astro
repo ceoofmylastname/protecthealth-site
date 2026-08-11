@@ -605,8 +605,23 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $('[data-who-name]').textContent = nm;
       paintAvatar();
       startClock();
+      startHeartbeat();
       buildNav();
       loadData().then(() => go(location.hash.replace('#', '') || 'dashboard'));
+    }
+
+    // Presence heartbeat: stamps last_seen_at on entry and every 5 minutes
+    // while a tab is open. Powers the admin last-login view AND lead claiming —
+    // the 60-minute TTL sweep treats "agent has been in the CRM since the lead
+    // arrived" as claimed, so an open session counts, not just a fresh sign-in.
+    let heartbeatTimer = null;
+    function startHeartbeat() {
+      const beat = () => {
+        if (!state.uid) return;
+        sb.from('ph_agents').update({ last_seen_at: new Date().toISOString() }).eq('auth_user_id', state.uid).then(() => {});
+      };
+      beat();
+      if (!heartbeatTimer) heartbeatTimer = setInterval(beat, 5 * 60 * 1000);
     }
 
     // Top-right avatar: show the broker's headshot if they have one, else initials.
@@ -794,6 +809,8 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       html += navItem('pipeline', 'Pipeline');
       html += navItem('calendar', 'Calendar');
       html += navItem('availability', 'Availability');
+      html += '<div class="nav-sec">Resources</div>';
+      html += `<a class="nav-item" href="https://guided-broker.pages.dev" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>Ask Pete · Resources</a>`;
       if (state.isAdmin) {
         html += '<div class="nav-sec">Admin</div>';
         html += `<a class="nav-item" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.leads}</svg>All Leads</a>`;

@@ -55,7 +55,7 @@ const SUPABASE_ANON =
         <header class="ad-head">
           <div>
             <span class="section-label">ProtectHealth Admin</span>
-            <h1>Appointments &amp; enquiries</h1>
+            <h1>Appointments &amp; inquiries</h1>
             <nav class="ad-nav">
               <a href="/admin" class="is-on">Leads</a>
               <a href="/admin/campaigns">Campaigns</a>
@@ -71,7 +71,7 @@ const SUPABASE_ANON =
         <div class="ad-stats">
           <div class="ad-stat spot"><b data-stat="upcoming">, </b><span>Upcoming conversations</span></div>
           <div class="ad-stat spot"><b data-stat="bookings">, </b><span>Bookings all time</span></div>
-          <div class="ad-stat spot"><b data-stat="forms">, </b><span>Form enquiries</span></div>
+          <div class="ad-stat spot"><b data-stat="forms">, </b><span>Form inquiries</span></div>
           <div class="ad-stat spot"><b data-stat="emails">, </b><span>Emails sent</span></div>
           <div class="ad-stat spot"><b data-stat="queued">, </b><span>Emails queued</span></div>
         </div>
@@ -114,6 +114,14 @@ const SUPABASE_ANON =
           </div>
         </details>
 
+        <details class="ad-addbroker lg-panel">
+          <summary>👤 Broker logins — who's been in, who never has</summary>
+          <div class="rv-body">
+            <p class="ab-hint ad-muted">Last sign-in and last activity per active broker, most recent first. <b>Never</b> means they have not logged in yet.</p>
+            <div class="rvt-wrap"><table class="rvt-table lg-table"><tbody></tbody></table></div>
+          </div>
+        </details>
+
         <details class="ad-addbroker rr-panel">
           <summary>⇄ Lead routing — round robin</summary>
           <div class="rv-body">
@@ -132,7 +140,7 @@ const SUPABASE_ANON =
           <div class="ad-filters" role="group" aria-label="Filter">
             <button type="button" class="ad-chip is-on" data-filter="all">All</button>
             <button type="button" class="ad-chip" data-filter="booking">Bookings</button>
-            <button type="button" class="ad-chip" data-filter="form">Enquiries</button>
+            <button type="button" class="ad-chip" data-filter="form">Inquiries</button>
             <button type="button" class="ad-chip" data-filter="upcoming">Upcoming</button>
           </div>
           <button type="button" class="ad-refresh" title="Refresh">↻</button>
@@ -498,6 +506,33 @@ const SUPABASE_ANON =
       rvTrack.addEventListener('toggle', () => { if (rvTrack.open && !loadedT) { loadedT = true; loadTracking(); } });
     }
 
+    // ---------- broker logins (last sign-in / last activity) ----------
+    const lgPanel = $('.lg-panel');
+    if (lgPanel) {
+      const tbody = $('.lg-table tbody');
+      const esch2 = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const ago = (t) => {
+        if (!t) return null;
+        const m = Math.round((Date.now() - new Date(t).getTime()) / 60000);
+        if (m < 2) return 'just now'; if (m < 60) return m + ' min ago';
+        const h = Math.round(m / 60); if (h < 48) return h + ' hr ago';
+        return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      };
+      let loadedLG = false;
+      lgPanel.addEventListener('toggle', async () => {
+        if (!lgPanel.open || loadedLG) return; loadedLG = true;
+        const { data, error } = await sb.rpc('ph_agent_logins');
+        if (error || !data) { tbody.innerHTML = '<tr><td>Could not load.</td></tr>'; return; }
+        tbody.innerHTML = `<tr class="rvt-head"><td>Broker</td><td>Clients</td><td>Last sign-in</td><td>Last active</td></tr>` +
+          data.map((r) => `<tr>
+            <td><div style="font-weight:600">${esch2(r.full_name)}</div><div class="ad-muted" style="font-size:.8rem">${esch2(r.email)}</div></td>
+            <td class="ad-muted">${(r.contacts || 0).toLocaleString()}</td>
+            <td>${r.last_sign_in_at ? '<span style="color:#0b7d55;font-weight:650">' + ago(r.last_sign_in_at) + '</span>' : (r.has_login ? '<span style="color:#b45309;font-weight:700">Never</span>' : '<span class="ad-muted">No account</span>')}</td>
+            <td class="ad-muted">${ago(r.last_seen_at) || '—'}</td>
+          </tr>`).join('');
+      });
+    }
+
     // ---------- round-robin lead routing ----------
     const rrPanel = $('.rr-panel');
     if (rrPanel) {
@@ -611,10 +646,10 @@ const SUPABASE_ANON =
           const upcoming = l.appointment_start && new Date(l.appointment_start) > now;
           const tag = l.kind === 'booking'
             ? `<span class="ad-tag ${upcoming ? 'booking' : 'past'}">${upcoming ? 'Upcoming' : 'Booking'}</span>`
-            : '<span class="ad-tag form">Enquiry</span>';
+            : '<span class="ad-tag form">Inquiry</span>';
           const when = l.appointment_start
             ? `${fmtDateTime(l.appointment_start)}<small>appointment</small>`
-            : `${fmtDateTime(l.created_at)}<small>enquired</small>`;
+            : `${fmtDateTime(l.created_at)}<small>inquired</small>`;
           return `<button type="button" class="ad-row${selected === l.id ? ' is-on' : ''}" role="listitem" data-id="${l.id}">
             <span>
               <span class="ad-row-name">${tag}${esc(nameOf(l))}</span>
@@ -649,7 +684,7 @@ const SUPABASE_ANON =
 
       body.innerHTML = `
         <h2>${esc(nameOf(lead))}</h2>
-        <p class="ad-muted">${lead.kind === 'booking' ? 'Booked a conversation' : 'Form enquiry'} · ${fmtFull(lead.created_at)}</p>
+        <p class="ad-muted">${lead.kind === 'booking' ? 'Booked a conversation' : 'Form inquiry'} · ${fmtFull(lead.created_at)}</p>
 
         <dl class="ad-kv">
           ${lead.email ? `<dt>Email</dt><dd><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></dd>` : ''}
