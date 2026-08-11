@@ -1,8 +1,9 @@
 ---
 // Native booking widget for broker landing + calendar pages. Talks to the
 // ph-book edge function: loads open slots for this agent, lets the visitor pick
-// a time and enter details, and books it. The booking creates a contact in that
-// agent's CRM and their pipeline deal. No GoHighLevel.
+// a day on a full month calendar and a time from the day's slot column, then
+// books it. The booking creates a contact in that agent's CRM and their
+// pipeline deal. No GoHighLevel.
 interface Props {
   agentId: string;
   agentName: string;
@@ -19,13 +20,34 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
   <div class="sched-glass">
     <div class="sched-head">
       <div class="sched-title">Book time with {first}</div>
-      <div class="sched-sub">Times shown in Las Vegas time. Pick a slot and you're set.</div>
+      <div class="sched-sub">Times shown in Las Vegas time. Pick a day, then a time.</div>
     </div>
     <div class="sched-status">Loading available times…</div>
+
     <div class="sched-cal" hidden>
-      <div class="sched-days"></div>
-      <div class="sched-times"></div>
+      <div class="sched-picker">
+        <div class="sched-month">
+          <div class="sched-monthbar">
+            <button type="button" class="sched-nav sched-prev" aria-label="Previous month">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="sched-caption"></div>
+            <button type="button" class="sched-nav sched-next" aria-label="Next month">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+          <div class="sched-weekdays">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+          </div>
+          <div class="sched-grid"></div>
+        </div>
+        <div class="sched-slots">
+          <div class="sched-slots-head"></div>
+          <div class="sched-slots-list"></div>
+        </div>
+      </div>
     </div>
+
     <form class="sched-form" hidden>
       <div class="sched-chosen"></div>
       <div class="sched-row">
@@ -53,6 +75,7 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
         <button type="button" class="sched-back">← Pick another time</button>
       </div>
     </form>
+
     <div class="sched-done" hidden></div>
     <p class="sched-err" role="alert"></p>
   </div>
@@ -64,19 +87,31 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
     if (!root) return;
     const FN = FN_URL + '/ph-book';
     const $ = (s) => root.querySelector(s);
-    const statusEl = $('.sched-status'), cal = $('.sched-cal'), daysEl = $('.sched-days'),
-      timesEl = $('.sched-times'), form = $('.sched-form'), doneEl = $('.sched-done'), errEl = $('.sched-err');
-    let data = null, selDay = null, chosen = null;
+    const statusEl = $('.sched-status'), cal = $('.sched-cal'),
+      gridEl = $('.sched-grid'), captionEl = $('.sched-caption'),
+      prevBtn = $('.sched-prev'), nextBtn = $('.sched-next'),
+      slotsHead = $('.sched-slots-head'), slotsList = $('.sched-slots-list'),
+      form = $('.sched-form'), doneEl = $('.sched-done'), errEl = $('.sched-err');
+
+    let byDate = {};        // 'YYYY-MM-DD' -> [{start_at,label}]
+    let orderedDates = [];  // sorted available date strings
+    let viewY = 0, viewM = 0; // displayed month (0-based)
+    let selDate = null, chosen = null;
+
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const pad = (n) => String(n).padStart(2, '0');
+    const ymKey = (y, m) => y * 12 + m;
+    function parse(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return { y, m: m - 1, d }; }
+    function longDay(dateStr) {
+      const p = parse(dateStr);
+      const dt = new Date(Date.UTC(p.y, p.m, p.d, 12));
+      return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
 
     async function call(body) {
       const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(body) });
       return { ok: r.ok, data: await r.json().catch(() => ({})) };
-    }
-    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    function dayLabel(dateStr) {
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const dt = new Date(Date.UTC(y, m - 1, d, 12));
-      return { wd: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }), md: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) };
     }
 
     async function load() {
@@ -85,26 +120,71 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
         statusEl.textContent = 'No open times online right now — call or email using the buttons above and we’ll get you set.';
         return;
       }
-      data = d; selDay = d.days[0].date;
+      byDate = {}; orderedDates = [];
+      d.days.forEach((day) => { if (day.slots && day.slots.length) { byDate[day.date] = day.slots; orderedDates.push(day.date); } });
+      orderedDates.sort();
+      if (!orderedDates.length) { statusEl.textContent = 'No open times online right now — call or email using the buttons above.'; return; }
+      selDate = orderedDates[0];
+      const p = parse(selDate); viewY = p.y; viewM = p.m;
       statusEl.hidden = true; cal.hidden = false;
-      renderDays(); renderTimes();
+      renderMonth(); renderTimes();
     }
-    function renderDays() {
-      daysEl.innerHTML = data.days.map((day) => {
-        const l = dayLabel(day.date);
-        return `<button type="button" class="sched-day${day.date === selDay ? ' on' : ''}" data-date="${day.date}"><span>${l.wd}</span><b>${l.md}</b></button>`;
+
+    function renderMonth() {
+      captionEl.textContent = MONTHS[viewM] + ' ' + viewY;
+      const firstWd = new Date(Date.UTC(viewY, viewM, 1)).getUTCDay(); // 0=Sun
+      const daysInMonth = new Date(Date.UTC(viewY, viewM + 1, 0)).getUTCDate();
+      const prevDays = new Date(Date.UTC(viewY, viewM, 0)).getUTCDate();
+      const todayStr = (() => { const n = new Date(); return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`; })();
+
+      const cells = [];
+      // leading outside days
+      for (let i = firstWd - 1; i >= 0; i--) cells.push({ n: prevDays - i, out: true });
+      // this month
+      for (let d = 1; d <= daysInMonth; d++) cells.push({ n: d, out: false, date: `${viewY}-${pad(viewM + 1)}-${pad(d)}` });
+      // trailing outside days to fill full weeks
+      while (cells.length % 7 !== 0) cells.push({ n: cells.length - (firstWd + daysInMonth) + 1, out: true });
+
+      gridEl.innerHTML = cells.map((c) => {
+        if (c.out) return `<div class="sched-cell out"><span>${c.n}</span></div>`;
+        const avail = !!byDate[c.date];
+        const cls = ['sched-cell'];
+        if (avail) cls.push('avail'); else cls.push('off');
+        if (c.date === selDate) cls.push('sel');
+        if (c.date === todayStr) cls.push('today');
+        return `<div class="${cls.join(' ')}"${avail ? ` data-date="${c.date}"` : ''}><span>${c.n}</span></div>`;
       }).join('');
-      daysEl.querySelectorAll('.sched-day').forEach((b) => b.addEventListener('click', () => { selDay = b.dataset.date; renderDays(); renderTimes(); }));
+
+      gridEl.querySelectorAll('.sched-cell.avail').forEach((el) => el.addEventListener('click', () => {
+        selDate = el.dataset.date; renderMonth(); renderTimes();
+      }));
+
+      const minYM = ymKey(...(() => { const p = parse(orderedDates[0]); return [p.y, p.m]; })());
+      const maxYM = ymKey(...(() => { const p = parse(orderedDates[orderedDates.length - 1]); return [p.y, p.m]; })());
+      const curYM = ymKey(viewY, viewM);
+      prevBtn.disabled = curYM <= minYM;
+      nextBtn.disabled = curYM >= maxYM;
     }
+
     function renderTimes() {
-      const day = data.days.find((x) => x.date === selDay);
-      timesEl.innerHTML = (day ? day.slots : []).map((s) => `<button type="button" class="sched-time" data-iso="${s.start_at}" data-label="${esc(s.label)}">${esc(s.label)}</button>`).join('');
-      timesEl.querySelectorAll('.sched-time').forEach((b) => b.addEventListener('click', () => {
-        const l = dayLabel(selDay);
-        chosen = { iso: b.dataset.iso, label: b.dataset.label, day: `${l.wd}, ${l.md}` };
+      slotsHead.textContent = selDate ? longDay(selDate) : '';
+      const slots = byDate[selDate] || [];
+      if (!slots.length) { slotsList.innerHTML = `<p class="sched-noslot">No times this day. Pick another highlighted date.</p>`; return; }
+      slotsList.innerHTML = slots.map((s) => `<button type="button" class="sched-time" data-iso="${s.start_at}" data-label="${esc(s.label)}">${esc(s.label)}</button>`).join('');
+      slotsList.querySelectorAll('.sched-time').forEach((b) => b.addEventListener('click', () => {
+        chosen = { iso: b.dataset.iso, label: b.dataset.label, day: longDay(selDate) };
         showForm();
       }));
     }
+
+    function shiftMonth(delta) {
+      const k = ymKey(viewY, viewM) + delta;
+      viewY = Math.floor(k / 12); viewM = k % 12;
+      renderMonth();
+    }
+    prevBtn.addEventListener('click', () => { if (!prevBtn.disabled) shiftMonth(-1); });
+    nextBtn.addEventListener('click', () => { if (!nextBtn.disabled) shiftMonth(1); });
+
     function showForm() {
       cal.hidden = true; form.hidden = false; errEl.textContent = '';
       form.querySelector('.sched-chosen').innerHTML = `<b>${esc(chosen.day)} at ${esc(chosen.label)}</b> — 30 minutes with ${esc(agentFirst)}`;
@@ -137,59 +217,72 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 </script>
 
 <style>
-  .sched { --navy:#0b2a4a; --blue:#2563c9; --indigo:#6366f1; --cyan:#06b6d4; --line:#e6edf6; --muted:#5b6b7c;
+  .sched { --navy:#0b2a4a; --blue:#2563c9; --indigo:#6366f1; --cyan:#06b6d4; --muted:#5b6b7c; --line:#e6edf6;
     position:relative; isolation:isolate; border-radius:30px; }
-  /* Soft colorful aurora glowing behind the frosted panel — this is what the
-     glass picks up and blurs. */
-  .sched-aura { position:absolute; inset:-8px; z-index:0; border-radius:36px; filter:blur(34px); opacity:.9;
+  /* Soft colorful aurora glowing behind the frosted panel. */
+  .sched-aura { position:absolute; inset:-8px; z-index:0; border-radius:36px; filter:blur(34px); opacity:.85;
     background:
-      radial-gradient(42% 52% at 14% 18%, rgba(96,165,250,.60), transparent 70%),
-      radial-gradient(46% 56% at 86% 14%, rgba(167,139,250,.55), transparent 70%),
-      radial-gradient(52% 60% at 78% 92%, rgba(34,211,238,.48), transparent 70%),
-      radial-gradient(48% 56% at 18% 96%, rgba(37,99,201,.48), transparent 70%); }
-  .sched-glass { position:relative; z-index:1; border-radius:28px; padding:30px;
-    background:linear-gradient(135deg, rgba(255,255,255,.74), rgba(255,255,255,.52));
-    backdrop-filter:blur(26px) saturate(165%); -webkit-backdrop-filter:blur(26px) saturate(165%);
-    border:1px solid rgba(255,255,255,.65);
+      radial-gradient(42% 52% at 14% 18%, rgba(96,165,250,.55), transparent 70%),
+      radial-gradient(46% 56% at 86% 14%, rgba(167,139,250,.5), transparent 70%),
+      radial-gradient(52% 60% at 78% 92%, rgba(34,211,238,.44), transparent 70%),
+      radial-gradient(48% 56% at 18% 96%, rgba(37,99,201,.44), transparent 70%); }
+  .sched-glass { position:relative; z-index:1; border-radius:28px; padding:26px;
+    background:linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
+    backdrop-filter:blur(26px) saturate(160%); -webkit-backdrop-filter:blur(26px) saturate(160%);
+    border:1px solid rgba(255,255,255,.7);
     box-shadow:0 30px 70px rgba(11,42,74,.20), inset 0 1px 0 rgba(255,255,255,.7); }
-  .sched-full .sched-glass { background:linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.6)); }
 
-  .sched-head { margin-bottom:20px; }
+  .sched-head { margin-bottom:18px; }
   .sched-title { font-weight:800; font-size:1.32rem; letter-spacing:-.4px; line-height:1.1;
     background:linear-gradient(90deg,#1e3a8a,#2563c9 45%,#6366f1); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .sched-sub { color:var(--muted); font-size:.88rem; margin-top:4px; }
   .sched-status { color:var(--muted); padding:16px 0; }
 
-  .sched-days { display:flex; gap:10px; overflow-x:auto; padding:6px 2px 14px; scrollbar-width:thin; }
-  .sched-day { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap;
-    padding:11px 17px; border:1px solid rgba(255,255,255,.7); border-radius:18px; background:rgba(255,255,255,.55);
-    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); cursor:pointer; min-width:66px;
-    box-shadow:0 4px 14px rgba(11,42,74,.07); transition:transform .14s ease, box-shadow .14s ease, background .14s ease; }
-  .sched-day:hover { transform:translateY(-3px); box-shadow:0 12px 24px rgba(37,99,201,.18); }
-  .sched-day span { font-size:.66rem; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-weight:700; }
-  .sched-day b { color:var(--navy); font-size:.94rem; }
-  .sched-day.on { background:linear-gradient(135deg,var(--blue),var(--indigo)); border-color:transparent;
-    box-shadow:0 14px 30px rgba(99,102,241,.42); transform:translateY(-2px); }
-  .sched-day.on span { color:rgba(255,255,255,.85); }
-  .sched-day.on b { color:#fff; }
+  /* Two-pane picker: month grid + time column */
+  .sched-picker { display:grid; grid-template-columns:1fr 172px; gap:0;
+    border:1px solid rgba(11,42,74,.1); border-radius:20px; overflow:hidden; background:rgba(255,255,255,.66); }
+  .sched-month { padding:16px 16px 18px; }
+  .sched-monthbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .sched-caption { font-weight:750; color:var(--navy); font-size:.98rem; }
+  .sched-nav { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; border:1px solid rgba(11,42,74,.12);
+    background:rgba(255,255,255,.7); color:var(--navy); cursor:pointer; transition:background .14s, transform .14s, box-shadow .14s; }
+  .sched-nav:hover:not(:disabled) { background:#fff; transform:translateY(-1px); box-shadow:0 6px 14px rgba(11,42,74,.12); }
+  .sched-nav:disabled { opacity:.32; cursor:default; }
 
-  .sched-times { display:grid; grid-template-columns:repeat(auto-fill, minmax(92px,1fr)); gap:11px; margin-top:14px; }
-  .sched-time { padding:12px 6px; border:1px solid rgba(255,255,255,.7); border-radius:16px; background:rgba(255,255,255,.62);
-    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:var(--navy); font-weight:650; cursor:pointer; font-size:.92rem;
-    box-shadow:0 4px 12px rgba(11,42,74,.06); transition:all .14s ease; }
-  .sched-time:hover { border-color:transparent; color:#fff; transform:translateY(-2px);
-    background:linear-gradient(135deg,var(--blue),var(--cyan)); box-shadow:0 12px 26px rgba(6,182,212,.34); }
+  .sched-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px; }
+  .sched-weekdays span { text-align:center; font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; padding:4px 0; }
+  .sched-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .sched-cell { position:relative; aspect-ratio:1/1; display:grid; place-items:center; border-radius:12px; font-size:.9rem; font-weight:600; color:var(--navy); }
+  .sched-cell.out span { color:rgba(11,42,74,.22); }
+  .sched-cell.off span { color:rgba(11,42,74,.28); }
+  .sched-cell.avail { cursor:pointer; background:rgba(37,99,201,.07); color:var(--navy);
+    transition:background .13s ease, transform .13s ease, box-shadow .13s ease; }
+  .sched-cell.avail:hover { background:rgba(37,99,201,.16); transform:translateY(-1px); }
+  .sched-cell.today::after { content:''; position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; border-radius:50%; background:var(--blue); }
+  .sched-cell.sel { background:linear-gradient(135deg,var(--blue),var(--indigo)); box-shadow:0 10px 22px rgba(99,102,241,.4); transform:translateY(-1px); }
+  .sched-cell.sel span { color:#fff; }
+  .sched-cell.sel.today::after { background:#fff; }
+
+  .sched-slots { border-left:1px solid rgba(11,42,74,.1); background:rgba(247,250,255,.6); padding:16px 14px; display:flex; flex-direction:column; min-height:280px; }
+  .sched-slots-head { font-weight:750; color:var(--navy); font-size:.9rem; margin-bottom:12px; text-align:center; }
+  .sched-slots-list { display:flex; flex-direction:column; gap:8px; overflow-y:auto; max-height:300px; padding-right:2px; scrollbar-width:thin; }
+  .sched-time { padding:11px 8px; border:1px solid rgba(11,42,74,.14); border-radius:12px; background:#fff; color:var(--navy);
+    font-weight:650; cursor:pointer; font-size:.9rem; text-align:center; transition:all .13s ease; }
+  .sched-time:hover { border-color:transparent; color:#fff; transform:translateY(-1px);
+    background:linear-gradient(135deg,var(--blue),var(--cyan)); box-shadow:0 10px 22px rgba(6,182,212,.32); }
+  .sched-noslot { color:var(--muted); font-size:.85rem; text-align:center; margin:8px 0; }
 
   .sched-chosen { background:linear-gradient(135deg,rgba(37,99,201,.14),rgba(99,102,241,.12)); border:1px solid rgba(99,102,241,.28);
-    border-radius:16px; padding:13px 16px; color:var(--navy); margin-bottom:18px; font-size:.95rem; }
+    border-radius:16px; padding:13px 16px; color:var(--navy); margin:18px 0; font-size:.95rem; }
   .sched-row { margin-bottom:14px; }
   .sched-row.two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .sched label { display:block; font-size:.82rem; font-weight:700; color:var(--navy); }
   .sched input, .sched select, .sched textarea { width:100%; margin-top:6px; padding:13px 14px; border:1px solid rgba(11,42,74,.14);
-    border-radius:15px; font-size:.95rem; font-family:inherit; box-sizing:border-box; background:rgba(255,255,255,.8); transition:box-shadow .14s, border-color .14s; }
+    border-radius:14px; font-size:.95rem; font-family:inherit; box-sizing:border-box; background:rgba(255,255,255,.85); transition:box-shadow .14s, border-color .14s; }
   .sched input:focus, .sched select:focus, .sched textarea:focus { outline:none; border-color:var(--indigo); box-shadow:0 0 0 4px rgba(99,102,241,.16); }
   .sched-actions { display:flex; align-items:center; gap:16px; margin-top:8px; flex-wrap:wrap; }
-  .sched-btn { background:linear-gradient(135deg,var(--blue),var(--indigo)); color:#fff; border:0; border-radius:16px; padding:15px 32px;
+  .sched-btn { background:linear-gradient(135deg,var(--blue),var(--indigo)); color:#fff; border:0; border-radius:14px; padding:15px 32px;
     font-weight:750; cursor:pointer; box-shadow:0 14px 30px rgba(99,102,241,.36); transition:filter .14s, transform .14s; }
   .sched-btn:hover { filter:brightness(1.07); transform:translateY(-1px); }
   .sched-btn:disabled { opacity:.6; }
@@ -201,5 +294,13 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
     box-shadow:0 16px 34px rgba(14,164,114,.4); }
   .sched-done h3 { color:var(--navy); margin:0 0 6px; font-size:1.3rem; }
   .sched-done p { color:var(--muted); margin:4px 0; }
-  @media (max-width:520px){ .sched-glass { padding:22px; } .sched-row.two { grid-template-columns:1fr; } }
+
+  @media (max-width:560px){
+    .sched-glass { padding:18px; }
+    .sched-picker { grid-template-columns:1fr; }
+    .sched-slots { border-left:0; border-top:1px solid rgba(11,42,74,.1); min-height:0; }
+    .sched-slots-list { flex-direction:row; flex-wrap:wrap; max-height:none; }
+    .sched-slots-list .sched-time { flex:1 0 28%; }
+    .sched-row.two { grid-template-columns:1fr; }
+  }
 </style>
