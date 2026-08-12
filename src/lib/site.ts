@@ -342,12 +342,19 @@ export const TEAM = [
     slug: 'brian-douglas',
     name: 'Brian Douglas',
     role: 'Owner / CEO',
-    photo: '/assets/ext/hf_20260722_022205_acf0f6da-8988-4535-aa08-e853b51069f6_min.webp',
+    // Real studio headshot supplied by Brian, Aug 12 2026, replacing the AI
+    // re-render. A genuine photograph of the person is a stronger E-E-A-T
+    // signal than a generated likeness, and the render did not closely
+    // resemble him. Note the background is charcoal rather than the light
+    // blue studio gradient the other five still carry — accepted trade,
+    // and it resolves as the others send real photos.
+    photo: '/assets/team/brian-douglas.webp',
+    // Brian's own edits, Aug 12 2026, applied as marked. His wording governs.
     bio: [
-      `Brian D. Douglas is the Owner and Chief Executive Officer of ProtectHealth, one of Nevada's largest and most respected individual health insurance agencies. A licensed insurance broker and benefits advisor, Brian has spent years helping individuals, families, and small businesses navigate the often-confusing world of health insurance with clarity, transparency, and confidence.`,
-      `Based in Las Vegas, Brian leads a statewide network of more than 40 licensed brokers and oversees a significant share of Nevada's individual health insurance market. His agency works extensively with Nevada Health Link and major carriers, giving clients access to comprehensive coverage options while ensuring compliance, accuracy, and long-term value.`,
+      `Brian D. Douglas is the Owner and Chief Executive Officer of ProtectHealth, Nevada's largest and most respected individual health insurance agency. A licensed insurance broker and benefits advisor, Brian has spent over 20 years helping individuals, families, and businesses navigate the often-confusing world of health insurance with clarity, transparency, and confidence.`,
+      `Based in Las Vegas, Brian leads a statewide network of more than 60 licensed brokers and over 1,000 associate agents nationwide. He oversees a significant share of Nevada's individual health insurance market. His agency works extensively with Nevada Health Link as a Preferred Broker, and all of the major carriers, giving clients access to comprehensive coverage options while ensuring compliance, accuracy, and long-term value.`,
       `Known for his straightforward approach and deep industry knowledge, Brian is passionate about simplifying complex insurance decisions and advocating for consumers in a constantly changing regulatory landscape. He believes that insurance should empower people, not overwhelm them, and has built ProtectHealth around education, integrity, and service-first principles.`,
-      `When he's not leading ProtectHealth, Brian is actively involved in mentoring brokers, improving industry standards, and contributing to discussions that shape the future of healthcare access in Nevada.`,
+      `When he's not leading ProtectHealth, Brian is actively involved in industry programs and associations, mentoring brokers, improving industry standards, and helping to shape the future of healthcare access in Nevada.`,
     ],
   },
   {
@@ -472,7 +479,9 @@ export const AUTHORS: Record<string, Author> = {
       'individual health insurance', 'ACA marketplace coverage', 'premium tax credits',
       'Nevada Health Link', 'Medicare', 'open enrollment', 'gap health insurance',
     ],
-    short: 'Brian is the Owner and CEO of ProtectHealth, one of Nevada’s largest individual health insurance agencies, and a licensed broker and benefits advisor. He leads a statewide network of more than 40 licensed brokers and works extensively with Nevada Health Link.',
+    // Schema description. Kept in step with the bio Brian supplied Aug 12 2026,
+    // including the broker count (was 40) and the Preferred Broker status.
+    short: 'Brian D. Douglas is the Owner and CEO of ProtectHealth and a licensed insurance broker and benefits advisor with over 20 years helping Nevadans navigate health insurance. He leads a statewide network of more than 60 licensed brokers and over 1,000 associate agents nationwide, and the agency works with Nevada Health Link as a Preferred Broker.',
     licenseNumber: '',
     sameAs: [],
   },
