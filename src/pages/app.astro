@@ -1025,6 +1025,11 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           if (currentRoute === route) renderers[route]($('#view'));
         }).catch(() => {});
       }
+      // Keep the Contacts badge honest: contacts created by landing-page
+      // bookings and round robin arrive server-side while the app is open.
+      sb.from('ph_contacts').select('*', { count: 'exact', head: true }).then(({ count }) => {
+        if (count != null && count !== state.contactCount) { state.contactCount = count; buildNav(); }
+      });
     }
     window.addEventListener('hashchange', () => { const r = location.hash.replace('#', ''); if (r && r !== currentRoute && TITLES[r]) go(r); });
 
@@ -2067,7 +2072,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
           <div class="cell-sub">Loading…</div>
         </div></div>
 
-        <div class="card"><div class="card-h"><span class="grad-label">Notes & appointments</span></div><div class="card-b">
+        <div class="card"><div class="card-h"><span class="grad-label">Notes & appointments</span><button class="btn btn-ghost btn-sm" id="rec-book" style="margin-left:auto">+ Book appointment</button></div><div class="card-b">
           <div id="rec-appts"><div class="cell-sub">Loading…</div></div>
           <div class="section-t">Notes</div>
           <textarea id="rec-note" class="rec-select" rows="3" placeholder="Add a note…"></textarea>
@@ -2077,6 +2082,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       </div>`;
 
       $('#rec-back').addEventListener('click', () => go('contacts'));
+      $('#rec-book')?.addEventListener('click', () => openBookAppt(cid, c));
 
       // disposition change → writes ph_contacts.disposition; DB trigger handles in-force.
       $('#rec-disp').addEventListener('change', async (e) => {
@@ -2298,6 +2304,50 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const { data } = await sb.from('ph_notes').select('*').eq('contact_id', cid).order('created_at', { ascending: false }).limit(50);
       host.innerHTML = (data && data.length) ? data.map((n) => `<div class="feed-item"><div class="feed-ic">📝</div><div><div>${esc(n.body)}</div><div class="cell-sub">${esc(fmtDateTime(n.created_at))}</div></div></div>`).join('') : '<div class="cell-sub">No notes yet.</div>';
     }
+    // Broker books an appointment WITH this contact, right from the record.
+    // The server (ph-book action 'manual') writes it to the broker's calendar
+    // and emails the client a branded confirmation with date, time, and the
+    // broker's contact info. Reminders (24h/1h) ride the same rails as
+    // landing-page bookings automatically.
+    function openBookAppt(cid, c) {
+      const today = new Date(); today.setDate(today.getDate() + 1);
+      const defDate = today.toISOString().slice(0, 10);
+      const lineOpts = BROKER_LINES.map((l) => `<option value="${esc(l)}" ${((c.coverage_types || [])[0] === l) ? 'selected' : ''}>${esc(l)}</option>`).join('');
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Book an appointment</div><div class="cell-sub">${esc([c.first_name, c.last_name].filter(Boolean).join(' ') || 'this client')}${c.email ? ' · ' + esc(c.email) : ''}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <form id="ba-form" class="drawer-b">
+          <div class="field"><label>Date</label><input name="date" type="date" required value="${defDate}" min="${new Date().toISOString().slice(0, 10)}"/></div>
+          <div class="field"><label>Time</label><input name="time" type="time" required value="10:00"/></div>
+          <div class="field"><label>Topic / line</label><select name="line"><option value="">General</option>${lineOpts}</select></div>
+          <div class="field"><label>Notes (visible to you on the appointment)</label><textarea name="notes" rows="3" placeholder="Anything to prep…"></textarea></div>
+          ${c.email ? '<div class="cell-sub" style="margin:4px 0 10px">The client gets a branded confirmation email with the time and your contact info.</div>' : '<div class="cell-sub" style="margin:4px 0 10px;color:#b45309">This contact has no email on file, so no confirmation can be sent. The appointment still lands on your calendar.</div>'}
+          <button class="btn btn-primary" type="submit">Book it</button>
+          <div class="cell-sub" id="ba-status" style="margin-top:8px"></div>
+        </form>`);
+      $('#ba-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target; const btn = f.querySelector('button[type="submit"]'); const st = $('#ba-status');
+        const start = new Date(f.date.value + 'T' + f.time.value);
+        if (isNaN(start.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
+        btn.disabled = true; st.textContent = 'Booking…';
+        const { data: sess } = await sb.auth.getSession();
+        const token = sess?.session?.access_token;
+        try {
+          const r = await fetch(`${root.getAttribute('data-supabase-url')}/functions/v1/ph-book`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: root.getAttribute('data-supabase-anon'), Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ action: 'manual', contact_id: cid, start_at: start.toISOString(), line: f.line.value || null, notes: f.notes.value.trim() || null }),
+          });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok || !j.ok) { btn.disabled = false; st.textContent = j.error || 'Could not book that time.'; return; }
+          closeDrawer();
+          toast(j.emailed ? 'Booked — confirmation emailed to the client' : 'Booked — on your calendar');
+          reloadAppts();
+          loadContactAppointments(c); loadContactActivity(cid, c);
+        } catch (_e) { btn.disabled = false; st.textContent = 'Network error — try again.'; }
+      });
+    }
+
     async function saveNote(cid) {
       const ta = $('#rec-note'); const body = ta.value.trim(); if (!body) return;
       const { error } = await sb.from('ph_notes').insert({ contact_id: cid, body });
