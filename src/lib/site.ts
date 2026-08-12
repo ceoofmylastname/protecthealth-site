@@ -80,6 +80,11 @@ const art = (ts: string, id: string, alt: string) => ({
   alt,
 });
 
+// Wave-1+ art is generated in-repo and self-hosted (no third-party CDN).
+// png is absolute because it feeds og:image and JSON-LD ImageObject directly.
+const localBlogArt = (slug: string, alt: string) => ({ png: 'https://www.protecthealth.com/assets/blog-art/' + slug + '.png', webp: '/assets/blog-art/' + slug + '.webp', alt });
+const localQaArt = (slug: string, alt: string) => ({ png: 'https://www.protecthealth.com/assets/qa-art/' + slug + '.png', webp: '/assets/qa-art/' + slug + '.webp', alt });
+
 export const BLOG_ART: Record<string, { png: string; webp: string; alt: string }> = {
   'nevada-open-enrollment-health-insurance': art('033952', 'cd74f42f-d6bf-4fe1-a816-81368c3d0cd2', 'Glass hourglass pouring golden light that wraps a protected Las Vegas home, the Nevada open enrollment window closing'),
   'silver-state-health-insurance-exchange': art('033955', '7c9f8b5b-fd5a-4b0f-a59b-417f00dc9838', 'Nevada sculpted in gradient glass with streams of light flowing to a glowing marketplace pavilion, the Silver State Health Insurance Exchange'),
@@ -103,6 +108,16 @@ export const BLOG_ART: Record<string, { png: string; webp: string; alt: string }
   'health-insurance-for-freelancers-and-gig-workers': art('040042', 'ffa1feb4-a8f4-44cd-b1f7-3086d908d241', 'A constellation of independent glowing orbs connected by threads of light to one radiant shield nucleus, freelancers and gig workers finding coverage structure'),
   'tipped-payroll-mistakes-las-vegas': art('040045', 'a04c83b7-3143-4f85-85bb-e52c9b73a3b3', 'Golden coins cascading toward a glass ledger tray with one coin veering off in amber light against a neon Las Vegas skyline, tipped payroll gone wrong'),
   'peo-vs-payroll-service-vs-diy': art('040049', 'c32b6d2c-f3b9-45a2-9ce7-f5ff4a4c8eec', 'Three glass pedestals of ascending sophistication, a lone cube, interlocking gears, and a luminous orbiting machine, PEO versus payroll service versus DIY'),
+  'life-insurance-for-new-parents-nevada': localBlogArt('life-insurance-for-new-parents-nevada', "Warm rose and violet aurora sheltered by navy, life insurance protection for new Nevada parents"),
+  'health-insurance-for-casino-hospitality-workers-las-vegas': localBlogArt('health-insurance-for-casino-hospitality-workers-las-vegas', "Blue and cyan aurora over deep navy like the Strip at night, health coverage for Las Vegas casino and hospitality workers"),
+  'small-business-health-insurance-renewals': localBlogArt('small-business-health-insurance-renewals', "Amber and blue glow meeting over a navy field, a small business group health renewal decision"),
+  'medicare-part-d-prescription-drug-coverage-nevada': localBlogArt('medicare-part-d-prescription-drug-coverage-nevada', "Concentric rings of teal and blue light over a deep navy field, Medicare Part D prescription drug coverage in Nevada"),
+  'health-insurance-window-shopping-nevada': localBlogArt('health-insurance-window-shopping-nevada', "A bright ring of cyan light like a preview window in navy dark, window shopping Nevada health plans before open enrollment"),
+  'nevada-special-enrollment-periods-explained': localBlogArt('nevada-special-enrollment-periods-explained', "A ring of cyan light opening in a navy field, a special enrollment period window opening in Nevada"),
+  'medicare-savings-programs-nevada': localBlogArt('medicare-savings-programs-nevada', "Soft teal aurora light pooling over navy, Medicare Savings Programs easing Part B costs in Nevada"),
+  'health-insurance-for-construction-contractors-nevada': localBlogArt('health-insurance-for-construction-contractors-nevada', "Sheltering arcs of violet and blue light over navy, health coverage built for Nevada construction contractors"),
+  'health-insurance-for-rideshare-delivery-drivers-nevada': localBlogArt('health-insurance-for-rideshare-delivery-drivers-nevada', "Diverging violet and blue light streams across navy, coverage routes for Nevada rideshare and delivery drivers"),
+  'working-past-65-medicare-nevada': localBlogArt('working-past-65-medicare-nevada', "Two streams of blue light converging on a navy horizon, coordinating Medicare with a job after 65"),
 };
 
 export const QA_ART: Record<string, { png: string; webp: string; alt: string }> = {
@@ -194,6 +209,46 @@ export const QA_ART: Record<string, { png: string; webp: string; alt: string }> 
   'can-you-switch-from-medicare-advantage-to-medigap': art('043834', 'b6fb3281-c18c-4f27-908a-7f412b29da18', 'Open door of light beside a sealed frosted-glass door with a prism lock, switching from Medicare Advantage to Medigap and the underwriting barrier'),
   'does-medigap-work-in-other-states': art('043850', '079d11db-8e2e-4302-8328-7bf91164a76e', 'Luminous glass passport casting beams across a golden crystalline map of the United States, Medigap coverage traveling to every state'),
   'what-is-medigap-open-enrollment': art('043852', 'cf438c8e-072d-499e-9982-49de74d90b30', 'Amber stained-glass window with six candles of light slowly frosting over, the one-time six-month Medigap open enrollment window'),
+  'why-did-my-group-health-renewal-go-up': localQaArt('why-did-my-group-health-renewal-go-up', "Abstract gradient light art in ProtectHealth blues, why did my group health renewal go up"),
+  'how-do-you-apply-for-medicare-savings-programs-in-nevada': localQaArt('how-do-you-apply-for-medicare-savings-programs-in-nevada', "Abstract gradient light art in ProtectHealth blues, how do you apply for medicare savings programs in nevada"),
+  'what-happens-to-health-insurance-during-a-casino-layoff': localQaArt('what-happens-to-health-insurance-during-a-casino-layoff', "Abstract gradient light art in ProtectHealth blues, what happens to health insurance during a casino layoff"),
+  'does-extra-help-cover-part-d-costs': localQaArt('does-extra-help-cover-part-d-costs', "Abstract gradient light art in ProtectHealth blues, does extra help cover part d costs"),
+  'how-long-do-you-have-after-a-qualifying-life-event': localQaArt('how-long-do-you-have-after-a-qualifying-life-event', "Abstract gradient light art in ProtectHealth blues, how long do you have after a qualifying life event"),
+  'what-is-the-qmb-program-in-nevada': localQaArt('what-is-the-qmb-program-in-nevada', "Abstract gradient light art in ProtectHealth blues, what is the qmb program in nevada"),
+  'can-you-contribute-to-an-hsa-after-enrolling-in-medicare': localQaArt('can-you-contribute-to-an-hsa-after-enrolling-in-medicare', "Abstract gradient light art in ProtectHealth blues, can you contribute to an hsa after enrolling in medicare"),
+  'can-gig-workers-deduct-health-insurance-premiums': localQaArt('can-gig-workers-deduct-health-insurance-premiums', "Abstract gradient light art in ProtectHealth blues, can gig workers deduct health insurance premiums"),
+  'is-employer-life-insurance-enough-for-a-family': localQaArt('is-employer-life-insurance-enough-for-a-family', "Abstract gradient light art in ProtectHealth blues, is employer life insurance enough for a family"),
+  'can-independent-contractors-get-group-health-rates': localQaArt('can-independent-contractors-get-group-health-rates', "Abstract gradient light art in ProtectHealth blues, can independent contractors get group health rates"),
+  'what-coverage-do-seasonal-construction-workers-need': localQaArt('what-coverage-do-seasonal-construction-workers-need', "Abstract gradient light art in ProtectHealth blues, what coverage do seasonal construction workers need"),
+  'are-health-premiums-deductible-for-1099-contractors': localQaArt('are-health-premiums-deductible-for-1099-contractors', "Abstract gradient light art in ProtectHealth blues, are health premiums deductible for 1099 contractors"),
+  'what-does-medicare-part-d-cost-in-nevada': localQaArt('what-does-medicare-part-d-cost-in-nevada', "Abstract gradient light art in ProtectHealth blues, what does medicare part d cost in nevada"),
+  'does-losing-a-job-qualify-for-special-enrollment': localQaArt('does-losing-a-job-qualify-for-special-enrollment', "Abstract gradient light art in ProtectHealth blues, does losing a job qualify for special enrollment"),
+  'can-you-keep-the-same-health-plan-next-year': localQaArt('can-you-keep-the-same-health-plan-next-year', "Abstract gradient light art in ProtectHealth blues, can you keep the same health plan next year"),
+  'when-should-a-small-business-start-shopping-its-renewal': localQaArt('when-should-a-small-business-start-shopping-its-renewal', "Abstract gradient light art in ProtectHealth blues, when should a small business start shopping its renewal"),
+  'is-workers-comp-the-same-as-health-insurance': localQaArt('is-workers-comp-the-same-as-health-insurance', "Abstract gradient light art in ProtectHealth blues, is workers comp the same as health insurance"),
+  'do-uber-and-doordash-drivers-get-health-insurance': localQaArt('do-uber-and-doordash-drivers-get-health-insurance', "Abstract gradient light art in ProtectHealth blues, do uber and doordash drivers get health insurance"),
+  'what-is-the-medicare-part-d-late-enrollment-penalty': localQaArt('what-is-the-medicare-part-d-late-enrollment-penalty', "Abstract gradient light art in ProtectHealth blues, what is the medicare part d late enrollment penalty"),
+  'does-medicare-cover-prescriptions-without-part-d': localQaArt('does-medicare-cover-prescriptions-without-part-d', "Abstract gradient light art in ProtectHealth blues, does medicare cover prescriptions without part d"),
+  'when-can-you-preview-nevada-health-plans-for-next-year': localQaArt('when-can-you-preview-nevada-health-plans-for-next-year', "Abstract gradient light art in ProtectHealth blues, when can you preview nevada health plans for next year"),
+  'should-you-name-a-child-as-life-insurance-beneficiary': localQaArt('should-you-name-a-child-as-life-insurance-beneficiary', "Abstract gradient light art in ProtectHealth blues, should you name a child as life insurance beneficiary"),
+  'does-moving-to-nevada-trigger-a-special-enrollment-period': localQaArt('does-moving-to-nevada-trigger-a-special-enrollment-period', "Abstract gradient light art in ProtectHealth blues, does moving to nevada trigger a special enrollment period"),
+  'do-you-need-medicare-if-you-have-employer-insurance-at-65': localQaArt('do-you-need-medicare-if-you-have-employer-insurance-at-65', "Abstract gradient light art in ProtectHealth blues, do you need medicare if you have employer insurance at 65"),
+  'can-part-time-hospitality-workers-get-marketplace-coverage': localQaArt('can-part-time-hospitality-workers-get-marketplace-coverage', "Abstract gradient light art in ProtectHealth blues, can part time hospitality workers get marketplace coverage"),
+  'how-do-rideshare-drivers-estimate-income-for-subsidies': localQaArt('how-do-rideshare-drivers-estimate-income-for-subsidies', "Abstract gradient light art in ProtectHealth blues, how do rideshare drivers estimate income for subsidies"),
+  'what-happens-if-a-driver-underestimates-income-for-subsidies': localQaArt('what-happens-if-a-driver-underestimates-income-for-subsidies', "Abstract gradient light art in ProtectHealth blues, what happens if a driver underestimates income for subsidies"),
+  'is-union-health-coverage-better-than-marketplace-coverage': localQaArt('is-union-health-coverage-better-than-marketplace-coverage', "Abstract gradient light art in ProtectHealth blues, is union health coverage better than marketplace coverage"),
+  'what-should-you-compare-when-window-shopping-health-plans': localQaArt('what-should-you-compare-when-window-shopping-health-plans', "Abstract gradient light art in ProtectHealth blues, what should you compare when window shopping health plans"),
+  'what-happens-to-medicare-when-you-retire-after-65': localQaArt('what-happens-to-medicare-when-you-retire-after-65', "Abstract gradient light art in ProtectHealth blues, what happens to medicare when you retire after 65"),
+  'can-you-change-part-d-plans-every-year': localQaArt('can-you-change-part-d-plans-every-year', "Abstract gradient light art in ProtectHealth blues, can you change part d plans every year"),
+  'what-is-a-composite-rate-vs-age-banded-rate': localQaArt('what-is-a-composite-rate-vs-age-banded-rate', "Abstract gradient light art in ProtectHealth blues, what is a composite rate vs age banded rate"),
+  'is-cobra-considered-creditable-coverage-for-medicare': localQaArt('is-cobra-considered-creditable-coverage-for-medicare', "Abstract gradient light art in ProtectHealth blues, is cobra considered creditable coverage for medicare"),
+  'how-much-life-insurance-does-a-stay-at-home-parent-need': localQaArt('how-much-life-insurance-does-a-stay-at-home-parent-need', "Abstract gradient light art in ProtectHealth blues, how much life insurance does a stay at home parent need"),
+  'does-getting-married-change-health-insurance-options': localQaArt('does-getting-married-change-health-insurance-options', "Abstract gradient light art in ProtectHealth blues, does getting married change health insurance options"),
+  'can-a-business-change-group-plans-mid-year': localQaArt('can-a-business-change-group-plans-mid-year', "Abstract gradient light art in ProtectHealth blues, can a business change group plans mid year"),
+  'what-documents-do-you-need-for-open-enrollment': localQaArt('what-documents-do-you-need-for-open-enrollment', "Abstract gradient light art in ProtectHealth blues, what documents do you need for open enrollment"),
+  'does-tip-income-count-toward-health-insurance-subsidies': localQaArt('does-tip-income-count-toward-health-insurance-subsidies', "Abstract gradient light art in ProtectHealth blues, does tip income count toward health insurance subsidies"),
+  'when-should-parents-buy-life-insurance': localQaArt('when-should-parents-buy-life-insurance', "Abstract gradient light art in ProtectHealth blues, when should parents buy life insurance"),
+  'what-are-the-income-limits-for-medicare-savings-programs-in-nevada': localQaArt('what-are-the-income-limits-for-medicare-savings-programs-in-nevada', "Abstract gradient light art in ProtectHealth blues, what are the income limits for medicare savings programs in nevada"),
 };
 
 export const FAQ_ART = art('034236', 'ef11febc-6b23-4a46-b916-8d7739c65543', 'A spiral galaxy of glowing question orbs orbiting a radiant gradient beacon, every ProtectHealth question finding a clear answer');
