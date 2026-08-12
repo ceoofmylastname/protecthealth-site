@@ -374,13 +374,13 @@ export const TEAM = [
     slug: 'brenda-morgen',
     name: 'Brenda Morgen',
     role: 'Broker',
-    // Replaced Aug 10 2026. Nano Banana 2 re-render built from a photo Brenda
-    // supplied herself, with Brian's headshot passed as the background reference
-    // so the studio gradient matches the other five exactly. Absolute URL rather
-    // than `${HF}` because this render landed under a different Higgsfield
-    // account path — it is NOT a typo, and prefixing it with HF will 404.
-    // Still hotlinked, same as the rest of TEAM; see roadmap item 3.
-    photo: '/assets/ext/hf_20260810_173658_0b376f56-55d1-4907-b5d7-76f7ac0967ae_min.webp',
+    // Replaced Aug 12 2026 with a headshot Johnathon supplied. Grey studio
+    // background, which now matches Brian's real headshot rather than the
+    // light blue gradient the remaining four still carry. Source file was
+    // AI-generated, so unlike Brian's this is a rendered likeness rather than
+    // a photograph — worth knowing when weighing it as an E-E-A-T signal.
+    // Self-hosted rather than on the Higgsfield ext path.
+    photo: '/assets/team/brenda-morgen.webp',
     // ⚠️ DRAFT, PENDING BRENDA'S APPROVAL (written Jul 27 2026).
     // Deliberately asserts nothing that is not already true on the record: her
     // role, her agency, her city, and ProtectHealth's stated approach. It claims
