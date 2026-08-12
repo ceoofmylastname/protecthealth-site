@@ -42,6 +42,7 @@ export const WIDTHS = [400, 800];
 
 let made = 0;
 let skipped = 0;
+let stale = 0;
 let failed = 0;
 
 for (const rel of DIRS) {
@@ -54,10 +55,19 @@ for (const rel of DIRS) {
     const src = join(dir, file);
     for (const w of WIDTHS) {
       const out = join(dir, file.replace(/\.webp$/, `-${w}.webp`));
-      if (existsSync(out) && statSync(out).size > 0) {
+      // Skip only if the variant is present AND newer than its source. The
+      // original check was existence alone, which silently kept stale variants
+      // alive whenever a base image was replaced: on 2026-08-12 forty Q&A
+      // placeholders were swapped for real art, the base files updated, and
+      // every -400/-800 still served the old gradient because a file was
+      // sitting there. Variants are gitignored, so nothing in the repo hinted
+      // at it. Comparing mtime makes a replaced base regenerate its own
+      // variants and keeps the fast path for everything untouched.
+      if (existsSync(out) && statSync(out).size > 0 && statSync(out).mtimeMs >= statSync(src).mtimeMs) {
         skipped++;
         continue;
       }
+      if (existsSync(out)) stale++;
       try {
         await sharp(src).resize({ width: w, withoutEnlargement: true }).webp({ quality: 80 }).toFile(out);
         made++;
@@ -69,4 +79,4 @@ for (const rel of DIRS) {
   }
 }
 
-console.log(`responsive-art: generated ${made}, already present ${skipped}${failed ? `, failed ${failed}` : ''}`);
+console.log(`responsive-art: generated ${made}${stale ? ` (${stale} regenerated from changed sources)` : ''}, already present ${skipped}${failed ? `, failed ${failed}` : ''}`);
