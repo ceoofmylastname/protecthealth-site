@@ -9,6 +9,13 @@ export const SITE = {
     'ProtectHealth is a Las Vegas, Nevada insurance brokerage helping individuals, self-employed professionals, and small businesses build coverage strategies across health, life, dental, vision, Medicare, and employer benefits.',
   email: '',
   address: {
+    // Single source of truth for NAP. The footer in Base.astro renders this
+    // same string, so the visible address and the JSON-LD cannot drift.
+    // NOTE: the Yelp listing carries a different street number than this one.
+    // Whichever is wrong should be corrected at the source, because an
+    // address mismatch across listings weakens the entity match that puts
+    // this business into local "best broker" results.
+    street: '2915 W Charleston Blvd Ste 170',
     locality: 'Las Vegas',
     region: 'NV',
     country: 'US',
@@ -40,12 +47,23 @@ export function organizationSchema() {
       '@type': 'ImageObject',
       url: `${SITE.domain}${SITE.logo}`,
     },
+    // Full street address + phone in the schema, not just the footer. For a
+    // Nevada-local brokerage this is the data engines use to reconcile this
+    // entity against the Google Business Profile, Yelp, and directory
+    // listings that actually surface us on "broker near me" style queries
+    // (wiki: off-site-citation-playbook, entity consistency). The footer has
+    // shown the street address for a while; the machine-readable copy did not.
+    // postalCode is deliberately absent: it is not published anywhere on the
+    // site, and a guessed ZIP is worse than an omitted one. Add it here and
+    // to the footer together once confirmed.
     address: {
       '@type': 'PostalAddress',
+      streetAddress: SITE.address.street,
       addressLocality: SITE.address.locality,
       addressRegion: SITE.address.region,
       addressCountry: SITE.address.country,
     },
+    telephone: SITE.phone,
     areaServed: { '@type': 'State', name: 'Nevada' },
     sameAs: [SITE.social.facebook, SITE.social.linkedin].filter(Boolean),
   };
@@ -82,10 +100,28 @@ const art = (ts: string, id: string, alt: string) => ({
 
 // Wave-1+ art is generated in-repo and self-hosted (no third-party CDN).
 // png is absolute because it feeds og:image and JSON-LD ImageObject directly.
-const localBlogArt = (slug: string, alt: string) => ({ png: 'https://www.protecthealth.com/assets/blog-art/' + slug + '.png', webp: '/assets/blog-art/' + slug + '.webp', alt });
-const localQaArt = (slug: string, alt: string) => ({ png: 'https://www.protecthealth.com/assets/qa-art/' + slug + '.png', webp: '/assets/qa-art/' + slug + '.webp', alt });
+// `alt` is the accessibility/extraction description and always exists.
+// `caption` is optional and does two jobs when present: it renders as a
+// visible <figcaption> under the hero image, and it becomes the ImageObject
+// caption in JSON-LD. Where no caption is authored, the schema falls back to
+// `alt`, so every article still carries a described image for machines even
+// if nothing is printed for readers (wiki: json-ld-schemas, edge-image-optimization).
+type Art = { png: string; webp: string; alt: string; caption?: string };
+const localBlogArt = (slug: string, alt: string, caption?: string): Art => ({ png: 'https://www.protecthealth.com/assets/blog-art/' + slug + '.png', webp: '/assets/blog-art/' + slug + '.webp', alt, caption });
+const localQaArt = (slug: string, alt: string, caption?: string): Art => ({ png: 'https://www.protecthealth.com/assets/qa-art/' + slug + '.png', webp: '/assets/qa-art/' + slug + '.webp', alt, caption });
 
-export const BLOG_ART: Record<string, { png: string; webp: string; alt: string }> = {
+// Build an ImageObject with a real description rather than a bare url.
+export function imageObject(art: Art | undefined, fallbackUrl?: string) {
+  if (!art) return fallbackUrl ? { '@type': 'ImageObject', url: fallbackUrl } : undefined;
+  return {
+    '@type': 'ImageObject',
+    url: art.png,
+    caption: art.caption ?? art.alt,
+    description: art.alt,
+  };
+}
+
+export const BLOG_ART: Record<string, Art> = {
   'nevada-open-enrollment-health-insurance': localBlogArt('nevada-open-enrollment-health-insurance', 'Glass hourglass pouring golden light that wraps a protected Las Vegas home, the Nevada open enrollment window closing'),
   'silver-state-health-insurance-exchange': localBlogArt('silver-state-health-insurance-exchange', 'Nevada sculpted in gradient glass with streams of light flowing to a glowing marketplace pavilion, the Silver State Health Insurance Exchange'),
   'small-business-health-insurance': localBlogArt('small-business-health-insurance', 'A blooming canopy of gradient light sheltering a small glowing storefront and its team, small business health insurance'),
@@ -108,19 +144,20 @@ export const BLOG_ART: Record<string, { png: string; webp: string; alt: string }
   'health-insurance-for-freelancers-and-gig-workers': localBlogArt('health-insurance-for-freelancers-and-gig-workers', 'A constellation of independent glowing orbs connected by threads of light to one radiant shield nucleus, freelancers and gig workers finding coverage structure'),
   'tipped-payroll-mistakes-las-vegas': localBlogArt('tipped-payroll-mistakes-las-vegas', 'Golden coins cascading toward a glass ledger tray with one coin veering off in amber light against a neon Las Vegas skyline, tipped payroll gone wrong'),
   'peo-vs-payroll-service-vs-diy': localBlogArt('peo-vs-payroll-service-vs-diy', 'Three glass pedestals of ascending sophistication, a lone cube, interlocking gears, and a luminous orbiting machine, PEO versus payroll service versus DIY'),
-  'life-insurance-for-new-parents-nevada': localBlogArt('life-insurance-for-new-parents-nevada', "Warm rose and violet aurora sheltered by navy, life insurance protection for new Nevada parents"),
-  'health-insurance-for-casino-hospitality-workers-las-vegas': localBlogArt('health-insurance-for-casino-hospitality-workers-las-vegas', "Blue and cyan aurora over deep navy like the Strip at night, health coverage for Las Vegas casino and hospitality workers"),
-  'small-business-health-insurance-renewals': localBlogArt('small-business-health-insurance-renewals', "Amber and blue glow meeting over a navy field, a small business group health renewal decision"),
-  'medicare-part-d-prescription-drug-coverage-nevada': localBlogArt('medicare-part-d-prescription-drug-coverage-nevada', "Concentric rings of teal and blue light over a deep navy field, Medicare Part D prescription drug coverage in Nevada"),
-  'health-insurance-window-shopping-nevada': localBlogArt('health-insurance-window-shopping-nevada', "A bright ring of cyan light like a preview window in navy dark, window shopping Nevada health plans before open enrollment"),
-  'nevada-special-enrollment-periods-explained': localBlogArt('nevada-special-enrollment-periods-explained', "A ring of cyan light opening in a navy field, a special enrollment period window opening in Nevada"),
-  'medicare-savings-programs-nevada': localBlogArt('medicare-savings-programs-nevada', "Soft teal aurora light pooling over navy, Medicare Savings Programs easing Part B costs in Nevada"),
-  'health-insurance-for-construction-contractors-nevada': localBlogArt('health-insurance-for-construction-contractors-nevada', "Sheltering arcs of violet and blue light over navy, health coverage built for Nevada construction contractors"),
-  'health-insurance-for-rideshare-delivery-drivers-nevada': localBlogArt('health-insurance-for-rideshare-delivery-drivers-nevada', "Diverging violet and blue light streams across navy, coverage routes for Nevada rideshare and delivery drivers"),
-  'working-past-65-medicare-nevada': localBlogArt('working-past-65-medicare-nevada', "Two streams of blue light converging on a navy horizon, coordinating Medicare with a job after 65"),
+  'life-insurance-for-new-parents-nevada': localBlogArt('life-insurance-for-new-parents-nevada', 'A large translucent glass shield curving over two small glowing figures and a crib-like glass form, warm light pooling beneath, life insurance protection for new Nevada parents', 'The policy is not the point. What it holds up underneath is.'),
+  'health-insurance-for-casino-hospitality-workers-las-vegas': localBlogArt('health-insurance-for-casino-hospitality-workers-las-vegas', 'A translucent glass card fan and glass coupe on a dark reflective surface beneath a protective dome of cyan light, a distant neon skyline glow behind, health coverage for Las Vegas casino and hospitality workers', 'Hours banks, seasonal layoffs, and tipped income all move. Coverage has to survive the movement.'),
+  'small-business-health-insurance-renewals': localBlogArt('small-business-health-insurance-renewals', 'A translucent glass calendar page peeling back to reveal a second lit page beneath it, a column of gradient light passing through both, a small business group health renewal coming due', 'A renewal is a decision point, not a formality. The second page is the one worth reading.'),
+  'medicare-part-d-prescription-drug-coverage-nevada': localBlogArt('medicare-part-d-prescription-drug-coverage-nevada', 'Concentric rings of teal and blue light radiating from a translucent glass capsule standing on a glass plinth, each ring a tier, Medicare Part D prescription drug coverage in Nevada', 'Part D is priced by tier and pharmacy, not by plan name. The rings are where the cost actually lives.'),
+  'health-insurance-window-shopping-nevada': localBlogArt('health-insurance-window-shopping-nevada', 'A bright ring of cyan light forming a window frame in the dark with translucent glass plan cards floating just beyond it, window shopping Nevada health plans before open enrollment', 'You can see next year\'s plans before you can buy them. That preview window is the advantage.'),
+  'nevada-special-enrollment-periods-explained': localBlogArt('nevada-special-enrollment-periods-explained', 'A circular aperture of cyan light opening in a dark glass wall with a glowing key hovering at its center and a countdown arc tracing the rim, a special enrollment period opening in Nevada', 'A qualifying life event opens the door. The 60-day clock starts closing it immediately.'),
+  'medicare-savings-programs-nevada': localBlogArt('medicare-savings-programs-nevada', 'A translucent glass hand cupped beneath a stream of glowing coins that soften as they fall onto a glass pedestal, Medicare Savings Programs easing Part B costs in Nevada', 'Four programs, one application. Most people who qualify never apply.'),
+  'health-insurance-for-construction-contractors-nevada': localBlogArt('health-insurance-for-construction-contractors-nevada', 'A translucent glass hard hat resting on a glass beam under an arc of gradient light, with glowing tool silhouettes suspended nearby, health coverage for Nevada construction contractors', 'Job-site protection is required by law. Health coverage is the part left to the contractor.'),
+  'health-insurance-for-rideshare-delivery-drivers-nevada': localBlogArt('health-insurance-for-rideshare-delivery-drivers-nevada', 'Two diverging ribbons of gradient light streaming from a single glowing glass key fob toward separate floating waypoint markers above a dark city grid, coverage routes for Nevada rideshare and delivery drivers', 'Two drivers, same app, different coverage routes. Income estimate is what splits them.'),
+  'working-past-65-medicare-nevada': localBlogArt('working-past-65-medicare-nevada', 'Two streams of gradient light converging on a horizon where a translucent glass briefcase and a glowing glass medical cross meet and merge into one beam, coordinating Medicare with a job after 65', 'Working past 65 means two systems running at once. They have to be coordinated, not chosen between.'),
+  'ichra-nevada': localBlogArt('ichra-nevada', 'A translucent glass hand holding a glowing orb that splits into several streams, each flowing to its own floating glass plan card, how an ICHRA turns one employer budget into individual choice', 'One employer budget, many individual choices. That inversion is the whole idea of an ICHRA.'),
 };
 
-export const QA_ART: Record<string, { png: string; webp: string; alt: string }> = {
+export const QA_ART: Record<string, Art> = {
   'is-an-ichra-legit': localQaArt('is-an-ichra-legit', 'A layered gradient glass shield on a marble plinth under a museum spotlight with a ring of verification light, ICHRA legitimacy proven'),
   'what-is-a-section-105-plan': localQaArt('what-is-a-section-105-plan', 'A glowing glass scroll casting a bridge of light and coins to a family at their home, a Section 105 plan at work'),
   'can-realtors-get-group-health-insurance': localQaArt('can-realtors-get-group-health-insurance', 'A lone professional raising a personal aurora of light beside a sheltered group dome, Realtors and group health insurance'),

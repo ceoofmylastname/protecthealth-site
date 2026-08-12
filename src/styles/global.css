@@ -913,3 +913,8 @@ main:focus { outline: none; }
 .sources li { font-size: 0.92rem; color: var(--muted); margin: 7px 0; overflow-wrap: anywhere; }
 .sources li:target { background: rgba(25,123,255,0.08); border-radius: 6px; }
 .sources a { color: var(--blue); }
+
+/* Hero figure caption. Static text, no animation, so no mobile-tier entry. */
+.article .hero-fig { margin: 22px 0; }
+.article .hero-fig .hero-img { margin: 0; }
+.article .hero-fig figcaption { margin-top: 9px; font-size: 0.86rem; line-height: 1.5; color: var(--muted); font-style: italic; }

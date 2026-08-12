@@ -6,7 +6,7 @@
 // fields with different content (wiki: speakable-vs-accepted-answer).
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, QA_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom } from '../../lib/site';
+import { SITE, ORG_ID, QA_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom, imageObject } from '../../lib/site';
 import AuthorByline from '../../components/AuthorByline.astro';
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getCollection, render } from 'astro:content';
@@ -60,7 +60,7 @@ const qaPageSchema: Record<string, unknown> = {
   reviewedBy: { '@id': personId(reviewer.slug) },
   // The Answer itself is attributed to the agency, which is who stands behind it.
   author: { '@id': ORG_ID },
-  image: QA_ART[qa.id] ? { '@type': 'ImageObject', url: QA_ART[qa.id].png } : undefined,
+  image: imageObject(QA_ART[qa.id]),
 };
 if (d.dateModified) qaPageSchema.dateModified = d.dateModified;
 // Mirror the visible Sources section into the schema (same body links).
@@ -103,7 +103,12 @@ const ctaUrl = QA_CTA[d.cluster] ?? '/contact-us';
       </nav>
       <h1>{d.question}</h1>
 
-      {QA_ART[qa.id] && <div class="hero-img"><img src={QA_ART[qa.id].webp} alt={QA_ART[qa.id].alt} loading="eager" /></div>}
+      {QA_ART[qa.id] && (
+        <figure class="hero-fig">
+          <div class="hero-img"><img src={QA_ART[qa.id].webp} alt={QA_ART[qa.id].alt} loading="eager" /></div>
+          {QA_ART[qa.id].caption && <figcaption>{QA_ART[qa.id].caption}</figcaption>}
+        </figure>
+      )}
 
       <div class="quick-answer">
         <h2>Quick Answer</h2>
