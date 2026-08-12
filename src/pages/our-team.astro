@@ -35,11 +35,15 @@ const brokers = onboarded
   .map((b) => ({ ...b, slug: brokerSlug(b.full_name) }))
   .filter((b) => b.slug && !TEAM_SLUGS.has(b.slug));
 
-// Showcase members: Chris (static) + every onboarded broker. Photos and name
-// rows cross-highlight by data-tsid; each is a real link to the profile page.
+// Showcase members: every onboarded broker from the live roster. Chris's CRM
+// profile is pre-filled (Aug 12 2026), so he normally arrives from the DB as
+// "Christopher Bridgeforth" with his photo linking to /broker/christopher-bridgeforth.
+// The static TEAM card is only a fallback for builds where the fetch fails,
+// so the section never renders empty of him.
 type Member = { id: string; name: string; role: string; photo: string; href: string; social: { label: string; url: string }[] };
+const chrisFromDb = brokers.some((b) => /bridgeforth/i.test(b.full_name || ''));
 const members: Member[] = [
-  ...(chris ? [{ id: 'chris', name: chris.name, role: chris.role, photo: chris.photo, href: `/team-members/${chris.slug}`, social: [] }] : []),
+  ...(chris && !chrisFromDb ? [{ id: 'chris', name: chris.name, role: chris.role, photo: chris.photo, href: `/team-members/${chris.slug}`, social: [] }] : []),
   ...brokers.map((b) => ({
     id: b.slug,
     name: b.full_name,
