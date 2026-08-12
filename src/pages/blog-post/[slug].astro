@@ -93,7 +93,14 @@ const schemas = [
   ]),
 ];
 ---
-<Base title={`${d.title} | ProtectHealth`} description={d.description} schemas={schemas} ogImage={ogImage}>
+<Base
+  title={`${d.title} | ProtectHealth`}
+  description={d.description}
+  schemas={schemas}
+  ogImage={ogImage}
+  ogImageAlt={BLOG_ART[post.id]?.alt}
+  article={{ publishedTime: d.datePublished, modifiedTime: d.dateModified, authorName: byline.name }}
+>
   <section class="section">
     <div class="container article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">

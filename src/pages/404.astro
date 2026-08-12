@@ -1,0 +1,52 @@
+---
+// Real 404 page. Before this existed, Cloudflare Pages had nothing to serve
+// for an unknown path, and every bad URL returned a 200 with branded HTML —
+// the classic soft-404 pattern (wiki: soft-404-remediation). Soft 404s at
+// scale erode domain quality signals: Google and AI crawlers learn that a
+// 200 from this host does not necessarily mean a page exists.
+//
+// With `build.format: 'file'`, Astro emits this as dist/404.html, and
+// Cloudflare Pages automatically serves 404.html WITH a real 404 status
+// for any request that matches no static asset, no redirect, and no
+// function. No extra config needed.
+//
+// noindex is belt-and-braces: a page served with status 404 is not indexed
+// anyway, but the meta costs nothing and covers any edge that serves the
+// HTML with a 200 (e.g. a misconfigured proxy).
+import Base from '../layouts/Base.astro';
+
+const links = [
+  { href: '/', label: 'Homepage' },
+  { href: '/services', label: 'Insurance Services' },
+  { href: '/blog', label: 'Guides & Articles' },
+  { href: '/qa', label: 'Questions & Answers' },
+  { href: '/talk-to-a-broker', label: 'Talk To A Broker' },
+];
+---
+<Base
+  title="Page Not Found | ProtectHealth"
+  description="That page does not exist on ProtectHealth. Find insurance services, guides, and answers from the links below, or talk to a Las Vegas broker."
+  noindex={true}
+>
+  <section class="section">
+    <div class="container" style="max-width: 640px; text-align: center; padding-top: 48px; padding-bottom: 48px;">
+      <span class="badge">404</span>
+      <h1>That page does not exist</h1>
+      <p>
+        The address may be mistyped, or the page may have moved when the site
+        was rebuilt. Everything ProtectHealth publishes is reachable from the
+        links below.
+      </p>
+      <p style="margin-top: 24px;">
+        <a class="btn" href="/">Back to the homepage</a>
+      </p>
+      <nav aria-label="Helpful links" style="margin-top: 32px;">
+        <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: center;">
+          {links.map((l) => (
+            <li><a href={l.href}>{l.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </section>
+</Base>

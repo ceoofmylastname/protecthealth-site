@@ -85,7 +85,14 @@ const QA_CTA: Record<string, string> = {
 };
 const ctaUrl = QA_CTA[d.cluster] ?? '/contact-us';
 ---
-<Base title={`${d.question} | ProtectHealth Q&A`} description={d.description} schemas={schemas} ogImage={ogImage}>
+<Base
+  title={`${d.question} | ProtectHealth Q&A`}
+  description={d.description}
+  schemas={schemas}
+  ogImage={ogImage}
+  ogImageAlt={QA_ART[qa.id]?.alt}
+  article={{ publishedTime: d.datePublished, modifiedTime: d.dateModified }}
+>
   <section class="section">
     <div class="container article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
