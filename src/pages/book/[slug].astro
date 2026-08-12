@@ -38,7 +38,9 @@ const pageUrl = `${SITE.domain}/book/${slug}`;
 const title = `Book time with ${broker.full_name} — ProtectHealth`;
 const description = `Schedule a conversation with ${broker.full_name}, a licensed ProtectHealth insurance broker in Las Vegas.`;
 ---
-<Base title={title} description={description} canonical={pageUrl}>
+<Base title={title} description={description} canonical={pageUrl}
+  navPhone={phone} navPhoneHref={telHref}
+>
   <main class="bk">
     <section class="bk-inner">
       <div class="bk-head">

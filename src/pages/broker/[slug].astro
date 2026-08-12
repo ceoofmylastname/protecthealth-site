@@ -73,7 +73,9 @@ const linesSummary = lines.length
   ? lines.slice(0, 3).join(', ').replace('Accident / Gap', 'accident & gap') + (lines.length > 3 ? ' and more' : '')
   : 'health, life and more';
 ---
-<Base title={title} description={description} canonical={pageUrl} ogImage={HERO_IMAGE} schemas={schemas}>
+<Base title={title} description={description} canonical={pageUrl} ogImage={HERO_IMAGE} schemas={schemas}
+  navPhone={phone} navPhoneHref={telHref}
+>
   <main class="lb">
     <!-- HERO -->
     <section class="lb-hero">

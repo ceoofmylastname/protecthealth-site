@@ -10,8 +10,15 @@ interface Props {
   ogImage?: string;
   schemas?: object[]; // page-specific JSON-LD blocks
   noindex?: boolean;
+  // Broker pages override the header call-to-action with THAT broker's number,
+  // so a prospect reading one person's page always reaches that person.
+  // Everywhere else this falls back to the main office line.
+  navPhone?: string;
+  navPhoneHref?: string;
 }
-const { title, description, canonical, ogImage, schemas = [], noindex = false } = Astro.props;
+const { title, description, canonical, ogImage, schemas = [], noindex = false, navPhone, navPhoneHref } = Astro.props;
+const headerPhone = navPhone || SITE.phone;
+const headerPhoneHref = navPhoneHref || SITE.phoneHref;
 // Clean URLs: Cloudflare Pages serves /page from /page.html, so canonicals are extensionless.
 const computedUrl = new URL(Astro.url.pathname, SITE.domain).href
   .replace(/index\.html$/, '')
@@ -110,7 +117,7 @@ const orgSchema = organizationSchema();
               </div>
             </div>
             <a href="/about-us">About</a>
-            <a href={SITE.phoneHref} class="nav-phone">{SITE.phone}</a>
+            <a href={headerPhoneHref} class="nav-phone">{headerPhone}</a>
             <a href="/talk-to-a-broker" class="btn">Talk To A Broker</a>
           </nav>
           <button type="button" class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mnav">
@@ -144,7 +151,7 @@ const orgSchema = organizationSchema();
             </ul>
             <div class="mnav-foot">
               <a href="/talk-to-a-broker" class="btn big no-arrow">Talk To A Broker</a>
-              <a href={SITE.phoneHref} class="mnav-phone">{SITE.phone}</a>
+              <a href={headerPhoneHref} class="mnav-phone">{headerPhone}</a>
               <p>2915 W Charleston Blvd Ste 170, Las Vegas</p>
             </div>
           </div>
