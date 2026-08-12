@@ -355,10 +355,12 @@ export const TEAM = [
     name: 'Robert Morgen',
     role: 'Owner / COO & Group Services Director',
     photo: '/assets/ext/hf_20260722_022202_48d493a6-11bc-4126-8fb6-1e488b4d7c00_min.webp',
+    // Bio supplied by Robert himself, Aug 12 2026, verbatim. This is the
+    // version he uses professionally, including for a NABIP presentation.
+    // His wording wins: do not rewrite it, expand it, or split it for
+    // rhythm without asking him first.
     bio: [
-      `Robert is one of the three owners of ProtectHealth and is a licensed Life & Health insurance broker based locally in Las Vegas. With more than a decade of experience serving Nevada families and small businesses, Robert is known for making complex health insurance decisions feel clear, practical, and manageable.`,
-      `As ProtectHealth's Director of Employer Group Services, Robert specializes in designing benefit strategies for small employers. Robert also leads ProtectHealth's agent training and development to ensure clients receive a consistent, high-integrity experience from first conversation through enrollment and beyond.`,
-      `Whether he's helping a business build a sustainable benefits package or guiding a household through Nevada Health Link options, Robert's approach is rooted in straight answers, strong education, and long-term client relationships.`,
+      `Robert Morgen is a Las Vegas-based Life & Health insurance broker and the COO of ProtectHealth. With more than a decade of experience in Nevada's health insurance market, Robert works with families, small employers, and agents to make complex coverage decisions clear, practical, and sustainable. He also serves as ProtectHealth's Director of Employer Group Services and leads agent training and development.`,
     ],
   },
   {
@@ -451,9 +453,15 @@ export const AUTHORS: Record<string, Author> = {
       'ICHRA', 'Section 105 arrangements', 'QSEHRA', 'small group health insurance',
       'employer benefits strategy', 'self-employed coverage', 'Nevada Health Link',
     ],
-    short: 'Robert is an owner of ProtectHealth and a licensed Life & Health broker with more than a decade serving Nevada families and small businesses. As Director of Employer Group Services he designs benefit strategies for small employers and leads the agency’s agent training.',
+    // `short` is the schema description. Rewritten Aug 12 2026 to match the
+    // bio Robert supplied himself, so the Person description and the visible
+    // profile make the same claim. Note he describes himself as COO rather
+    // than as an owner; his wording governs.
+    short: 'Robert Morgen is a Las Vegas-based Life & Health insurance broker and the COO of ProtectHealth. With more than a decade of experience in Nevada\'s health insurance market, he works with families, small employers, and agents, serves as Director of Employer Group Services, and leads agent training and development.',
     licenseNumber: '',
-    sameAs: [],
+    // Supplied by Robert, Aug 12 2026. sameAs is what lets engines connect
+    // this byline to a real, verifiable professional.
+    sameAs: ['https://www.linkedin.com/in/robertmorgen/'],
   },
   'brian-douglas': {
     slug: 'brian-douglas',
