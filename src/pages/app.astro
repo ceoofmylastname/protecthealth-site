@@ -389,6 +389,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .cal-cell.today .dnum{background:var(--blue);color:#fff}
   .cal-ev{font-size:.7rem;font-weight:650;padding:2px 7px;border-radius:6px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;background:var(--blue)}
   .cal-ev.bday{background:#fdf1e2;color:#b45309}
+  .cal-ev-gcal{background:#eef2f8;color:#42536b;border:1px dashed #b9c8dd;cursor:default}
 
   .feed-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:.84rem}
   .feed-item:last-child{border-bottom:none}
@@ -717,7 +718,16 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       startClock();
       startHeartbeat();
       buildNav();
-      loadData().then(() => go(location.hash.replace('#', '') || 'dashboard'));
+      loadData().then(() => {
+        go(location.hash.replace('#', '') || 'dashboard');
+        // Back from the Google OAuth round trip: land on Availability with a clear result.
+        const q = new URLSearchParams(location.search);
+        if (q.get('gcal')) {
+          const ok = q.get('gcal') === 'connected';
+          toast(ok ? 'Google Calendar connected' : 'Google connection failed: ' + (q.get('why') || 'try again'));
+          history.replaceState({}, '', location.pathname + location.hash);
+        }
+      });
     }
 
     // Presence heartbeat: stamps last_seen_at on entry and every 5 minutes
@@ -1020,6 +1030,7 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       // the deal + appointment land in the DB, but this tab was rendered from
       // boot-time state. Refresh deals + appointments in the background on
       // every entry to the views that show them, then re-render in place.
+      if (route === 'calendar') state.gcalEvents = null; // refetch Google events on entry
       if (route === 'dashboard' || route === 'pipeline' || route === 'calendar') {
         Promise.all([reloadOpps(), reloadAppts(), reloadLeadsLite()]).then(() => {
           if (currentRoute === route) renderers[route]($('#view'));
@@ -1865,7 +1876,12 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <span class="av-status" id="av-status"></span>
             <a class="av-preview" href="/book/${slug}" target="_blank" rel="noopener">Preview my booking page →</a>
           </div>
+          <div class="card">
+            <div class="card-h"><span class="grad-label">Google Calendar</span><h3 style="margin-left:8px">Link your Google Calendar</h3></div>
+            <div class="card-b" id="gcal-panel"><div class="cell-sub">Checking…</div></div>
+          </div>
         </div>`;
+      loadGcalPanel();
       $$('[data-day]', v).forEach((cb) => cb.addEventListener('change', () => {
         const n = cb.getAttribute('data-day');
         $(`[data-start="${n}"]`, v).disabled = !cb.checked;
@@ -1898,6 +1914,65 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       });
     }
 
+    // ---- Google Calendar link (per-agent OAuth via ph-gcal) ----
+    async function gcalCall(body) {
+      const { data: sess } = await sb.auth.getSession();
+      const token = sess?.session?.access_token;
+      const r = await fetch(`${root.getAttribute('data-supabase-url')}/functions/v1/ph-gcal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: root.getAttribute('data-supabase-anon'), Authorization: 'Bearer ' + token },
+        body: JSON.stringify(body),
+      });
+      return await r.json().catch(() => ({}));
+    }
+    async function loadGcalPanel() {
+      const host = $('#gcal-panel'); if (!host) return;
+      const st = await gcalCall({ action: 'status' });
+      if (!st || st.error) { host.innerHTML = `<div class="cell-sub">${esc(st?.error || 'Could not check Google connection.')}</div>`; return; }
+      if (!st.connected) {
+        host.innerHTML = `
+          <p class="cell-sub" style="margin:0 0 12px">Connect your Google Calendar and two things happen: your Gmail appointments show on your calendar here, and booked times on your Google calendar are automatically blocked on your booking page so nobody can double-book you.</p>
+          <button class="btn btn-primary" id="gcal-connect">Connect Google Calendar</button>
+          <div class="cell-sub" id="gcal-msg" style="margin-top:8px"></div>`;
+        $('#gcal-connect').addEventListener('click', async () => {
+          const b = $('#gcal-connect'); b.disabled = true;
+          const r = await gcalCall({ action: 'start' });
+          if (r?.url) { location.href = r.url; return; }
+          b.disabled = false; $('#gcal-msg').textContent = r?.error || 'Could not start the Google connection.';
+        });
+        return;
+      }
+      const cals = st.calendars || [];
+      const sel = new Set(st.selected || []);
+      host.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="chip" style="background:#e7f6ee;color:#15803d">Connected</span>
+          <b>${esc(st.email || 'Google account')}</b>
+          <button class="btn btn-ghost btn-sm" id="gcal-disconnect" style="margin-left:auto">Disconnect</button>
+        </div>
+        ${st.error ? `<div class="cell-sub" style="color:#b45309;margin-top:8px">${esc(st.error)}</div>` : ''}
+        <div class="section-t" style="margin-top:14px">Calendars that block your booking slots</div>
+        <div id="gcal-cals">${cals.map((c) => `<label class="pickbox"><input type="checkbox" data-gcal="${esc(c.id)}" ${sel.has(c.id) ? 'checked' : ''}/> ${esc(c.name)}${c.primary ? ' <span class="cell-sub">(main)</span>' : ''}</label>`).join('') || '<div class="cell-sub">No calendars found.</div>'}</div>
+        <button class="btn btn-sm" id="gcal-save" style="margin-top:10px">Save calendar selection</button>
+        <span class="cell-sub" id="gcal-msg" style="margin-left:8px"></span>`;
+      $('#gcal-save').addEventListener('click', async () => {
+        const ids = $$('#gcal-cals [data-gcal]').filter((c) => c.checked).map((c) => c.getAttribute('data-gcal'));
+        const msg = $('#gcal-msg');
+        if (!ids.length) { msg.textContent = 'Pick at least one calendar.'; return; }
+        msg.textContent = 'Saving…';
+        const r = await gcalCall({ action: 'select', calendars: ids });
+        msg.textContent = r?.ok ? 'Saved.' : (r?.error || 'Could not save.');
+        if (r?.ok) { state.gcalEvents = null; toast('Google calendars updated'); }
+      });
+      $('#gcal-disconnect').addEventListener('click', async () => {
+        if (!confirm('Disconnect your Google Calendar? Your Gmail events will stop showing here and will no longer block booking slots.')) return;
+        await gcalCall({ action: 'disconnect' });
+        state.gcalEvents = null;
+        toast('Google Calendar disconnected');
+        loadGcalPanel();
+      });
+    }
+
     // ================= CALENDAR (month grid from appointments) =================
     let calMonth = null;
     function renderCalendar(v) {
@@ -1905,8 +1980,20 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const y = calMonth.getFullYear(), m = calMonth.getMonth();
       const first = new Date(y, m, 1), start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7)); // Mon-first
       const appts = apptEvents();
+      // Google events ride alongside; fetched once per visit and cached until
+      // the tab is re-entered or the selection changes.
+      if (state.gcalEvents === null || state.gcalEvents === undefined) {
+        state.gcalEvents = [];
+        gcalCall({ action: 'events', days: 60 }).then((r) => {
+          if (r?.connected && Array.isArray(r.events)) {
+            state.gcalEvents = r.events.map((e) => ({ id: 'g:' + e.start, when: e.start, name: e.title, gcal: true, all_day: e.all_day }));
+            if (currentRoute === 'calendar') renderCalendar($('#view'));
+          }
+        }).catch(() => {});
+      }
+      const all = appts.concat(state.gcalEvents || []);
       const byDay = {};
-      appts.forEach((e) => { const d = new Date(e.when); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(e); });
+      all.forEach((e) => { const d = new Date(e.when); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(e); });
       const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
       const title = calMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -1916,7 +2003,10 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         const k = d.toLocaleDateString('en-CA');
         const dim = d.getMonth() !== m ? 'dim' : '';
         const today = k === todayKey ? 'today' : '';
-        const evs = (byDay[k] || []).slice(0, 3).map((e) => `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? '' : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`).join('');
+        const evs = (byDay[k] || []).slice(0, 3).map((e) => {
+          if (e.gcal) return `<div class="cal-ev cal-ev-gcal" title="From your Google Calendar">${e.all_day ? '' : new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'}) + ' '}${esc(e.name)}</div>`;
+          return `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? '' : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`;
+        }).join('');
         const more = (byDay[k] || []).length > 3 ? `<div class="cell-sub" style="margin-top:2px">+${byDay[k].length - 3} more</div>` : '';
         cells += `<div class="cal-cell ${dim} ${today}"><div class="dnum">${d.getDate()}</div>${evs}${more}</div>`;
       }
