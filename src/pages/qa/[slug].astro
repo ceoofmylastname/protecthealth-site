@@ -6,7 +6,7 @@
 // fields with different content (wiki: speakable-vs-accepted-answer).
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, QA_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId } from '../../lib/site';
+import { SITE, ORG_ID, QA_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom } from '../../lib/site';
 import AuthorByline from '../../components/AuthorByline.astro';
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getCollection, render } from 'astro:content';
@@ -63,6 +63,9 @@ const qaPageSchema: Record<string, unknown> = {
   image: QA_ART[qa.id] ? { '@type': 'ImageObject', url: QA_ART[qa.id].png } : undefined,
 };
 if (d.dateModified) qaPageSchema.dateModified = d.dateModified;
+// Mirror the visible Sources section into the schema (same body links).
+const citation = citationsFrom(qa.body);
+if (citation) qaPageSchema.citation = citation;
 
 const schemas = [
   qaPageSchema,

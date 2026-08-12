@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId } from '../../lib/site';
+import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom } from '../../lib/site';
 import AuthorByline from '../../components/AuthorByline.astro';
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getCollection, render } from 'astro:content';
@@ -80,6 +80,9 @@ const articleSchema: Record<string, unknown> = {
 };
 // dateModified only when content genuinely changed (wiki: date-modified-schema)
 if (d.dateModified) articleSchema.dateModified = d.dateModified;
+// Mirror the visible Sources section into the schema (same body links).
+const citation = citationsFrom(post.body);
+if (citation) articleSchema.citation = citation;
 
 const schemas = [
   articleSchema,

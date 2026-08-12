@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import rehypeSources from './scripts/rehype-sources.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,5 +21,10 @@ export default defineConfig({
   ],
   build: {
     format: 'file',
+  },
+  markdown: {
+    // Numbered inline citations + Sources section on every markdown body
+    // (wiki: inline-citation-system). See scripts/rehype-sources.mjs.
+    rehypePlugins: [rehypeSources],
   },
 });

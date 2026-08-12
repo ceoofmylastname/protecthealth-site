@@ -495,3 +495,27 @@ export function speakableSchema(url: string) {
 // Swap this for a cleaner "write a review" deep link anytime; it is the only
 // place the destination is defined (used by /review and the review-request email).
 export const GOOGLE_REVIEW_URL = 'https://www.google.com/search?q=protecthealth+google+review&sca_esv=b21e0fc4ad4b3263#lrd=0x80c8c3a1ee8daa15:0xa01196f04d3e4e0f,3,,,,';
+
+// Machine-readable mirror of the visible Sources section (scripts/
+// rehype-sources.mjs). Pulls the external links out of a raw markdown body
+// so BlogPosting/QAPage JSON-LD can carry a `citation` array pointing at the
+// same authorities the prose cites. Both surfaces derive from the same body
+// links, so they cannot drift. Returns undefined when a body cites nothing,
+// so the field is omitted rather than emitted empty.
+export function citationsFrom(body: string | undefined) {
+  if (!body) return undefined;
+  const seen = new Set<string>();
+  const out: { '@type': 'WebPage'; url: string }[] = [];
+  for (const m of body.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)) {
+    const url = m[1];
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      if (host === 'protecthealth.com' || seen.has(url)) continue;
+    } catch {
+      continue;
+    }
+    seen.add(url);
+    out.push({ '@type': 'WebPage', url });
+  }
+  return out.length ? out : undefined;
+}
