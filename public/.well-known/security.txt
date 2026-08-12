@@ -1,0 +1,5 @@
+# Security contact for protecthealth.com (RFC 9116)
+Contact: https://www.protecthealth.com/contact-us
+Expires: 2027-08-12T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.protecthealth.com/.well-known/security.txt

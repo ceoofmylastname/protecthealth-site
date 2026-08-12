@@ -1,0 +1,26 @@
+# Cloudflare Pages headers (wiki: frontend-asset-optimization; audit item 9).
+#
+# Security headers on every response. Notes:
+# - HSTS: the site is HTTPS-only behind Cloudflare; a year with subdomains.
+#   (Do NOT add `preload` until news.protecthealth.com and any other
+#   subdomain are confirmed HTTPS-clean forever — preload is hard to undo.)
+# - nosniff: stops MIME-type guessing on served assets.
+# - Referrer-Policy: full referrer on same-origin, origin-only cross-site.
+# - Permissions-Policy: this site never needs camera/mic/geolocation.
+# - X-Frame-Options SAMEORIGIN: blocks clickjacking framing of the admin,
+#   app, and booking pages. If a page ever needs to be embedded in an
+#   external funnel builder, carve out that path with its own header block.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Frame-Options: SAMEORIGIN
+
+# Hashed build assets never change under the same filename — cache forever.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Brand/editorial images change rarely and by filename when they do.
+/assets/*
+  Cache-Control: public, max-age=604800
