@@ -1,0 +1,57 @@
+---
+// Broker help page: connecting Google Calendar to the CRM.
+// Shares its body with the in-app popup via src/lib/gcal-help.ts, so the two
+// can never drift. noindex because this is internal staff documentation, not
+// marketing content.
+import Base from '../../layouts/Base.astro';
+import { GCAL_HELP_HTML } from '../../lib/gcal-help';
+---
+<Base
+  title="Connect Your Google Calendar | ProtectHealth Brokers"
+  description="How ProtectHealth brokers link a Google Calendar so booked time is blocked automatically."
+  noindex={true}
+>
+  <main class="gh">
+    <div class="container gh-wrap">
+      <a class="gh-back" href="/app#availability">← Back to your dashboard</a>
+      <div class="gh-kicker">Broker Guide</div>
+      <h1>Connect Your Google Calendar</h1>
+      <div class="gh-body" set:html={GCAL_HELP_HTML}></div>
+      <div class="gh-cta">
+        <a class="btn" href="/app#availability">Open Availability and connect →</a>
+      </div>
+    </div>
+  </main>
+
+  <style is:global>
+    .gh { padding: 40px 0 70px; background: #f4f7fc; }
+    .gh-wrap { max-width: 780px; }
+    .gh-back { display: inline-block; font-size: .9rem; font-weight: 650; color: #197bff; text-decoration: none; margin-bottom: 18px; }
+    .gh-back:hover { text-decoration: underline; }
+    .gh-kicker { font-size: .72rem; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; color: #197bff; }
+    .gh h1 { color: #0f3567; font-size: 2.1rem; letter-spacing: -1px; margin: 6px 0 22px; }
+    .gh-body { background: #fff; border: 1px solid #e3e9f2; border-radius: 18px; padding: 30px 32px;
+      box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 24px -12px rgba(15,23,42,.12); }
+    .gh-body h3 { color: #0f3567; font-size: 1.2rem; letter-spacing: -.4px; margin: 30px 0 10px; padding-top: 22px; border-top: 1px solid #eef2f8; }
+    .gh-body h3:first-of-type { margin-top: 6px; padding-top: 0; border-top: 0; }
+    .gh-body p { color: #42536b; line-height: 1.65; margin: 0 0 12px; }
+    .gh-lede { font-size: 1.02rem; }
+    .gh-body ol { color: #42536b; line-height: 1.65; padding-left: 22px; margin: 0 0 14px; }
+    .gh-body ol li { margin-bottom: 9px; }
+    .gh-body b { color: #0f3567; }
+    .gh-note { background: #f4f8ff; border-left: 3px solid #197bff; border-radius: 0 10px 10px 0; padding: 11px 14px; font-size: .94rem; }
+    .gh-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .93rem; }
+    .gh-table th { text-align: left; color: #8494ab; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; padding: 0 10px 8px 0; }
+    .gh-table td { padding: 9px 10px 9px 0; border-top: 1px solid #eef2f8; color: #42536b; vertical-align: top; }
+    .gh-cta { margin-top: 26px; text-align: center; }
+    @media (max-width: 700px) {
+      .gh-body { padding: 22px 18px; border-radius: 14px; }
+      .gh h1 { font-size: 1.7rem; }
+      .gh-table, .gh-table tbody, .gh-table tr, .gh-table td { display: block; width: 100%; }
+      .gh-table thead { display: none; }
+      .gh-table tr { border-top: 1px solid #eef2f8; padding: 8px 0; }
+      .gh-table td { border: 0; padding: 2px 0; }
+      .gh-table td:first-child { font-weight: 700; color: #0f3567; }
+    }
+  </style>
+</Base>

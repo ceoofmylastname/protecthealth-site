@@ -17,6 +17,10 @@ const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
 const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
 const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
+
+// Google Calendar tutorial, shared with /help/google-calendar so the popup and
+// the page can never disagree. Injected into the modal below with set:html.
+import { GCAL_HELP_HTML } from '../lib/gcal-help';
 ---
 
 <!-- Standalone document on purpose: the CRM is a full-screen app and must NOT
@@ -190,6 +194,21 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
 
     <!-- onboarding: first-login profile capture (headshot, bio, socials, lines) -->
     <div id="onboarding" hidden></div>
+
+    <!-- Google Calendar how-to popup (opened from the Availability tab) -->
+    <div class="gc-modal" id="gc-help" hidden>
+      <div class="gc-modal-card" role="dialog" aria-modal="true" aria-label="How to connect your Google Calendar">
+        <div class="gc-modal-h">
+          <div>
+            <div class="gc-modal-kick">Broker Guide</div>
+            <div class="gc-modal-t">Connect Your Google Calendar</div>
+          </div>
+          <a class="gc-modal-open" href="/help/google-calendar" target="_blank" rel="noopener">Open as page ↗</a>
+          <button class="drawer-x" type="button" data-gc-close aria-label="Close">✕</button>
+        </div>
+        <div class="gc-modal-b gh-body" set:html={GCAL_HELP_HTML}></div>
+      </div>
+    </div>
 
     <!-- drawer + toast, shared by all modules -->
     <div id="overlay"></div>
@@ -390,6 +409,36 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
   .cal-ev{font-size:.7rem;font-weight:650;padding:2px 7px;border-radius:6px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;background:var(--blue)}
   .cal-ev.bday{background:#fdf1e2;color:#b45309}
   .cal-ev-gcal{background:#eef2f8;color:#42536b;border:1px dashed #b9c8dd;cursor:default}
+
+  /* ---- Google Calendar how-to popup ---- */
+  .gc-modal{position:fixed;inset:0;z-index:120;background:rgba(8,29,61,.55);backdrop-filter:blur(3px);
+    display:grid;place-items:center;padding:24px;font-family:var(--font)}
+  .gc-modal[hidden]{display:none}
+  .gc-modal-card{background:#fff;border-radius:20px;width:100%;max-width:740px;max-height:88vh;display:flex;flex-direction:column;
+    box-shadow:0 30px 80px rgba(8,29,61,.35);overflow:hidden}
+  .gc-modal-h{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line);flex:none}
+  .gc-modal-kick{font-size:.68rem;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+  .gc-modal-t{font-size:1.2rem;font-weight:800;letter-spacing:-.4px;color:var(--navy);margin-top:2px}
+  .gc-modal-open{margin-left:auto;font-size:.82rem;font-weight:650;color:var(--blue);text-decoration:none;white-space:nowrap}
+  .gc-modal-open:hover{text-decoration:underline}
+  .gc-modal-b{padding:22px 26px 30px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  /* body typography, matched to /help/google-calendar */
+  .gh-body h3{color:var(--navy);font-size:1.08rem;letter-spacing:-.3px;margin:26px 0 9px;padding-top:20px;border-top:1px solid var(--line2)}
+  .gh-body h3:first-of-type{margin-top:2px;padding-top:0;border-top:0}
+  .gh-body p{color:var(--ink2);line-height:1.62;margin:0 0 11px;font-size:.94rem}
+  .gh-body .gh-lede{font-size:.98rem}
+  .gh-body ol{color:var(--ink2);line-height:1.62;padding-left:20px;margin:0 0 13px;font-size:.94rem}
+  .gh-body ol li{margin-bottom:8px}
+  .gh-body b{color:var(--navy)}
+  .gh-body .gh-note{background:#f4f8ff;border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:10px 13px;font-size:.9rem}
+  .gh-body .gh-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.9rem}
+  .gh-body .gh-table th{text-align:left;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;padding:0 10px 7px 0}
+  .gh-body .gh-table td{padding:8px 10px 8px 0;border-top:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+  @media (max-width:640px){
+    .gc-modal{padding:0}
+    .gc-modal-card{max-width:none;max-height:100vh;height:100vh;border-radius:0}
+    .gc-modal-open{display:none}
+  }
 
   .feed-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:.84rem}
   .feed-item:last-child{border-bottom:none}
@@ -1877,10 +1926,12 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
             <a class="av-preview" href="/book/${slug}" target="_blank" rel="noopener">Preview my booking page →</a>
           </div>
           <div class="card">
-            <div class="card-h"><span class="grad-label">Google Calendar</span><h3 style="margin-left:8px">Link your Google Calendar</h3></div>
+            <div class="card-h"><span class="grad-label">Google Calendar</span><h3 style="margin-left:8px">Link your Google Calendar</h3>
+              <button type="button" class="btn btn-ghost btn-sm" id="gcal-how" style="margin-left:auto">How does this work?</button></div>
             <div class="card-b" id="gcal-panel"><div class="cell-sub">Checking…</div></div>
           </div>
         </div>`;
+      $('#gcal-how', v)?.addEventListener('click', openGcalHelp);
       loadGcalPanel();
       $$('[data-day]', v).forEach((cb) => cb.addEventListener('change', () => {
         const n = cb.getAttribute('data-day');
@@ -1914,6 +1965,23 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       });
     }
 
+    // ---- Google Calendar how-to popup ----
+    // Same content as /help/google-calendar (shared from src/lib/gcal-help.ts),
+    // shown inline so a broker never loses their place mid-setup.
+    function openGcalHelp() {
+      const m = $('#gc-help'); if (!m) return;
+      m.hidden = false; document.body.style.overflow = 'hidden';
+      m.querySelector('.gc-modal-b').scrollTop = 0;
+    }
+    function closeGcalHelp() {
+      const m = $('#gc-help'); if (!m) return;
+      m.hidden = true; document.body.style.overflow = '';
+    }
+    $('#gc-help')?.addEventListener('click', (e) => {
+      if (e.target.closest('[data-gc-close]') || e.target.id === 'gc-help') closeGcalHelp();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeGcalHelp(); });
+
     // ---- Google Calendar link (per-agent OAuth via ph-gcal) ----
     async function gcalCall(body) {
       const { data: sess } = await sb.auth.getSession();
@@ -1933,7 +2001,9 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         host.innerHTML = `
           <p class="cell-sub" style="margin:0 0 12px">Connect your Google Calendar and two things happen: your Gmail appointments show on your calendar here, and booked times on your Google calendar are automatically blocked on your booking page so nobody can double-book you.</p>
           <button class="btn btn-primary" id="gcal-connect">Connect Google Calendar</button>
+          <button type="button" class="btn btn-ghost" id="gcal-how2" style="margin-left:8px">Show me how →</button>
           <div class="cell-sub" id="gcal-msg" style="margin-top:8px"></div>`;
+        $('#gcal-how2')?.addEventListener('click', openGcalHelp);
         $('#gcal-connect').addEventListener('click', async () => {
           const b = $('#gcal-connect'); b.disabled = true;
           const r = await gcalCall({ action: 'start' });
