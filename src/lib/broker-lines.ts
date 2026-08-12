@@ -177,3 +177,26 @@ export const LINE_IMAGES: Record<string, string> = {
   'Vision': `${HF}/hf_20260811_163907_027eeea0-05ee-4bcb-95e4-f8ba6b8ef621.png`,
   'Accident / Gap': `${HF}/hf_20260811_164110_06aac9ae-f4f2-439c-aa7b-eefbb85c2d64.png`,
 };
+
+// US phone display: turn whatever is stored (+17029317099, 7029317099,
+// "702.931.7099") into (702) 931-7099. Anything that is not a recognizable
+// 10-digit US number is returned trimmed, so international or extension
+// formats survive untouched instead of being mangled.
+export const fmtPhone = (raw: string | null | undefined): string => {
+  const s = String(raw ?? '').trim();
+  if (!s) return '';
+  const d = s.replace(/\D/g, '');
+  const ten = d.length === 11 && d.startsWith('1') ? d.slice(1) : d;
+  if (ten.length !== 10) return s;
+  return `(${ten.slice(0, 3)}) ${ten.slice(3, 6)}-${ten.slice(6)}`;
+};
+
+// tel: href for the same value. Returns '' (not 'tel:+1') when there is no
+// number, so callers can fall back with `telHref(x) || officeHref` instead of
+// rendering a dead link.
+export const telHref = (raw: string | null | undefined): string => {
+  const d = String(raw ?? '').replace(/\D/g, '');
+  if (!d) return '';
+  const ten = d.length === 11 && d.startsWith('1') ? d.slice(1) : d;
+  return 'tel:+1' + (ten.length === 10 ? ten : d);
+};

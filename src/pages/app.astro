@@ -768,7 +768,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!uid) { const { data: authUser } = await sb.auth.getUser(); uid = authUser?.user?.id ?? null; }
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
-      const PROFILE_COLS = 'id, full_name, is_active, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
+      const PROFILE_COLS = 'id, full_name, is_active, phone, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
       let me = null;
       if (uid) {
         const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
@@ -790,7 +790,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // onboarding form before the dashboard — Rob's "collect it all in the room"
       // step. Admins are never gated by it (they may not want a broker landing
       // page); they can still build one anytime via Edit profile.
-      if (me && !me.onboarding_completed_at && !state.isAdmin) { openOnboarding(email); return; }
+      if (me && !state.isAdmin && (!me.onboarding_completed_at || !String(me.phone || '').trim())) { openOnboarding(email); return; }
       enterApp(email);
     }
 
@@ -886,9 +886,27 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     const BROKER_LINES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Annuities', 'Group Benefits', 'Supplements', 'Accident / Gap'];
     let pendingHeadshotFile = null;
 
+    // Display/normalize helpers for the broker's own phone number. Stored
+    // digits-only-ish values (+17029317099) become (702) 931-7099 on screen;
+    // saving writes back a clean formatted string so landing pages, booking
+    // pages and every email render the same thing.
+    const fmtPhoneJs = (raw) => {
+      const s = String(raw ?? '').trim(); if (!s) return '';
+      const dg = s.replace(/\D/g, '');
+      const ten = dg.length === 11 && dg.startsWith('1') ? dg.slice(1) : dg;
+      return ten.length === 10 ? `(${ten.slice(0, 3)}) ${ten.slice(3, 6)}-${ten.slice(6)}` : s;
+    };
+    const phoneDigits = (raw) => {
+      const dg = String(raw ?? '').replace(/\D/g, '');
+      return dg.length === 11 && dg.startsWith('1') ? dg.slice(1) : dg;
+    };
+
     function openOnboarding(email, opts = {}) {
       const editing = opts.editing === true;
       const me = state.me;
+      // Someone who finished onboarding before the phone field existed gets
+      // sent back here for that one field, with copy that says why.
+      const phoneOnly = !editing && !!me.onboarding_completed_at && !String(me.phone || '').trim();
       const socials = me.social_links || {};
       const lines = new Set(me.lines_of_insurance || []);
       const firstName = String(me.full_name || '').split(' ')[0] || 'there';
@@ -897,8 +915,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       el.innerHTML = `
         <div class="ob-scroll"><div class="ob-card">
           <img class="ag-logo" src="${LOGO}" alt="ProtectHealth" />
-          <h1>${editing ? 'Edit your profile' : 'Welcome, ' + esc(firstName)}</h1>
-          <p class="ag-muted">${editing ? 'Update how you appear on your landing page and Meet the Team.' : 'This sets up your ProtectHealth landing page and your Meet the Team profile. Takes two minutes.'}</p>
+          <h1>${editing ? 'Edit your profile' : phoneOnly ? 'One more thing, ' + esc(firstName) : 'Welcome, ' + esc(firstName)}</h1>
+          <p class="ag-muted">${editing ? 'Update how you appear on your landing page and Meet the Team.'
+            : phoneOnly ? 'We need the phone number you want prospects to call. Right now your pages show the main office line instead of you.'
+            : 'This sets up your ProtectHealth landing page and your Meet the Team profile. Takes two minutes.'}</p>
 
           <div class="section-t">Headshot</div>
           <div class="ob-photo">
@@ -908,6 +928,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
               <div class="hint">A clear, front-facing photo. JPG or PNG, up to 8&nbsp;MB. You can retake it anytime.</div>
             </div>
           </div>
+
+          <div class="section-t">Your phone number</div>
+          <div class="hint" style="margin-bottom:8px">This is the number prospects see on your landing page, your booking page, and in every email we send on your behalf. Use the line you actually answer.</div>
+          <div class="field"><input id="ob-phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(fmtPhoneJs(me.phone))}" placeholder="(702) 555-0148"/></div>
 
           <div class="section-t">Short bio</div>
           <textarea id="ob-bio" class="rec-select" rows="4" maxlength="600" placeholder="A few sentences prospects will read on your page. Who you help and how.">${esc(me.bio || '')}</textarea>
@@ -926,12 +950,18 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
           <div style="display:flex;gap:10px;margin-top:24px;align-items:center">
             <button class="ag-btn" id="ob-save">${editing ? 'Save profile' : 'Save & continue'}</button>
-            ${editing ? '<button class="btn btn-ghost" id="ob-cancel">Cancel</button>' : '<button class="btn btn-ghost" id="ob-skip">Skip for now</button>'}
+            ${editing ? '<button class="btn btn-ghost" id="ob-cancel">Cancel</button>'
+              : phoneOnly ? '' /* nothing else is being asked — no skip past one field */
+              : '<button class="btn btn-ghost" id="ob-skip">Skip for now</button>'}
             <span class="ag-status ob-status" style="min-height:1em"></span>
           </div>
         </div></div>`;
       gate.hidden = true; app.hidden = editing ? false : true; el.hidden = false;
       if (editing) app.hidden = true; // full-screen while editing too
+
+      // Format as they type so what they see is what gets stored.
+      const phEl = $('#ob-phone');
+      phEl?.addEventListener('blur', () => { phEl.value = fmtPhoneJs(phEl.value); });
 
       pendingHeadshotFile = null;
       $('#ob-file').addEventListener('change', (e) => {
@@ -1002,7 +1032,20 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         if (v) social_links[k] = v;
       }
       const lines_of_insurance = $$('[data-line]').filter((c) => c.checked).map((c) => c.getAttribute('data-line'));
+
+      // Phone is required: it is the number on this broker's landing page,
+      // booking page and every email sent on their behalf. Ten US digits.
+      const rawPhone = $('#ob-phone')?.value || '';
+      const digits = phoneDigits(rawPhone);
+      if (digits.length !== 10) {
+        btn.disabled = false;
+        setObStatus(digits.length ? 'That phone number needs 10 digits, like (702) 555-0148.' : 'Please add the phone number you want prospects to call.', true);
+        $('#ob-phone')?.focus();
+        return;
+      }
+
       const patch = {
+        phone: fmtPhoneJs(digits),
         bio: $('#ob-bio').value.trim() || null,
         headshot_url,
         social_links,

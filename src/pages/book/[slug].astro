@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import Base from '../../layouts/Base.astro';
 import BrokerScheduler from '../../components/BrokerScheduler.astro';
 import { SITE } from '../../lib/site';
-import { brokerSlug } from '../../lib/broker-lines';
+import { brokerSlug, fmtPhone, telHref as telLink } from '../../lib/broker-lines';
 
 export async function getStaticPaths() {
   const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
@@ -29,9 +29,10 @@ const { broker } = Astro.props;
 const slug = Astro.params.slug;
 const firstName = (broker.full_name || '').trim().split(/\s+/)[0] || 'us';
 const lines = Array.isArray(broker.lines_of_insurance) ? broker.lines_of_insurance : [];
+// Broker's own number (see /broker/[slug] for the rationale).
 const OFFICE_PHONE = '800-240-8185';
-const phone = (broker.phone && String(broker.phone).trim()) || OFFICE_PHONE;
-const telHref = 'tel:+1' + phone.replace(/\D/g, '').replace(/^1/, '');
+const phone = fmtPhone(broker.phone) || OFFICE_PHONE;
+const telHref = telLink(broker.phone) || 'tel:+18002408185';
 const email = broker.email && String(broker.email).trim() ? String(broker.email).trim() : null;
 const pageUrl = `${SITE.domain}/book/${slug}`;
 const title = `Book time with ${broker.full_name} — ProtectHealth`;
