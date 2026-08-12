@@ -981,6 +981,14 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       const { data } = await sb.from('ph_opportunities').select('*').order('created_at', { ascending: false });
       state.opps = data ?? [];
     }
+    async function reloadAppts() {
+      const { data } = await sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at');
+      state.appts = data ?? [];
+    }
+    async function reloadLeadsLite() {
+      const { data } = await sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000);
+      if (data) state.leads = data;
+    }
     async function reloadCarriers() {
       const { data } = await sb.from('ph_carriers').select('id, name, is_active').order('name');
       state.carriers = (data ?? []).filter((c) => c.is_active);
@@ -1006,7 +1014,17 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
       $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
       root.classList.remove('nav-open');
       const v = $('#view'); v.scrollTop = 0;
-      ({ dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability }[route])(v);
+      const renderers = { dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability };
+      renderers[route](v);
+      // Landing-page bookings arrive while the app is open: a visitor books,
+      // the deal + appointment land in the DB, but this tab was rendered from
+      // boot-time state. Refresh deals + appointments in the background on
+      // every entry to the views that show them, then re-render in place.
+      if (route === 'dashboard' || route === 'pipeline' || route === 'calendar') {
+        Promise.all([reloadOpps(), reloadAppts(), reloadLeadsLite()]).then(() => {
+          if (currentRoute === route) renderers[route]($('#view'));
+        }).catch(() => {});
+      }
     }
     window.addEventListener('hashchange', () => { const r = location.hash.replace('#', ''); if (r && r !== currentRoute && TITLES[r]) go(r); });
 
@@ -2229,14 +2247,51 @@ const LOGO = 'https://www.protecthealth.com/assets/og-logo-source.png';
         if (l.appointment_start) items.push({ icon: '🗓️', title: 'Appointment set', when: l.appointment_start });
       });
 
+      // Native landing-page bookings, with whatever the visitor typed in the
+      // notes box front and center — that note is the best prep for the call.
+      try {
+        let q = sb.from('ph_appointments').select('*');
+        q = email
+          ? q.or(`contact_id.eq.${c.ghl_contact_id},invitee_email.eq.${email}`)
+          : q.eq('contact_id', c.ghl_contact_id);
+        const { data: native } = await q;
+        (native || []).forEach((a) => {
+          items.push({
+            icon: '📅',
+            title: `Booked on the landing page${a.line_key ? ` · ${esc(a.line_key)}` : ''}`,
+            when: a.created_at || a.start_at,
+            detail: [
+              `<div class="act-answers"><div><span>Appointment</span>${esc(fmtFull(a.start_at))}</div></div>`,
+              a.notes ? `<div class="act-note">“${esc(a.notes)}”</div>` : '',
+            ].join(''),
+          });
+        });
+      } catch (_e) {}
+
       items.sort((a, b) => +new Date(b.when || 0) - +new Date(a.when || 0));
       host.innerHTML = items.map((i) => `<div class="feed-item"><div class="feed-ic">${i.icon}</div><div style="min-width:0"><div style="font-weight:650">${i.title}</div><div class="cell-sub">${esc(fmtDateTime(i.when))}</div>${i.detail || ''}</div></div>`).join('') || '<div class="cell-sub">No activity yet.</div>';
     }
     async function loadContactAppointments(c) {
       const host = $('#rec-appts'); if (!host) return;
-      // Match any lead for this contact that has an appointment.
-      const appts = state.leads.filter((l) => l.ghl_contact_id === c.ghl_contact_id && l.appointment_start);
-      host.innerHTML = appts.length ? appts.map((l) => `<div class="feed-item"><div class="feed-ic">📅</div><div><div style="font-weight:650">${esc(fmtFull(l.appointment_start))}</div><div class="cell-sub">${esc(l.kind || 'appointment')}</div></div></div>`).join('') : '<div class="cell-sub">No appointments.</div>';
+      // Two sources: GHL-mirror leads with an appointment, PLUS native
+      // landing-page bookings in ph_appointments (matched by contact link or
+      // invitee email so nothing slips through).
+      const fromLeads = state.leads
+        .filter((l) => l.ghl_contact_id === c.ghl_contact_id && l.appointment_start)
+        .map((l) => ({ when: l.appointment_start, sub: l.kind || 'appointment', note: null }));
+      const email = (c.email || '').toLowerCase();
+      let q = sb.from('ph_appointments').select('*').eq('status', 'booked');
+      q = email
+        ? q.or(`contact_id.eq.${c.ghl_contact_id},invitee_email.eq.${email}`)
+        : q.eq('contact_id', c.ghl_contact_id);
+      const { data: native } = await q.order('start_at');
+      const fromNative = (native || []).map((a) => ({
+        when: a.start_at,
+        sub: ['Booked on the landing page', a.line_key].filter(Boolean).join(' · '),
+        note: a.notes || null,
+      }));
+      const appts = fromLeads.concat(fromNative).sort((a, b) => +new Date(a.when) - +new Date(b.when));
+      host.innerHTML = appts.length ? appts.map((a) => `<div class="feed-item"><div class="feed-ic">📅</div><div style="min-width:0"><div style="font-weight:650">${esc(fmtFull(a.when))}</div><div class="cell-sub">${esc(a.sub)}</div>${a.note ? `<div class="act-note">“${esc(a.note)}”</div>` : ''}</div></div>`).join('') : '<div class="cell-sub">No appointments.</div>';
     }
     async function loadContactNotes(cid) {
       const host = $('#rec-notes'); if (!host) return;
