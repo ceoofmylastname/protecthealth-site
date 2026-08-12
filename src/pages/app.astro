@@ -768,7 +768,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!uid) { const { data: authUser } = await sb.auth.getUser(); uid = authUser?.user?.id ?? null; }
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
-      const PROFILE_COLS = 'id, full_name, is_active, phone, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
+      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
       let me = null;
       if (uid) {
         const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
@@ -929,9 +929,13 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             </div>
           </div>
 
-          <div class="section-t">Your phone number</div>
-          <div class="hint" style="margin-bottom:8px">This is the number prospects see on your landing page, your booking page, and in every email we send on your behalf. Use the line you actually answer.</div>
-          <div class="field"><input id="ob-phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(fmtPhoneJs(me.phone))}" placeholder="(702) 555-0148"/></div>
+          <div class="section-t">How clients reach you</div>
+          <div class="hint" style="margin-bottom:8px">These appear on your landing page, your booking page, and in every email we send on your behalf. Use the line and inbox you actually answer.</div>
+          <div class="grid2">
+            <div class="field"><label>Phone number</label><input id="ob-phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(fmtPhoneJs(me.phone))}" placeholder="(702) 555-0148"/></div>
+            <div class="field"><label>Contact email</label><input id="ob-pubemail" type="email" inputmode="email" autocomplete="email" value="${esc(me.public_email || '')}" placeholder="${esc(me.email || 'you@protecthealth.com')}"/></div>
+          </div>
+          <div class="hint" style="margin:-4px 0 0">Leave the email blank to use your login address (${esc(me.email || '')}). Set it if you would rather clients write somewhere else. Changing it never affects how you sign in.</div>
 
           <div class="section-t">Short bio</div>
           <textarea id="ob-bio" class="rec-select" rows="4" maxlength="600" placeholder="A few sentences prospects will read on your page. Who you help and how.">${esc(me.bio || '')}</textarea>
@@ -1044,8 +1048,18 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         return;
       }
 
+      // Optional public contact email. Blank means "use my login email".
+      const pubEmail = ($('#ob-pubemail')?.value || '').trim();
+      if (pubEmail && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(pubEmail)) {
+        btn.disabled = false;
+        setObStatus('That contact email does not look right. Check it, or leave it blank to use your login address.', true);
+        $('#ob-pubemail')?.focus();
+        return;
+      }
+
       const patch = {
         phone: fmtPhoneJs(digits),
+        public_email: pubEmail || null,
         bio: $('#ob-bio').value.trim() || null,
         headshot_url,
         social_links,
