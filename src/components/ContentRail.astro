@@ -22,6 +22,8 @@
  * swipeable scroll-snap row. Never disable the animation without hiding the
  * clones, or mobile users get every card four times.
  */
+import { srcsetIfArt, SIZES_CARD } from '../lib/site';
+
 interface Item { href: string; img?: string; alt?: string; badge?: string; title: string }
 interface Pill { href: string; label: string }
 interface Props { items?: Item[]; pills?: Pill[]; cue?: string }
@@ -42,7 +44,7 @@ const pillDur = (n: number) => Math.max(28, n * 9);
         <div class="crail-set" aria-hidden={c > 0 ? 'true' : undefined} data-clone={c > 0 ? '' : undefined}>
           {items.map((it) => (
             <a class="crail-card" href={it.href} tabindex={c > 0 ? -1 : undefined}>
-              {it.img && <span class="cc-art"><img src={it.img} alt={c > 0 ? '' : (it.alt ?? '')} loading="lazy" width="480" height="270" /></span>}
+              {it.img && <span class="cc-art"><img src={it.img} srcset={srcsetIfArt(it.img)} sizes={SIZES_CARD} alt={c > 0 ? '' : (it.alt ?? '')} loading="lazy" width="480" height="270" /></span>}
               <span class="cc-body">
                 {it.badge && <span class="cc-badge">{it.badge}</span>}
                 <b>{it.title}</b>

@@ -110,6 +110,35 @@ type Art = { png: string; webp: string; alt: string; caption?: string };
 const localBlogArt = (slug: string, alt: string, caption?: string): Art => ({ png: 'https://www.protecthealth.com/assets/blog-art/' + slug + '.png', webp: '/assets/blog-art/' + slug + '.webp', alt, caption });
 const localQaArt = (slug: string, alt: string, caption?: string): Art => ({ png: 'https://www.protecthealth.com/assets/qa-art/' + slug + '.png', webp: '/assets/qa-art/' + slug + '.webp', alt, caption });
 
+// Responsive image plumbing. scripts/responsive-art.mjs writes -400 and -800
+// variants next to every editorial .webp at build time; these two helpers emit
+// the markup that lets a browser pick one. If a variant is somehow missing the
+// browser falls back to the 1200px original, so this degrades safely.
+const ART_WIDTHS = [400, 800];
+
+export function srcsetFor(webpPath: string) {
+  const stem = webpPath.replace(/\.webp$/, '');
+  return [...ART_WIDTHS.map((w) => `${stem}-${w}.webp ${w}w`), `${webpPath} 1200w`].join(', ');
+}
+
+// `sizes` tells the browser how wide the image will RENDER, which is what it
+// uses to pick from srcset. These come from the real CSS, not round numbers:
+//   hero  the .article column is max-width 780px; below that it is full-bleed
+//         inside an 18px-padded container
+//   card  auto-fit grid tracks run 240-330px on desktop and go full width once
+//         the track floor is hit on a phone
+export const SIZES_HERO = '(min-width: 816px) 780px, 100vw';
+export const SIZES_CARD = '(min-width: 700px) 360px, 100vw';
+
+// Guarded variant for shared components that receive an arbitrary image path.
+// Only the editorial art directories have generated variants, so anything
+// else returns undefined and the component omits srcset entirely rather than
+// pointing a browser at URLs that do not exist.
+export function srcsetIfArt(path: string | undefined) {
+  if (!path) return undefined;
+  return /^\/assets\/(blog-art|qa-art)\/[^/]+\.webp$/.test(path) ? srcsetFor(path) : undefined;
+}
+
 // Build an ImageObject with a real description rather than a bare url.
 export function imageObject(art: Art | undefined, fallbackUrl?: string) {
   if (!art) return fallbackUrl ? { '@type': 'ImageObject', url: fallbackUrl } : undefined;

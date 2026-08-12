@@ -3,3 +3,9 @@ dist/
 .astro/
 .env
 .DS_Store
+
+# Responsive art variants — generated at build time by scripts/responsive-art.mjs,
+# not committed. They are pure derivatives of the checked-in 1200px .webp files
+# and would triple the size of the art directories for no benefit.
+public/assets/blog-art/*-[0-9][0-9][0-9].webp
+public/assets/qa-art/*-[0-9][0-9][0-9].webp

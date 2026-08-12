@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import FAQSection from '../../components/FAQSection.astro';
-import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom, imageObject } from '../../lib/site';
+import { SITE, ORG_ID, BLOG_ART, breadcrumbSchema, speakableSchema, authorFor, personSchema, personId, citationsFrom, imageObject, srcsetFor, SIZES_HERO } from '../../lib/site';
 import AuthorByline from '../../components/AuthorByline.astro';
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getCollection, render } from 'astro:content';
@@ -122,7 +122,7 @@ const schemas = [
 
       {BLOG_ART[post.id] && (
         <figure class="hero-fig">
-          <div class="hero-img"><img src={BLOG_ART[post.id].webp} alt={BLOG_ART[post.id].alt} loading="eager" /></div>
+          <div class="hero-img"><img src={BLOG_ART[post.id].webp} srcset={srcsetFor(BLOG_ART[post.id].webp)} sizes={SIZES_HERO} alt={BLOG_ART[post.id].alt} loading="eager" fetchpriority="high" /></div>
           {BLOG_ART[post.id].caption && <figcaption>{BLOG_ART[post.id].caption}</figcaption>}
         </figure>
       )}
