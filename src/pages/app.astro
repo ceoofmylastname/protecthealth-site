@@ -387,8 +387,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .section-t{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
   .section-t::after{content:"";flex:1;height:1px;background:var(--line)}
 
-  #kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:18px;align-items:flex-start}
-  .kcol{flex:0 0 268px;background:#eef2f9;border:1px solid var(--line);border-radius:14px;max-height:calc(100vh - 240px);display:flex;flex-direction:column}
+  /* Columns stretch to a common height: equal drop targets, and the board
+     reads as one surface instead of a ragged skyline. */
+  #kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:18px;align-items:stretch;min-height:340px}
+  .kcol{flex:0 0 272px;background:#eef2f9;border:1px solid var(--line);border-radius:14px;max-height:calc(100vh - 230px);display:flex;flex-direction:column}
   .kcol-h{padding:12px 14px 8px;flex:none}
   .kcol-h .t{display:flex;align-items:center;gap:8px;font-size:.83rem;font-weight:750}
   .kcol-h .meta{font-size:.72rem;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
@@ -396,9 +398,26 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .kcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:grab;box-shadow:0 1px 2px rgba(15,23,42,.06);transition:box-shadow .15s,transform .15s}
   .kcard:hover{box-shadow:0 6px 16px -6px rgba(15,23,42,.18)}
   .kcard.dragging{opacity:.45;transform:rotate(2deg)}
-  .kcard .nm{font-weight:700;font-size:.87rem}
+  .kcard .nm{font-weight:700;font-size:.87rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .kcard .meta{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:.72rem;color:var(--muted)}
+  /* rich pipeline card: who / what line / how they came in / tags / age */
+  .kcard{padding:12px 13px}
+  .k-top{display:flex;align-items:center;gap:9px;min-width:0}
+  .k-top .avatar-sm{flex:none}
+  .k-sub{font-size:.71rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .k-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .k-chips .chip{font-size:.66rem;padding:2px 8px;line-height:1.55}
+  .chip.k-line{background:rgba(25,123,255,.1);color:#1553a8;font-weight:700}
+  .chip.k-src{background:#f1f4f9;color:#5b6b7c}
+  .k-foot{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line2);
+    font-size:.69rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .k-time{font-weight:650}
+  .k-time.is-stale{color:var(--amber)}
+  .k-added{margin-left:auto}
+  .k-val{margin-top:7px;font-weight:800;font-size:.88rem;color:var(--navy);font-variant-numeric:tabular-nums}
   .kcol-b.dropover{outline:2px dashed var(--blue);outline-offset:-4px;border-radius:11px;background:#e8effd66}
+  .kcol-empty{border:1.5px dashed #d3dce8;border-radius:11px;padding:16px 10px;text-align:center;
+    font-size:.72rem;color:#9aabc0}
 
   .cal-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
   .cal-title{font-size:1.15rem;font-weight:800;letter-spacing:-.3px;min-width:190px}
@@ -701,7 +720,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null };
+    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {} };
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -1070,6 +1089,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       state.pipelines = pipeRes.data ?? [];
       state.pipelineStages = pstgRes.data ?? [];
       state.opps = oppRes.data ?? [];
+      loadOppContacts();   // fire and forget: the board re-renders when it lands
       state.appts = apptRes.data ?? [];
       // RLS returns only this agent's scheduling row (admins may get several).
       state.mySched = (schedRes.data || []).find((s) => s.agent_id === (state.me && state.me.id)) || (schedRes.data || [])[0] || null;
@@ -1094,6 +1114,23 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     async function reloadOpps() {
       const { data } = await sb.from('ph_opportunities').select('*').order('created_at', { ascending: false });
       state.opps = data ?? [];
+      await loadOppContacts();
+    }
+    // Pipeline cards show who the person is, not just a deal title: name,
+    // how they came in, their tags and when they were added. Those live on
+    // ph_contacts, so pull just the rows the board needs (RLS still scopes
+    // this to the signed-in broker) and key them by contact id.
+    async function loadOppContacts() {
+      const ids = [...new Set((state.opps || []).map((o) => o.contact_id).filter(Boolean))].slice(0, 900);
+      if (!ids.length) { state.oppContacts = {}; return; }
+      const { data } = await sb.from('ph_contacts')
+        .select('ghl_contact_id, first_name, last_name, email, phone, source, origin, tags, disposition, ghl_date_added')
+        .in('ghl_contact_id', ids);
+      const map = {};
+      (data || []).forEach((c) => { map[c.ghl_contact_id] = c; });
+      state.oppContacts = map;
+      // First paint can beat this fetch; repaint the board once names land.
+      if (currentRoute === 'pipeline') renderPipeline($('#view'));
     }
     async function reloadAppts() {
       const { data } = await sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at');
@@ -1952,19 +1989,63 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div class="cell-sub">${total} deal${total === 1 ? '' : 's'} in ${esc(pipe.name)}</div>
         </div>
         <div id="kanban">${stages.map((s) => {
-          const items = state.opps.filter((o) => o.pipeline_id === pipe.id && o.stage_id === s.id);
+          // Oldest-in-stage first: what has been sitting longest needs the call.
+          const items = state.opps
+            .filter((o) => o.pipeline_id === pipe.id && o.stage_id === s.id)
+            .sort((a, b) => +new Date(a.stage_entered_at || a.created_at || 0) - +new Date(b.stage_entered_at || b.created_at || 0));
+          const stale = items.filter((o) => o.stage_entered_at && (Date.now() - +new Date(o.stage_entered_at)) / 864e5 >= STALE_DAYS).length;
           const dot = s.is_won ? 'var(--green)' : s.is_lost ? 'var(--red)' : s.position === 1 ? 'var(--blue)' : s.position === 2 ? 'var(--amber)' : 'var(--violet)';
           return `<div class="kcol">
-            <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.name)}</div><div class="meta">${items.length}</div></div>
-            <div class="kcol-b" data-stage="${s.id}">${items.map(oppCard).join('')}</div>
+            <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.name)}</div>
+              <div class="meta">${items.length} deal${items.length === 1 ? '' : 's'}${stale ? ` · <span style="color:var(--amber);font-weight:700">${stale} aging</span>` : ''}</div></div>
+            <div class="kcol-b" data-stage="${s.id}">${items.map(oppCard).join('') || '<div class="kcol-empty">Drop a deal here</div>'}</div>
           </div>`;
         }).join('')}</div>`;
       $('#pipe-line', v).addEventListener('change', (e) => { pipeLineKey = e.target.value; renderPipeline(v); });
       wirePipe(v);
     }
-    const oppCard = (o) => `<div class="kcard" draggable="true" data-opp="${o.id}" data-contact="${esc(o.contact_id)}">
-      <div class="nm">${esc(o.title || 'Untitled')}</div>
-      <div class="meta"><span class="chip">${esc(pipeName(o.line_key))}</span>${o.value ? '$' + Number(o.value).toLocaleString() : esc(fmtDate(o.created_at))}</div></div>`;
+    // "3d in stage" / "today" — how long this deal has sat where it is.
+    function inStage(ts) {
+      if (!ts) return '';
+      const days = Math.floor((Date.now() - +new Date(ts)) / 864e5);
+      if (days <= 0) return 'today';
+      if (days === 1) return '1 day';
+      if (days < 30) return days + ' days';
+      const mo = Math.floor(days / 30);
+      return mo + (mo === 1 ? ' month' : ' months');
+    }
+    const STALE_DAYS = 14;   // amber flag past this, so nothing quietly rots
+
+    const oppCard = (o) => {
+      const c = (state.oppContacts || {})[o.contact_id] || {};
+      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || o.title || 'Untitled';
+      const how = (c.source && String(c.source).trim())
+        || ({ landing: 'Landing Page', crm: 'Added by broker', lead: 'Website form' }[c.origin] || '');
+      const tags = Array.isArray(c.tags) ? c.tags.filter(Boolean).slice(0, 3) : [];
+      const extraTags = Array.isArray(c.tags) ? Math.max(0, c.tags.length - 3) : 0;
+      const days = o.stage_entered_at ? Math.floor((Date.now() - +new Date(o.stage_entered_at)) / 864e5) : 0;
+      const stale = days >= STALE_DAYS;
+      return `<div class="kcard" draggable="true" data-opp="${o.id}" data-contact="${esc(o.contact_id)}">
+      <div class="k-top">
+        <span class="avatar-sm" style="background:${avColor(name)}">${initials(name)}</span>
+        <div style="min-width:0">
+          <div class="nm">${esc(name)}</div>
+          ${c.email || c.phone ? `<div class="k-sub">${esc(c.email || c.phone)}</div>` : ''}
+        </div>
+      </div>
+      <div class="k-chips">
+        <span class="chip k-line">${esc(pipeName(o.line_key))}</span>
+        ${how ? `<span class="chip k-src" title="How they came in">${esc(how)}</span>` : ''}
+        ${tags.map((t) => `<span class="chip tag">${esc(t)}</span>`).join('')}
+        ${extraTags ? `<span class="chip">+${extraTags}</span>` : ''}
+      </div>
+      <div class="k-foot">
+        <span class="k-time${stale ? ' is-stale' : ''}" title="Time in this stage">${stale ? '⚠ ' : ''}${esc(inStage(o.stage_entered_at))} in stage</span>
+        <span class="k-added" title="Date added">${esc(fmtDate(c.ghl_date_added || o.created_at))}</span>
+      </div>
+      ${o.value ? `<div class="k-val">$${Number(o.value).toLocaleString()}</div>` : ''}
+    </div>`;
+    };
     function wirePipe(v) {
       let dragId = null, didDrag = false;
       $$('.kcard', v).forEach((c) => {
@@ -1982,14 +2063,17 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           const o = state.opps.find((x) => x.id === dragId);
           if (!o || o.stage_id === stageId) return;
           const stage = state.pipelineStages.find((s) => s.id === stageId);
-          const prev = o.stage_id, prevStatus = o.status;
+          const prev = o.stage_id, prevStatus = o.status, prevEntered = o.stage_entered_at;
           o.stage_id = stageId;
           o.status = stage?.is_won ? 'won' : stage?.is_lost ? 'lost' : 'open';
+          // The DB trigger stamps this server-side; mirror it locally so the
+          // card's "in stage" resets the instant it lands.
+          o.stage_entered_at = new Date().toISOString();
           renderPipeline(v);
           const { error } = await sb.from('ph_opportunities')
             .update({ stage_id: stageId, status: o.status, updated_at: new Date().toISOString() })
             .eq('id', dragId);
-          if (error) { o.stage_id = prev; o.status = prevStatus; renderPipeline(v); toast('Could not move that deal.'); }
+          if (error) { o.stage_id = prev; o.status = prevStatus; o.stage_entered_at = prevEntered; renderPipeline(v); toast('Could not move that deal.'); }
           else { toast('Moved to ' + (stage ? stage.name : 'stage')); }
         });
       });
