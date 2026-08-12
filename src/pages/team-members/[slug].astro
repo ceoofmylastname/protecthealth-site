@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { SITE, ORG_ID, TEAM, breadcrumbSchema } from '../../lib/site';
+import { SITE, ORG_ID, TEAM, AUTHORS, personSchema, personId, breadcrumbSchema } from '../../lib/site';
 
 export function getStaticPaths() {
   return TEAM.map((m) => ({ params: { slug: m.slug }, props: { member: m } }));
@@ -8,15 +8,33 @@ export function getStaticPaths() {
 const { member } = Astro.props;
 const pageUrl = `${SITE.domain}/team-members/${member.slug}`;
 
+// This page is the canonical home of the Person entity: every article byline
+// references `{domain}/team-members/{slug}#person` by @id, and that @id has to
+// actually be DECLARED here or the reference points at a page that never
+// claims the identity.
+//
+// It used to hand-roll a minimal Person node with no @id at all, so articles
+// pointed at an entity this page did not define, and the richer fields
+// (description, knowsAbout, sameAs) existed on article pages but not on the
+// profile itself. Backwards.
+//
+// The three bylined brokers have AUTHORS entries and get the full node from
+// personSchema(). The other team members are not authors and have no AUTHORS
+// entry, so they get a minimal node — but with the @id, so the entity is
+// identified consistently either way.
+const author = AUTHORS[member.slug];
 const schemas = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: member.name,
-    jobTitle: member.role,
-    worksFor: { '@id': ORG_ID },
-    url: pageUrl,
-  },
+  author
+    ? { '@context': 'https://schema.org', ...personSchema(author) }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        '@id': personId(member.slug),
+        name: member.name,
+        jobTitle: member.role,
+        worksFor: { '@id': ORG_ID },
+        url: pageUrl,
+      },
   breadcrumbSchema([
     { name: 'Home', url: `${SITE.domain}/` },
     { name: 'Our Team', url: `${SITE.domain}/our-team` },
@@ -46,6 +64,19 @@ const schemas = [
           ) : (
             <p>{member.name} helps Nevadans build coverage strategies across health, life, dental, vision, Medicare, and employer benefits, starting with the person, not the product.</p>
           )}
+          {/* Visible counterpart to Person.sameAs. A profile link that exists
+              only in JSON-LD asks an engine to take our word for it; a real
+              link a reader can click is the verification. Renders only for
+              the brokers who have actually supplied one. */}
+          {author?.sameAs?.length ? (
+            <p class="profile-links">
+              {author.sameAs.map((url) => (
+                <a href={url} target="_blank" rel="noopener noreferrer me">
+                  {url.includes('linkedin.com') ? `${member.name.split(' ')[0]} on LinkedIn` : url}
+                </a>
+              ))}
+            </p>
+          ) : null}
           <a href="/talk-to-a-broker" class="btn" style="margin-top:10px;">Book A Conversation With {member.name.split(' ')[0]}</a>
         </div>
       </div>
