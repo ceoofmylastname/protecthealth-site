@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import '../../styles/admin-chrome.css';
 
 // The house-wide contact book. This is the ONLY place the whole database is
 // visible: /app is deliberately a personal desk, so an admin working there sees
@@ -133,6 +134,9 @@ const SUPABASE_ANON =
     background: #eef3f8; border: 1.5px solid var(--line); border-radius: 12px;
     padding: 11px 14px; margin-bottom: 14px;
   }
+  /* Same trap as the ticket modal: a class rule with a display value beats the
+   * UA's `[hidden]`, so this bar showed with nothing selected. */
+  .ac-bulk[hidden] { display: none; }
   .ac-bulk-n { font-weight: 800; color: var(--navy, #0b2a4a); font-size: 0.9rem; }
   .ac-bulk select { padding: 8px 11px; border: 1.5px solid var(--line); border-radius: 9px; font-family: var(--font); font-size: 0.86rem; background: #fff; }
   .ac-bulk button { padding: 8px 15px; border: 0; border-radius: 9px; font-family: var(--font); font-weight: 700; font-size: 0.86rem; cursor: pointer; }

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import '../../styles/admin-chrome.css';
 
 // Support Tickets — the native replacement for the GoHighLevel Ticketing System
 // (workflows 000, 001, 003, 004, 005, 006).
@@ -184,6 +185,9 @@ const SUPABASE_ANON =
 
   /* ---------- modal ---------- */
   .tk-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px 14px; }
+  /* A class selector with a display value outranks the UA's `[hidden]` rule, so
+   * without this the dialog paints over every page load as an empty white bar. */
+  .tk-modal[hidden] { display: none; }
   .tk-modal-back { position: absolute; inset: 0; background: rgba(11,42,74,.42); backdrop-filter: blur(2px); }
   .tk-modal-card { position: relative; background: #fff; border-radius: 18px; width: min(760px, 100%);
     max-height: 88vh; overflow: auto; box-shadow: 0 24px 70px rgba(11,42,74,.28); padding: 26px 26px 30px; }

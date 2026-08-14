@@ -1,0 +1,70 @@
+/* Shared chrome for every /admin page: the shell, the sign-in and denied cards,
+ * the header + nav, the stat row and the toolbar primitives.
+ *
+ * This used to live in a `<style is:global>` block inside admin.astro. Astro
+ * bundles page styles per page, not globally, so "is:global" only ever meant
+ * global *within that page* — /admin/contacts, /admin/calendar, /admin/staff,
+ * /admin/campaigns and /admin/tickets all rendered their headers, stat cards
+ * and login panels completely unstyled. Nothing looked obviously broken on the
+ * table-heavy pages, which is why it went unnoticed until the ticket board.
+ *
+ * Import it from the frontmatter of every admin page. One copy, bundled once,
+ * shared by all of them.
+ */
+
+.ad { padding: 40px 0 80px; min-height: 70vh; background: var(--bg-soft); }
+.ad-center { display: grid; place-items: center; min-height: 60vh; }
+.ad-muted { color: var(--muted); font-size: 0.92rem; }
+
+.ad-card {
+  background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.ad-login { max-width: 430px; width: 100%; padding: 34px; text-align: center; }
+.ad-login h1 { font-size: 1.9rem; margin: 4px 0 10px; }
+.ad-login-form { display: grid; gap: 11px; margin-top: 20px; }
+.ad-login-form input {
+  width: 100%; padding: 13px 16px; border-radius: 11px; border: 1.5px solid var(--line);
+  font-family: var(--font); font-size: 1rem; text-align: center;
+}
+.ad-login-form input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(25,123,255,0.13); }
+.ad-login-form .btn { justify-content: center; }
+.ad-status { margin-top: 14px; font-size: 0.9rem; font-weight: 700; color: var(--accent); min-height: 1.2em; }
+.ad-status.is-bad { color: #c0392b; }
+
+.ad-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+.ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+.ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+.ad-nav a.is-on, .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+.ad-head h1 { font-size: clamp(1.5rem, 3vw, 2.1rem); margin: 2px 0 0; }
+.ad-head-right { display: flex; align-items: center; gap: 14px; }
+.ad-who { font-weight: 700; }
+
+.ad-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-bottom: 22px; }
+.ad-stat {
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(150deg, rgba(25,123,255,0.3), rgba(15,53,103,0.1)) border-box;
+  border: 1.5px solid transparent; border-radius: 15px; padding: 16px 18px;
+}
+.ad-stat b { display: block; font-family: var(--font-display); font-size: 1.8rem; color: var(--navy); line-height: 1.1; }
+.ad-stat span { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+
+.ad-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.ad-search { flex: 1 1 240px; padding: 11px 15px; border-radius: 11px; border: 1.5px solid var(--line); font-family: var(--font); font-size: 0.95rem; }
+.ad-search:focus { outline: none; border-color: var(--blue); }
+.ad-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.ad-chip {
+  padding: 9px 15px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff;
+  font-family: var(--font); font-size: 0.82rem; font-weight: 800; color: var(--muted); cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.ad-chip:hover { border-color: var(--blue); color: var(--blue); }
+.ad-chip.is-on { background: linear-gradient(120deg, var(--blue), #19c8ff); border-color: transparent; color: #fff; }
+.ad-refresh { width: 40px; height: 40px; border-radius: 11px; border: 1.5px solid var(--line); background: #fff; color: var(--navy); font-size: 1.1rem; cursor: pointer; }
+.ad-refresh:hover { border-color: var(--blue); color: var(--blue); }
+
+/* A page-level [hidden] view must actually stay hidden. Any rule that gives one
+ * of these a display value would otherwise beat the UA's `[hidden］{display:none}`
+ * on specificity alone, which is exactly how the ticket modal ended up painted
+ * across every page load. Keep this last.
+ */
+.ad-view[hidden] { display: none !important; }
