@@ -803,7 +803,21 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {} };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {} };
+
+    // ---- personal scope ----
+    // This app is a BROKER's desk, including when the broker happens to be an
+    // admin. RLS alone does not give us that: its admin policy is a house-wide
+    // read, so before this an admin opening /app saw all 8,200 contacts, every
+    // broker's pipeline and everyone's availability mixed into their own.
+    // Every agent-owned read therefore carries an explicit agent_id filter.
+    // For a broker it is redundant with RLS and costs nothing; for an admin it
+    // is the whole point. House-wide reading lives at /admin/contacts.
+    //
+    // A UUID that matches nothing, so an admin with no roster row of their own
+    // gets a clean empty desk rather than an unfiltered query.
+    const NO_AGENT = '00000000-0000-0000-0000-000000000000';
+    const mine = (q) => q.eq('agent_id', state.agentId || NO_AGENT);
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -868,6 +882,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!me && !state.isAdmin) { view('denied'); return; }
       state.me = me || { full_name: email };
       state.uid = uid;
+      // Drives mine(). Null for an admin who is not on the roster: they get an
+      // empty personal desk and do their house-wide work under /admin.
+      state.agentId = me?.id ?? null;
 
       // First login: a broker who hasn't finished their profile lands on the
       // onboarding form before the dashboard — Rob's "collect it all in the room"
@@ -1197,6 +1214,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (state.isAdmin) {
         html += '<div class="nav-sec">Admin</div>';
         html += `<a class="nav-item" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.leads}</svg>All Leads</a>`;
+        // The house-wide book. Everything above this line in the sidebar is the
+        // signed-in person's own desk, admin or not.
+        html += `<a class="nav-item" href="/admin/contacts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>All Contacts</a>`;
         html += `<a class="nav-item" href="/admin/campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.calendar}</svg>Campaigns</a>`;
         html += `<a class="nav-item" href="/admin/staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>Staff</a>`;
       }
@@ -1204,20 +1224,20 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $$('.nav-item[data-route]', n).forEach((b) => b.addEventListener('click', () => go(b.dataset.route)));
     }
 
-    // ---- data load (RLS scopes everything to this user automatically) ----
+    // ---- data load (RLS + mine() scope everything to this user's own book) ----
     async function loadData() {
       const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes, tagRes] = await Promise.all([
-        sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000),
+        mine(sb.from('ph_leads').select('*')).order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
-        sb.from('ph_agent_calendars').select('*'),
-        sb.from('ph_contacts').select('*', { count: 'exact', head: true }),
+        mine(sb.from('ph_agent_calendars').select('*')),
+        mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })),
         sb.from('ph_carriers').select('id, name, is_active').eq('is_active', true).order('name'),
         sb.from('ph_pipelines').select('*').eq('is_active', true).order('position'),
         sb.from('ph_pipeline_stages').select('*').order('position'),
-        sb.from('ph_opportunities').select('*').order('created_at', { ascending: false }),
-        sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at'),
-        sb.from('ph_agent_scheduling').select('*'),
-        sb.from('ph_companies').select('*').order('name'),
+        mine(sb.from('ph_opportunities').select('*')).order('created_at', { ascending: false }),
+        mine(sb.from('ph_appointments').select('*').eq('status', 'booked')).order('start_at'),
+        mine(sb.from('ph_agent_scheduling').select('*')),
+        mine(sb.from('ph_companies').select('*')).order('name'),
         sb.from('ph_custom_fields').select('*').eq('is_active', true).order('position'),
         sb.from('ph_tags').select('*').eq('is_active', true).order('position'),
       ]);
@@ -1231,8 +1251,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       state.opps = oppRes.data ?? [];
       loadOppContacts();   // fire and forget: the board re-renders when it lands
       state.appts = apptRes.data ?? [];
-      // RLS returns only this agent's scheduling row (admins may get several).
-      state.mySched = (schedRes.data || []).find((s) => s.agent_id === (state.me && state.me.id)) || (schedRes.data || [])[0] || null;
+      // mine() already narrows this to the one row, so the find() is belt and
+      // braces rather than the thing doing the work.
+      state.mySched = (schedRes.data || []).find((s) => s.agent_id === state.agentId) || (schedRes.data || [])[0] || null;
       state.companies = coRes.data ?? [];
       state.customFields = cfRes.data ?? [];
       state.adminTags = tagRes.data ?? [];
@@ -1252,7 +1273,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       return fromLeads.concat(fromNative).sort((a, b) => +new Date(a.when) - +new Date(b.when));
     }
     async function reloadOpps() {
-      const { data } = await sb.from('ph_opportunities').select('*').order('created_at', { ascending: false });
+      const { data } = await mine(sb.from('ph_opportunities').select('*')).order('created_at', { ascending: false });
       state.opps = data ?? [];
       await loadOppContacts();
     }
@@ -1263,8 +1284,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     async function loadOppContacts() {
       const ids = [...new Set((state.opps || []).map((o) => o.contact_id).filter(Boolean))].slice(0, 900);
       if (!ids.length) { state.oppContacts = {}; return; }
-      const { data } = await sb.from('ph_contacts')
-        .select('ghl_contact_id, first_name, last_name, email, phone, source, origin, tags, disposition, ghl_date_added')
+      const { data } = await mine(sb.from('ph_contacts')
+        .select('ghl_contact_id, first_name, last_name, email, phone, source, origin, tags, disposition, ghl_date_added'))
         .in('ghl_contact_id', ids);
       const map = {};
       (data || []).forEach((c) => { map[c.ghl_contact_id] = c; });
@@ -1273,11 +1294,11 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (currentRoute === 'pipeline') renderPipeline($('#view'));
     }
     async function reloadAppts() {
-      const { data } = await sb.from('ph_appointments').select('*').eq('status', 'booked').order('start_at');
+      const { data } = await mine(sb.from('ph_appointments').select('*').eq('status', 'booked')).order('start_at');
       state.appts = data ?? [];
     }
     async function reloadLeadsLite() {
-      const { data } = await sb.from('ph_leads').select('*').order('created_at', { ascending: false }).limit(2000);
+      const { data } = await mine(sb.from('ph_leads').select('*')).order('created_at', { ascending: false }).limit(2000);
       if (data) state.leads = data;
     }
     async function reloadCarriers() {
@@ -1321,7 +1342,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       }
       // Keep the Contacts badge honest: contacts created by landing-page
       // bookings and round robin arrive server-side while the app is open.
-      sb.from('ph_contacts').select('*', { count: 'exact', head: true }).then(({ count }) => {
+      mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).then(({ count }) => {
         if (count != null && count !== state.contactCount) { state.contactCount = count; buildNav(); }
       });
     }
@@ -1340,13 +1361,14 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // Everything on the dashboard reads CONTACTS / OPPORTUNITIES / POLICIES via
     // ph_dashboard_stats(). It used to read ph_leads (the old GHL intake log),
     // which went stale the moment leads were merged into contacts: a broker with
-    // real contacts, deals and appointments saw zeros. The RPC is scoped by the
-    // same rules as RLS, so an admin sees the house and a broker sees their book.
+    // real contacts, deals and appointments saw zeros. Called with no argument
+    // the RPC reports the CALLER'S OWN book, admin or not, which is what this
+    // desk is for. /admin passes p_all for the house-wide numbers.
     async function loadDash() {
       const [statsRes, recentRes] = await Promise.all([
         sb.rpc('ph_dashboard_stats'),
-        sb.from('ph_contacts')
-          .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, ghl_date_added')
+        mine(sb.from('ph_contacts')
+          .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, ghl_date_added'))
           .order('ghl_date_added', { ascending: false, nullsFirst: false }).limit(8),
       ]);
       if (statsRes.data) state.dash = statsRes.data;
@@ -1687,7 +1709,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // Company record drawer: company data + the people tied to it.
     async function openCompany(coId) {
       const co = state.companies.find((x) => x.id === coId); if (!co) return;
-      const { data: people } = await sb.from('ph_contacts').select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition').eq('company_id', coId).order('first_name');
+      const { data: people } = await mine(sb.from('ph_contacts').select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition')).eq('company_id', coId).order('first_name');
       openDrawer(`
         <div class="drawer-h">
           <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(co.name)}">${initials(co.name)}</span>
@@ -1745,7 +1767,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const custom = {};
         if (f.hire_date.value) custom.hire_date = f.hire_date.value;
         const { error } = await sb.from('ph_contacts').insert({
-          ghl_contact_id: cid, origin: 'crm', agent_id: state.me.id,
+          ghl_contact_id: cid, origin: 'crm', agent_id: state.agentId,
           first_name: f.first_name.value.trim(), last_name: f.last_name.value.trim() || null,
           email: f.email.value.trim() || null, phone: f.phone.value.trim() || null,
           company: co.name, company_id: co.id, job_title: f.job_title.value.trim() || null,
@@ -1972,7 +1994,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const needsPolicies = cFilters.polStatus || cFilters.premMin || cFilters.premMax ||
         (cFilters.line && (cFilters.polStatus || cFilters.premMin || cFilters.premMax));
       if (needsPolicies || cFilters.polStatus) {
-        let pq = sb.from('ph_policies').select('contact_id, premium, premium_freq');
+        let pq = mine(sb.from('ph_policies').select('contact_id, premium, premium_freq'));
         if (cFilters.line) pq = pq.eq('line', cFilters.line);
         if (cFilters.polStatus) pq = pq.eq('status', cFilters.polStatus);
         if (cFilters.carrier_id) pq = pq.eq('carrier_id', cFilters.carrier_id);
@@ -1990,7 +2012,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         // Carrier filter alone: match via linked carriers OR any policy at that carrier.
         const [{ data: links }, { data: pols }] = await Promise.all([
           sb.from('ph_contact_carriers').select('contact_id').eq('carrier_id', cFilters.carrier_id),
-          sb.from('ph_policies').select('contact_id').eq('carrier_id', cFilters.carrier_id),
+          mine(sb.from('ph_policies').select('contact_id')).eq('carrier_id', cFilters.carrier_id),
         ]);
         idSet = new Set([...(links || []).map((r) => r.contact_id), ...(pols || []).map((r) => r.contact_id)]);
       }
@@ -2004,7 +2026,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         $('#c-count', v).textContent = '0 contacts'; $('#c-pager', v).innerHTML = ''; return;
       }
 
-      let q = sb.from('ph_contacts').select('*', { count: 'exact' }).order('ghl_date_added', { ascending: false, nullsFirst: false });
+      let q = mine(sb.from('ph_contacts').select('*', { count: 'exact' })).order('ghl_date_added', { ascending: false, nullsFirst: false });
       if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`); }
       if (cFilters.tag) q = q.contains('tags', [cFilters.tag]);
       if (cFilters.disposition) q = q.eq('disposition', cFilters.disposition);
@@ -2027,7 +2049,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         });
       }
       if (pageIds.length && cCols.includes('policies')) {
-        const { data: pols } = await sb.from('ph_policies').select('contact_id, line, status, premium, premium_freq').in('contact_id', pageIds);
+        const { data: pols } = await mine(sb.from('ph_policies').select('contact_id, line, status, premium, premium_freq')).in('contact_id', pageIds);
         (pols || []).forEach((p) => { (policyMap[p.contact_id] ||= []).push(p); });
       }
 
@@ -2494,7 +2516,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // LEFT client data · MIDDLE activity · RIGHT notes + appointments.
     async function openContact(cid, cached) {
       let c = (cached || []).find((x) => x.ghl_contact_id === cid);
-      if (!c) { const { data } = await sb.from('ph_contacts').select('*').eq('ghl_contact_id', cid).maybeSingle(); c = data; }
+      if (!c) { const { data } = await mine(sb.from('ph_contacts').select('*')).eq('ghl_contact_id', cid).maybeSingle(); c = data; }
       if (!c) return;
       currentRoute = 'contact-record';
       $('#page-title').textContent = nameOf(c);
@@ -2505,7 +2527,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // Pull the carriers linked to this client (RLS-scoped) + their policies.
       const [{ data: links }, { data: policies }] = await Promise.all([
         sb.from('ph_contact_carriers').select('carrier_id').eq('contact_id', cid),
-        sb.from('ph_policies').select('*').eq('contact_id', cid).order('created_at', { ascending: false }),
+        mine(sb.from('ph_policies').select('*')).eq('contact_id', cid).order('created_at', { ascending: false }),
       ]);
       const linkedIds = new Set((links || []).map((r) => r.carrier_id));
       const carrierNames = state.carriers.filter((x) => linkedIds.has(x.id)).map((x) => x.name);
@@ -2755,7 +2777,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // Native landing-page bookings, with whatever the visitor typed in the
       // notes box front and center — that note is the best prep for the call.
       try {
-        let q = sb.from('ph_appointments').select('*');
+        let q = mine(sb.from('ph_appointments').select('*'));
         q = email
           ? q.or(`contact_id.eq.${c.ghl_contact_id},invitee_email.eq.${email}`)
           : q.eq('contact_id', c.ghl_contact_id);
@@ -2785,7 +2807,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         .filter((l) => l.ghl_contact_id === c.ghl_contact_id && l.appointment_start)
         .map((l) => ({ when: l.appointment_start, sub: l.kind || 'appointment', note: null }));
       const email = (c.email || '').toLowerCase();
-      let q = sb.from('ph_appointments').select('*').eq('status', 'booked');
+      let q = mine(sb.from('ph_appointments').select('*').eq('status', 'booked'));
       q = email
         ? q.or(`contact_id.eq.${c.ghl_contact_id},invitee_email.eq.${email}`)
         : q.eq('contact_id', c.ghl_contact_id);

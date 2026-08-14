@@ -1,0 +1,493 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// The house-wide contact book. This is the ONLY place the whole database is
+// visible: /app is deliberately a personal desk, so an admin working there sees
+// their own contacts and nothing else. Everything house-wide — the 3,000-odd
+// records nobody owns, another broker's book, reassigning an owner — happens
+// here.
+//
+// Reassignment is the reason this page exists rather than being a read-only
+// report. An unowned contact is invisible to every broker in the company, so
+// the only way it turns into work is an admin handing it to somebody.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="All Contacts, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad ac" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>All Contacts</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts" class="is-on">All Contacts</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/app">My CRM</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="total">—</b><span>Contacts in the database</span></div>
+          <div class="ad-stat spot"><b data-stat="unassigned">—</b><span>With no owner</span></div>
+          <div class="ad-stat spot"><b data-stat="active">—</b><span>Active clients</span></div>
+          <div class="ad-stat spot"><b data-stat="new30">—</b><span>Added in 30 days</span></div>
+        </div>
+
+        <p class="ac-note ad-muted">
+          A contact with no owner is invisible to every broker in the company — it only becomes
+          somebody's work once it has a name against it. Assign from the Owner column, or tick
+          several and assign them together.
+        </p>
+
+        <div class="ad-toolbar ac-toolbar">
+          <input type="search" class="ac-search" placeholder="Search name, email or phone…" aria-label="Search contacts" />
+          <select class="ac-owner-filter" aria-label="Filter by owner">
+            <option value="">Every owner</option>
+            <option value="__none">No owner</option>
+          </select>
+          <select class="ac-disp-filter" aria-label="Filter by disposition">
+            <option value="">Any disposition</option>
+          </select>
+          <button type="button" class="cm-btn ac-clear">Clear filters</button>
+        </div>
+
+        <div class="ac-bulk" hidden>
+          <span class="ac-bulk-n"></span>
+          <select class="ac-bulk-owner" aria-label="Assign selected to">
+            <option value="">Assign selected to…</option>
+          </select>
+          <button type="button" class="ac-bulk-go">Assign</button>
+          <button type="button" class="ac-bulk-clear">Clear selection</button>
+          <span class="ac-bulk-status" role="status"></span>
+        </div>
+
+        <p class="ac-count ad-muted"></p>
+        <div class="ac-list"></div>
+        <div class="ac-pager"></div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .ac .ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+  .ac .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .ac .ad-nav a.is-on, .ac .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .ac-note { margin: -6px 0 18px; font-size: 0.86rem; max-width: 76ch; line-height: 1.65; }
+
+  .ac-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .ac-toolbar input, .ac-toolbar select {
+    padding: 10px 13px; border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink);
+  }
+  .ac-search { flex: 1 1 260px; min-width: 0; }
+  .ac-toolbar input:focus, .ac-toolbar select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+
+  .ac-bulk {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: #eef3f8; border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 11px 14px; margin-bottom: 14px;
+  }
+  .ac-bulk-n { font-weight: 800; color: var(--navy, #0b2a4a); font-size: 0.9rem; }
+  .ac-bulk select { padding: 8px 11px; border: 1.5px solid var(--line); border-radius: 9px; font-family: var(--font); font-size: 0.86rem; background: #fff; }
+  .ac-bulk button { padding: 8px 15px; border: 0; border-radius: 9px; font-family: var(--font); font-weight: 700; font-size: 0.86rem; cursor: pointer; }
+  .ac-bulk-go { background: var(--navy, #0b2a4a); color: #fff; }
+  .ac-bulk-go:hover { background: var(--blue); }
+  .ac-bulk-go:disabled { opacity: .55; cursor: default; }
+  .ac-bulk-clear { background: #fff; border: 1.5px solid var(--line) !important; color: var(--ink); }
+  .ac-bulk-status { font-size: 0.85rem; color: var(--muted); }
+  .ac-bulk-status.is-bad { color: #b3261e; }
+  .ac-bulk-status.is-good { color: #0a7d3c; }
+
+  .ac-count { font-size: 0.84rem; margin: 0 0 10px; }
+
+  .ac-list { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; }
+  .ac-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .ac-table th {
+    text-align: left; padding: 12px 14px; font-size: 0.72rem; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--line); white-space: nowrap;
+  }
+  .ac-table td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .ac-table tr:last-child td { border-bottom: 0; }
+  .ac-table tr.is-picked td { background: #f3f8ff; }
+  .ac-nm { font-weight: 700; color: var(--ink); }
+  .ac-sub { color: var(--muted); font-size: 0.82rem; }
+  .ac-sub a { color: var(--blue); text-decoration: none; }
+  .ac-pick { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+
+  .ac-pill { font-size: 0.68rem; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: #eef3f8; color: #5a6f85; white-space: nowrap; }
+  .ac-pill.green { background: #e6f7ed; color: #16803c; }
+  .ac-pill.blue { background: #eaf3ff; color: #0f3567; }
+  .ac-pill.amber { background: #fdf3e3; color: #96690d; }
+  .ac-pill.red { background: #fdecea; color: #b3261e; }
+
+  .ac-own { padding: 7px 10px; border: 1.5px solid var(--line); border-radius: 9px; font-family: var(--font); font-size: 0.84rem; background: #fff; max-width: 210px; }
+  .ac-own:focus { outline: none; border-color: var(--blue); }
+  .ac-own.is-none { border-color: #e6c98a; background: #fffaf0; }
+  .ac-own:disabled { opacity: .55; }
+  .ac-saved { font-size: 0.78rem; font-weight: 700; color: #16803c; margin-left: 7px; }
+  .ac-saved.is-bad { color: #b3261e; }
+
+  .ac-pager { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 16px 0 4px; flex-wrap: wrap; }
+  .ac-pager button {
+    padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff;
+    font-family: var(--font); font-weight: 700; font-size: 0.85rem; cursor: pointer; color: var(--ink);
+  }
+  .ac-pager button:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+  .ac-pager button:disabled { opacity: .45; cursor: default; }
+  .ac-pager span { font-size: 0.85rem; color: var(--muted); }
+  .ac-empty { padding: 30px; text-align: center; color: var(--muted); }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.ac');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    const PER = 50;
+    const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
+    const PILL = {
+      'Active Client': 'green', 'Lead': 'blue', 'Follow-Up': 'amber',
+      'Wrong Number': 'red', 'Do Not Call': 'red',
+    };
+
+    let agents = [];          // active roster, for the owner dropdowns
+    let agentName = new Map();
+    let rows = [];
+    let total = 0;
+    let page = 0;
+    let query = '';
+    let ownerFilter = '';     // '' = any, '__none' = unassigned, else agent id
+    let dispFilter = '';
+    let picked = new Set();
+    let searchTimer = null;
+
+    const fmtPhone = (p) => {
+      const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
+      return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : (p || '');
+    };
+    const fmtDate = (s) => {
+      if (!s) return '';
+      const d = new Date(s);
+      return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    const nameOf = (c) => [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || '(no name)';
+
+    // ---------- sign in / out ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/contacts` },
+      });
+      if (error) { status.classList.add('is-bad'); status.textContent = error.message; }
+      else status.textContent = 'Check your inbox. The link signs you straight in.';
+    });
+
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => {
+      await sb.auth.signOut(); location.reload();
+    }));
+
+    // ---------- filters ----------
+    $('.ac-search').addEventListener('input', (e) => {
+      // Typing hits an 8,000-row table, so wait for a pause rather than firing
+      // a query per keystroke.
+      clearTimeout(searchTimer);
+      const v = e.target.value.trim();
+      searchTimer = setTimeout(() => { query = v; page = 0; clearPicks(); loadRows(); }, 300);
+    });
+    $('.ac-owner-filter').addEventListener('change', (e) => { ownerFilter = e.target.value; page = 0; clearPicks(); loadRows(); });
+    $('.ac-disp-filter').addEventListener('change', (e) => { dispFilter = e.target.value; page = 0; clearPicks(); loadRows(); });
+    $('.ac-clear').addEventListener('click', () => {
+      query = ''; ownerFilter = ''; dispFilter = ''; page = 0;
+      $('.ac-search').value = ''; $('.ac-owner-filter').value = ''; $('.ac-disp-filter').value = '';
+      clearPicks(); loadRows();
+    });
+
+    // ---------- selection + bulk assign ----------
+    function clearPicks() { picked.clear(); paintBulk(); }
+    function paintBulk() {
+      const bar = $('.ac-bulk');
+      bar.hidden = picked.size === 0;
+      $('.ac-bulk-n').textContent = picked.size === 1 ? '1 contact selected' : `${picked.size} contacts selected`;
+      $$('.ac-table tr[data-cid]').forEach((tr) => tr.classList.toggle('is-picked', picked.has(tr.getAttribute('data-cid'))));
+    }
+    $('.ac-bulk-clear').addEventListener('click', () => { clearPicks(); renderRows(); });
+
+    $('.ac-bulk-go').addEventListener('click', async () => {
+      const sel = $('.ac-bulk-owner');
+      const val = sel.value;
+      const st = $('.ac-bulk-status');
+      st.classList.remove('is-good', 'is-bad');
+      if (!val) { st.textContent = 'Pick who they go to first.'; st.classList.add('is-bad'); return; }
+      const ids = Array.from(picked);
+      const who = val === '__none' ? 'no owner' : (agentName.get(val) || 'that broker');
+      if (!confirm(`Assign ${ids.length} contact${ids.length === 1 ? '' : 's'} to ${who}?`)) return;
+
+      const btn = $('.ac-bulk-go');
+      btn.disabled = true; st.textContent = 'Assigning…';
+      // Chunked so one oversized URL cannot fail the whole batch.
+      let done = 0, failed = 0;
+      for (let i = 0; i < ids.length; i += 100) {
+        const slice = ids.slice(i, i + 100);
+        const { error } = await sb.from('ph_contacts')
+          .update({ agent_id: val === '__none' ? null : val })
+          .in('ghl_contact_id', slice);
+        if (error) failed += slice.length; else done += slice.length;
+      }
+      btn.disabled = false;
+      if (failed) { st.textContent = `${done} assigned, ${failed} failed.`; st.classList.add('is-bad'); }
+      else { st.textContent = `${done} assigned to ${who}.`; st.classList.add('is-good'); }
+      sel.value = '';
+      clearPicks();
+      await Promise.all([loadRows(), loadStats()]);
+    });
+
+    // ---------- data ----------
+    async function loadAgents() {
+      const { data } = await sb.from('ph_agents')
+        .select('id, full_name, email, is_active')
+        .eq('is_active', true).order('full_name');
+      agents = data ?? [];
+      agentName = new Map(agents.map((a) => [a.id, a.full_name || a.email]));
+
+      const opts = agents.map((a) => `<option value="${esc(a.id)}">${esc(a.full_name || a.email)}</option>`).join('');
+      $('.ac-owner-filter').innerHTML =
+        '<option value="">Every owner</option><option value="__none">No owner</option>' + opts;
+      $('.ac-bulk-owner').innerHTML =
+        '<option value="">Assign selected to…</option>' + opts + '<option value="__none">Remove the owner</option>';
+      $('.ac-disp-filter').innerHTML =
+        '<option value="">Any disposition</option>' + DISPOSITIONS.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    }
+
+    async function loadStats() {
+      const [statsRes, unRes] = await Promise.all([
+        // p_all is the house-wide switch; the same RPC with no argument is what
+        // /app calls for a personal book.
+        sb.rpc('ph_dashboard_stats', { p_all: true }),
+        sb.from('ph_contacts').select('*', { count: 'exact', head: true }).is('agent_id', null),
+      ]);
+      const d = statsRes.data || {};
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = Number(v || 0).toLocaleString(); };
+      set('total', d.total_contacts);
+      set('unassigned', unRes.count);
+      set('active', d.active_clients);
+      set('new30', d.new_30);
+    }
+
+    function buildQuery(forCount) {
+      let q = sb.from('ph_contacts')
+        .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, origin, agent_id, ghl_date_added',
+          forCount ? { count: 'exact' } : undefined);
+      if (query) {
+        const s = query.replace(/[%,()]/g, ' ');
+        q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`);
+      }
+      if (ownerFilter === '__none') q = q.is('agent_id', null);
+      else if (ownerFilter) q = q.eq('agent_id', ownerFilter);
+      if (dispFilter) q = q.eq('disposition', dispFilter);
+      return q;
+    }
+
+    async function loadRows() {
+      $('.ac-list').innerHTML = '<div class="ac-empty">Loading…</div>';
+      const { data, count, error } = await buildQuery(true)
+        .order('ghl_date_added', { ascending: false, nullsFirst: false })
+        .range(page * PER, page * PER + PER - 1);
+      if (error) {
+        $('.ac-list').innerHTML = `<div class="ac-empty">Could not load contacts: ${esc(error.message)}</div>`;
+        return;
+      }
+      rows = data ?? [];
+      total = count ?? 0;
+      renderRows();
+      renderPager();
+    }
+
+    function renderRows() {
+      const host = $('.ac-list');
+      if (!rows.length) {
+        host.innerHTML = '<div class="ac-empty">No contacts match these filters.</div>';
+        $('.ac-count').textContent = '0 contacts';
+        return;
+      }
+      const from = page * PER + 1;
+      const to = Math.min(total, page * PER + rows.length);
+      $('.ac-count').textContent = `Showing ${from.toLocaleString()}–${to.toLocaleString()} of ${total.toLocaleString()} contacts`;
+
+      const ownerOpts = (cur) =>
+        `<option value="__none"${!cur ? ' selected' : ''}>— No owner —</option>` +
+        agents.map((a) => `<option value="${esc(a.id)}"${a.id === cur ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('') +
+        // A contact owned by a deactivated broker would otherwise silently show
+        // as unowned in this dropdown, so keep that name visible.
+        (cur && !agentName.has(cur) ? `<option value="${esc(cur)}" selected>Inactive broker</option>` : '');
+
+      host.innerHTML = `<table class="ac-table">
+        <thead><tr>
+          <th><input type="checkbox" class="ac-pick ac-pick-all" aria-label="Select all on this page" /></th>
+          <th>Name</th><th>Contact</th><th>Disposition</th><th>Source</th><th>Owner</th><th>Added</th>
+        </tr></thead>
+        <tbody>${rows.map((c) => {
+          const cid = c.ghl_contact_id;
+          const cls = PILL[c.disposition] || '';
+          return `<tr data-cid="${esc(cid)}"${picked.has(cid) ? ' class="is-picked"' : ''}>
+            <td><input type="checkbox" class="ac-pick ac-pick-one" data-cid="${esc(cid)}"${picked.has(cid) ? ' checked' : ''} aria-label="Select ${esc(nameOf(c))}" /></td>
+            <td><div class="ac-nm">${esc(nameOf(c))}</div></td>
+            <td>
+              <div class="ac-sub">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '—'}</div>
+              <div class="ac-sub">${esc(fmtPhone(c.phone)) || '—'}</div>
+            </td>
+            <td>${c.disposition ? `<span class="ac-pill ${cls}">${esc(c.disposition)}</span>` : '<span class="ac-sub">—</span>'}</td>
+            <td><div class="ac-sub">${esc(c.source || c.origin || '—')}</div></td>
+            <td>
+              <select class="ac-own${c.agent_id ? '' : ' is-none'}" data-cid="${esc(cid)}">${ownerOpts(c.agent_id)}</select>
+              <span class="ac-saved" data-saved="${esc(cid)}"></span>
+            </td>
+            <td><div class="ac-sub">${esc(fmtDate(c.ghl_date_added))}</div></td>
+          </tr>`;
+        }).join('')}</tbody></table>`;
+
+      $$('.ac-own').forEach((sel) => sel.addEventListener('change', onReassign));
+      $$('.ac-pick-one').forEach((box) => box.addEventListener('change', () => {
+        const cid = box.getAttribute('data-cid');
+        if (box.checked) picked.add(cid); else picked.delete(cid);
+        paintBulk();
+      }));
+      const all = $('.ac-pick-all');
+      all.checked = rows.length > 0 && rows.every((c) => picked.has(c.ghl_contact_id));
+      all.addEventListener('change', () => {
+        rows.forEach((c) => { if (all.checked) picked.add(c.ghl_contact_id); else picked.delete(c.ghl_contact_id); });
+        $$('.ac-pick-one').forEach((b) => (b.checked = all.checked));
+        paintBulk();
+      });
+      paintBulk();
+    }
+
+    async function onReassign(e) {
+      const sel = e.target;
+      const cid = sel.getAttribute('data-cid');
+      const val = sel.value;
+      // Contact ids carry prefixes like `crm:` and `local:`, so look the flag up
+      // by scanning rather than building a selector that would need escaping.
+      const flag = $$('.ac-saved').find((el) => el.getAttribute('data-saved') === cid);
+      if (!flag) return;
+      sel.disabled = true;
+      flag.classList.remove('is-bad');
+      flag.textContent = 'Saving…';
+
+      const { error } = await sb.from('ph_contacts')
+        .update({ agent_id: val === '__none' ? null : val })
+        .eq('ghl_contact_id', cid);
+      sel.disabled = false;
+
+      if (error) {
+        flag.textContent = 'Failed';
+        flag.classList.add('is-bad');
+        return;
+      }
+      sel.classList.toggle('is-none', val === '__none');
+      const row = rows.find((r) => r.ghl_contact_id === cid);
+      if (row) row.agent_id = val === '__none' ? null : val;
+      flag.textContent = 'Saved';
+      setTimeout(() => { flag.textContent = ''; }, 2000);
+      loadStats();
+      // A row that no longer matches an owner filter should leave the list.
+      if (ownerFilter) loadRows();
+    }
+
+    function renderPager() {
+      const pages = Math.max(1, Math.ceil(total / PER));
+      $('.ac-pager').innerHTML = `
+        <button type="button" data-pg="first"${page === 0 ? ' disabled' : ''}>« First</button>
+        <button type="button" data-pg="prev"${page === 0 ? ' disabled' : ''}>‹ Back</button>
+        <span>Page ${(page + 1).toLocaleString()} of ${pages.toLocaleString()}</span>
+        <button type="button" data-pg="next"${page + 1 >= pages ? ' disabled' : ''}>Next ›</button>
+        <button type="button" data-pg="last"${page + 1 >= pages ? ' disabled' : ''}>Last »</button>`;
+      $$('.ac-pager button').forEach((b) => b.addEventListener('click', () => {
+        const to = b.getAttribute('data-pg');
+        if (to === 'first') page = 0;
+        else if (to === 'prev') page = Math.max(0, page - 1);
+        else if (to === 'next') page = page + 1;
+        else page = pages - 1;
+        loadRows();
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }));
+    }
+
+    // ---------- boot ----------
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { view('signin'); return; }
+      $$('[data-who]').forEach((el) => (el.textContent = session.user.email || ''));
+
+      // Admin gate: ph_admins is readable only by admins, so an empty result is
+      // the answer, not an error.
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+
+      await loadAgents();
+      await Promise.all([loadRows(), loadStats()]);
+    }
+
+    sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
+    boot();
+  }
+</script>
