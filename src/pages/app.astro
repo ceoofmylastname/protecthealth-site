@@ -575,6 +575,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .grid3{display:grid;grid-template-columns:1fr 80px 110px;gap:10px}
   .pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+  .em-row{cursor:pointer;align-items:center;border-radius:8px;padding:10px 8px;margin:0 -8px}
+  .em-row:hover{background:var(--tint,#f4f8fd)}
+  .em-row:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .em-frame{width:100%;height:min(62vh,560px);border:1px solid var(--line);border-radius:12px;background:#fff}
   .pickbox{display:flex;align-items:center;gap:7px;font-size:.84rem;padding:5px 2px;cursor:pointer}
   .pickbox input{width:15px;height:15px;flex:none}
   .dep-row{margin-bottom:10px;padding:10px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
@@ -803,7 +807,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {} };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {}, contactEmails: [] };
 
     // ---- personal scope ----
     // This app is a BROKER's desk, including when the broker happens to be an
@@ -2580,8 +2584,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div class="hint" id="rec-disp-hint">Active Client marks the client in-force (issued) and records you as the writing agent.</div>
           <div class="section-t">Policies <button class="btn btn-ghost btn-sm" id="rec-add-policy" style="margin-left:auto">+ Add</button></div>
           <div id="rec-policies">${(policies && policies.length) ? policies.map(policyRow).join('') : '<span class="cell-sub">None yet — add what you quote or write for this client.</span>'}</div>
-          <div class="section-t">Lines of insurance</div>
-          <div>${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
+          <div class="section-t">Lines of insurance <button class="btn btn-ghost btn-sm" id="rec-edit-lines" style="margin-left:auto">Edit</button></div>
+          <div id="rec-lines">${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None — add one to put this client in a pipeline</span>'}</div>
           <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
           <div id="rec-carriers">${carrierNames.map((n) => `<span class="chip">${esc(n)}</span>`).join(' ') || '<span class="cell-sub">None selected</span>'}</div>
           ${deps.length ? `<div class="section-t">Dependents</div>${deps.map((d) => `<div class="feed-item"><div class="feed-ic">👤</div><div><div style="font-weight:650">${esc([d.first_name, d.last_name].filter(Boolean).join(' ') || d.relation)}</div><div class="cell-sub">${esc(d.relation)}${d.dob ? ' · ' + esc(d.dob) : ''}</div></div></div>`).join('')}` : ''}
@@ -2590,6 +2594,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         </div></div>
 
         <div class="card"><div class="card-h"><span class="grad-label">Activity</span></div><div class="card-b" id="rec-activity">
+          <div class="cell-sub">Loading…</div>
+        </div></div>
+
+        <div class="card"><div class="card-h"><span class="grad-label">Emails</span></div><div class="card-b" id="rec-emails">
           <div class="cell-sub">Loading…</div>
         </div></div>
 
@@ -2616,6 +2624,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       });
 
       $('#rec-edit-carriers').addEventListener('click', () => editContactCarriers(cid, linkedIds));
+      $('#rec-edit-lines').addEventListener('click', () => editContactLines(cid, c));
       $('#rec-company')?.addEventListener('click', (e) => { e.preventDefault(); openCompany(c.company_id); });
 
       // Tags: broker picks from the admin-defined list; legacy imported tags
@@ -2742,6 +2751,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       loadContactActivity(cid, c);
       loadContactNotes(cid);
       loadContactAppointments(c);
+      loadContactEmails(cid);
       $('#rec-note-save').addEventListener('click', () => saveNote(cid));
     }
 
@@ -2874,6 +2884,100 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const { error } = await sb.from('ph_notes').insert({ contact_id: cid, body });
       if (error) { toast('Could not save note.'); return; }
       ta.value = ''; toast('Note saved'); loadContactNotes(cid);
+    }
+
+    // Lines of insurance decide which pipelines this client appears in: a
+    // database trigger opens a deal per line. A contact saved without one is
+    // invisible on the board and there was previously no way to fix that from
+    // the record, so this is an edit, not a display.
+    function editContactLines(cid, c) {
+      const have = new Set(c.coverage_types || []);
+      const opts = COVERAGE_TYPES.map((t) =>
+        `<label class="pickbox"><input type="checkbox" data-line="${esc(t)}" ${have.has(t) ? 'checked' : ''}/> ${esc(t)}</label>`).join('');
+      openDrawer(`
+        <div class="drawer-h"><div style="font-size:1.1rem;font-weight:800">Lines of insurance</div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <p class="cell-sub" style="margin:0 0 12px">Each line opens a deal in that pipeline. Removing a line here leaves any existing deal where it is.</p>
+          <div class="pickgrid">${opts}</div>
+          <button class="btn btn-primary" id="cl-save" style="margin-top:18px">Save lines</button>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      $('#cl-save').addEventListener('click', async () => {
+        const want = $$('#drawer [data-line]').filter((x) => x.checked).map((x) => x.getAttribute('data-line'));
+        const { error } = await sb.from('ph_contacts').update({ coverage_types: want }).eq('ghl_contact_id', cid);
+        if (error) { toast('Could not save lines.'); return; }
+        closeDrawer();
+        toast(want.length ? 'Lines updated — pipeline deals created' : 'Lines cleared');
+        await reloadOpps();
+        openContact(cid, null);
+      });
+    }
+
+    // Every email this contact has been sent, newest first, opened in full.
+    // ph_email_log stores the rendered HTML, so this is the message the client
+    // actually received rather than a description of it.
+    const EMAIL_KINDS = {
+      confirmation: 'Booking confirmation',
+      agent_notification: 'Agent notification',
+      reminder_24h: '24-hour reminder',
+      reminder_1h: '1-hour reminder',
+      reminder_10m: '10-minute reminder',
+      review_request: 'Review request',
+      campaign: 'Campaign',
+    };
+    async function loadContactEmails(cid) {
+      const host = $('#rec-emails'); if (!host) return;
+      const { data, error } = await mine(sb.from('ph_email_log')
+        .select('id, to_email, to_name, to_role, kind, subject, status, error, created_at, html'))
+        .eq('contact_id', cid).order('created_at', { ascending: false }).limit(100);
+      if (error) { host.innerHTML = `<div class="cell-sub">Could not load emails: ${esc(error.message)}</div>`; return; }
+      state.contactEmails = data ?? [];
+      if (!state.contactEmails.length) {
+        host.innerHTML = '<div class="cell-sub">No emails sent to this contact yet.</div>';
+        return;
+      }
+      host.innerHTML = state.contactEmails.map((m) => {
+        const failed = m.status !== 'sent';
+        return `<div class="feed-item em-row" data-em="${esc(m.id)}" role="button" tabindex="0">
+          <div class="feed-ic">${failed ? '⚠️' : m.to_role === 'agent' ? '🔔' : '✉️'}</div>
+          <div style="min-width:0;flex:1">
+            <div style="font-weight:650">${esc(m.subject || '(no subject)')}</div>
+            <div class="cell-sub">${esc(EMAIL_KINDS[m.kind] || m.kind || 'Email')} · to ${esc(m.to_role === 'agent' ? 'you' : (m.to_name || m.to_email || ''))} · ${esc(fmtDateTime(m.created_at))}</div>
+            ${failed ? `<div class="cell-sub" style="color:#b3261e">Did not send: ${esc(m.error || 'unknown error')}</div>` : ''}
+          </div>
+          <span class="cell-sub">View →</span>
+        </div>`;
+      }).join('');
+      $$('.em-row', host).forEach((r) => {
+        const open = () => openEmailPreview(r.getAttribute('data-em'));
+        r.addEventListener('click', open);
+        r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+      });
+    }
+
+    function openEmailPreview(id) {
+      const m = (state.contactEmails || []).find((x) => String(x.id) === String(id));
+      if (!m) return;
+      // The stored body is sanitised email HTML we generated ourselves, but it
+      // is still rendered inside a sandboxed iframe rather than injected into
+      // the app: no scripts, no same-origin access, no way for a future
+      // third-party template to reach the broker's session.
+      const body = m.html
+        ? `<iframe class="em-frame" sandbox="" srcdoc="${esc(m.html)}" title="Email preview"></iframe>`
+        : `<div class="cell-sub" style="padding:18px 0">This email was sent before we started keeping a copy of the message body.</div>`;
+      openDrawer(`
+        <div class="drawer-h">
+          <div style="min-width:0">
+            <div style="font-size:1.05rem;font-weight:800;overflow-wrap:anywhere">${esc(m.subject || '(no subject)')}</div>
+            <div class="cell-sub">${esc(EMAIL_KINDS[m.kind] || m.kind || 'Email')} · to ${esc(m.to_email || '')} · ${esc(fmtDateTime(m.created_at))}</div>
+          </div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">
+          ${m.status !== 'sent' ? `<div class="hint" style="color:#b3261e;margin-bottom:12px">This one did not send: ${esc(m.error || 'unknown error')}</div>` : ''}
+          ${body}
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
     }
 
     // Edit which carriers cover this client, in a small modal-like drawer section.
