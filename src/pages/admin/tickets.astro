@@ -522,6 +522,9 @@ const SUPABASE_ANON =
           <dt>Leader</dt><dd>${esc(t.leader_name || 'Unassigned')}${t.leader_email ? ` &middot; ${esc(t.leader_email)}` : ''}</dd>
           <dt>In this stage</dt><dd>${esc(fmtDate(t.stage_changed_at))}</dd>
           <dt>Last activity</dt><dd>${esc(fmtDate(t.last_activity_at))}</dd>
+          <dt>Tags</dt><dd>${(t.tags || []).length
+            ? (t.tags || []).map((x) => `<span class="tk-tag ${x === 'High Priority' ? 'red' : x === 'Open Support Ticket' ? 'blue' : ''}">${esc(x)}</span>`).join(' ')
+            : '<span class="ad-muted">none</span>'}</dd>
           ${t.file_name ? `<dt>Attachment</dt><dd><a class="tk-file" data-path="${esc(t.file_name)}">${esc(String(t.file_name).split('/').pop())}</a></dd>` : ''}
         </dl>
 
