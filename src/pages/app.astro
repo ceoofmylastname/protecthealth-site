@@ -579,6 +579,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .em-row:hover{background:var(--tint,#f4f8fd)}
   .em-row:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   .em-frame{width:100%;height:min(62vh,560px);border:1px solid var(--line);border-radius:12px;background:#fff}
+  .rv-stars-mini{color:#f5b301;letter-spacing:1px;font-size:.95rem;white-space:nowrap}
   .pickbox{display:flex;align-items:center;gap:7px;font-size:.84rem;padding:5px 2px;cursor:pointer}
   .pickbox input{width:15px;height:15px;flex:none}
   .dep-row{margin-bottom:10px;padding:10px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
@@ -807,7 +808,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {}, contactEmails: [] };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {}, contactEmails: [], reviewRows: [] };
 
     // ---- personal scope ----
     // This app is a BROKER's desk, including when the broker happens to be an
@@ -1195,6 +1196,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       pipeline: '<path d="M4 4h16M6.5 4l3 7v9l5-2v-7l3-7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/>',
       availability: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      reviews: '<path d="m12 3 2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.8 6.7 19.6l1.1-6L3.4 9.4l6-.8z"/>',
       admin: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
     };
     function navItem(id, label, count, extraAttr = '') {
@@ -1213,6 +1215,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       html += navItem('pipeline', 'Pipeline');
       html += navItem('calendar', 'Calendar');
       html += navItem('availability', 'Availability');
+      html += navItem('reviews', 'Reviews');
       html += '<div class="nav-sec">Resources</div>';
       html += `<a class="nav-item" href="https://guided-broker.pages.dev" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>Ask Pete · Resources</a>`;
       if (state.isAdmin) {
@@ -1319,6 +1322,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       pipeline: ['Pipeline', 'Your deals by line — drag a card to move it through the stages'],
       calendar: ['Calendar', 'Your upcoming appointments'],
       availability: ['Availability', 'Set the hours people can book you — this updates your booking page right away'],
+      reviews: ['Reviews', 'Who was asked, who opened it, what they rated and what they said'],
     };
     let currentRoute = null;
     function go(route) {
@@ -1330,7 +1334,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
       root.classList.remove('nav-open');
       const v = $('#view'); v.scrollTop = 0;
-      const renderers = { dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability };
+      const renderers = { dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability, reviews: renderReviews };
       renderers[route](v);
       // Landing-page bookings arrive while the app is open: a visitor books,
       // the deal + appointment land in the DB, but this tab was rendered from
@@ -2884,6 +2888,96 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const { error } = await sb.from('ph_notes').insert({ contact_id: cid, body });
       if (error) { toast('Could not save note.'); return; }
       ta.value = ''; toast('Note saved'); loadContactNotes(cid);
+    }
+
+    // ================= REVIEWS =================
+    // The whole funnel for one broker: who was asked, who opened the link, what
+    // they rated, and what the unhappy ones wrote. Requests that were never
+    // opened still appear — the silence is the useful part.
+    //
+    // ph_review_tracking() with no argument reports the caller's own clients.
+    // /admin passes p_all for the house.
+    const RV_OUTCOME = {
+      sent: ['Sent, not opened', 'st-gray'],
+      opened: ['Opened, no rating', 'st-blue'],
+      sent_to_google: ['Sent to Google', 'st-green'],
+      private_feedback: ['Private feedback', 'st-red'],
+      low_rating_no_comment: ['Low rating, no comment', 'st-amber'],
+      unknown: ['Rated', 'st-gray'],
+    };
+    const starRow = (n) => n ? `<span class="rv-stars-mini" aria-label="${n} out of 5">${'★'.repeat(n)}${'☆'.repeat(5 - n)}</span>` : '<span class="cell-sub">—</span>';
+
+    async function renderReviews(v) {
+      v.innerHTML = '<div class="card"><div class="card-b"><div class="cell-sub">Loading…</div></div></div>';
+      const { data, error } = await sb.rpc('ph_review_tracking');
+      if (error) { v.innerHTML = `<div class="card"><div class="card-b"><div class="empty">Could not load reviews: ${esc(error.message)}</div></div></div>`; return; }
+      const rows = data ?? [];
+      state.reviewRows = rows;
+
+      const asked = rows.filter((r) => r.sent_at).length;
+      const opened = rows.filter((r) => r.clicked_at).length;
+      const rated = rows.filter((r) => r.rating).length;
+      const toGoogle = rows.filter((r) => r.outcome === 'sent_to_google').length;
+      const low = rows.filter((r) => r.rating && r.rating < 4);
+      const openLow = low.filter((r) => !r.handled);
+      const avg = rated ? (rows.filter((r) => r.rating).reduce((s, r) => s + r.rating, 0) / rated) : 0;
+
+      const sub = (t, cls = 'flat') => `<span class="delta ${cls}">${esc(t)}</span>`;
+
+      v.innerHTML = `
+      <div class="view-grid dash-anim">
+        <div class="stat-row">
+          ${statCard('Requests sent', asked, sub(rated ? 'avg ' + avg.toFixed(1) + '★ from ' + rated : 'no ratings yet'), IC.people)}
+          ${statCard('Opened the link', opened, sub(asked ? Math.round(opened / asked * 100) + '% of those sent' : '—'), IC.cal)}
+          ${statCard('Sent to Google', toGoogle, sub('4 and 5 stars', toGoogle ? 'up' : 'flat'), IC.shield)}
+          ${statCard('Needs follow-up', openLow.length, sub(openLow.length ? 'unhandled low ratings' : 'all clear', openLow.length ? 'flat' : 'up'), IC.funnel)}
+        </div>
+
+        ${openLow.length ? `<div class="card" style="border-color:#f0c9c4"><div class="card-h"><span class="grad-label">Needs your attention</span></div><div class="card-b">
+          ${openLow.map((r) => `<div class="feed-item">
+            <div class="feed-ic">⚠️</div>
+            <div style="min-width:0;flex:1">
+              <div style="font-weight:700">${esc(r.client_name)} ${starRow(r.rating)}</div>
+              <div class="cell-sub">${esc(r.client_email || '')} · rated ${esc(fmtDate(r.rated_at))}</div>
+              ${r.feedback ? `<div class="act-note">“${esc(r.feedback)}”</div>` : '<div class="cell-sub" style="color:#96690d">No comment left — call them.</div>'}
+            </div>
+            <button class="btn btn-ghost btn-sm" data-rv-done="${esc(r.contact_id)}">Mark handled</button>
+          </div>`).join('')}
+        </div></div>` : ''}
+
+        <div class="card"><div class="card-h"><span class="grad-label">Every request</span></div><div class="card-b">
+          ${rows.length ? `<table class="data"><thead><tr>
+            <th>Client</th><th>Sent</th><th>Opened</th><th>Rating</th><th>Outcome</th><th>What they said</th>
+          </tr></thead><tbody>
+          ${rows.map((r) => {
+            const [label, cls] = RV_OUTCOME[r.outcome] || RV_OUTCOME.unknown;
+            return `<tr>
+              <td><div style="font-weight:650">${esc(r.client_name)}</div><div class="cell-sub">${esc(r.client_email || '')}</div></td>
+              <td class="cell-sub">${esc(fmtDate(r.sent_at)) || '—'}</td>
+              <td class="cell-sub">${r.clicked_at ? esc(fmtDate(r.clicked_at)) : '—'}</td>
+              <td>${starRow(r.rating)}</td>
+              <td><span class="pill-status ${cls}">${esc(label)}</span></td>
+              <td class="cell-sub" style="max-width:280px">${esc(r.feedback || '')}</td>
+            </tr>`;
+          }).join('')}
+          </tbody></table>` : '<div class="empty">No review requests yet. They go out automatically the moment you mark a client Active Client.</div>'}
+        </div></div>
+
+        <p class="cell-sub" style="margin-top:14px;line-height:1.6">
+          Four and five stars go straight to Google, so we can see that someone was sent there but not whether they
+          finished posting — Google does not report that back. One to three stars never reach Google: they open a
+          private feedback box, and an alert goes to you, to Janet and to every admin the moment the star is tapped,
+          whether or not they write anything.
+        </p>
+      </div>`;
+
+      $$('[data-rv-done]').forEach((b) => b.addEventListener('click', async () => {
+        b.disabled = true;
+        const { error: e2 } = await sb.from('ph_reviews').update({ handled: true }).eq('contact_id', b.getAttribute('data-rv-done'));
+        if (e2) { b.disabled = false; toast('Could not update.'); return; }
+        toast('Marked handled');
+        renderReviews($('#view'));
+      }));
     }
 
     // Lines of insurance decide which pipelines this client appears in: a
