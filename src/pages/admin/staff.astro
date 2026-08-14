@@ -92,6 +92,27 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
           </form>
         </details>
 
+        <details class="ad-addbroker am-panel">
+          <summary>🔐 Admins — who can see the whole book</summary>
+          <div class="am-body">
+            <p class="ab-hint ad-muted">
+              An admin sees every contact in the company under <code>/admin</code>, can reassign owners, and can
+              grant this same access to someone else. Their own CRM at <code>/app</code> stays personal — being an
+              admin does not put other brokers' clients on their desk. An admin does not have to be a broker.
+            </p>
+            <div class="am-list"><p class="ad-muted">Loading…</p></div>
+            <form class="am-form">
+              <div class="ab-row">
+                <input type="email" name="email" placeholder="janet@protecthealth.com" autocomplete="off" required />
+                <input type="text" name="note" placeholder="Note, e.g. Office manager (optional)" autocomplete="off" />
+                <button type="submit" class="ab-go">Make admin</button>
+              </div>
+              <p class="ab-hint ad-muted">If they have no login yet, this creates one and emails them a link to set a password. Someone who already signs in keeps the password they have.</p>
+              <p class="am-status" role="status"></p>
+            </form>
+          </div>
+        </details>
+
         <div class="ad-toolbar">
           <input type="search" class="st-search" placeholder="Search name, email or phone…" aria-label="Search" />
           <div class="ad-filters" role="group" aria-label="Filter">
@@ -134,6 +155,29 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
   .ab-status { margin: 10px 0 0; font-size: 0.9rem; min-height: 1.1em; }
   .ab-status.is-good { color: #0a7d3c; }
   .ab-status.is-bad { color: #c0392b; }
+
+  .am-body { padding: 16px 18px; }
+  .am-list { display: grid; gap: 8px; margin: 4px 0 16px; }
+  .am-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    border: 1.5px solid var(--line); border-radius: 11px; padding: 10px 14px; background: #fff;
+  }
+  .am-row.is-you { border-color: #cfe0f5; background: #f7fbff; }
+  .am-who { font-weight: 700; color: var(--ink); font-size: 0.92rem; }
+  .am-meta { color: var(--muted); font-size: 0.82rem; }
+  .am-spacer { flex: 1 1 auto; }
+  .am-badge { font-size: 0.66rem; font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #eef3f8; color: #5a6f85; }
+  .am-badge.you { background: #eaf3ff; color: #0f3567; }
+  .am-badge.wait { background: #fdf3e3; color: #96690d; }
+  .am-del {
+    padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff;
+    font-family: var(--font); font-weight: 700; font-size: 0.82rem; color: #b3261e; cursor: pointer;
+  }
+  .am-del:hover { border-color: #b3261e; background: #fdecea; }
+  .am-del:disabled { opacity: .4; cursor: default; color: var(--muted); }
+  .am-status { margin: 10px 0 0; font-size: 0.9rem; min-height: 1.1em; }
+  .am-status.is-good { color: #0a7d3c; }
+  .am-status.is-bad { color: #c0392b; }
 
   .st-list { display: grid; gap: 12px; }
   .st-card { background: #fff; border: 1.5px solid var(--line); border-radius: 15px; padding: 16px 18px; }
@@ -253,10 +297,94 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
       });
     }
 
+    // ---------- admins ----------
+    // Every call goes through the ph-admins function rather than writing to the
+    // table from here. The lockout guards (no removing yourself, no removing the
+    // last admin) have to be server-side: a greyed-out button is a courtesy,
+    // not a control.
+    async function adminsCall(body) {
+      let { data: { session } } = await sb.auth.getSession();
+      const stale = !session?.expires_at || (session.expires_at * 1000 - Date.now() < 120000);
+      if (session && stale) { const r = await sb.auth.refreshSession(); if (r?.data?.session) session = r.data.session; }
+      if (!session) return { error: 'Your session expired. Sign out and back in.' };
+      const { data, error } = await sb.functions.invoke('ph-admins', { body });
+      if (error) {
+        let msg = data?.error || error.message || 'Something went wrong.';
+        try { if (error?.context?.json) { const j = await error.context.json(); if (j?.error) msg = j.error; } } catch (_) {}
+        return { error: msg };
+      }
+      return data || {};
+    }
+
+    async function loadAdmins() {
+      const host = $('.am-list'); if (!host) return;
+      const res = await adminsCall({ action: 'list' });
+      if (res.error || !res.ok) {
+        host.innerHTML = `<p class="ad-muted">Could not load admins: ${esc(res.error || 'unknown')}</p>`;
+        return;
+      }
+      host.innerHTML = (res.admins || []).map((a) => {
+        const badges = [
+          a.is_you ? '<span class="am-badge you">You</span>' : '',
+          !a.signed_in ? '<span class="am-badge wait">Has not signed in</span>' : '',
+        ].filter(Boolean).join(' ');
+        return `<div class="am-row${a.is_you ? ' is-you' : ''}">
+          <div>
+            <div class="am-who">${esc(a.email)}</div>
+            ${a.note ? `<div class="am-meta">${esc(a.note)}</div>` : ''}
+          </div>
+          ${badges}
+          <span class="am-spacer"></span>
+          <button type="button" class="am-del" data-rm="${esc(a.email)}"${a.is_you ? ' disabled title="Ask another admin to remove your access"' : ''}>Remove</button>
+        </div>`;
+      }).join('') || '<p class="ad-muted">No admins on record.</p>';
+
+      $$('.am-del').forEach((b) => b.addEventListener('click', async () => {
+        const email = b.getAttribute('data-rm');
+        if (!confirm(`Remove admin access for ${email}?\n\nTheir login stays active — if they are a broker they keep their own CRM and their book of clients.`)) return;
+        const st = $('.am-status');
+        st.classList.remove('is-good', 'is-bad');
+        b.disabled = true; st.textContent = 'Removing…';
+        const res2 = await adminsCall({ action: 'remove', email });
+        b.disabled = false;
+        if (res2.error || !res2.ok) { st.textContent = res2.error || 'Could not remove.'; st.classList.add('is-bad'); return; }
+        st.textContent = `${email} no longer has admin access.`;
+        st.classList.add('is-good');
+        loadAdmins();
+      }));
+    }
+
+    const amForm = $('.am-form');
+    if (amForm) {
+      amForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const st = $('.am-status');
+        const go = amForm.querySelector('.ab-go');
+        const email = amForm.email.value.trim();
+        const note = amForm.note.value.trim();
+        st.classList.remove('is-good', 'is-bad');
+        if (!email) { st.textContent = 'Enter an email address.'; st.classList.add('is-bad'); return; }
+        go.disabled = true; st.textContent = 'Granting…';
+
+        const res = await adminsCall({ action: 'add', email, note });
+        go.disabled = false;
+        if (res.error || !res.ok) { st.textContent = res.error || 'Something went wrong.'; st.classList.add('is-bad'); return; }
+
+        if (res.already_admin) st.textContent = `${res.email} already had admin access.`;
+        else if (res.emailed) st.textContent = `${res.email} is an admin. A link to set their password is on its way.`;
+        else if (!res.needs_password) st.textContent = `${res.email} is an admin. They already have a password — send them to /admin.`;
+        else st.textContent = `${res.email} is an admin, but the set-up email did not send${res.email_error ? ' (' + res.email_error + ')' : ''}. They can use Reset password at /app.`;
+        st.classList.add(res.emailed || res.already_admin || !res.needs_password ? 'is-good' : 'is-bad');
+        amForm.reset();
+        loadAdmins();
+      });
+    }
+
     async function load() {
       const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
       if (!admin || !admin.length) { view('denied'); return; }
       view('app');
+      loadAdmins();
 
       const [{ data: r }, { data: c }] = await Promise.all([
         sb.rpc('ph_agent_roster'),
