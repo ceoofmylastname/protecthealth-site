@@ -1198,6 +1198,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       availability: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       reviews: '<path d="m12 3 2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.8 6.7 19.6l1.1-6L3.4 9.4l6-.8z"/>',
       admin: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
+      support: '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4"/><path d="M12 17.5h.01"/>',
     };
     function navItem(id, label, count, extraAttr = '') {
       const c = (count != null) ? `<span class="count">${count}</span>` : '';
@@ -1218,9 +1219,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       html += navItem('reviews', 'Reviews');
       html += '<div class="nav-sec">Resources</div>';
       html += `<a class="nav-item" href="https://guided-broker.pages.dev" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>Ask Pete · Resources</a>`;
+      // Support tickets. Opens in a new tab so a broker mid-call does not lose
+      // whatever they had open here. /support reads the same Supabase session
+      // off this origin and fills their name and email in itself, so nothing
+      // personal has to ride along in the URL.
+      html += `<a class="nav-item" href="/support" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.support}</svg>Get Support</a>`;
       if (state.isAdmin) {
         html += '<div class="nav-sec">Admin</div>';
         html += `<a class="nav-item" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.leads}</svg>All Leads</a>`;
+        html += `<a class="nav-item" href="/admin/tickets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.support}</svg>Support Tickets</a>`;
         // The house-wide book. Everything above this line in the sidebar is the
         // signed-in person's own desk, admin or not.
         html += `<a class="nav-item" href="/admin/contacts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>All Contacts</a>`;

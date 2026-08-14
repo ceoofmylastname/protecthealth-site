@@ -42,6 +42,8 @@ const DEPARTMENTS = [
         </div>
 
         <div class="sup-card">
+          <p class="sup-signed" hidden>Filled in from your login as <b class="sup-signed-who"></b>. Change anything that isn't right.</p>
+
           <form class="sup-form" novalidate>
             <div class="sup-row">
               <label>
@@ -120,6 +122,10 @@ const DEPARTMENTS = [
   .sup-card { background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 30px 30px 34px; box-shadow: 0 10px 34px rgba(11,42,74,.07); }
   @media (max-width: 600px) { .sup-card { padding: 22px 20px 26px; } }
 
+  .sup-signed { margin: 0 0 18px; padding: 10px 13px; background: #f2f7ff; border-left: 3px solid var(--blue);
+    border-radius: 7px; font-size: 0.86rem; color: var(--ink); line-height: 1.55; }
+  .sup-signed[hidden] { display: none; }
+
   .sup-form label { display: block; margin-bottom: 17px; }
   .sup-form label > span { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
   .sup-form small { display: block; margin-top: 5px; color: var(--muted); font-size: 0.79rem; line-height: 1.5; }
@@ -159,6 +165,8 @@ const DEPARTMENTS = [
 </style>
 
 <script>
+  import { createClient } from '@supabase/supabase-js';
+
   const root = document.querySelector('.sup');
   if (root) {
     const URL_ = root.getAttribute('data-supabase-url');
@@ -278,7 +286,56 @@ const DEPARTMENTS = [
       root.querySelector('.sup-done').hidden = true;
       submit.disabled = false;
       setStatus('');
-      form.elements.firstName.focus();
+      prefill();
+      form.elements.department.focus();
     });
+
+    // ---- prefill from the CRM login ----
+    // A broker reaching this page from the sidebar is already signed in, and the
+    // session lives on this origin, so we can fill their name and email without
+    // passing anything through the URL. Best effort by design: the page stays
+    // fully usable signed out, which is how it worked before there was a CRM.
+    let mePrefill = null;
+
+    async function loadMe() {
+      try {
+        const sb = createClient(URL_, ANON, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+        });
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session?.user) return;
+
+        const email = session.user.email || '';
+        let full = '';
+        const { data: agent } = await sb.from('ph_agents')
+          .select('full_name, email').eq('auth_user_id', session.user.id).maybeSingle();
+        if (agent?.full_name) full = agent.full_name;
+
+        const parts = String(full).trim().split(/\s+/).filter(Boolean);
+        mePrefill = {
+          firstName: parts[0] || '',
+          lastName: parts.slice(1).join(' ') || '',
+          email: (agent && agent.email) || email,
+          label: full || email,
+        };
+        prefill();
+      } catch (_e) {
+        // Signed out, offline, or RLS said no. The form still works by hand.
+      }
+    }
+
+    function prefill() {
+      if (!mePrefill) return;
+      const f = form.elements;
+      // Never clobber something the person has already typed.
+      if (!f.firstName.value) f.firstName.value = mePrefill.firstName;
+      if (!f.lastName.value) f.lastName.value = mePrefill.lastName;
+      if (!f.email.value) f.email.value = mePrefill.email;
+      const banner = root.querySelector('.sup-signed');
+      root.querySelector('.sup-signed-who').textContent = mePrefill.label;
+      banner.hidden = false;
+    }
+
+    loadMe();
   }
 </script>
