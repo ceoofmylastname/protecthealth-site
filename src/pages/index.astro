@@ -17,20 +17,6 @@ const posts = (await getCollection('blog'))
   .slice(0, 3);
 
 const schemas = [
-  // WebSite node, homepage only. Ties the site entity to the Organization
-  // (shared #organization @id from Base.astro) so engines reconcile
-  // "this website" and "this business" as one entity (wiki: json-ld-schemas,
-  // faq-single-source-architecture). Emitted once — do not add per-page.
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': `${SITE.domain}/#website`,
-    url: `${SITE.domain}/`,
-    name: SITE.name,
-    description: SITE.description,
-    inLanguage: 'en-US',
-    publisher: { '@id': `${SITE.domain}/#organization` },
-  },
   speakableSchema(SITE.domain),
   breadcrumbSchema([{ name: 'Home', url: `${SITE.domain}/` }]),
 ];

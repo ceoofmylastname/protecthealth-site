@@ -79,7 +79,47 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             <button type="submit" class="ag-btn ag-anim d7">Sign In</button>
           </form>
           <p class="ag-status" role="status" aria-live="polite"></p>
-          <p class="ag-muted ag-small ag-anim d8">New to ProtectHealth? Your login is created by the office. Use the claim link in your welcome email, or ask the office to resend it.</p>
+          <p class="ag-muted ag-small ag-anim d8">First time here? <a href="#" class="ag-go-firstrun">Set up your login</a> with the setup code from the office.</p>
+        </div></div>
+      </div>
+
+      <!-- First-time setup. Backed by ph-auth action 'setup': the office code is
+           checked BEFORE any roster detail is revealed, and the server refuses
+           any account that already has a password, so a code spoken aloud in a
+           room can never be used against a broker who is already set up. -->
+      <div class="ag-view" data-view="firstrun" hidden>
+        <div class="ag-center"><div class="ag-card">
+          <img class="ag-logo ag-anim d1" src={LOGO} alt="ProtectHealth" />
+          <h1 class="ag-anim d2">Set up your login</h1>
+          <p class="ag-muted ag-anim d3">For brokers signing in for the first time. You will need the setup code from the office.</p>
+          <form class="ag-firstrun-form">
+            <label class="ag-field ag-anim d4">
+              <span>Work email</span>
+              <div class="ag-input"><input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="username" required /></div>
+            </label>
+            <label class="ag-field ag-anim d5">
+              <span>Setup code</span>
+              <div class="ag-input"><input type="text" name="code" placeholder="From the office" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" required /></div>
+            </label>
+            <label class="ag-field ag-anim d6">
+              <span>Create a password</span>
+              <div class="ag-input has-eye">
+                <input type="password" name="password" placeholder="At least 10 characters" autocomplete="new-password" required minlength="10" />
+                <button type="button" class="pw-eye" aria-label="Show or hide password">
+                  <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                </button>
+              </div>
+            </label>
+            <label class="ag-field ag-anim d7">
+              <span>Confirm password</span>
+              <div class="ag-input"><input type="password" name="confirm" placeholder="Type it again" autocomplete="new-password" required minlength="10" /></div>
+            </label>
+            <p class="ag-rules ag-anim d7">At least 10 characters. Cannot contain your email address or obvious words like "password".</p>
+            <button type="submit" class="ag-btn ag-anim d8">Create my login</button>
+          </form>
+          <p class="ag-status" role="status" aria-live="polite"></p>
+          <p class="ag-muted ag-small ag-anim d8">Already set up? <a href="#" class="ag-go-signin">Back to sign in</a></p>
         </div></div>
       </div>
 
@@ -268,6 +308,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .ph .ag-btn:hover{box-shadow:0 8px 22px -6px rgba(25,123,255,.72)}
   .ph .ag-btn:active{transform:scale(.98)}
   .ph .ag-btn.ghost{background:none;border:1px solid var(--line);color:var(--ink2);box-shadow:none}
+  .ag-rules{font-size:.8rem;color:var(--muted);line-height:1.5;margin:-2px 0 2px}
   .ag-status{margin-top:12px;font-size:.9rem;color:var(--muted);min-height:1.2em}
   .ag-status.is-bad{color:#c0392b}
 
@@ -670,7 +711,49 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (typed) $('.ag-forgot-form').email.value = typed;
       view('forgot');
     });
-    $('.ag-go-signin')?.addEventListener('click', (e) => { e.preventDefault(); setStatus('forgot', ''); view('signin'); });
+    // Every "back to sign in" link, not just the first one on the page.
+    $$('.ag-go-signin').forEach((el) => el.addEventListener('click', (e) => {
+      e.preventDefault(); setStatus('forgot', ''); setStatus('firstrun', ''); view('signin');
+    }));
+    $('.ag-go-firstrun')?.addEventListener('click', (e) => {
+      e.preventDefault(); setStatus('signin', '');
+      const typed = $('.ag-login-form')?.email?.value?.trim();
+      if (typed) $('.ag-firstrun-form').email.value = typed;
+      view('firstrun');
+    });
+
+    // First-time setup. The server does the real gatekeeping (office code,
+    // roster membership, already-has-a-password check); this just collects the
+    // four fields, then signs them straight in so they never type the password
+    // twice in a row.
+    $('.ag-firstrun-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const btn = f.querySelector('button[type="submit"]');
+      const email = f.email.value.trim().toLowerCase();
+      const code = f.code.value.trim();
+      const password = f.password.value;
+      const confirm = f.confirm.value;
+      if (password !== confirm) { setStatus('firstrun', 'Those two passwords do not match.', true); return; }
+      if (password.length < 10) { setStatus('firstrun', 'Password must be at least 10 characters.', true); return; }
+
+      btn.disabled = true; setStatus('firstrun', 'Setting up your login…');
+      const { ok, json } = await authPost({ action: 'setup', email, code, password });
+      if (!ok) {
+        btn.disabled = false;
+        setStatus('firstrun', json.error || 'Could not set that up. Check the code and try again.', true);
+        return;
+      }
+      f.password.value = ''; f.confirm.value = ''; f.code.value = '';
+      const { data, error } = await sb.auth.signInWithPassword({ email: json.email || email, password });
+      if (error) {
+        btn.disabled = false;
+        setStatus('signin', 'Your login is ready. Sign in with the password you just created.');
+        view('signin');
+        return;
+      }
+      await enter(data?.session?.user?.email ?? email);
+    });
 
     $('.ag-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();

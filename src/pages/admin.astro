@@ -89,6 +89,25 @@ const SUPABASE_ANON =
           </form>
         </details>
 
+        <details class="ad-addbroker sc-panel">
+          <summary>🔑 Setup code &mdash; first-time broker logins</summary>
+          <div class="sc-body">
+            <p class="ab-hint ad-muted">Brokers set their own password at <code>/app</code> using this code. Say it out loud in the meeting, then clear it when the room empties. The code only ever works on an account that has <b>never</b> had a password, so it can't be used against a broker who is already set up.</p>
+            <p class="sc-status-line ad-muted">Checking&hellip;</p>
+            <div class="ab-row">
+              <input type="text" class="sc-code" placeholder="Setup code (8+ characters)" autocomplete="off" spellcheck="false" />
+              <input type="datetime-local" class="sc-exp" title="When the code stops working. Defaults to 24 hours." />
+              <button type="button" class="ab-go sc-save">Set code</button>
+              <button type="button" class="ab-go sc-clear" style="background:#b91c1c;display:none">Clear</button>
+            </div>
+            <p class="sc-msg" role="status"></p>
+            <div class="sc-progress">
+              <p class="sc-count ad-muted">&nbsp;</p>
+              <details class="sc-pending"><summary>Who hasn't set up yet</summary><div class="sc-pending-list ad-muted"></div></details>
+            </div>
+          </div>
+        </details>
+
         <details class="ad-addbroker rv-panel">
           <summary>★ Send review requests to active clients</summary>
           <div class="rv-body">
@@ -428,6 +447,94 @@ const SUPABASE_ANON =
       if (session && stale) { const r = await sb.auth.refreshSession(); if (r?.data?.session) session = r.data.session; }
       return session;
     }
+    // ---------- setup code (first-time broker logins) ----------
+    // All four operations live in ph-auth, which verifies the caller is an
+    // admin server-side. Nothing here trusts the browser.
+    const scPanel = $('.sc-panel');
+    if (scPanel) {
+      const AUTH_FN = root.getAttribute('data-supabase-url') + '/functions/v1/ph-auth';
+      // Local escaper: the other panels define their own inside their blocks,
+      // so there is nothing named esch in scope here.
+      const scEsc = (v) => String(v == null ? '' : v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const codeEl = $('.sc-code'), expEl = $('.sc-exp'), msgEl = $('.sc-msg');
+      const lineEl = $('.sc-status-line'), saveBtn = $('.sc-save'), clearBtn = $('.sc-clear');
+      const countEl = $('.sc-count'), pendWrap = $('.sc-pending'), pendList = $('.sc-pending-list');
+
+      async function scCall(body) {
+        const session = await freshSession();
+        if (!session) return { ok: false, json: { error: 'Session expired. Sign in again.' } };
+        const r = await fetch(AUTH_FN, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: root.getAttribute('data-supabase-anon'),
+            Authorization: 'Bearer ' + session.access_token,
+          },
+          body: JSON.stringify(body),
+        });
+        let j = {}; try { j = await r.json(); } catch (_e) {}
+        return { ok: r.ok, json: j };
+      }
+
+      const fmtWhen = (iso) => {
+        try {
+          return new Date(iso).toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric',
+            hour: 'numeric', minute: '2-digit',
+          }) + ' Vegas';
+        } catch (_e) { return iso; }
+      };
+
+      async function scRefresh() {
+        const { ok, json } = await scCall({ action: 'admin_setup_status' });
+        if (!ok || !json.ok) {
+          lineEl.textContent = json.error || 'Could not read the setup code status.';
+          return;
+        }
+        if (!json.code_set) {
+          lineEl.innerHTML = 'No code active. Brokers cannot self-serve until you set one.';
+          clearBtn.style.display = 'none';
+        } else if (json.expired) {
+          lineEl.innerHTML = '<b style="color:#b91c1c">EXPIRED</b> — the code stopped working ' + scEsc(fmtWhen(json.expires_at)) + '. Set a new one to reopen setup.';
+          clearBtn.style.display = '';
+        } else {
+          lineEl.innerHTML = '<b style="color:#15803d">LIVE</b> — working until ' + scEsc(fmtWhen(json.expires_at)) + '.';
+          clearBtn.style.display = '';
+        }
+        countEl.innerHTML = '<b>' + json.completed + ' of ' + json.active + '</b> brokers have set up their login.';
+        const list = json.pending_list || [];
+        pendWrap.style.display = list.length ? '' : 'none';
+        pendList.innerHTML = list.length
+          ? list.map((r) => '<div>' + scEsc(r.full_name || '(no name)') + ' <span style="opacity:.7">' + scEsc(r.email || '') + '</span></div>').join('')
+          : '';
+      }
+
+      saveBtn.addEventListener('click', async () => {
+        const code = codeEl.value.trim();
+        if (code.replace(/\s+/g, '').length < 8) { msgEl.textContent = 'Use at least 8 characters.'; return; }
+        saveBtn.disabled = true; msgEl.textContent = 'Saving…';
+        // datetime-local is wall-clock with no zone; hand the server an ISO instant.
+        const expires_at = expEl.value ? new Date(expEl.value).toISOString() : '';
+        const { ok, json } = await scCall({ action: 'admin_set_setup_code', code, expires_at });
+        saveBtn.disabled = false;
+        if (!ok || !json.ok) { msgEl.textContent = json.error || 'Could not save the code.'; return; }
+        msgEl.textContent = 'Code is live. Read it out to the room.';
+        codeEl.value = '';
+        scRefresh();
+      });
+
+      clearBtn.addEventListener('click', async () => {
+        if (!confirm('Clear the setup code? Brokers who have not set up yet will not be able to until you set a new one.')) return;
+        clearBtn.disabled = true; msgEl.textContent = 'Clearing…';
+        const { ok, json } = await scCall({ action: 'admin_clear_setup_code' });
+        clearBtn.disabled = false;
+        msgEl.textContent = (ok && json.ok) ? 'Code cleared.' : (json.error || 'Could not clear the code.');
+        scRefresh();
+      });
+
+      scPanel.addEventListener('toggle', () => { if (scPanel.open) scRefresh(); });
+    }
+
     const rvPanel = $('.rv-panel');
     if (rvPanel) {
       const countEl = $('.rv-count'), statusEl = $('.rv-status');

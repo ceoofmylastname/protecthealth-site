@@ -10,25 +10,16 @@ interface Props {
   ogImage?: string;
   schemas?: object[]; // page-specific JSON-LD blocks
   noindex?: boolean;
-  // Per-page alt for the og:image. Falls back to the brand line, which is
-  // right for the default card but wrong for per-post art (BLOG_ART/QA_ART
-  // carry real descriptions of their own images).
-  ogImageAlt?: string;
-  // Article pages (blog posts, Q&A) pass real editorial dates. When set,
-  // og:type flips to "article" and the article:* meta family is emitted —
-  // the machine-readable freshness signal that mirrors the visible
-  // "Published … · Updated …" line and JSON-LD datePublished/dateModified
-  // (wiki: date-modified-schema). modifiedTime and authorName only render
-  // when provided; a never-edited post gets no article:modified_time, same
-  // rule as dateModified in the schema.
-  article?: { publishedTime: string; modifiedTime?: string; authorName?: string };
   // Broker pages override the header call-to-action with THAT broker's number,
   // so a prospect reading one person's page always reaches that person.
   // Everywhere else this falls back to the main office line.
   navPhone?: string;
   navPhoneHref?: string;
 }
-const { title, description, canonical, ogImage, schemas = [], noindex = false, ogImageAlt, article, navPhone, navPhoneHref } = Astro.props;
+const { title, description, canonical, ogImage, schemas = [], noindex = false, navPhone, navPhoneHref } = Astro.props;
+// On a broker's own pages every phone number on the page is THAT broker's:
+// header, mobile menu and footer. Everywhere else these fall back to the main
+// office line, so the rest of the site is untouched.
 const headerPhone = navPhone || SITE.phone;
 const headerPhoneHref = navPhoneHref || SITE.phoneHref;
 // Clean URLs: Cloudflare Pages serves /page from /page.html, so canonicals are extensionless.
@@ -38,7 +29,6 @@ const computedUrl = new URL(Astro.url.pathname, SITE.domain).href
   .replace(/\/$/, '');
 const canonicalUrl = canonical ?? (computedUrl || SITE.domain);
 const ogImg = ogImage ?? `${SITE.domain}/assets/og-default.webp`;
-const ogAlt = ogImageAlt ?? 'ProtectHealth, Las Vegas insurance brokerage. Strategy first, insurance second.';
 const orgSchema = organizationSchema();
 ---
 <!doctype html>
@@ -66,10 +56,7 @@ const orgSchema = organizationSchema();
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Open Graph / Twitter -->
-    <meta property="og:type" content={article ? 'article' : 'website'} />
-    {article && <meta property="article:published_time" content={article.publishedTime} />}
-    {article && article.modifiedTime && <meta property="article:modified_time" content={article.modifiedTime} />}
-    {article && article.authorName && <meta property="article:author" content={article.authorName} />}
+    <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
@@ -81,12 +68,12 @@ const orgSchema = organizationSchema();
         that pops in. Alt text is read by screen readers on the unfurled card. */}
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={ogAlt} />
+    <meta property="og:image:alt" content="ProtectHealth, Las Vegas insurance brokerage. Strategy first, insurance second." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImg} />
-    <meta name="twitter:image:alt" content={ogAlt} />
+    <meta name="twitter:image:alt" content="ProtectHealth, Las Vegas insurance brokerage. Strategy first, insurance second." />
 
     <!-- Fonts: preconnect + swap (wiki: core-web-vitals-blog-template) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -168,7 +155,7 @@ const orgSchema = organizationSchema();
             <div class="mnav-foot">
               <a href="/talk-to-a-broker" class="btn big no-arrow">Talk To A Broker</a>
               <a href={headerPhoneHref} class="mnav-phone">{headerPhone}</a>
-              <p>{SITE.address.street}, {SITE.address.locality}</p>
+              <p>2915 W Charleston Blvd Ste 170, Las Vegas</p>
             </div>
           </div>
         </div>
@@ -321,7 +308,7 @@ const orgSchema = organizationSchema();
           <div>
             <div class="footer-logo"><img src={ASSETS.logo} alt="ProtectHealth logo" width="511" height="132" loading="lazy" /></div>
             <p>Las Vegas, Nevada insurance brokerage. The product should serve the strategy, not become the strategy.</p>
-            <p><a href={SITE.phoneHref} class="footer-phone">{SITE.phone}</a></p>
+            <p><a href={headerPhoneHref} class="footer-phone">{headerPhone}</a></p>
             <ReviewBadge variant="footer" />
           </div>
           <div>
