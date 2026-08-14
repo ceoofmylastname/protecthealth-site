@@ -2,15 +2,18 @@
 import Base from '../../layouts/Base.astro';
 
 // The House Calendar. Every appointment in the business, across every broker,
-// in one view.
+// on one month grid — the same view brokers already know from /app, so nobody
+// has to learn a second calendar.
 //
-// The CRM calendar at /app is deliberately personal — a broker, including an
-// admin, sees only their own bookings. So house-wide viewing needs its own
-// page, and it reads ph_house_calendar(), which refuses to return anything at
-// all to a non-admin rather than quietly returning a partial view.
+// The CRM calendar is deliberately personal: a broker, including an admin, sees
+// only their own bookings there. So house-wide viewing needs its own page, and
+// it reads ph_house_calendar(), which returns nothing at all to a non-admin
+// rather than a partial view that looks whole.
 //
-// Each card carries the two things an admin actually scans for: who the client
-// is, and which broker owns it. Everything else is one click away.
+// The one thing this view has to solve that a personal calendar does not is
+// telling sixty brokers apart at a glance. Every agent gets a stable colour
+// derived from their id, so the same broker is the same colour every time the
+// page loads, and each pill carries the client name with the broker beneath it.
 const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
 const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
@@ -71,27 +74,25 @@ const SUPABASE_ANON =
         </header>
 
         <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="month">—</b><span>This month</span></div>
           <div class="ad-stat spot"><b data-stat="today">—</b><span>Today</span></div>
           <div class="ad-stat spot"><b data-stat="week">—</b><span>Next 7 days</span></div>
-          <div class="ad-stat spot"><b data-stat="upcoming">—</b><span>All upcoming</span></div>
-          <div class="ad-stat spot"><b data-stat="brokers">—</b><span>Brokers with bookings</span></div>
+          <div class="ad-stat spot"><b data-stat="brokers">—</b><span>Brokers booked</span></div>
           <div class="ad-stat spot"><b data-stat="house">—</b><span>House account</span></div>
         </div>
 
-        <div class="ad-toolbar hc-toolbar">
-          <div class="ad-filters" role="group" aria-label="Range">
-            <button type="button" class="ad-chip is-on" data-range="upcoming">Upcoming</button>
-            <button type="button" class="ad-chip" data-range="today">Today</button>
-            <button type="button" class="ad-chip" data-range="week">Next 7 days</button>
-            <button type="button" class="ad-chip" data-range="past">Past</button>
-            <button type="button" class="ad-chip" data-range="all">Everything</button>
-          </div>
+        <div class="hc-bar">
+          <button type="button" class="hc-nav" data-mo="-1" aria-label="Previous month">←</button>
+          <div class="hc-title"></div>
+          <button type="button" class="hc-nav" data-mo="1" aria-label="Next month">→</button>
+          <button type="button" class="hc-today" data-mo="0">Today</button>
           <select class="hc-agent" aria-label="Filter by broker"><option value="">Every broker</option></select>
-          <input type="search" class="hc-search" placeholder="Search client name, email or phone…" aria-label="Search" />
+          <input type="search" class="hc-search" placeholder="Search client, email or phone…" aria-label="Search" />
+          <span class="hc-count ad-muted"></span>
         </div>
 
-        <p class="hc-count ad-muted"></p>
-        <div class="hc-list"></div>
+        <div class="hc-wrap"><div class="hc-grid"></div></div>
+        <div class="hc-legend"></div>
       </div>
 
     </div>
@@ -103,52 +104,67 @@ const SUPABASE_ANON =
   .hc .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
   .hc .ad-nav a.is-on, .hc .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
 
-  .hc-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
-  .hc-toolbar select, .hc-toolbar input {
-    padding: 10px 13px; border: 1.5px solid var(--line); border-radius: 10px;
-    font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink);
+  .hc-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .hc-nav, .hc-today {
+    border: 1.5px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
+    font-family: var(--font); font-weight: 700; font-size: 0.86rem; border-radius: 10px; padding: 8px 14px;
   }
-  .hc-search { flex: 1 1 240px; min-width: 0; }
-  .hc-toolbar select:focus, .hc-toolbar input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
-  .hc-count { font-size: 0.84rem; margin: 0 0 12px; }
+  .hc-nav { padding: 8px 12px; }
+  .hc-nav:hover, .hc-today:hover { border-color: var(--blue); color: var(--blue); }
+  .hc-title { font-size: 1.15rem; font-weight: 800; letter-spacing: -.3px; min-width: 190px; color: var(--navy, #0b2a4a); }
+  .hc-bar select, .hc-bar input {
+    padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: var(--font); font-size: 0.88rem; background: #fff; color: var(--ink);
+  }
+  .hc-search { flex: 1 1 200px; min-width: 0; max-width: 320px; }
+  .hc-bar select:focus, .hc-bar input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .hc-count { margin-left: auto; font-size: 0.82rem; white-space: nowrap; }
 
-  .hc-day { margin-bottom: 22px; }
-  .hc-day-h {
-    font-size: 0.74rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
-    color: var(--muted); padding: 0 0 8px; border-bottom: 1.5px solid var(--line); margin-bottom: 10px;
+  .hc-wrap { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .hc-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .hc-dow {
+    background: #f0f4fa; font-size: 0.7rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding: 9px 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
   }
-  .hc-day-h .n { color: var(--blue); }
+  .hc-dow:nth-child(7n) { border-right: 0; }
+  .hc-cell {
+    background: #fff; min-height: 124px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 6px; position: relative; overflow: hidden;
+  }
+  .hc-cell:nth-child(7n) { border-right: 0; }
+  .hc-cell.dim { background: #f8fafd; }
+  .hc-cell.dim .hc-dnum { color: #b6c2d2; }
+  .hc-dnum {
+    font-size: 0.76rem; font-weight: 700; color: var(--ink); width: 24px; height: 24px;
+    display: grid; place-items: center; border-radius: 50%; margin-bottom: 2px;
+  }
+  .hc-cell.today .hc-dnum { background: var(--blue); color: #fff; }
 
-  .hc-cards { display: grid; gap: 10px; }
-  .hc-card {
-    display: grid; grid-template-columns: 92px 1fr auto; gap: 16px; align-items: center;
-    background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--blue);
-    border-radius: 13px; padding: 14px 16px; cursor: pointer; width: 100%; text-align: left;
-    font-family: var(--font); transition: border-color .14s, box-shadow .14s, transform .14s;
+  .hc-ev {
+    display: block; width: 100%; text-align: left; border: 0; cursor: pointer; font-family: var(--font);
+    font-size: 0.7rem; line-height: 1.3; padding: 3px 7px; border-radius: 6px; margin-top: 3px;
+    color: #fff; overflow: hidden; border-left: 3px solid rgba(0,0,0,.22);
   }
-  .hc-card:hover { border-color: var(--blue); box-shadow: 0 8px 22px -12px rgba(15,42,84,.35); transform: translateY(-1px); }
-  .hc-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-  .hc-card.is-house { border-left-color: #8b5cf6; }
-  .hc-card.is-past { opacity: .6; }
-  .hc-card.is-cancelled { border-left-color: #b3261e; opacity: .55; }
-  .hc-card.is-cancelled .hc-client { text-decoration: line-through; }
+  .hc-ev:hover { filter: brightness(1.08); }
+  .hc-ev:focus-visible { outline: 2px solid var(--navy, #0b2a4a); outline-offset: 1px; }
+  .hc-ev b { font-weight: 750; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hc-ev span { display: block; opacity: .85; font-size: 0.64rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hc-ev.cancelled { opacity: .5; }
+  .hc-ev.cancelled b { text-decoration: line-through; }
+  .hc-more {
+    margin-top: 3px; font-size: 0.66rem; font-weight: 700; color: var(--blue); background: none;
+    border: 0; cursor: pointer; font-family: var(--font); padding: 1px 4px;
+  }
+  .hc-more:hover { text-decoration: underline; }
 
-  .hc-time { font-weight: 800; color: var(--navy, #0b2a4a); font-size: 1.02rem; line-height: 1.25; white-space: nowrap; }
-  .hc-time small { display: block; font-weight: 600; color: var(--muted); font-size: 0.74rem; margin-top: 2px; }
-  .hc-client { font-weight: 750; color: var(--ink); font-size: 1rem; }
-  .hc-meta { color: var(--muted); font-size: 0.84rem; margin-top: 3px; line-height: 1.5; }
-  .hc-agent-tag {
-    display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
-    color: #0f3567; background: #eaf3ff; padding: 4px 11px; border-radius: 999px; white-space: nowrap;
-  }
-  .hc-agent-tag.house { background: #f3ecfd; color: #5b3fc4; }
-  .hc-chev { color: var(--muted); font-size: 1.1rem; }
-  @media (max-width: 720px) {
-    .hc-card { grid-template-columns: 1fr; gap: 8px; }
-    .hc-chev { display: none; }
-  }
+  .hc-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 14px; }
+  .hc-leg { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+  .hc-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
-  .hc-empty { padding: 34px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: 14px; }
+  @media (max-width: 900px) {
+    .hc-cell { min-height: 92px; }
+    .hc-ev span { display: none; }
+  }
 
   .hc-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; }
   .hc-modal-bg { position: absolute; inset: 0; background: rgba(11,42,74,.45); backdrop-filter: blur(3px); }
@@ -168,6 +184,7 @@ const SUPABASE_ANON =
   .hc-rem { display: flex; gap: 8px; flex-wrap: wrap; }
   .hc-pill { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #eef3f8; color: #5a6f85; }
   .hc-pill.on { background: #e6f7ed; color: #16803c; }
+  .hc-daylist { display: grid; gap: 8px; }
 </style>
 
 <script>
@@ -182,27 +199,40 @@ const SUPABASE_ANON =
     );
 
     const $ = (s) => root.querySelector(s);
-    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const $$ = (s, r = root) => Array.from(r.querySelectorAll(s));
     const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+    const TZ = 'America/Los_Angeles';
     let rows = [];
-    let range = 'upcoming';
+    let calMonth = null;
     let agentFilter = '';
     let query = '';
     let searchTimer = null;
 
-    const TZ = 'America/Los_Angeles';
-    const fmtTime = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(s));
-    const fmtZone = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, timeZoneName: 'short' }).formatToParts(new Date(s)).find((p) => p.type === 'timeZoneName')?.value || '';
-    const fmtDayKey = (s) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(s));
-    const fmtDayLabel = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(s));
+    const dayKey = (s) => new Date(s).toLocaleDateString('en-CA', { timeZone: TZ });
+    const fmtTime = (s) => new Date(s).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
     const fmtFull = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(s));
+    const fmtDayLabel = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(s));
     const fmtPhone = (p) => {
       const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
       return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : (p || '');
     };
     const mins = (a, b) => Math.max(0, Math.round((new Date(b) - new Date(a)) / 60000));
+
+    // Stable colour per broker. Hashing the id rather than the array position
+    // means a broker keeps the same colour between loads and between months,
+    // which is the only thing that makes sixty people legible on one grid.
+    const HOUSE_COLOR = '#8b5cf6';
+    function agentColor(r) {
+      if (r.is_house) return HOUSE_COLOR;
+      const id = String(r.agent_id || 'unassigned');
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+      // Skip the purple band so nothing is mistaken for the House Account.
+      const hue = [210, 152, 22, 340, 190, 45, 262, 4, 172, 300, 96, 232][h % 12];
+      return `hsl(${hue} 62% 42%)`;
+    }
 
     // ---------- sign in / out ----------
     $('.ad-login-form').addEventListener('submit', async (e) => {
@@ -220,11 +250,6 @@ const SUPABASE_ANON =
     $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ---------- filters ----------
-    $$('[data-range]').forEach((b) => b.addEventListener('click', () => {
-      range = b.getAttribute('data-range');
-      $$('[data-range]').forEach((x) => x.classList.toggle('is-on', x === b));
-      render();
-    }));
     $('.hc-agent').addEventListener('change', (e) => { agentFilter = e.target.value; render(); });
     $('.hc-search').addEventListener('input', (e) => {
       clearTimeout(searchTimer);
@@ -235,7 +260,7 @@ const SUPABASE_ANON =
     // ---------- data ----------
     async function load() {
       const { data, error } = await sb.rpc('ph_house_calendar');
-      if (error) { $('.hc-list').innerHTML = `<div class="hc-empty">Could not load the calendar: ${esc(error.message)}</div>`; return; }
+      if (error) { $('.hc-wrap').innerHTML = `<div style="padding:34px;text-align:center;color:var(--muted)">Could not load the calendar: ${esc(error.message)}</div>`; return; }
       rows = data ?? [];
 
       const byAgent = new Map();
@@ -244,28 +269,11 @@ const SUPABASE_ANON =
         + [...byAgent.entries()].sort((a, b) => String(a[1]).localeCompare(String(b[1])))
             .map(([id, name]) => `<option value="${esc(id)}">${esc(name)}</option>`).join('');
 
-      const now = Date.now();
-      const booked = rows.filter((r) => r.status === 'booked');
-      const todayKey = fmtDayKey(new Date().toISOString());
-      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = String(v); };
-      set('today', booked.filter((r) => fmtDayKey(r.start_at) === todayKey).length);
-      set('week', booked.filter((r) => +new Date(r.start_at) >= now && +new Date(r.start_at) <= now + 7 * 864e5).length);
-      set('upcoming', booked.filter((r) => +new Date(r.start_at) >= now).length);
-      set('brokers', new Set(booked.filter((r) => +new Date(r.start_at) >= now).map((r) => r.agent_id)).size);
-      set('house', booked.filter((r) => r.is_house).length);
-
       render();
     }
 
     function visible() {
-      const now = Date.now();
-      const todayKey = fmtDayKey(new Date().toISOString());
       return rows.filter((r) => {
-        const t = +new Date(r.start_at);
-        if (range === 'upcoming' && t < now) return false;
-        if (range === 'today' && fmtDayKey(r.start_at) !== todayKey) return false;
-        if (range === 'week' && (t < now || t > now + 7 * 864e5)) return false;
-        if (range === 'past' && t >= now) return false;
         if (agentFilter && r.agent_id !== agentFilter) return false;
         if (query) {
           const hay = [r.invitee_name, r.invitee_email, r.invitee_phone, r.agent_name, r.line_key].join(' ').toLowerCase();
@@ -276,105 +284,152 @@ const SUPABASE_ANON =
     }
 
     function render() {
-      const host = $('.hc-list');
-      let list = visible();
-      if (range === 'past') list = list.slice().reverse();
+      if (!calMonth) { const n = new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+      const y = calMonth.getFullYear(), m = calMonth.getMonth();
+      const first = new Date(y, m, 1);
+      const start = new Date(first);
+      start.setDate(1 - ((first.getDay() + 6) % 7)); // Monday-first, same as the CRM
 
-      $('.hc-count').textContent = list.length === 1 ? '1 appointment' : `${list.length.toLocaleString()} appointments`;
-      if (!list.length) {
-        host.innerHTML = '<div class="hc-empty">No appointments match this view.</div>';
-        return;
+      const list = visible();
+      const byDay = {};
+      list.forEach((r) => { (byDay[dayKey(r.start_at)] ||= []).push(r); });
+      Object.values(byDay).forEach((d) => d.sort((a, b) => +new Date(a.start_at) - +new Date(b.start_at)));
+
+      const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
+      $('.hc-title').textContent = calMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+      const dows = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      let cells = '';
+      let monthCount = 0;
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        const k = d.toLocaleDateString('en-CA');
+        const inMonth = d.getMonth() === m;
+        const items = byDay[k] || [];
+        if (inMonth) monthCount += items.length;
+        const shown = items.slice(0, 3).map((r) => {
+          const who = r.agent_name || r.agent_email || 'Unassigned';
+          return `<button type="button" class="hc-ev${r.status !== 'booked' ? ' cancelled' : ''}" data-appt="${esc(r.id)}"
+            style="background:${agentColor(r)}" title="${esc(r.invitee_name || 'Client')} · ${esc(who)}">
+            <b>${esc(fmtTime(r.start_at))} ${esc(r.invitee_name || 'Client')}</b><span>${r.is_house ? '🏠 ' : ''}${esc(who)}</span>
+          </button>`;
+        }).join('');
+        const more = items.length > 3 ? `<button type="button" class="hc-more" data-day="${k}">+${items.length - 3} more</button>` : '';
+        cells += `<div class="hc-cell${inMonth ? '' : ' dim'}${k === todayKey ? ' today' : ''}">
+          <div class="hc-dnum">${d.getDate()}</div>${shown}${more}</div>`;
       }
 
-      // Group by local day so the calendar reads as days, not a flat list.
-      const days = [];
-      const index = new Map();
-      for (const r of list) {
-        const k = fmtDayKey(r.start_at);
-        if (!index.has(k)) { index.set(k, { key: k, label: fmtDayLabel(r.start_at), items: [] }); days.push(index.get(k)); }
-        index.get(k).items.push(r);
-      }
+      $('.hc-grid').innerHTML = dows.map((x) => `<div class="hc-dow">${x}</div>`).join('') + cells;
+      $('.hc-count').textContent = monthCount === 1 ? '1 appointment this month' : `${monthCount} appointments this month`;
 
-      const now = Date.now();
-      host.innerHTML = days.map((d) => `
-        <div class="hc-day">
-          <div class="hc-day-h">${esc(d.label)} <span class="n">· ${d.items.length}</span></div>
-          <div class="hc-cards">
-            ${d.items.map((r) => {
-              const past = +new Date(r.start_at) < now;
-              const cls = ['hc-card', r.is_house ? 'is-house' : '', past ? 'is-past' : '', r.status !== 'booked' ? 'is-cancelled' : ''].filter(Boolean).join(' ');
-              const who = r.agent_name || r.agent_email || 'Unassigned';
-              return `<button type="button" class="${cls}" data-appt="${esc(r.id)}">
-                <div class="hc-time">${esc(fmtTime(r.start_at))}<small>${esc(mins(r.start_at, r.end_at))} min</small></div>
-                <div style="min-width:0">
-                  <div class="hc-client">${esc(r.invitee_name || 'Unnamed client')}</div>
-                  <div class="hc-meta">${esc(r.invitee_email || '')}${r.invitee_phone ? ' · ' + esc(fmtPhone(r.invitee_phone)) : ''}${r.line_key ? ' · ' + esc(r.line_key) : ''}${r.status !== 'booked' ? ' · ' + esc(r.status) : ''}</div>
-                </div>
-                <span class="hc-agent-tag${r.is_house ? ' house' : ''}">${r.is_house ? '🏠 ' : ''}${esc(who)}</span>
-                <span class="hc-chev">›</span>
-              </button>`;
-            }).join('')}
-          </div>
-        </div>`).join('');
+      // Legend, only for brokers who actually appear in the month on screen.
+      const seen = new Map();
+      list.forEach((r) => {
+        const d = new Date(r.start_at);
+        if (d.getFullYear() === y && d.getMonth() === m && r.agent_id && !seen.has(r.agent_id)) {
+          seen.set(r.agent_id, { name: r.agent_name || r.agent_email || 'Unassigned', color: agentColor(r), house: r.is_house });
+        }
+      });
+      $('.hc-legend').innerHTML = [...seen.values()]
+        .sort((a, b) => String(a.name).localeCompare(String(b.name)))
+        .map((a) => `<span class="hc-leg"><i class="hc-dot" style="background:${a.color}"></i>${a.house ? '🏠 ' : ''}${esc(a.name)}</span>`)
+        .join('');
 
-      $$('.hc-card').forEach((c) => c.addEventListener('click', () => openAppt(c.getAttribute('data-appt'))));
+      paintStats();
+
+      $$('.hc-ev').forEach((b) => b.addEventListener('click', () => openAppt(b.getAttribute('data-appt'))));
+      $$('.hc-more').forEach((b) => b.addEventListener('click', () => openDay(b.getAttribute('data-day'), byDay[b.getAttribute('data-day')] || [])));
     }
 
-    // ---------- detail ----------
+    function paintStats() {
+      const now = Date.now();
+      const y = calMonth.getFullYear(), m = calMonth.getMonth();
+      const booked = rows.filter((r) => r.status === 'booked');
+      const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = String(v); };
+      const inMonth = booked.filter((r) => { const d = new Date(r.start_at); return d.getFullYear() === y && d.getMonth() === m; });
+      set('month', inMonth.length);
+      set('today', booked.filter((r) => dayKey(r.start_at) === todayKey).length);
+      set('week', booked.filter((r) => +new Date(r.start_at) >= now && +new Date(r.start_at) <= now + 7 * 864e5).length);
+      set('brokers', new Set(inMonth.map((r) => r.agent_id)).size);
+      set('house', inMonth.filter((r) => r.is_house).length);
+    }
+
+    $$('[data-mo]').forEach((b) => b.addEventListener('click', () => {
+      const d = +b.getAttribute('data-mo');
+      if (d === 0) { const n = new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+      else calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + d, 1);
+      render();
+    }));
+
+    // ---------- modals ----------
+    function modal(inner) {
+      const wrap = document.createElement('div');
+      wrap.className = 'hc-modal';
+      wrap.innerHTML = `<div class="hc-modal-bg" data-close></div>
+        <div class="hc-modal-card" role="dialog" aria-modal="true">
+          <button class="hc-modal-x" data-close aria-label="Close">✕</button>${inner}</div>`;
+      document.body.appendChild(wrap);
+      const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); };
+      const onKey = (e) => { if (e.key === 'Escape') close(); };
+      wrap.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
+      document.addEventListener('keydown', onKey);
+      return { wrap, close };
+    }
+
+    function openDay(key, items) {
+      const label = items.length ? fmtDayLabel(items[0].start_at) : key;
+      const { wrap, close } = modal(`<h2>${esc(label)}</h2>
+        <p class="hc-when">${items.length} appointment${items.length === 1 ? '' : 's'}</p>
+        <div class="hc-daylist">${items.map((r) => {
+          const who = r.agent_name || r.agent_email || 'Unassigned';
+          return `<button type="button" class="hc-ev" data-appt="${esc(r.id)}" style="background:${agentColor(r)};padding:9px 12px;font-size:.82rem">
+            <b>${esc(fmtTime(r.start_at))} · ${esc(r.invitee_name || 'Client')}</b><span style="font-size:.72rem">${r.is_house ? '🏠 ' : ''}${esc(who)}</span></button>`;
+        }).join('')}</div>`);
+      $$('.hc-ev', wrap).forEach((b) => b.addEventListener('click', () => { close(); openAppt(b.getAttribute('data-appt')); }));
+    }
+
     function openAppt(id) {
       const r = rows.find((x) => String(x.id) === String(id));
       if (!r) return;
       const pill = (label, at) => `<span class="hc-pill${at ? ' on' : ''}">${esc(label)}${at ? ' ✓' : ''}</span>`;
       const row = (k, v) => v ? `<dt>${esc(k)}</dt><dd>${v}</dd>` : '';
+      modal(`
+        <h2>${esc(r.invitee_name || 'Unnamed client')}</h2>
+        <p class="hc-when">${esc(fmtFull(r.start_at))} · ${esc(mins(r.start_at, r.end_at))} minutes</p>
 
-      const wrap = document.createElement('div');
-      wrap.className = 'hc-modal';
-      wrap.innerHTML = `
-        <div class="hc-modal-bg" data-close></div>
-        <div class="hc-modal-card" role="dialog" aria-modal="true" aria-label="Appointment detail">
-          <button class="hc-modal-x" data-close aria-label="Close">✕</button>
-          <h2>${esc(r.invitee_name || 'Unnamed client')}</h2>
-          <p class="hc-when">${esc(fmtFull(r.start_at))} · ${esc(mins(r.start_at, r.end_at))} minutes</p>
+        <div class="hc-sec">Client</div>
+        <dl class="hc-kv">
+          ${row('Email', r.invitee_email ? `<a href="mailto:${esc(r.invitee_email)}">${esc(r.invitee_email)}</a>` : '')}
+          ${row('Phone', r.invitee_phone ? `<a href="tel:${esc(String(r.invitee_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.invitee_phone))}</a>` : '')}
+          ${row('Disposition', r.contact_disposition ? esc(r.contact_disposition) : '')}
+          ${row('Contact record', r.contact_id ? `<code>${esc(r.contact_id)}</code>` : 'Not linked to a contact')}
+        </dl>
 
-          <div class="hc-sec">Client</div>
-          <dl class="hc-kv">
-            ${row('Email', r.invitee_email ? `<a href="mailto:${esc(r.invitee_email)}">${esc(r.invitee_email)}</a>` : '')}
-            ${row('Phone', r.invitee_phone ? `<a href="tel:${esc(String(r.invitee_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.invitee_phone))}</a>` : '')}
-            ${row('Disposition', r.contact_disposition ? esc(r.contact_disposition) : '')}
-            ${row('Contact record', r.contact_id ? `<code>${esc(r.contact_id)}</code>` : 'Not linked to a contact')}
-          </dl>
+        <div class="hc-sec">Broker</div>
+        <dl class="hc-kv">
+          ${row('Assigned to', esc(r.agent_name || 'Unassigned') + (r.is_house ? ' <span class="hc-pill">House Account</span>' : ''))}
+          ${row('Email', r.agent_email ? `<a href="mailto:${esc(r.agent_email)}">${esc(r.agent_email)}</a>` : '')}
+          ${row('Phone', r.agent_phone ? `<a href="tel:${esc(String(r.agent_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.agent_phone))}</a>` : '')}
+        </dl>
 
-          <div class="hc-sec">Broker</div>
-          <dl class="hc-kv">
-            ${row('Assigned to', esc(r.agent_name || 'Unassigned') + (r.is_house ? ' <span class="hc-pill">House Account</span>' : ''))}
-            ${row('Email', r.agent_email ? `<a href="mailto:${esc(r.agent_email)}">${esc(r.agent_email)}</a>` : '')}
-            ${row('Phone', r.agent_phone ? `<a href="tel:${esc(String(r.agent_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.agent_phone))}</a>` : '')}
-          </dl>
+        <div class="hc-sec">Appointment</div>
+        <dl class="hc-kv">
+          ${row('Status', esc(r.status || ''))}
+          ${row('Booked via', esc(r.source === 'landing' ? 'Broker landing page' : r.source === 'manual' ? 'Booked by the broker' : (r.source || 'unknown')))}
+          ${row('Line', r.line_key ? esc(r.line_key) : '')}
+          ${row('Time zone', esc(r.timezone || TZ))}
+          ${row('Created', esc(fmtFull(r.created_at)))}
+        </dl>
 
-          <div class="hc-sec">Appointment</div>
-          <dl class="hc-kv">
-            ${row('Status', esc(r.status || ''))}
-            ${row('Booked via', esc(r.source === 'landing' ? 'Broker landing page' : r.source === 'manual' ? 'Booked by the broker' : (r.source || 'unknown')))}
-            ${row('Line', r.line_key ? esc(r.line_key) : '')}
-            ${row('Time zone', esc(r.timezone || TZ))}
-            ${row('Created', esc(fmtFull(r.created_at)))}
-          </dl>
+        <div class="hc-sec">Reminders sent</div>
+        <div class="hc-rem">
+          ${pill('24 hour', r.reminder_24_sent_at)}
+          ${pill('1 hour', r.reminder_1_sent_at)}
+          ${pill('10 minute', r.reminder_10_sent_at)}
+        </div>
 
-          <div class="hc-sec">Reminders sent</div>
-          <div class="hc-rem">
-            ${pill('24 hour', r.reminder_24_sent_at)}
-            ${pill('1 hour', r.reminder_1_sent_at)}
-            ${pill('10 minute', r.reminder_10_sent_at)}
-          </div>
-
-          ${r.notes ? `<div class="hc-sec">What the client wrote</div><div class="hc-note">${esc(r.notes)}</div>` : ''}
-        </div>`;
-      document.body.appendChild(wrap);
-
-      const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); };
-      const onKey = (e) => { if (e.key === 'Escape') close(); };
-      wrap.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
-      document.addEventListener('keydown', onKey);
+        ${r.notes ? `<div class="hc-sec">What the client wrote</div><div class="hc-note">${esc(r.notes)}</div>` : ''}`);
     }
 
     // ---------- boot ----------
