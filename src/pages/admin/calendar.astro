@@ -1,0 +1,394 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// The House Calendar. Every appointment in the business, across every broker,
+// in one view.
+//
+// The CRM calendar at /app is deliberately personal — a broker, including an
+// admin, sees only their own bookings. So house-wide viewing needs its own
+// page, and it reads ph_house_calendar(), which refuses to return anything at
+// all to a non-admin rather than quietly returning a partial view.
+//
+// Each card carries the two things an admin actually scans for: who the client
+// is, and which broker owns it. Everything else is one click away.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="House Calendar, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad hc" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>House Calendar</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts">All Contacts</a>
+              <a href="/admin/calendar" class="is-on">House Calendar</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/app">My CRM</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="today">—</b><span>Today</span></div>
+          <div class="ad-stat spot"><b data-stat="week">—</b><span>Next 7 days</span></div>
+          <div class="ad-stat spot"><b data-stat="upcoming">—</b><span>All upcoming</span></div>
+          <div class="ad-stat spot"><b data-stat="brokers">—</b><span>Brokers with bookings</span></div>
+          <div class="ad-stat spot"><b data-stat="house">—</b><span>House account</span></div>
+        </div>
+
+        <div class="ad-toolbar hc-toolbar">
+          <div class="ad-filters" role="group" aria-label="Range">
+            <button type="button" class="ad-chip is-on" data-range="upcoming">Upcoming</button>
+            <button type="button" class="ad-chip" data-range="today">Today</button>
+            <button type="button" class="ad-chip" data-range="week">Next 7 days</button>
+            <button type="button" class="ad-chip" data-range="past">Past</button>
+            <button type="button" class="ad-chip" data-range="all">Everything</button>
+          </div>
+          <select class="hc-agent" aria-label="Filter by broker"><option value="">Every broker</option></select>
+          <input type="search" class="hc-search" placeholder="Search client name, email or phone…" aria-label="Search" />
+        </div>
+
+        <p class="hc-count ad-muted"></p>
+        <div class="hc-list"></div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .hc .ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+  .hc .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .hc .ad-nav a.is-on, .hc .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+
+  .hc-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .hc-toolbar select, .hc-toolbar input {
+    padding: 10px 13px; border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink);
+  }
+  .hc-search { flex: 1 1 240px; min-width: 0; }
+  .hc-toolbar select:focus, .hc-toolbar input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .hc-count { font-size: 0.84rem; margin: 0 0 12px; }
+
+  .hc-day { margin-bottom: 22px; }
+  .hc-day-h {
+    font-size: 0.74rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--muted); padding: 0 0 8px; border-bottom: 1.5px solid var(--line); margin-bottom: 10px;
+  }
+  .hc-day-h .n { color: var(--blue); }
+
+  .hc-cards { display: grid; gap: 10px; }
+  .hc-card {
+    display: grid; grid-template-columns: 92px 1fr auto; gap: 16px; align-items: center;
+    background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--blue);
+    border-radius: 13px; padding: 14px 16px; cursor: pointer; width: 100%; text-align: left;
+    font-family: var(--font); transition: border-color .14s, box-shadow .14s, transform .14s;
+  }
+  .hc-card:hover { border-color: var(--blue); box-shadow: 0 8px 22px -12px rgba(15,42,84,.35); transform: translateY(-1px); }
+  .hc-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .hc-card.is-house { border-left-color: #8b5cf6; }
+  .hc-card.is-past { opacity: .6; }
+  .hc-card.is-cancelled { border-left-color: #b3261e; opacity: .55; }
+  .hc-card.is-cancelled .hc-client { text-decoration: line-through; }
+
+  .hc-time { font-weight: 800; color: var(--navy, #0b2a4a); font-size: 1.02rem; line-height: 1.25; white-space: nowrap; }
+  .hc-time small { display: block; font-weight: 600; color: var(--muted); font-size: 0.74rem; margin-top: 2px; }
+  .hc-client { font-weight: 750; color: var(--ink); font-size: 1rem; }
+  .hc-meta { color: var(--muted); font-size: 0.84rem; margin-top: 3px; line-height: 1.5; }
+  .hc-agent-tag {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
+    color: #0f3567; background: #eaf3ff; padding: 4px 11px; border-radius: 999px; white-space: nowrap;
+  }
+  .hc-agent-tag.house { background: #f3ecfd; color: #5b3fc4; }
+  .hc-chev { color: var(--muted); font-size: 1.1rem; }
+  @media (max-width: 720px) {
+    .hc-card { grid-template-columns: 1fr; gap: 8px; }
+    .hc-chev { display: none; }
+  }
+
+  .hc-empty { padding: 34px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: 14px; }
+
+  .hc-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; }
+  .hc-modal-bg { position: absolute; inset: 0; background: rgba(11,42,74,.45); backdrop-filter: blur(3px); }
+  .hc-modal-card {
+    position: relative; background: #fff; border-radius: 20px; width: 100%; max-width: 560px;
+    max-height: 86vh; overflow: auto; box-shadow: 0 40px 80px rgba(11,42,74,.28); padding: 26px 28px 28px;
+  }
+  .hc-modal-x { position: absolute; top: 16px; right: 16px; border: 0; background: #eef3f8; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--ink); }
+  .hc-modal-card h2 { margin: 0 0 4px; font-size: 1.35rem; color: var(--navy, #0b2a4a); }
+  .hc-when { font-size: 1rem; font-weight: 700; color: var(--blue); margin: 0 0 18px; }
+  .hc-kv { display: grid; grid-template-columns: 132px 1fr; gap: 9px 14px; font-size: 0.9rem; align-items: start; }
+  .hc-kv dt { color: var(--muted); font-weight: 650; }
+  .hc-kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+  .hc-kv a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .hc-sec { margin: 20px 0 8px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+  .hc-note { background: #f6f9fe; border: 1px solid #e6edf6; border-radius: 12px; padding: 13px 15px; font-size: 0.92rem; line-height: 1.6; color: var(--ink); }
+  .hc-rem { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hc-pill { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #eef3f8; color: #5a6f85; }
+  .hc-pill.on { background: #e6f7ed; color: #16803c; }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.hc');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    let rows = [];
+    let range = 'upcoming';
+    let agentFilter = '';
+    let query = '';
+    let searchTimer = null;
+
+    const TZ = 'America/Los_Angeles';
+    const fmtTime = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(s));
+    const fmtZone = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, timeZoneName: 'short' }).formatToParts(new Date(s)).find((p) => p.type === 'timeZoneName')?.value || '';
+    const fmtDayKey = (s) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(s));
+    const fmtDayLabel = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(s));
+    const fmtFull = (s) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(s));
+    const fmtPhone = (p) => {
+      const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
+      return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : (p || '');
+    };
+    const mins = (a, b) => Math.max(0, Math.round((new Date(b) - new Date(a)) / 60000));
+
+    // ---------- sign in / out ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/calendar` },
+      });
+      if (error) { status.classList.add('is-bad'); status.textContent = error.message; }
+      else status.textContent = 'Check your inbox. The link signs you straight in.';
+    });
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
+
+    // ---------- filters ----------
+    $$('[data-range]').forEach((b) => b.addEventListener('click', () => {
+      range = b.getAttribute('data-range');
+      $$('[data-range]').forEach((x) => x.classList.toggle('is-on', x === b));
+      render();
+    }));
+    $('.hc-agent').addEventListener('change', (e) => { agentFilter = e.target.value; render(); });
+    $('.hc-search').addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      const v = e.target.value.trim().toLowerCase();
+      searchTimer = setTimeout(() => { query = v; render(); }, 200);
+    });
+
+    // ---------- data ----------
+    async function load() {
+      const { data, error } = await sb.rpc('ph_house_calendar');
+      if (error) { $('.hc-list').innerHTML = `<div class="hc-empty">Could not load the calendar: ${esc(error.message)}</div>`; return; }
+      rows = data ?? [];
+
+      const byAgent = new Map();
+      rows.forEach((r) => { if (r.agent_id) byAgent.set(r.agent_id, r.agent_name || r.agent_email || 'Unnamed'); });
+      $('.hc-agent').innerHTML = '<option value="">Every broker</option>'
+        + [...byAgent.entries()].sort((a, b) => String(a[1]).localeCompare(String(b[1])))
+            .map(([id, name]) => `<option value="${esc(id)}">${esc(name)}</option>`).join('');
+
+      const now = Date.now();
+      const booked = rows.filter((r) => r.status === 'booked');
+      const todayKey = fmtDayKey(new Date().toISOString());
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = String(v); };
+      set('today', booked.filter((r) => fmtDayKey(r.start_at) === todayKey).length);
+      set('week', booked.filter((r) => +new Date(r.start_at) >= now && +new Date(r.start_at) <= now + 7 * 864e5).length);
+      set('upcoming', booked.filter((r) => +new Date(r.start_at) >= now).length);
+      set('brokers', new Set(booked.filter((r) => +new Date(r.start_at) >= now).map((r) => r.agent_id)).size);
+      set('house', booked.filter((r) => r.is_house).length);
+
+      render();
+    }
+
+    function visible() {
+      const now = Date.now();
+      const todayKey = fmtDayKey(new Date().toISOString());
+      return rows.filter((r) => {
+        const t = +new Date(r.start_at);
+        if (range === 'upcoming' && t < now) return false;
+        if (range === 'today' && fmtDayKey(r.start_at) !== todayKey) return false;
+        if (range === 'week' && (t < now || t > now + 7 * 864e5)) return false;
+        if (range === 'past' && t >= now) return false;
+        if (agentFilter && r.agent_id !== agentFilter) return false;
+        if (query) {
+          const hay = [r.invitee_name, r.invitee_email, r.invitee_phone, r.agent_name, r.line_key].join(' ').toLowerCase();
+          if (!hay.includes(query)) return false;
+        }
+        return true;
+      });
+    }
+
+    function render() {
+      const host = $('.hc-list');
+      let list = visible();
+      if (range === 'past') list = list.slice().reverse();
+
+      $('.hc-count').textContent = list.length === 1 ? '1 appointment' : `${list.length.toLocaleString()} appointments`;
+      if (!list.length) {
+        host.innerHTML = '<div class="hc-empty">No appointments match this view.</div>';
+        return;
+      }
+
+      // Group by local day so the calendar reads as days, not a flat list.
+      const days = [];
+      const index = new Map();
+      for (const r of list) {
+        const k = fmtDayKey(r.start_at);
+        if (!index.has(k)) { index.set(k, { key: k, label: fmtDayLabel(r.start_at), items: [] }); days.push(index.get(k)); }
+        index.get(k).items.push(r);
+      }
+
+      const now = Date.now();
+      host.innerHTML = days.map((d) => `
+        <div class="hc-day">
+          <div class="hc-day-h">${esc(d.label)} <span class="n">· ${d.items.length}</span></div>
+          <div class="hc-cards">
+            ${d.items.map((r) => {
+              const past = +new Date(r.start_at) < now;
+              const cls = ['hc-card', r.is_house ? 'is-house' : '', past ? 'is-past' : '', r.status !== 'booked' ? 'is-cancelled' : ''].filter(Boolean).join(' ');
+              const who = r.agent_name || r.agent_email || 'Unassigned';
+              return `<button type="button" class="${cls}" data-appt="${esc(r.id)}">
+                <div class="hc-time">${esc(fmtTime(r.start_at))}<small>${esc(mins(r.start_at, r.end_at))} min</small></div>
+                <div style="min-width:0">
+                  <div class="hc-client">${esc(r.invitee_name || 'Unnamed client')}</div>
+                  <div class="hc-meta">${esc(r.invitee_email || '')}${r.invitee_phone ? ' · ' + esc(fmtPhone(r.invitee_phone)) : ''}${r.line_key ? ' · ' + esc(r.line_key) : ''}${r.status !== 'booked' ? ' · ' + esc(r.status) : ''}</div>
+                </div>
+                <span class="hc-agent-tag${r.is_house ? ' house' : ''}">${r.is_house ? '🏠 ' : ''}${esc(who)}</span>
+                <span class="hc-chev">›</span>
+              </button>`;
+            }).join('')}
+          </div>
+        </div>`).join('');
+
+      $$('.hc-card').forEach((c) => c.addEventListener('click', () => openAppt(c.getAttribute('data-appt'))));
+    }
+
+    // ---------- detail ----------
+    function openAppt(id) {
+      const r = rows.find((x) => String(x.id) === String(id));
+      if (!r) return;
+      const pill = (label, at) => `<span class="hc-pill${at ? ' on' : ''}">${esc(label)}${at ? ' ✓' : ''}</span>`;
+      const row = (k, v) => v ? `<dt>${esc(k)}</dt><dd>${v}</dd>` : '';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'hc-modal';
+      wrap.innerHTML = `
+        <div class="hc-modal-bg" data-close></div>
+        <div class="hc-modal-card" role="dialog" aria-modal="true" aria-label="Appointment detail">
+          <button class="hc-modal-x" data-close aria-label="Close">✕</button>
+          <h2>${esc(r.invitee_name || 'Unnamed client')}</h2>
+          <p class="hc-when">${esc(fmtFull(r.start_at))} · ${esc(mins(r.start_at, r.end_at))} minutes</p>
+
+          <div class="hc-sec">Client</div>
+          <dl class="hc-kv">
+            ${row('Email', r.invitee_email ? `<a href="mailto:${esc(r.invitee_email)}">${esc(r.invitee_email)}</a>` : '')}
+            ${row('Phone', r.invitee_phone ? `<a href="tel:${esc(String(r.invitee_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.invitee_phone))}</a>` : '')}
+            ${row('Disposition', r.contact_disposition ? esc(r.contact_disposition) : '')}
+            ${row('Contact record', r.contact_id ? `<code>${esc(r.contact_id)}</code>` : 'Not linked to a contact')}
+          </dl>
+
+          <div class="hc-sec">Broker</div>
+          <dl class="hc-kv">
+            ${row('Assigned to', esc(r.agent_name || 'Unassigned') + (r.is_house ? ' <span class="hc-pill">House Account</span>' : ''))}
+            ${row('Email', r.agent_email ? `<a href="mailto:${esc(r.agent_email)}">${esc(r.agent_email)}</a>` : '')}
+            ${row('Phone', r.agent_phone ? `<a href="tel:${esc(String(r.agent_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.agent_phone))}</a>` : '')}
+          </dl>
+
+          <div class="hc-sec">Appointment</div>
+          <dl class="hc-kv">
+            ${row('Status', esc(r.status || ''))}
+            ${row('Booked via', esc(r.source === 'landing' ? 'Broker landing page' : r.source === 'manual' ? 'Booked by the broker' : (r.source || 'unknown')))}
+            ${row('Line', r.line_key ? esc(r.line_key) : '')}
+            ${row('Time zone', esc(r.timezone || TZ))}
+            ${row('Created', esc(fmtFull(r.created_at)))}
+          </dl>
+
+          <div class="hc-sec">Reminders sent</div>
+          <div class="hc-rem">
+            ${pill('24 hour', r.reminder_24_sent_at)}
+            ${pill('1 hour', r.reminder_1_sent_at)}
+            ${pill('10 minute', r.reminder_10_sent_at)}
+          </div>
+
+          ${r.notes ? `<div class="hc-sec">What the client wrote</div><div class="hc-note">${esc(r.notes)}</div>` : ''}
+        </div>`;
+      document.body.appendChild(wrap);
+
+      const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); };
+      const onKey = (e) => { if (e.key === 'Escape') close(); };
+      wrap.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
+      document.addEventListener('keydown', onKey);
+    }
+
+    // ---------- boot ----------
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { view('signin'); return; }
+      $$('[data-who]').forEach((el) => (el.textContent = session.user.email || ''));
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+      await load();
+    }
+
+    sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
+    boot();
+  }
+</script>
