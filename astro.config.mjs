@@ -11,7 +11,11 @@ export default defineConfig({
       // Internal pages stay out of the sitemap. /app and /admin are noindexed
       // dashboards; listing a noindexed URL in the sitemap sends Google two
       // contradictory instructions about the same page.
-      filter: (page) => !page.includes('/campaign-gallery') && !page.includes('/admin') && !page.includes('/app'),
+      filter: (page) =>
+        !page.includes('/campaign-gallery') &&
+        !page.includes('/admin') &&
+        !page.includes('/app') &&
+        !page.includes('/support'),
       // Clean URLs in the XML sitemap, Cloudflare Pages serves /page from /page.html.
       serialize(item) {
         item.url = item.url.replace(/index\.html$/, '').replace(/\.html$/, '');

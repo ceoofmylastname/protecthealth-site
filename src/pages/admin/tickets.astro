@@ -1,0 +1,707 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Support Tickets — the native replacement for the GoHighLevel Ticketing System
+// (workflows 000, 001, 003, 004, 005, 006).
+//
+// The public form already wrote to our own `tickets` table, so intake was never
+// the GHL-dependent part. What lived in GHL was everything after intake: the
+// pipeline, the department routing, and the six emails. That is what this page
+// and the ph-tickets edge function replace.
+//
+// Two rules drive the design:
+//
+//   1. Moving a card is the trigger. Dragging a ticket to In Progress, Awaiting
+//      Broker or Resolved is what sends the broker their email — there is no
+//      separate "send" step to forget. Stale nudges are the only timer-driven
+//      mail and they go internally, to the department leader, never to a broker.
+//
+//   2. We cannot receive email. Every message an admin sends carries Reply-To
+//      set to that admin's own address plus a visible line in the body saying
+//      so, because a reply to the ticket address would land nowhere. Sending
+//      also advances the card to Awaiting Broker with the templated 005 email
+//      suppressed, so the broker gets the real message rather than the real
+//      message followed by a generic request for the same information.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="Support Tickets, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad tk" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Support Tickets</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts">All Contacts</a>
+              <a href="/admin/calendar">House Calendar</a>
+              <a href="/admin/tickets" class="is-on">Support Tickets</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/app">My CRM</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="open">—</b><span>Open tickets</span></div>
+          <div class="ad-stat spot"><b data-stat="priority">—</b><span>Flagged high priority</span></div>
+          <div class="ad-stat spot"><b data-stat="idle">—</b><span>Untouched over 24 hours</span></div>
+          <div class="ad-stat spot"><b data-stat="week">—</b><span>Resolved this week</span></div>
+        </div>
+
+        <p class="tk-note ad-muted">
+          Moving a card is what emails the broker. In Progress, Awaiting Broker and Resolved each send
+          their own message the moment the card lands there; New Ticket and Closed send nothing.
+          Anything sitting untouched for 24 hours emails its department leader, and again at 36.
+        </p>
+
+        <div class="ad-toolbar tk-toolbar">
+          <input type="search" class="tk-search" placeholder="Search name, email, ticket ID or summary…" aria-label="Search tickets" />
+          <select class="tk-dept" aria-label="Filter by department"><option value="">Every department</option></select>
+          <select class="tk-leader" aria-label="Filter by leader"><option value="">Every leader</option></select>
+          <label class="tk-check"><input type="checkbox" class="tk-prio" /> High priority only</label>
+          <label class="tk-check"><input type="checkbox" class="tk-closed" /> Show closed</label>
+          <button type="button" class="cm-btn tk-clear">Clear filters</button>
+        </div>
+
+        <div class="tk-board"></div>
+
+        <details class="tk-routing">
+          <summary>Department routing — who gets the new-ticket email</summary>
+          <div class="tk-routing-body"><p class="ad-muted">Loading…</p></div>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ticket detail -->
+  <div class="tk-modal" hidden>
+    <div class="tk-modal-back"></div>
+    <div class="tk-modal-card" role="dialog" aria-modal="true" aria-label="Ticket detail">
+      <button type="button" class="tk-x" aria-label="Close">×</button>
+      <div class="tk-modal-body"></div>
+    </div>
+  </div>
+</Base>
+
+<style is:global>
+  .tk .ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+  .tk .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .tk .ad-nav a.is-on, .tk .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .tk-note { margin: -6px 0 18px; font-size: 0.86rem; max-width: 82ch; line-height: 1.65; }
+
+  .tk-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .tk-toolbar input[type="search"], .tk-toolbar select {
+    padding: 10px 13px; border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink);
+  }
+  .tk-search { flex: 1 1 260px; min-width: 0; }
+  .tk-toolbar input:focus, .tk-toolbar select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .tk-check { display: inline-flex; align-items: center; gap: 7px; font-size: 0.86rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .tk-check input { width: 16px; height: 16px; accent-color: var(--blue); }
+
+  /* ---------- board ---------- */
+  .tk-board { display: grid; grid-template-columns: repeat(5, minmax(min(230px, 100%), 1fr)); gap: 12px; align-items: start; }
+  @media (max-width: 1100px) { .tk-board { grid-template-columns: repeat(2, minmax(min(230px, 100%), 1fr)); } }
+  @media (max-width: 640px)  { .tk-board { grid-template-columns: 1fr; } }
+
+  .tk-col { background: #f6f8fc; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; min-height: 120px; transition: background .15s, border-color .15s; }
+  .tk-col.is-over { background: #eaf2ff; border-color: var(--blue); }
+  .tk-col-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 4px 10px; }
+  .tk-col-h b { font-size: 0.82rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+  .tk-col-n { background: #fff; border: 1.5px solid var(--line); border-radius: 99px; padding: 1px 9px; font-size: 0.76rem; font-weight: 800; color: var(--muted); }
+
+  .tk-card {
+    background: #fff; border: 1.5px solid var(--line); border-radius: 11px; padding: 11px 12px;
+    margin-bottom: 9px; cursor: pointer; box-shadow: 0 1px 3px rgba(11,42,74,.05);
+    border-left: 4px solid #cbd5e1; transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .tk-card:hover { box-shadow: 0 6px 18px rgba(11,42,74,.12); transform: translateY(-1px); }
+  .tk-card.is-prio { border-left-color: #dc2626; }
+  .tk-card.is-idle { border-left-color: #d97706; }
+  .tk-card.is-drag { opacity: .4; }
+  .tk-card-t { font-weight: 700; color: var(--ink); font-size: 0.92rem; line-height: 1.3; }
+  .tk-card-d { color: var(--muted); font-size: 0.78rem; margin-top: 3px; }
+  .tk-card-s { color: #475569; font-size: 0.8rem; margin-top: 6px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tk-card-f { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tk-tag { font-size: 0.7rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 5px; background: #eef2f7; color: #475569; }
+  .tk-tag.red { background: #fee2e2; color: #b91c1c; }
+  .tk-tag.amber { background: #fef3c7; color: #92400e; }
+  .tk-tag.blue { background: #dbeafe; color: #1d4ed8; }
+  .tk-empty { padding: 14px 6px; text-align: center; color: var(--muted); font-size: 0.82rem; }
+
+  /* ---------- routing table ---------- */
+  .tk-routing { margin-top: 26px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; }
+  .tk-routing summary { cursor: pointer; padding: 13px 16px; font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+  .tk-routing-body { padding: 0 16px 16px; }
+  .tk-routing table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .tk-routing th { text-align: left; color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1.5px solid var(--line); }
+  .tk-routing td { padding: 7px 8px; border-bottom: 1px solid var(--line); }
+  .tk-routing select { padding: 6px 9px; border: 1.5px solid var(--line); border-radius: 8px; font-family: var(--font); font-size: 0.85rem; background: #fff; }
+
+  /* ---------- modal ---------- */
+  .tk-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px 14px; }
+  .tk-modal-back { position: absolute; inset: 0; background: rgba(11,42,74,.42); backdrop-filter: blur(2px); }
+  .tk-modal-card { position: relative; background: #fff; border-radius: 18px; width: min(760px, 100%);
+    max-height: 88vh; overflow: auto; box-shadow: 0 24px 70px rgba(11,42,74,.28); padding: 26px 26px 30px; }
+  .tk-x { position: absolute; top: 12px; right: 14px; background: none; border: 0; font-size: 1.8rem;
+    line-height: 1; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+  .tk-x:hover { color: var(--ink); }
+
+  .tk-m-h { margin: 0 30px 4px 0; font-size: 1.28rem; color: var(--ink); line-height: 1.25; }
+  .tk-m-sub { color: var(--muted); font-size: 0.86rem; margin: 0 0 16px; }
+  .tk-m-grid { display: grid; grid-template-columns: 128px 1fr; gap: 7px 14px; font-size: 0.9rem; margin-bottom: 18px; }
+  .tk-m-grid dt { color: var(--muted); font-weight: 600; }
+  .tk-m-grid dd { margin: 0; color: var(--ink); }
+  .tk-m-sum { background: #f6f8fc; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    font-size: 0.9rem; line-height: 1.6; color: #334155; white-space: pre-wrap; margin-bottom: 18px; }
+
+  .tk-m-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+  .tk-m-row label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+  .tk-m-row select { padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 9px;
+    font-family: var(--font); font-size: 0.88rem; background: #fff; color: var(--ink); }
+
+  .tk-sec { margin-top: 22px; }
+  .tk-sec h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .tk-compose textarea, .tk-compose input[type="text"] {
+    width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: var(--font); font-size: 0.9rem; color: var(--ink); background: #fff; margin-bottom: 9px;
+  }
+  .tk-compose textarea { min-height: 128px; resize: vertical; line-height: 1.6; }
+  .tk-compose textarea:focus, .tk-compose input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .tk-replyline { background: #f2f7ff; border-left: 3px solid var(--blue); border-radius: 7px;
+    padding: 10px 12px; font-size: 0.82rem; color: #0b2a4a; line-height: 1.55; margin-bottom: 10px; }
+  .tk-compose-actions { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
+  .tk-btn { background: var(--blue); color: #fff; border: 0; border-radius: 9px; padding: 10px 20px;
+    font-family: var(--font); font-weight: 700; font-size: 0.88rem; cursor: pointer; }
+  .tk-btn:disabled { opacity: .5; cursor: default; }
+  .tk-btn.ghost { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
+  .tk-status { font-size: 0.84rem; font-weight: 600; }
+  .tk-status.is-good { color: #15803d; }
+  .tk-status.is-bad { color: #b91c1c; }
+
+  .tk-time { list-style: none; margin: 0; padding: 0; }
+  .tk-time li { position: relative; padding: 0 0 14px 20px; border-left: 2px solid var(--line); }
+  .tk-time li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .tk-time li::before { content: ''; position: absolute; left: -6px; top: 4px; width: 10px; height: 10px;
+    border-radius: 99px; background: #cbd5e1; border: 2px solid #fff; }
+  .tk-time li.is-email::before { background: var(--blue); }
+  .tk-time li.is-stage::before { background: #059669; }
+  .tk-time li.is-note::before { background: #d97706; }
+  .tk-time-t { font-size: 0.88rem; color: var(--ink); line-height: 1.5; }
+  .tk-time-m { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+  .tk-time a { color: var(--blue); font-weight: 600; text-decoration: none; cursor: pointer; }
+
+  .tk-frame { width: 100%; height: 460px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; margin-top: 10px; }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.tk');
+  if (root) {
+    const SB_URL = root.getAttribute('data-supabase-url');
+    const SB_ANON = root.getAttribute('data-supabase-anon');
+    const sb = createClient(SB_URL, SB_ANON, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    const modal = document.querySelector('.tk-modal');
+    const mBody = document.querySelector('.tk-modal-body');
+
+    // Closed is on the board but hidden by default — it is an archive, and the
+    // 158 tickets that predate this system all live there.
+    const STAGES = [
+      { key: 'new_ticket', label: 'New Ticket' },
+      { key: 'in_progress', label: 'In Progress' },
+      { key: 'awaiting_broker', label: 'Awaiting Broker' },
+      { key: 'resolved', label: 'Resolved' },
+      { key: 'closed', label: 'Closed' },
+    ];
+    // Which stages email the broker on arrival. Used only to warn before a move.
+    const EMAILS_ON_ARRIVAL = { in_progress: true, awaiting_broker: true, resolved: true };
+
+    let rows = [];
+    let agents = [];
+    let depts = [];
+    let me = null;            // { email, full_name } for the reply-to line
+    let query = '', deptFilter = '', leaderFilter = '', prioOnly = false, showClosed = false;
+    let searchTimer = null;
+    let openId = null;
+
+    const fmtDate = (s) => {
+      if (!s) return '';
+      const d = new Date(s);
+      return isNaN(d) ? '' : d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    };
+    const idle = (h) => {
+      const n = Number(h || 0);
+      if (n < 1) return 'just now';
+      if (n < 24) return `${Math.round(n)}h idle`;
+      return `${Math.floor(n / 24)}d idle`;
+    };
+    const nameOf = (t) => [t.first_name, t.last_name].filter(Boolean).join(' ').trim() || '(no name)';
+
+    // ---------- sign in / out ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.classList.remove('is-bad');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/tickets` },
+      });
+      if (error) { status.classList.add('is-bad'); status.textContent = error.message; }
+      else status.textContent = 'Check your inbox. The link signs you straight in.';
+    });
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => {
+      await sb.auth.signOut(); location.reload();
+    }));
+
+    // ---------- filters ----------
+    $('.tk-search').addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      const v = e.target.value.trim().toLowerCase();
+      searchTimer = setTimeout(() => { query = v; renderBoard(); }, 200);
+    });
+    $('.tk-dept').addEventListener('change', (e) => { deptFilter = e.target.value; renderBoard(); });
+    $('.tk-leader').addEventListener('change', (e) => { leaderFilter = e.target.value; renderBoard(); });
+    $('.tk-prio').addEventListener('change', (e) => { prioOnly = e.target.checked; renderBoard(); });
+    $('.tk-closed').addEventListener('change', (e) => { showClosed = e.target.checked; renderBoard(); });
+    $('.tk-clear').addEventListener('click', () => {
+      query = ''; deptFilter = ''; leaderFilter = ''; prioOnly = false; showClosed = false;
+      $('.tk-search').value = ''; $('.tk-dept').value = ''; $('.tk-leader').value = '';
+      $('.tk-prio').checked = false; $('.tk-closed').checked = false;
+      renderBoard();
+    });
+
+    // ---------- data ----------
+    async function loadAll() {
+      const [tRes, aRes, dRes] = await Promise.all([
+        sb.rpc('ph_ticket_board'),
+        sb.from('ph_agents').select('id, full_name, email').eq('is_active', true).order('full_name'),
+        sb.from('ph_ticket_departments').select('department, leader_agent_id, sort_order').order('sort_order'),
+      ]);
+      rows = tRes.data ?? [];
+      agents = aRes.data ?? [];
+      depts = dRes.data ?? [];
+
+      const deptOpts = depts.map((d) => `<option value="${esc(d.department)}">${esc(d.department)}</option>`).join('');
+      $('.tk-dept').innerHTML = '<option value="">Every department</option>' + deptOpts;
+
+      const leaders = [...new Map(rows.filter((r) => r.leader_agent_id).map((r) => [r.leader_agent_id, r.leader_name])).entries()];
+      $('.tk-leader').innerHTML = '<option value="">Every leader</option>' +
+        leaders.map(([id, n]) => `<option value="${esc(id)}">${esc(n)}</option>`).join('');
+
+      renderStats();
+      renderBoard();
+      renderRouting();
+    }
+
+    function renderStats() {
+      const open = rows.filter((r) => r.stage !== 'closed' && r.stage !== 'resolved');
+      const wk = Date.now() - 7 * 864e5;
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = Number(v || 0).toLocaleString(); };
+      set('open', open.length);
+      set('priority', open.filter((r) => r.high_priority).length);
+      set('idle', open.filter((r) => Number(r.hours_idle) >= 24).length);
+      set('week', rows.filter((r) => r.stage === 'resolved' && new Date(r.stage_changed_at).getTime() >= wk).length);
+    }
+
+    function visible() {
+      return rows.filter((r) => {
+        if (!showClosed && r.stage === 'closed') return false;
+        if (deptFilter && r.department !== deptFilter) return false;
+        if (leaderFilter && r.leader_agent_id !== leaderFilter) return false;
+        if (prioOnly && !r.high_priority) return false;
+        if (query) {
+          const hay = [r.ticket_id, r.first_name, r.last_name, r.email, r.summary, r.department].join(' ').toLowerCase();
+          if (!hay.includes(query)) return false;
+        }
+        return true;
+      });
+    }
+
+    function cardHtml(r) {
+      const flags = [];
+      if (r.high_priority) flags.push('<span class="tk-tag red">High priority</span>');
+      if (Number(r.hours_idle) >= 24 && r.stage !== 'closed' && r.stage !== 'resolved') {
+        flags.push(`<span class="tk-tag amber">${esc(idle(r.hours_idle))}</span>`);
+      }
+      if (Number(r.email_count) > 0) flags.push(`<span class="tk-tag blue">${r.email_count} email${r.email_count == 1 ? '' : 's'}</span>`);
+      const cls = ['tk-card'];
+      if (r.high_priority) cls.push('is-prio');
+      else if (Number(r.hours_idle) >= 24 && r.stage !== 'closed' && r.stage !== 'resolved') cls.push('is-idle');
+
+      return `<article class="${cls.join(' ')}" draggable="true" data-id="${esc(r.id)}">
+        <div class="tk-card-t">${esc(nameOf(r))}</div>
+        <div class="tk-card-d">${esc(r.department)} &middot; ${esc(r.ticket_id)}</div>
+        <div class="tk-card-s">${esc(r.summary)}</div>
+        <div class="tk-card-f">${flags.join('')}</div>
+        <div class="tk-card-d" style="margin-top:6px">${esc(r.leader_name || 'Unassigned')}</div>
+      </article>`;
+    }
+
+    function renderBoard() {
+      const list = visible();
+      const cols = STAGES.filter((s) => showClosed || s.key !== 'closed');
+      $('.tk-board').style.gridTemplateColumns = `repeat(${cols.length}, minmax(min(230px, 100%), 1fr))`;
+      $('.tk-board').innerHTML = cols.map((s) => {
+        const mine = list.filter((r) => r.stage === s.key);
+        return `<section class="tk-col" data-stage="${esc(s.key)}">
+          <div class="tk-col-h"><b>${esc(s.label)}</b><span class="tk-col-n">${mine.length}</span></div>
+          ${mine.length ? mine.map(cardHtml).join('') : '<div class="tk-empty">Nothing here</div>'}
+        </section>`;
+      }).join('');
+      wireBoard();
+      renderStats();
+    }
+
+    // ---------- drag and drop ----------
+    let dragId = null;
+    function wireBoard() {
+      $$('.tk-card').forEach((el) => {
+        el.addEventListener('click', () => openTicket(el.getAttribute('data-id')));
+        el.addEventListener('dragstart', (e) => {
+          dragId = el.getAttribute('data-id');
+          el.classList.add('is-drag');
+          e.dataTransfer.effectAllowed = 'move';
+          try { e.dataTransfer.setData('text/plain', dragId); } catch (_e) { /* Safari */ }
+        });
+        el.addEventListener('dragend', () => { el.classList.remove('is-drag'); dragId = null; });
+      });
+      $$('.tk-col').forEach((col) => {
+        col.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; col.classList.add('is-over'); });
+        col.addEventListener('dragleave', () => col.classList.remove('is-over'));
+        col.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          col.classList.remove('is-over');
+          const id = dragId || e.dataTransfer.getData('text/plain');
+          if (id) await moveTicket(id, col.getAttribute('data-stage'));
+        });
+      });
+    }
+
+    async function moveTicket(id, stage) {
+      const t = rows.find((r) => r.id === id);
+      if (!t || t.stage === stage) return;
+
+      // Arriving at these stages emails the broker, so say so before it happens.
+      if (EMAILS_ON_ARRIVAL[stage]) {
+        const label = STAGES.find((s) => s.key === stage).label;
+        if (!confirm(`Move ${nameOf(t)}'s ticket to ${label}?\n\nThis emails ${t.email} right away.`)) return;
+      }
+      const { error } = await sb.rpc('ph_ticket_set_stage', { p_ticket: id, p_stage: stage, p_suppress_email: false });
+      if (error) { alert('Could not move that ticket: ' + error.message); return; }
+      t.stage = stage;
+      t.stage_changed_at = new Date().toISOString();
+      t.last_activity_at = t.stage_changed_at;
+      t.hours_idle = 0;
+      renderBoard();
+      if (openId === id) openTicket(id);
+    }
+
+    // ---------- department routing ----------
+    function renderRouting() {
+      const opts = (cur) =>
+        agents.map((a) => `<option value="${esc(a.id)}"${a.id === cur ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('');
+      $('.tk-routing-body').innerHTML = `
+        <p class="ad-muted" style="font-size:.85rem;line-height:1.6;margin:6px 0 12px">
+          When a broker picks a department on the support form, this is who gets the new-ticket email
+          and who owns the card. Changing it here takes effect on the next ticket.
+        </p>
+        <table><thead><tr><th>Department</th><th>Leader</th></tr></thead><tbody>
+        ${depts.map((d) => `<tr>
+          <td>${esc(d.department)}</td>
+          <td><select data-dept="${esc(d.department)}">${opts(d.leader_agent_id)}</select></td>
+        </tr>`).join('')}
+        </tbody></table>`;
+      $$('.tk-routing select').forEach((sel) => sel.addEventListener('change', async () => {
+        const dept = sel.getAttribute('data-dept');
+        const { error } = await sb.from('ph_ticket_departments')
+          .update({ leader_agent_id: sel.value }).eq('department', dept);
+        if (error) { alert('Could not save: ' + error.message); return; }
+        const row = depts.find((d) => d.department === dept);
+        if (row) row.leader_agent_id = sel.value;
+        sel.style.borderColor = '#15803d';
+        setTimeout(() => { sel.style.borderColor = ''; }, 1200);
+      }));
+    }
+
+    // ---------- detail ----------
+    function closeModal() { modal.hidden = true; openId = null; }
+    document.querySelector('.tk-x').addEventListener('click', closeModal);
+    document.querySelector('.tk-modal-back').addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+    async function openTicket(id) {
+      openId = id;
+      modal.hidden = false;
+      mBody.innerHTML = '<p class="ad-muted">Loading…</p>';
+
+      const { data, error } = await sb.rpc('ph_ticket_detail', { p_ticket: id });
+      if (error || !data || !data.ticket) {
+        mBody.innerHTML = `<p class="ad-muted">Could not load that ticket${error ? ': ' + esc(error.message) : ''}.</p>`;
+        return;
+      }
+      const t = data.ticket;
+      const events = data.events ?? [];
+      const emails = data.emails ?? [];
+
+      const stageOpts = STAGES.map((s) => `<option value="${esc(s.key)}"${s.key === t.stage ? ' selected' : ''}>${esc(s.label)}</option>`).join('');
+      const leaderOpts = `<option value="">— Unassigned —</option>` +
+        agents.map((a) => `<option value="${esc(a.id)}"${a.id === t.leader_agent_id ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('');
+
+      // Timeline is events plus sent mail, newest first. Emails are clickable so
+      // an admin can read exactly what the broker received.
+      const items = [
+        ...events.map((e) => ({ at: e.created_at, kind: e.kind, html: timelineEvent(e) })),
+        ...emails.map((m) => ({ at: m.created_at, kind: 'email', html: timelineEmail(m) })),
+      ].sort((a, b) => new Date(b.at) - new Date(a.at));
+
+      mBody.innerHTML = `
+        <h2 class="tk-m-h">${esc(nameOf(t))}</h2>
+        <p class="tk-m-sub">${esc(t.ticket_id)} &middot; submitted ${esc(fmtDate(t.created_at))}${t.high_priority ? ' &middot; <b style="color:#b91c1c">HIGH PRIORITY</b>' : ''}</p>
+
+        <dl class="tk-m-grid">
+          <dt>Email</dt><dd><a href="mailto:${esc(t.email)}">${esc(t.email)}</a></dd>
+          <dt>Department</dt><dd>${esc(t.department)}</dd>
+          <dt>Leader</dt><dd>${esc(t.leader_name || 'Unassigned')}${t.leader_email ? ` &middot; ${esc(t.leader_email)}` : ''}</dd>
+          <dt>In this stage</dt><dd>${esc(fmtDate(t.stage_changed_at))}</dd>
+          <dt>Last activity</dt><dd>${esc(fmtDate(t.last_activity_at))}</dd>
+          ${t.file_name ? `<dt>Attachment</dt><dd><a class="tk-file" data-path="${esc(t.file_name)}">${esc(String(t.file_name).split('/').pop())}</a></dd>` : ''}
+        </dl>
+
+        <div class="tk-m-sum">${esc(t.summary)}</div>
+
+        <div class="tk-m-row">
+          <label for="tkStage">Stage</label>
+          <select id="tkStage" class="tk-set-stage">${stageOpts}</select>
+          <label for="tkLeader">Leader</label>
+          <select id="tkLeader" class="tk-set-leader">${leaderOpts}</select>
+          <span class="tk-status tk-move-status"></span>
+        </div>
+
+        <div class="tk-sec tk-compose">
+          <h3>Email this broker</h3>
+          <div class="tk-replyline">
+            This sends from ProtectHealth Support so it authenticates, but the reply address is
+            <b>${esc(me?.email || 'your address')}</b> — and the email says so in plain text, because
+            nothing can be received on the ticket address. Sending also moves the card to
+            <b>Awaiting Broker</b> without firing the templated request, so they get your words and not both.
+          </div>
+          <input type="text" class="tk-subject" placeholder="Subject (leave blank for &quot;Re: your support ticket ${esc(t.ticket_id)}&quot;)" />
+          <textarea class="tk-msg" placeholder="Write to ${esc(nameOf(t))}…"></textarea>
+          <div class="tk-compose-actions">
+            <button type="button" class="tk-btn tk-send">Send email</button>
+            <label class="tk-check"><input type="checkbox" class="tk-advance" checked /> Move to Awaiting Broker</label>
+            <span class="tk-status tk-send-status"></span>
+          </div>
+        </div>
+
+        <div class="tk-sec tk-compose">
+          <h3>Internal note</h3>
+          <textarea class="tk-note-box" placeholder="Only the team sees this. Adding a note resets the 24-hour idle clock."></textarea>
+          <div class="tk-compose-actions">
+            <button type="button" class="tk-btn ghost tk-note-add">Add note</button>
+            <span class="tk-status tk-note-status"></span>
+          </div>
+        </div>
+
+        <div class="tk-sec">
+          <h3>History</h3>
+          ${items.length ? `<ul class="tk-time">${items.map((i) => i.html).join('')}</ul>` : '<p class="ad-muted">Nothing yet.</p>'}
+        </div>
+        <div class="tk-preview"></div>`;
+
+      wireDetail(t, emails);
+    }
+
+    function timelineEvent(e) {
+      const cls = e.kind === 'stage_change' ? 'is-stage' : e.kind === 'note' ? 'is-note' : e.kind === 'email_out' ? 'is-email' : '';
+      let text = '';
+      if (e.kind === 'created') text = 'Ticket submitted';
+      else if (e.kind === 'stage_change') text = `Moved ${stageLabel(e.from_stage)} → <b>${stageLabel(e.to_stage)}</b>`;
+      else if (e.kind === 'note') text = esc(e.body);
+      else if (e.kind === 'email_out') text = esc(e.body);
+      else text = esc(e.body || 'System');
+      return `<li class="${cls}"><div class="tk-time-t">${text}</div>
+        <div class="tk-time-m">${esc(fmtDate(e.created_at))}${e.actor_label ? ' &middot; ' + esc(e.actor_label) : ''}</div></li>`;
+    }
+    function timelineEmail(m) {
+      return `<li class="is-email"><div class="tk-time-t">
+          <a data-email="${esc(m.id)}">${esc(m.subject || '(no subject)')}</a>
+          ${m.status !== 'sent' ? ' <span class="tk-tag red">failed</span>' : ''}
+        </div>
+        <div class="tk-time-m">to ${esc(m.to_email)} (${esc(m.to_role)})${m.reply_to ? ' &middot; replies go to ' + esc(m.reply_to) : ''} &middot; ${esc(fmtDate(m.created_at))}</div></li>`;
+    }
+    const stageLabel = (k) => esc((STAGES.find((s) => s.key === k) || {}).label || k || '—');
+
+    function wireDetail(t, emails) {
+      const q = (s) => mBody.querySelector(s);
+
+      q('.tk-set-stage').addEventListener('change', async (e) => {
+        const to = e.target.value;
+        const st = q('.tk-move-status');
+        st.className = 'tk-status tk-move-status';
+        if (EMAILS_ON_ARRIVAL[to] && !confirm(`Move to ${stageLabel(to)}?\n\nThis emails ${t.email} right away.`)) {
+          e.target.value = t.stage; return;
+        }
+        const { error } = await sb.rpc('ph_ticket_set_stage', { p_ticket: t.id, p_stage: to, p_suppress_email: false });
+        if (error) { st.textContent = error.message; st.classList.add('is-bad'); e.target.value = t.stage; return; }
+        st.textContent = 'Moved.'; st.classList.add('is-good');
+        await loadAll();
+        openTicket(t.id);
+      });
+
+      q('.tk-set-leader').addEventListener('change', async (e) => {
+        const st = q('.tk-move-status');
+        st.className = 'tk-status tk-move-status';
+        const { error } = await sb.rpc('ph_ticket_set_leader', { p_ticket: t.id, p_agent: e.target.value || null });
+        if (error) { st.textContent = error.message; st.classList.add('is-bad'); return; }
+        st.textContent = 'Reassigned.'; st.classList.add('is-good');
+        await loadAll();
+      });
+
+      q('.tk-send').addEventListener('click', async () => {
+        const btn = q('.tk-send');
+        const st = q('.tk-send-status');
+        st.className = 'tk-status tk-send-status';
+        const message = q('.tk-msg').value.trim();
+        if (!message) { st.textContent = 'Write something first.'; st.classList.add('is-bad'); return; }
+
+        btn.disabled = true; st.textContent = 'Sending…';
+        const { data: { session } } = await sb.auth.getSession();
+        try {
+          const r = await fetch(`${SB_URL}/functions/v1/ph-tickets`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: SB_ANON,
+              Authorization: `Bearer ${session?.access_token ?? SB_ANON}`,
+            },
+            body: JSON.stringify({
+              action: 'send',
+              ticket_uuid: t.id,
+              subject: q('.tk-subject').value.trim(),
+              message,
+              advance: q('.tk-advance').checked,
+            }),
+          });
+          const j = await r.json().catch(() => ({}));
+          btn.disabled = false;
+          if (!j.ok) { st.textContent = j.error || 'Send failed.'; st.classList.add('is-bad'); return; }
+          st.textContent = j.moved_to_awaiting_broker ? 'Sent, and moved to Awaiting Broker.' : 'Sent.';
+          st.classList.add('is-good');
+          q('.tk-msg').value = ''; q('.tk-subject').value = '';
+          await loadAll();
+          openTicket(t.id);
+        } catch (err) {
+          btn.disabled = false;
+          st.textContent = String(err.message || err); st.classList.add('is-bad');
+        }
+      });
+
+      q('.tk-note-add').addEventListener('click', async () => {
+        const st = q('.tk-note-status');
+        st.className = 'tk-status tk-note-status';
+        const body = q('.tk-note-box').value.trim();
+        if (!body) { st.textContent = 'Write something first.'; st.classList.add('is-bad'); return; }
+        const { error } = await sb.rpc('ph_ticket_add_note', { p_ticket: t.id, p_body: body });
+        if (error) { st.textContent = error.message; st.classList.add('is-bad'); return; }
+        q('.tk-note-box').value = '';
+        await loadAll();
+        openTicket(t.id);
+      });
+
+      // Read a sent email exactly as the broker received it. srcdoc + an empty
+      // sandbox so stored HTML cannot run anything against the dashboard.
+      mBody.querySelectorAll('[data-email]').forEach((a) => a.addEventListener('click', () => {
+        const m = emails.find((x) => x.id === a.getAttribute('data-email'));
+        if (!m) return;
+        mBody.querySelector('.tk-preview').innerHTML =
+          `<div class="tk-sec"><h3>${esc(m.subject || '')}</h3>
+           <iframe class="tk-frame" sandbox="" srcdoc="${esc(m.html || '')}"></iframe></div>`;
+        mBody.querySelector('.tk-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }));
+
+      // Attachments live in a private bucket, so hand out a short-lived link.
+      const f = mBody.querySelector('.tk-file');
+      if (f) f.addEventListener('click', async () => {
+        const { data, error } = await sb.storage.from('ticket-files').createSignedUrl(f.getAttribute('data-path'), 300);
+        if (error || !data?.signedUrl) { alert('Could not open that file: ' + (error?.message || 'unknown error')); return; }
+        window.open(data.signedUrl, '_blank', 'noopener');
+      });
+    }
+
+    // ---------- boot ----------
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { view('signin'); return; }
+      $$('[data-who]').forEach((el) => (el.textContent = session.user.email || ''));
+
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+
+      me = { email: session.user.email };
+      await loadAll();
+
+      // Emails link straight to a ticket: /admin/tickets?t=<uuid>
+      const want = new URLSearchParams(location.search).get('t');
+      if (want) openTicket(want);
+    }
+
+    sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
+    boot();
+  }
+</script>

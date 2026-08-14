@@ -1,0 +1,284 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Internal support request form for our brokers. This is the native rebuild of
+// the GoHighLevel-era page at support.protecthealth.com.
+//
+// It writes straight to our own `tickets` table. Nothing here touches GHL: the
+// AFTER INSERT trigger picks the ticket up, resolves the department leader and
+// hands off to the ph-tickets edge function for the notification. The old page
+// also fired a GHL webhook after the insert — that call is gone.
+//
+// noindex because this is a staff tool on a public URL, not a marketing page.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+
+// Order matches the old form. Every one of these routes to a named leader in
+// ph_ticket_departments — there is no unrouted "Other" any more.
+const DEPARTMENTS = [
+  'Administrative', 'Claims', 'Commissions', 'CRM Issues', 'Group',
+  'Individual', 'Life', 'Medicare', 'NVHL Issues', 'Other',
+];
+---
+
+<Base title="Broker Support, ProtectHealth" description="Submit a support request." noindex={true}>
+  <section class="sup" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+      <div class="sup-wrap">
+
+        <div class="sup-intro">
+          <span class="section-label">ProtectHealth</span>
+          <h1>Broker Support</h1>
+          <p>
+            Tell us what you need and it goes straight to the person who owns that area.
+            You'll get a ticket number immediately and an email as soon as someone picks it up.
+          </p>
+          <ul class="sup-steps">
+            <li><b>Pick the department.</b> It routes the request to the right leader, so this is the field worth getting right.</li>
+            <li><b>Be specific in the description.</b> Policy numbers, client names, carrier, what you already tried.</li>
+            <li><b>Flag it high priority</b> only when someone's coverage or money is at stake today.</li>
+          </ul>
+        </div>
+
+        <div class="sup-card">
+          <form class="sup-form" novalidate>
+            <div class="sup-row">
+              <label>
+                <span>First name</span>
+                <input type="text" name="firstName" autocomplete="given-name" required />
+              </label>
+              <label>
+                <span>Last name</span>
+                <input type="text" name="lastName" autocomplete="family-name" required />
+              </label>
+            </div>
+
+            <label>
+              <span>Your email</span>
+              <input type="email" name="email" autocomplete="email" placeholder="you@protectnv.com" required />
+              <small>Every update on this ticket goes here.</small>
+            </label>
+
+            <label>
+              <span>Department</span>
+              <select name="department" required>
+                <option value="">Choose the area you need help with…</option>
+                {DEPARTMENTS.map((d) => <option value={d}>{d}</option>)}
+              </select>
+            </label>
+
+            <label>
+              <span>What do you need?</span>
+              <textarea name="summary" rows="6" placeholder="Describe the issue. Include client name, policy or carrier where it applies." required></textarea>
+            </label>
+
+            <label class="sup-check">
+              <input type="checkbox" name="highPriority" />
+              <span>This is high priority — coverage or money is at risk today.</span>
+            </label>
+
+            <label class="sup-file">
+              <span>Attach a file (optional)</span>
+              <input type="file" name="file" />
+              <small>Screenshots, statements, carrier letters. One file, up to 10 MB.</small>
+            </label>
+
+            <button type="submit" class="btn no-arrow sup-submit">Submit Request</button>
+            <p class="sup-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="sup-done" hidden>
+            <div class="sup-tick">✓</div>
+            <h2>We've got it</h2>
+            <p>Your ticket number is <b class="sup-id"></b>. Hold onto it — quoting it gets you an answer faster.</p>
+            <p class="sup-muted">
+              It's gone to the leader who owns that department. You'll get an email the moment
+              somebody starts working it, and again when it's resolved.
+            </p>
+            <button type="button" class="btn ghost no-arrow sup-again">Submit another request</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .sup { padding: 60px 0 90px; }
+  .sup-wrap { display: grid; grid-template-columns: minmax(min(320px, 100%), 0.85fr) minmax(min(360px, 100%), 1.15fr); gap: 44px; align-items: start; }
+  @media (max-width: 900px) { .sup-wrap { grid-template-columns: 1fr; gap: 30px; } }
+
+  .sup-intro h1 { margin: 8px 0 14px; }
+  .sup-intro > p { color: var(--muted); line-height: 1.7; font-size: 1rem; max-width: 46ch; }
+  .sup-steps { list-style: none; margin: 22px 0 0; padding: 0; }
+  .sup-steps li { position: relative; padding: 0 0 14px 22px; color: var(--muted); font-size: 0.92rem; line-height: 1.65; }
+  .sup-steps li::before { content: ''; position: absolute; left: 0; top: 8px; width: 8px; height: 8px; border-radius: 99px; background: var(--blue); }
+  .sup-steps b { color: var(--ink); }
+
+  .sup-card { background: #fff; border: 1.5px solid var(--line); border-radius: 18px; padding: 30px 30px 34px; box-shadow: 0 10px 34px rgba(11,42,74,.07); }
+  @media (max-width: 600px) { .sup-card { padding: 22px 20px 26px; } }
+
+  .sup-form label { display: block; margin-bottom: 17px; }
+  .sup-form label > span { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .sup-form small { display: block; margin-top: 5px; color: var(--muted); font-size: 0.79rem; line-height: 1.5; }
+  .sup-form input[type="text"], .sup-form input[type="email"], .sup-form select, .sup-form textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 11px;
+    font-family: var(--font); font-size: 0.95rem; color: var(--ink); background: #fff;
+  }
+  .sup-form textarea { resize: vertical; line-height: 1.6; min-height: 130px; }
+  .sup-form input:focus, .sup-form select:focus, .sup-form textarea:focus {
+    outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13);
+  }
+  .sup-form .is-bad { border-color: #dc2626; }
+  .sup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .sup-row { grid-template-columns: 1fr; gap: 0; } }
+
+  .sup-check { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 17px; cursor: pointer; }
+  .sup-check input { width: 18px; height: 18px; margin-top: 2px; accent-color: #dc2626; flex: 0 0 auto; }
+  .sup-check span { font-size: 0.9rem; color: var(--ink); line-height: 1.5; font-weight: 600; }
+
+  .sup-file input[type="file"] { width: 100%; padding: 10px 0; font-size: 0.88rem; color: var(--muted); }
+
+  .sup-submit { width: 100%; margin-top: 6px; }
+  .sup-submit:disabled { opacity: .55; cursor: default; }
+  .sup-status { margin: 12px 0 0; font-size: 0.88rem; font-weight: 600; min-height: 1.2em; }
+  .sup-status.is-bad { color: #b91c1c; }
+  .sup-status.is-busy { color: var(--muted); }
+
+  .sup-done { text-align: center; padding: 14px 0 6px; }
+  .sup-tick { width: 58px; height: 58px; border-radius: 99px; background: #dcfce7; color: #15803d;
+    display: grid; place-items: center; font-size: 1.7rem; font-weight: 700; margin: 0 auto 16px; }
+  .sup-done h2 { margin: 0 0 10px; font-size: 1.35rem; }
+  .sup-done p { color: var(--ink); font-size: 0.98rem; line-height: 1.65; margin: 0 0 12px; }
+  .sup-done .sup-muted { color: var(--muted); font-size: 0.9rem; }
+  .sup-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #eef3fb;
+    padding: 3px 9px; border-radius: 6px; color: var(--blue); letter-spacing: .02em; }
+  .sup-again { margin-top: 12px; }
+</style>
+
+<script>
+  const root = document.querySelector('.sup');
+  if (root) {
+    const URL_ = root.getAttribute('data-supabase-url');
+    const ANON = root.getAttribute('data-supabase-anon');
+    const form = root.querySelector('.sup-form');
+    const status = root.querySelector('.sup-status');
+    const submit = root.querySelector('.sup-submit');
+    const MAX_BYTES = 10 * 1024 * 1024;
+
+    // Same shape the old GHL-era page produced, so ticket IDs stay recognisable
+    // to anyone holding an older one: PH-<base36 timestamp>-<4 digits>.
+    function newTicketId() {
+      const base36 = Date.now().toString(36).toUpperCase();
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      return `PH-${base36}-${rand}`;
+    }
+
+    const setStatus = (msg, kind) => {
+      status.textContent = msg || '';
+      status.className = 'sup-status' + (kind ? ' is-' + kind : '');
+    };
+
+    // The attachment is best effort. A failed upload must never cost us the
+    // ticket itself, which is the thing somebody is waiting on.
+    async function uploadFile(ticketId, file) {
+      try {
+        const path = `${ticketId}/${encodeURIComponent(file.name)}`;
+        const r = await fetch(`${URL_}/storage/v1/object/ticket-files/${path}`, {
+          method: 'POST',
+          headers: {
+            apikey: ANON,
+            Authorization: `Bearer ${ANON}`,
+            'Content-Type': file.type || 'application/octet-stream',
+            'x-upsert': 'false',
+            'cache-control': '3600',
+          },
+          body: file,
+        });
+        return r.ok ? path : null;
+      } catch (_e) {
+        return null;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      root.querySelectorAll('.is-bad').forEach((el) => el.classList.remove('is-bad'));
+
+      const f = form.elements;
+      const val = (n) => String(f[n].value ?? '').trim();
+      const firstName = val('firstName');
+      const lastName = val('lastName');
+      const email = val('email');
+      const department = val('department');
+      const summary = val('summary');
+      const file = f.file.files[0] || null;
+
+      const missing = [];
+      if (!firstName) missing.push('firstName');
+      if (!lastName) missing.push('lastName');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) missing.push('email');
+      if (!department) missing.push('department');
+      if (!summary) missing.push('summary');
+      if (missing.length) {
+        missing.forEach((n) => f[n].classList.add('is-bad'));
+        f[missing[0]].focus();
+        setStatus('Fill in the highlighted fields and try again.', 'bad');
+        return;
+      }
+      if (file && file.size > MAX_BYTES) {
+        setStatus('That file is over 10 MB. Send a smaller one, or submit without it and email the file to your leader.', 'bad');
+        return;
+      }
+
+      submit.disabled = true;
+      setStatus(file ? 'Uploading your file…' : 'Submitting…', 'busy');
+
+      const ticketId = newTicketId();
+      const fileName = file ? await uploadFile(ticketId, file) : null;
+      if (file && !fileName) setStatus('That file would not upload — submitting the request without it…', 'busy');
+
+      try {
+        const r = await fetch(`${URL_}/rest/v1/tickets`, {
+          method: 'POST',
+          headers: {
+            apikey: ANON,
+            Authorization: `Bearer ${ANON}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({
+            ticket_id: ticketId,
+            department,
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            summary,
+            high_priority: !!f.highPriority.checked,
+            file_name: fileName,
+          }),
+        });
+        if (!r.ok) throw new Error(`Could not save your request (${r.status}).`);
+
+        root.querySelector('.sup-id').textContent = ticketId;
+        form.hidden = true;
+        root.querySelector('.sup-done').hidden = false;
+        root.querySelector('.sup-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        submit.disabled = false;
+        setStatus(String(err.message || err) + ' Try again, or email your department leader directly.', 'bad');
+      }
+    });
+
+    root.querySelector('.sup-again').addEventListener('click', () => {
+      form.reset();
+      form.hidden = false;
+      root.querySelector('.sup-done').hidden = true;
+      submit.disabled = false;
+      setStatus('');
+      form.elements.firstName.focus();
+    });
+  }
+</script>
