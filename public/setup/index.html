@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<title>Broker Setup — ProtectHealth</title>
+<style>
+:root{
+  --navy:#0b2a4a; --navy-2:#123a63; --ink:#12243a; --muted:#5b6b7c;
+  --line:#e3eaf4; --bg:#f5f8fd; --card:#fff;
+  --blue:#2563c9; --blue-2:#3b82f6; --teal:#14b8a6; --green:#0ea472;
+  --gold:#f5b301; --red:#f04438; --red-bg:#fef3f2; --red-line:#fecdca;
+  --shadow:0 1px 2px rgba(16,40,70,.04),0 8px 28px rgba(16,40,70,.08);
+  --shadow-lg:0 2px 6px rgba(16,40,70,.06),0 24px 60px rgba(16,40,70,.14);
+  --r:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 16.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img{max-width:100%;display:block}
+a{color:var(--blue)}
+h1,h2,h3,h4{line-height:1.18;letter-spacing:-.022em;margin:0}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--navy);letter-spacing:-.02em}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--teal));flex:none}
+.bar .sp{flex:1}
+.bar .code-mini{font:800 14px/1 ui-monospace,monospace;letter-spacing:.14em;color:#7a5b00;
+  background:#fff8e1;border:1px solid #ffe08a;padding:9px 13px;border-radius:999px;white-space:nowrap}
+.bar .print{border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700;font-size:13.5px;
+  padding:9px 15px;border-radius:999px;cursor:pointer}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+.grid{display:grid;grid-template-columns:236px minmax(0,1fr);gap:44px;align-items:start}
+nav.toc{position:sticky;top:86px;padding:26px 0 40px}
+nav.toc .lbl{font:800 10.5px/1 system-ui;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:20px 0 9px}
+nav.toc a{display:block;padding:6.5px 12px;border-radius:9px;color:#42556d;text-decoration:none;
+  font-size:14.2px;font-weight:600;border-left:2.5px solid transparent}
+nav.toc a:hover{background:#fff;color:var(--navy)}
+nav.toc a.on{background:#fff;color:var(--blue);border-left-color:var(--blue);box-shadow:var(--shadow)}
+
+/* ---------- hero ---------- */
+.hero{background:linear-gradient(150deg,#0b2a4a 0%,#153f70 45%,#0e5f6e 100%);color:#fff;
+  border-radius:26px;padding:52px 48px;margin:26px 0 8px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.hero::after{content:"";position:absolute;right:-160px;top:-160px;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(20,184,166,.34),transparent 62%)}
+.hero::before{content:"";position:absolute;left:-120px;bottom:-220px;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(59,130,246,.26),transparent 64%)}
+.hero > *{position:relative;z-index:1}
+.eyebrow{display:inline-block;font:800 11px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);padding:8px 14px;border-radius:999px}
+.hero h1{font-size:clamp(34px,5vw,52px);font-weight:850;margin:20px 0 14px}
+.hero p{font-size:19px;color:#cddcf0;max-width:65ch;margin:0}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.chip{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);border-radius:13px;padding:13px 17px;min-width:132px}
+.chip b{display:block;font-size:22px;font-weight:800}
+.chip span{font-size:12.5px;color:#a9c2de}
+
+/* ---------- code banner ---------- */
+.codebox{background:linear-gradient(135deg,#fffbeb,#fff6d8);border:2px solid #ffd97a;border-radius:20px;
+  padding:26px 30px;margin:22px 0 6px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.codebox .k{font:900 40px/1 ui-monospace,SFMono-Regular,monospace;letter-spacing:.2em;color:#8a6200;
+  background:#fff;border:2px dashed #e8b93d;padding:15px 24px;border-radius:14px}
+.codebox h3{color:#7a5600;font-size:19px;margin-bottom:5px}
+.codebox p{margin:0;color:#8a6a1e;font-size:15px;max-width:56ch}
+
+/* ---------- sections ---------- */
+section{margin:56px 0 0;scroll-margin-top:88px}
+.kicker{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.kicker .n{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--teal));
+  color:#fff;font:800 16px/34px system-ui;text-align:center;flex:none;box-shadow:0 4px 12px rgba(37,99,201,.28)}
+.kicker .t{font:800 11px/1 system-ui;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+section > h2{font-size:clamp(25px,3.2vw,33px);font-weight:850;color:var(--navy);margin-bottom:10px}
+section > p.lede{font-size:17.5px;color:#41556e;max-width:74ch;margin:0 0 22px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+  padding:26px 28px;margin:18px 0}
+.card h3{font-size:19px;color:var(--navy);margin-bottom:8px}
+.card h4{font-size:15.5px;color:var(--navy);margin:18px 0 6px}
+
+/* shot */
+figure{margin:22px 0}
+figure img{border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-lg);background:#fff}
+figcaption{font-size:14px;color:var(--muted);margin-top:11px;padding-left:2px}
+.shot-narrow{max-width:660px}
+.shot-mid{max-width:920px}
+
+/* numbered steps under a shot */
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:20px 0 0;display:grid;gap:11px}
+ol.steps li{counter-increment:s;position:relative;padding:13px 16px 13px 52px;background:#fff;
+  border:1px solid var(--line);border-radius:13px;font-size:15.6px;box-shadow:var(--shadow)}
+ol.steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:25px;height:25px;border-radius:50%;
+  background:var(--blue);color:#fff;font:800 13px/25px system-ui;text-align:center}
+ol.steps li b{color:var(--navy)}
+ol.steps.green li::before{background:var(--green)}
+ol.steps.gold li::before{background:var(--gold);color:#5c4300}
+
+/* callouts */
+.note{border-radius:14px;padding:16px 20px;margin:18px 0;font-size:15.6px;border:1px solid}
+.note b{font-weight:800}
+.note.warn{background:var(--red-bg);border-color:var(--red-line);color:#8c1d18}
+.note.ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+.note.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.note.gold{background:#fffbeb;border-color:#fde68a;color:#7a5600}
+.note .h{display:block;font-weight:850;margin-bottom:3px}
+
+/* table */
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);
+  border-radius:14px;overflow:hidden;box-shadow:var(--shadow);font-size:15px;margin:18px 0}
+th{background:#f3f7fd;text-align:left;font:800 11px/1.4 system-ui;letter-spacing:.1em;text-transform:uppercase;
+  color:#4b6180;padding:13px 16px;border-bottom:1px solid var(--line)}
+td{padding:14px 16px;border-bottom:1px solid #eef3fa;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td b{color:var(--navy)}
+.pill{display:inline-block;font:800 11.5px/1 system-ui;padding:6px 11px;border-radius:999px;white-space:nowrap}
+.pill.you{background:#eff6ff;color:#1d4ed8}
+.pill.client{background:#ecfdf5;color:#046c4e}
+.pill.both{background:#f5f3ff;color:#6d28d9}
+.pill.auto{background:#fff7ed;color:#9a3412}
+
+/* two-col */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+
+/* tab cards */
+.tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px;margin:20px 0}
+.tab{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:var(--shadow)}
+.tab .ic{width:38px;height:38px;border-radius:11px;background:#eef4fd;display:grid;place-items:center;
+  font-size:19px;margin-bottom:11px}
+.tab h4{font-size:16.5px;color:var(--navy);margin:0 0 5px}
+.tab p{margin:0;font-size:14.6px;color:#4c6076}
+.tab .use{display:block;margin-top:10px;font-size:13.2px;font-weight:700;color:var(--blue)}
+
+/* glossary */
+dl.gloss{margin:0;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+dl.gloss > div{display:grid;grid-template-columns:230px 1fr;gap:18px;padding:15px 20px;border-bottom:1px solid #eef3fa}
+dl.gloss > div:last-child{border-bottom:0}
+dl.gloss dt{font-weight:800;color:var(--navy);font-size:15px}
+dl.gloss dd{margin:0;font-size:15px;color:#41556e}
+@media(max-width:760px){dl.gloss > div{grid-template-columns:1fr;gap:4px}}
+
+/* disposition grid */
+.disp{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:13px;margin:18px 0}
+.dcard{border:1px solid var(--line);border-radius:13px;padding:15px 17px;background:#fff;box-shadow:var(--shadow)}
+.dcard .nm{font-weight:800;color:var(--navy);font-size:15.6px;margin-bottom:4px}
+.dcard .fx{font-size:13.6px;color:#5b6b7c}
+.dcard.hero-d{border:2px solid var(--green);background:linear-gradient(180deg,#f0fdf9,#fff);grid-column:1/-1}
+.dcard.hero-d .nm{font-size:19px;color:#065f46}
+
+/* flow */
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:20px 0}
+.fstep{flex:1;min-width:168px;background:#fff;border:1px solid var(--line);padding:17px 18px;position:relative}
+.fstep:first-child{border-radius:14px 0 0 14px}
+.fstep:last-child{border-radius:0 14px 14px 0}
+.fstep .fn{font:800 10.5px/1 system-ui;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fstep .fb{font-weight:800;color:var(--navy);font-size:15px;margin-bottom:3px}
+.fstep .fs{font-size:13.4px;color:#5b6b7c}
+@media(max-width:820px){.fstep{border-radius:14px !important;min-width:100%}}
+
+footer{margin:70px 0 60px;padding-top:26px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+
+@media(max-width:1040px){
+  .grid{grid-template-columns:1fr}
+  nav.toc{position:static;display:none}
+  .hero{padding:36px 26px}
+}
+@media print{
+  .bar,nav.toc{display:none}
+  body{background:#fff}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand"><span class="dot"></span> ProtectHealth · Broker Setup</div>
+    <div class="sp"></div>
+    <span class="code-mini">SETUP CODE&nbsp; 332633</span>
+    <button class="print" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Start here · Monday, August 17</span>
+    <h1>Your first 20 minutes<br>in the ProtectHealth CRM.</h1>
+    <p>Create your login, finish your profile, and walk out with a live landing page and a booking calendar that puts appointments straight into your pipeline. Every screen below is the real thing, with the exact button circled.</p>
+    <div class="row">
+      <div class="chip"><b>5 min</b><span>Login + profile</span></div>
+      <div class="chip"><b>2 min</b><span>Availability</span></div>
+      <div class="chip"><b>~3 min</b><span>Pages go live</span></div>
+      <div class="chip"><b>2</b><span>Pages you get</span></div>
+    </div>
+  </div>
+
+  <div class="codebox">
+    <div class="k">332633</div>
+    <div>
+      <h3>This is the office setup code.</h3>
+      <p>You need it once, on your very first login. Spaces and capital letters do not matter. Do not share it outside this room — it stops working after today.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <nav class="toc" id="toc">
+      <div class="lbl">Getting in</div>
+      <a href="#login">1 · Create your login</a>
+      <a href="#profile">2 · Your profile</a>
+      <a href="#pages">3 · Your two pages</a>
+      <a href="#availability">4 · Set availability</a>
+      <a href="#gcal">5 · Google Calendar</a>
+      <div class="lbl">Using it</div>
+      <a href="#tour">Every tab explained</a>
+      <a href="#contacts">Adding a client</a>
+      <a href="#disposition">Dispositions</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#emails">When emails send</a>
+      <a href="#reviews">Reviews</a>
+      <div class="lbl">Reference</div>
+      <a href="#rules">House rules</a>
+      <a href="#errors">If you get stuck</a>
+      <a href="#glossary">Glossary</a>
+    </nav>
+
+    <main>
+
+<!-- ============================================ 1 -->
+<section id="login">
+  <div class="kicker"><span class="n">1</span><span class="t">Getting in</span></div>
+  <h2>Create your login</h2>
+  <p class="lede">Your account already exists — the office created it. You are not signing up, you are setting a password on an account that is already waiting for you. This takes about ninety seconds.</p>
+
+  <div class="note info"><span class="h">Go to protecthealth.com/app</span>Bookmark it. That is the only address you ever need. It works on your phone the same as your laptop.</div>
+
+  <figure class="shot-narrow">
+    <img src="img/01-signin.jpg" alt="The ProtectHealth sign-in screen">
+    <figcaption>The sign-in screen. On Monday you do <b>not</b> start here — you start at the link circled in red at the bottom.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Email address</b> — this is where you will sign in from now on. Use your ProtectHealth work email.</li>
+    <li><b>Password</b> — you do not have one yet, so skip this box today.</li>
+    <li><b>Sign in</b> — this is the button you will use every day <em>after</em> today.</li>
+    <li><b>"Set up your login"</b> — <b>click this one today.</b> It is the small link under the blue button.</li>
+  </ol>
+
+  <figure class="shot-narrow">
+    <img src="img/02-setup-code.jpg" alt="The Set up your login screen with the setup code field highlighted">
+    <figcaption>The first-time setup screen. Four boxes, then one button.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Work email</b> — exactly the address the office has on file for you. If you have two, use the ProtectHealth one.</li>
+    <li><b>Setup code</b> — type <b>332633</b>. Spaces and capitals do not matter.</li>
+    <li><b>Create a password</b> — at least 10 characters. It cannot contain your email address, and it cannot contain obvious words like "password" or "protecthealth".</li>
+    <li><b>Confirm password</b> — type the same thing again.</li>
+    <li><b>Create my login</b> — you are signed in immediately. No email, no waiting, no link to click.</li>
+  </ol>
+
+  <div class="note warn"><span class="h">Do not use "Reset password" today</span>That path emails you a link and waits. Sixty of us are doing this at once on the same wifi. Use the setup code — it sends nothing and it works instantly.</div>
+  <div class="note ok"><span class="h">Every day after today</span>Email + password on the first screen. The setup code is a one-time thing and you will never need it again.</div>
+</section>
+
+<!-- ============================================ 2 -->
+<section id="profile">
+  <div class="kicker"><span class="n">2</span><span class="t">Getting in</span></div>
+  <h2>Finish your profile</h2>
+  <p class="lede">This form opens by itself the first time you sign in. It is not paperwork. It is the thing that builds your public landing page and your booking calendar, and it puts you on the Meet the Brokers page of the website. Skip a field and those pages do not get built.</p>
+
+  <figure class="shot-mid">
+    <img src="img/03-onboarding-top.jpg" alt="The onboarding form showing headshot, phone, contact email and bio">
+    <figcaption>Top half of the profile form.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Headshot — required.</b> Clear, front-facing, JPG or PNG up to 8 MB. A phone selfie against a plain wall is fine. You can retake it any time. <b>No photo means no landing page gets built at all.</b></li>
+    <li><b>Phone number — required.</b> This is the number printed on your landing page, your booking page, and the bottom of every email the system sends for you. Use the line you actually answer. Leave it blank and clients get the main office line instead of you.</li>
+    <li><b>Contact email</b> — optional. Leave it blank and we use your login address. Set it only if you want clients writing somewhere else. Changing it never affects how you sign in.</li>
+  </ol>
+
+  <div class="note warn"><span class="h">The bio is the one people skip, and it is the one that costs you the page</span>Two or three sentences a prospect will actually read. Who you help, and how. Aim for at least a full sentence — the form will hold you there. This is the single most common reason a broker walks away thinking they are live when nothing was built.</div>
+
+  <h4>A bio you can copy and edit</h4>
+  <div class="card" style="background:#f8fbff">
+    <p style="margin:0;font-size:16px;color:#33475f"><em>"I help self-employed Nevadans and 1099 contractors find real PPO coverage that fits how they actually work. Before I quote anything I want to understand your situation — your doctors, your budget, and what you are protecting. Straight answers, no pressure, and I will tell you when the answer is 'stay where you are.'"</em></p>
+  </div>
+
+  <figure class="shot-mid">
+    <img src="img/04-onboarding-bottom.jpg" alt="Lines of insurance checkboxes and the Save profile button">
+    <figcaption>Bottom half. Social links are optional; lines of insurance are not.</figcaption>
+  </figure>
+
+  <ol class="steps green" start="4">
+    <li><b>Lines of insurance you write</b> — check every line you actually sell. This decides which content sections appear on your landing page. A Medicare-only writer will not show a health-only page. Check nothing and your page shows generic copy.</li>
+    <li><b>Save profile</b> — done. Your pages start building immediately.</li>
+  </ol>
+
+  <div class="note info"><span class="h">You can change all of this later</span>Bottom-left of the sidebar, <b>Edit profile</b>. Every change rebuilds your public pages within a few minutes.</div>
+</section>
+
+<!-- ============================================ 3 -->
+<section id="pages">
+  <div class="kicker"><span class="n">3</span><span class="t">Getting in</span></div>
+  <h2>Your two public pages</h2>
+  <p class="lede">The moment your profile is complete, the system builds two real pages on protecthealth.com with your name in the URL. They are yours to share — put them in your Instagram bio, your email signature, your business card, a text message.</p>
+
+  <figure>
+    <img src="img/05-dashboard.jpg" alt="The broker dashboard with the Your Pages card highlighted">
+    <figcaption>Your dashboard the first time you land on it.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Your pages</b> — your landing page and your booking calendar, with a <b>View</b> button and a <b>Copy</b> button for each. Copy puts the link on your clipboard, ready to paste.</li>
+    <li><b>The sidebar</b> — every tool you have. Explained one by one further down this page.</li>
+    <li><b>Your numbers</b> — new contacts in the last 30 days, appointments in the next 7, open deals, and active clients. These fill in as you work.</li>
+    <li><b>Edit profile and Password</b> — bottom left, always there.</li>
+  </ol>
+
+  <div class="cols">
+    <div class="card">
+      <h3>Your landing page</h3>
+      <p style="color:#4c6076;font-size:15.4px;margin:0 0 10px"><code>protecthealth.com/broker/<b>your-name</b></code></p>
+      <p style="margin:0;font-size:15.4px;color:#41556e">A full page with your photo, your bio, sections for each line you write, your phone and email, and a booking calendar built right into it. Branded ProtectHealth, written for conversion. Send it to a prospect instead of a business card.</p>
+    </div>
+    <div class="card">
+      <h3>Your booking calendar</h3>
+      <p style="color:#4c6076;font-size:15.4px;margin:0 0 10px"><code>protecthealth.com/book/<b>your-name</b></code></p>
+      <p style="margin:0;font-size:15.4px;color:#41556e">A clean page that does one job: someone picks a time. It lands on your CRM calendar automatically, creates the contact, and sends the confirmation email for you. Nothing for you to type.</p>
+    </div>
+  </div>
+
+  <div class="note gold"><span class="h">Give it about three minutes</span>The website rebuilds itself after you save. If you click <b>View</b> the same second you hit Save, you will see a "page does not exist" screen. That is normal. Wait two or three minutes, refresh, and it is there. Same thing every time you update your profile.</div>
+
+  <div class="note warn"><span class="h">Your page needs all three: headshot, bio, phone</span>Miss any one and no page is built. If you land back on the profile form the next time you sign in, that is the system telling you something is still missing — it will name exactly which field.</div>
+</section>
+
+<!-- ============================================ 4 -->
+<section id="availability">
+  <div class="kicker"><span class="n">4</span><span class="t">Getting in</span></div>
+  <h2>Set your availability</h2>
+  <p class="lede">Do this on Monday. Until you do, you are on the default Monday to Friday, 9 to 5, and anyone can book you at 9am on a day you do not work.</p>
+
+  <figure class="shot-mid">
+    <img src="img/06-availability.jpg" alt="The Availability screen with day toggles and booking settings">
+    <figcaption>Sidebar &rarr; <b>Availability</b>. Changes save to your booking page right away.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Turn days on and off.</b> Unchecking a day removes it from your booking page entirely — nobody can pick it.</li>
+    <li><b>Set your real hours</b> for each day. Times are Las Vegas time. Your out-of-state clients see their own timezone automatically, so do not do the math yourself.</li>
+    <li><b>Saturday and Sunday are off by default.</b> If you genuinely work weekends, turn them on. If you do not, leave them alone.</li>
+    <li><b>Booking settings</b> — how long each appointment is, how far ahead people can book, and how much notice you need. The minimum-notice setting is the one that stops someone booking you in fifteen minutes.</li>
+  </ol>
+
+  <div class="note ok"><span class="h">Two minutes now saves you a month of awkward calls</span>Nine of us have no phone number on file and none of us has set hours yet. Set it while you are in the room.</div>
+</section>
+
+<!-- ============================================ 5 -->
+<section id="gcal">
+  <div class="kicker"><span class="n">5</span><span class="t">Getting in</span></div>
+  <h2>Connect your Google Calendar</h2>
+  <p class="lede">This is the one that prevents double-bookings. Once linked, any time you are already busy on Google is automatically blocked on your ProtectHealth booking page. A client physically cannot book on top of your dentist appointment or a listing showing.</p>
+
+  <ol class="steps green">
+    <li>Sidebar &rarr; <b>Availability</b>, then scroll to the bottom card, <b>Link your Google Calendar</b>.</li>
+    <li>Click <b>Connect Google Calendar</b> and pick the Google account where your real appointments live.</li>
+    <li>Google says <b>"Google hasn't verified this app."</b> That is expected and it is safe — our CRM is a private company tool, not a public app in the Google store. Click <b>Advanced</b>, then <b>Go to ProtectHealth (unsafe)</b>. Nothing about it is actually unsafe; that is just the wording Google uses for private company apps.</li>
+    <li>Leave both calendar boxes checked and click <b>Continue</b>. You land back on a green <b>Connected</b> badge.</li>
+    <li>Tick every calendar that means you are genuinely busy. Leave holiday and birthday calendars unchecked — they will block real client bookings if you check them. Then <b>Save calendar selection</b>.</li>
+  </ol>
+
+  <div class="note info"><span class="h">What we can and cannot see</span>We read the times you are busy so your booking page can block them. Clients only ever see open or unavailable time, never what you are doing. You can disconnect any time from the same screen.</div>
+
+  <div class="note gold"><span class="h">Test it in sixty seconds</span>Make an event in Google for tomorrow at 2pm called "Test." Go back to Availability and click <b>Preview my booking page</b>. The 2pm slot should be gone. Delete the test event and it comes back on its own. <br><br>If the slot did not disappear: the event is probably marked <b>Free</b> in Google rather than Busy. Google treats Free as available, so we do too.</div>
+</section>
+
+<!-- ============================================ tour -->
+<section id="tour">
+  <div class="kicker"><span class="n">6</span><span class="t">Using it</span></div>
+  <h2>Every tab, explained</h2>
+  <p class="lede">This is your whole sidebar. Nothing here is decoration — if it is on the list, you will use it.</p>
+
+  <div class="tabs">
+    <div class="tab"><div class="ic">📊</div><h4>Dashboard</h4><p>Your landing page and booking links, your numbers for the last 30 days, what is booked next, and your open deals by stage.</p><span class="use">Check it first thing each morning</span></div>
+    <div class="tab"><div class="ic">👤</div><h4>Contacts</h4><p>Your book. Every person you are working with. Search, filter, tag, and open a full record with notes, policies, carriers and email history.</p><span class="use">This is where a new client starts</span></div>
+    <div class="tab"><div class="ic">📈</div><h4>Pipeline</h4><p>Your deals as a drag-and-drop board, one board per line of insurance. Drag a card sideways to move a deal forward.</p><span class="use">Your weekly review lives here</span></div>
+    <div class="tab"><div class="ic">🗓️</div><h4>Calendar</h4><p>Every appointment booked with you, in one month view. Bookings from your public page appear here on their own.</p><span class="use">Solid = a real appointment</span></div>
+    <div class="tab"><div class="ic">⏰</div><h4>Availability</h4><p>The hours people can book you, your appointment length, notice requirements, and your Google Calendar link.</p><span class="use">Set this on day one</span></div>
+    <div class="tab"><div class="ic">⭐</div><h4>Reviews</h4><p>Who was asked for a review, who opened it, who rated, and what they said. Fires automatically when you mark a client Active Client.</p><span class="use">Your reputation scoreboard</span></div>
+    <div class="tab"><div class="ic">🤖</div><h4>Ask Pete · Resources</h4><p>The internal knowledge base. Carrier questions, plan details, process questions — ask Pete before you ask a person.</p><span class="use">Faster than a group text</span></div>
+    <div class="tab"><div class="ic">🎧</div><h4>Get Support</h4><p>Opens a ticket with the office, already filled in with who you are. Use it for anything broken, missing, or confusing.</p><span class="use">Better than a text to Janet</span></div>
+  </div>
+
+  <div class="note info"><span class="h">Only see six tabs?</span>That is correct. The <b>Admin</b> section — All Leads, Support Tickets, All Contacts, House Calendar, Campaigns, Staff — only appears for leadership. If you do not see it, nothing is broken.</div>
+</section>
+
+<!-- ============================================ contacts -->
+<section id="contacts">
+  <div class="kicker"><span class="n">7</span><span class="t">Using it</span></div>
+  <h2>Adding a client</h2>
+  <p class="lede">Everything starts as a contact. Your contacts are yours — no other broker can see them, and that was verified at the database level, not just hidden in the interface.</p>
+
+  <figure>
+    <img src="img/07-contacts.jpg" alt="The Contacts list with the Add Contact button highlighted">
+    <figcaption>Contacts. Names shown here are examples.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>+ Add Contact</b> — the main way you put someone in the system.</li>
+    <li><b>Filters</b> — narrow by disposition, tag, line, carrier, premium, or birthday month.</li>
+    <li><b>Columns</b> — tick what you want to see. Your choice is remembered.</li>
+  </ol>
+
+  <figure class="shot-narrow">
+    <img src="img/08-add-contact.jpg" alt="The Add Contact form">
+    <figcaption>The Add Contact drawer slides in from the right.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>First name is the only required field.</b> Everything else can come later — add what you have and keep moving.</li>
+    <li><b>Disposition</b> — where this person stands right now. This is the most important field on the form. See the next section.</li>
+  </ol>
+
+  <figure class="shot-narrow">
+    <img src="img/09-lines.jpg" alt="Lines of insurance checkboxes on the Add Contact form">
+    <figcaption>Scroll down in the same drawer.</figcaption>
+  </figure>
+
+  <div class="note warn"><span class="h">Check a line of insurance or the deal never appears</span>Each line you tick creates a deal on that line's pipeline board. <b>A contact saved with no line checked is invisible on the Pipeline tab.</b> If someone goes missing from your board, this is why. Open the record and add the line — it shows up straight away.</div>
+
+  <p style="font-size:15.6px;color:#41556e">You can also add <b>carriers</b>, <b>dependents</b>, a <b>date of birth</b> (which drives the birthday reminders on your dashboard), and free-text <b>notes</b>. Add what you know today, fill the rest in as you learn it.</p>
+</section>
+
+<!-- ============================================ disposition -->
+<section id="disposition">
+  <div class="kicker"><span class="n">8</span><span class="t">Using it</span></div>
+  <h2>Dispositions — and the one rule that matters</h2>
+  <p class="lede">The disposition is how the system knows what is happening with a person and what to send them. It is a dropdown on every contact record. Change it as the relationship changes.</p>
+
+  <div class="disp">
+    <div class="dcard hero-d">
+      <div class="nm">✅ Active Client — required on every client you write</div>
+      <div class="fx" style="font-size:15px;color:#276749;margin-top:6px">The moment you set this, three things happen automatically: the client is marked in-force, <b>you</b> get the commission-qualified email, and <b>your client</b> gets the review request with the $100 gift-card drawing. <b>This is not optional.</b> If you wrote the policy, the disposition is Active Client. No exceptions — this is how you get paid credit and how the review goes out.</div>
+    </div>
+    <div class="dcard"><div class="nm">Lead</div><div class="fx">The default. A new person you have not worked yet.</div></div>
+    <div class="dcard"><div class="nm">Follow-Up</div><div class="fx">Live conversation, not closed. Your working list.</div></div>
+    <div class="dcard"><div class="nm">No Answer</div><div class="fx">Tried, could not reach them. Try again.</div></div>
+    <div class="dcard"><div class="nm">Not Interested</div><div class="fx">Real answer, and it was no. Keeps your board honest.</div></div>
+    <div class="dcard"><div class="nm">Wrong Number</div><div class="fx">Bad data, not a bad lead.</div></div>
+    <div class="dcard"><div class="nm">Do Not Call</div><div class="fx">They asked. Respect it and mark it.</div></div>
+  </div>
+
+  <div class="note warn"><span class="h">Why "every client must be Active Client" is a hard rule</span>Nothing downstream fires without it. No commission notice to you. No review request to your client. No in-force record. A written policy sitting on "Follow-Up" is invisible to the whole system — it looks like you did not write it.</div>
+
+  <div class="note info"><span class="h">You will see confirmation</span>Set it and a message appears: <b>"Marked Active Client — client is now in-force."</b> That is your receipt that it went through.</div>
+</section>
+
+<!-- ============================================ pipeline -->
+<section id="pipeline">
+  <div class="kicker"><span class="n">9</span><span class="t">Using it</span></div>
+  <h2>Working your pipeline</h2>
+  <p class="lede">One board per line of insurance. A deal is created for you automatically the moment a contact has a line checked — you never create a deal by hand.</p>
+
+  <figure>
+    <img src="img/10-pipeline.jpg" alt="The Pipeline board showing stages">
+    <figcaption>Pipeline. Example data shown.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Drag a card sideways</b> to move a deal through the stages: New Lead &rarr; Appointment Set &rarr; Contacted &rarr; Needs Analysis &rarr; Quoted &rarr; Application Submitted, and on to written.</li>
+    <li><b>The dropdown at the top</b> switches boards. The same person can be on your Health board and your Life board at once — those are two separate deals, and that is deliberate.</li>
+  </ol>
+
+  <p style="font-size:15.6px;color:#41556e">Each card shows how long it has been sitting in its current stage. A card that has not moved in a week is telling you something.</p>
+</section>
+
+<!-- ============================================ emails -->
+<section id="emails">
+  <div class="kicker"><span class="n">10</span><span class="t">Using it</span></div>
+  <h2>Exactly when emails go out, and to whom</h2>
+  <p class="lede">The system sends on your behalf, from your name, with your phone number and email at the bottom. Nothing goes out that you did not trigger. Here is every single one.</p>
+
+  <table>
+    <thead><tr><th style="width:31%">What you do</th><th style="width:15%">Who gets it</th><th style="width:13%">When</th><th>What it says</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Someone books on your calendar page</b></td>
+        <td><span class="pill client">Your client</span></td>
+        <td>Immediately</td>
+        <td>Booking confirmation with the date, the time in their timezone, and your contact details.</td>
+      </tr>
+      <tr>
+        <td><b>Someone books on your calendar page</b></td>
+        <td><span class="pill you">You</span></td>
+        <td>Immediately</td>
+        <td>Heads-up that an appointment was booked, with the intake answers they gave you.</td>
+      </tr>
+      <tr>
+        <td><b>An appointment is coming up</b></td>
+        <td><span class="pill both">Both of you</span></td>
+        <td>24 hours before</td>
+        <td>Reminder. Cuts no-shows more than anything else in the system.</td>
+      </tr>
+      <tr>
+        <td><b>An appointment is coming up</b></td>
+        <td><span class="pill both">Both of you</span></td>
+        <td>1 hour before</td>
+        <td>Second reminder.</td>
+      </tr>
+      <tr>
+        <td><b>An appointment is coming up</b></td>
+        <td><span class="pill both">Both of you</span></td>
+        <td>10 minutes before</td>
+        <td>Final nudge. This is the one that gets people to actually pick up.</td>
+      </tr>
+      <tr style="background:#f0fdf9">
+        <td><b>You set disposition to Active Client</b></td>
+        <td><span class="pill you">You</span></td>
+        <td>Immediately</td>
+        <td><b>Commission qualified.</b> Confirms the client is in-force and recorded against your name.</td>
+      </tr>
+      <tr style="background:#f0fdf9">
+        <td><b>You set disposition to Active Client</b></td>
+        <td><span class="pill client">Your client</span></td>
+        <td>Immediately</td>
+        <td><b>Review request</b> with the $100 Visa gift-card drawing. Goes out the same second, not on a monthly export.</td>
+      </tr>
+      <tr>
+        <td><b>Client taps 4 or 5 stars</b></td>
+        <td><span class="pill auto">Automatic</span></td>
+        <td>Instantly</td>
+        <td>They are sent straight to Google to leave the public review.</td>
+      </tr>
+      <tr>
+        <td><b>Client taps 1, 2 or 3 stars</b></td>
+        <td><span class="pill you">You</span> <span class="pill auto">+ Janet</span></td>
+        <td>Instantly</td>
+        <td>Private feedback box opens for them, and an alert reaches you and the office <b>the moment the star is tapped</b> — whether or not they type anything. Low ratings never reach Google.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note ok"><span class="h">You can read every email that was sent</span>Open any contact record and scroll to the <b>Emails</b> card. Every message sent to that person is listed, and clicking one shows you the exact email they received. If something failed to send, it says so in red with the reason.</div>
+
+  <div class="flow">
+    <div class="fstep"><div class="fn">Step 1</div><div class="fb">They book</div><div class="fs">Confirmation to them, alert to you</div></div>
+    <div class="fstep"><div class="fn">Step 2</div><div class="fb">Reminders</div><div class="fs">24h, 1h, 10 min before</div></div>
+    <div class="fstep"><div class="fn">Step 3</div><div class="fb">You write it</div><div class="fs">Add the line, add the policy</div></div>
+    <div class="fstep"><div class="fn">Step 4</div><div class="fb">Active Client</div><div class="fs">Commission email to you</div></div>
+    <div class="fstep"><div class="fn">Step 5</div><div class="fb">Review request</div><div class="fs">Gift-card drawing to them</div></div>
+  </div>
+</section>
+
+<!-- ============================================ reviews -->
+<section id="reviews">
+  <div class="kicker"><span class="n">11</span><span class="t">Using it</span></div>
+  <h2>Reviews</h2>
+  <p class="lede">You do not send review requests. Marking a client Active Client does it for you, the same second. This tab is where you watch what happened.</p>
+
+  <figure>
+    <img src="img/11-reviews.jpg" alt="The Reviews tab showing tracking tiles">
+    <figcaption>Sidebar &rarr; <b>Reviews</b>.</figcaption>
+  </figure>
+
+  <ol class="steps">
+    <li><b>Your four numbers</b> — requests sent, how many opened the link, how many went to Google with 4 or 5 stars, and how many need follow-up.</li>
+    <li><b>Every request</b> — the full list: who was asked, who opened it, who rated, and exactly what they wrote.</li>
+  </ol>
+
+  <div class="note info"><span class="h">One honest limitation</span>Four and five stars go straight to Google, so we can see that someone was sent there but not whether they finished posting — Google does not report that back. One to three stars never reach Google at all.</div>
+</section>
+
+<!-- ============================================ rules -->
+<section id="rules">
+  <div class="kicker"><span class="n">12</span><span class="t">Reference</span></div>
+  <h2>House rules</h2>
+  <div class="card">
+    <ol class="steps gold" style="margin-top:0">
+      <li><b>Every client you write gets marked Active Client.</b> Not optional. It is how you get commission credit and how the review request goes out.</li>
+      <li><b>Every contact gets at least one line of insurance</b>, or it never appears on your pipeline.</li>
+      <li><b>Keep your disposition current.</b> A stale board is worse than an empty one.</li>
+      <li><b>Set your availability and connect Google Calendar</b> before you share your booking link with anyone.</li>
+      <li><b>Open a lead inside the CRM to claim it.</b> Unclaimed leads reassign after an hour during business hours. There is no app to download — opening it here is the claim.</li>
+      <li><b>Use Get Support, not a group text.</b> It creates a real ticket that does not get lost.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================ errors -->
+<section id="errors">
+  <div class="kicker"><span class="n">13</span><span class="t">Reference</span></div>
+  <h2>If you get stuck</h2>
+  <p class="lede">These are the exact messages you might see, and what each one actually means.</p>
+
+  <table>
+    <thead><tr><th style="width:40%">What you see</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><b>"That setup code is not correct."</b></td><td>Retype <b>332633</b>. Spaces and capitals do not matter, so it is almost always a mistyped digit.</td></tr>
+      <tr><td><b>"That address is not on the CRM roster."</b></td><td>The office has a different email for you. Check the spelling first, then see Janet — she can look you up in seconds.</td></tr>
+      <tr><td><b>"This login already has a password."</b></td><td>You are already set up. Go back to the first screen and use email + password. Forgot it? Use <b>Reset password</b>.</td></tr>
+      <tr><td><b>"Too many attempts from this network."</b></td><td>Sixty of us are on one wifi. Wait sixty seconds and try again.</td></tr>
+      <tr><td><b>"That page does not exist"</b> when you click View</td><td>Your page is still building. Wait two or three minutes and refresh. If it is still missing after five, something on your profile is incomplete — sign out and back in and the form will tell you what.</td></tr>
+      <tr><td><b>You land back on the profile form</b></td><td>Deliberate. Something required is missing. The message at the top names exactly which field.</td></tr>
+      <tr><td><b>"Photo upload failed"</b></td><td>Usually the file is too big. Under 8 MB, JPG or PNG. Nothing else on your form is lost — fix the photo and save again.</td></tr>
+      <tr><td><b>A contact is missing from Pipeline</b></td><td>It has no line of insurance. Open the record, add the line, and the deal appears.</td></tr>
+      <tr><td><b>A client booked over something on my Google calendar</b></td><td>Either Google is not connected yet, or that calendar is unticked, or the event is marked <b>Free</b> in Google instead of Busy.</td></tr>
+      <tr><td><b>Anything else</b></td><td>Sidebar &rarr; <b>Get Support</b>. It opens a real ticket with your details already filled in.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================ glossary -->
+<section id="glossary">
+  <div class="kicker"><span class="n">14</span><span class="t">Reference</span></div>
+  <h2>Glossary — what is this button for?</h2>
+  <p class="lede">Bookmark this section. When you cannot remember what something does, it is here.</p>
+
+  <dl class="gloss">
+    <div><dt>Contact</dt><dd>Any person in your book. A lead, a prospect, or a client — they are all contacts, distinguished by their disposition.</dd></div>
+    <div><dt>Disposition</dt><dd>Where a person stands right now. Drives what the system sends. <b>Active Client</b> is the one that triggers commission and review emails.</dd></div>
+    <div><dt>Line of insurance</dt><dd>Health, Medicare, Life, Dental, Vision, Annuities, Group Benefits, Supplements, Accident/Gap. Ticking one creates a deal on that pipeline.</dd></div>
+    <div><dt>Deal</dt><dd>One opportunity on one line for one person. Created automatically. Someone buying health and life is two deals.</dd></div>
+    <div><dt>Stage</dt><dd>A column on the pipeline board. Drag a card sideways to change it.</dd></div>
+    <div><dt>In-force</dt><dd>The policy is active and the client is really yours. Set by marking Active Client.</dd></div>
+    <div><dt>Landing page</dt><dd>Your public page at <code>/broker/your-name</code>. Photo, bio, your lines, booking built in.</dd></div>
+    <div><dt>Booking page</dt><dd>Your calendar at <code>/book/your-name</code>. One job: someone picks a time.</dd></div>
+    <div><dt>Availability</dt><dd>The hours you allow bookings. Different from your Google Calendar, which blocks time on top of it.</dd></div>
+    <div><dt>Minimum notice</dt><dd>How far ahead someone must book. Stops a stranger taking a slot fifteen minutes from now.</dd></div>
+    <div><dt>Review request</dt><dd>The automatic email with the $100 gift-card drawing, sent to a client the second you mark them Active Client.</dd></div>
+    <div><dt>Claiming a lead</dt><dd>Opening a new lead inside the CRM. Unopened leads reassign after an hour during business hours.</dd></div>
+    <div><dt>Tag</dt><dd>A free-form label for filtering — "referral", "hot lead", "follow-up". Use them however helps you.</dd></div>
+    <div><dt>Carrier</dt><dd>The insurance company on a policy. 38 are loaded; pick from the list so reporting stays clean.</dd></div>
+    <div><dt>Ask Pete</dt><dd>The internal AI resource centre. Carrier and plan questions, answered from our own documents.</dd></div>
+    <div><dt>Get Support</dt><dd>Opens a ticket with the office, prefilled with who you are.</dd></div>
+    <div><dt>Meet the Brokers</dt><dd>The public team page. You appear there automatically once your profile is complete.</dd></div>
+  </dl>
+</section>
+
+<footer>
+  <p><b>ProtectHealth</b> · Las Vegas, Nevada · Broker setup guide, August 2026.<br>
+  This page is unlisted. Please do not post the link publicly. Questions on Monday: grab Johnathon or Janet in the room. Any day after: sidebar &rarr; <b>Get Support</b>.</p>
+</footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function sync(){
+    var y = window.scrollY + 130, best = 0;
+    secs.forEach(function(s, i){ if (s && s.offsetTop <= y) best = i; });
+    links.forEach(function(a, i){ a.classList.toggle('on', i === best); });
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  sync();
+})();
+</script>
+</body>
+</html>

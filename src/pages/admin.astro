@@ -552,7 +552,12 @@ const SUPABASE_ANON =
       const esch = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       async function loadTracking() {
         summaryEl.textContent = 'Loading…'; tbody.innerHTML = '';
-        const { data, error } = await sb.rpc('ph_review_tracking');
+        // p_all widens scope from "my own clients" to the whole house. The
+        // function still checks ph_is_admin() internally, so a non-admin passing
+        // it sees only their own. The zero-argument overload was dropped in
+        // migration fix_review_tracking_overload_ambiguity — having both made
+        // PostgREST refuse to choose, and this panel errored out entirely.
+        const { data, error } = await sb.rpc('ph_review_tracking', { p_all: true });
         if (error) { summaryEl.textContent = 'Could not load tracking.'; return; }
         const rows = data || [];
         const sent = rows.length;
@@ -571,7 +576,7 @@ const SUPABASE_ANON =
             return `<tr>
               <td><div style="font-weight:600">${esch(r.client_name || '—')}</div><div class="ad-muted" style="font-size:.8rem">${esch(r.client_email || '')}</div></td>
               <td class="ad-muted">${esch(r.agent_name || '—')}</td>
-              <td class="ad-muted">${fmt(r.sent_at)}${r.status === 'failed' ? ' <span style="color:#c0392b">(failed)</span>' : ''}</td>
+              <td class="ad-muted">${fmt(r.sent_at)}${r.send_status === 'failed' ? ' <span style="color:#c0392b">(failed)</span>' : ''}</td>
               <td>${r.clicked_at ? '<span style="color:#0ea472;font-weight:700">✓ ' + fmt(r.clicked_at) + '</span>' : '<span class="ad-muted">—</span>'}</td>
               <td style="color:${starColor};font-weight:700;letter-spacing:1px">${stars}</td>
               <td class="ad-muted" style="font-size:.82rem;max-width:220px">${esch(r.feedback || '')}</td>

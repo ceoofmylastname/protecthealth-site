@@ -597,6 +597,12 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .ob-photo{display:flex;gap:16px;align-items:flex-start}
   .ob-photo-preview{width:96px;height:96px;border-radius:14px;background:#eef2f9;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none;color:var(--muted);font-size:.72rem;text-align:center}
   .ob-photo-preview img{width:100%;height:100%;object-fit:cover}
+  /* Headshot + bio are what gate the landing page, so they are labelled
+     required up front rather than discovered on submit. */
+  .req{flex:none;font-size:.6rem;font-weight:800;letter-spacing:.08em;color:#b42318;background:#fef3f2;border:1px solid #fecdca;border-radius:999px;padding:2px 7px}
+  .ob-count{font-size:.72rem;color:var(--muted);margin-top:6px;text-align:right}
+  .ob-count.is-short{color:#b42318;font-weight:700}
+  .is-invalid{border-color:#f04438 !important;box-shadow:0 0 0 3px rgba(240,68,56,.12)}
   @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:820px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-240px;top:0;bottom:0;width:232px;z-index:80;transition:left .2s}#app.nav-open #sidebar{left:0}.searchbox{display:none}}
   /* Web-inquiry intake answers inside the activity feed */
@@ -895,7 +901,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // onboarding form before the dashboard — Rob's "collect it all in the room"
       // step. Admins are never gated by it (they may not want a broker landing
       // page); they can still build one anytime via Edit profile.
-      if (me && !state.isAdmin && (!me.onboarding_completed_at || !String(me.phone || '').trim())) { openOnboarding(email); return; }
+      // profileGaps() mirrors the landing-page gate exactly, so a broker who is
+      // missing a headshot or a bio is sent back here rather than being left to
+      // discover months later that they never had a page.
+      if (me && !state.isAdmin && (!me.onboarding_completed_at || profileGaps(me).length > 0)) { openOnboarding(email); return; }
       enterApp(email);
     }
 
@@ -1006,12 +1015,35 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       return dg.length === 11 && dg.startsWith('1') ? dg.slice(1) : dg;
     };
 
+    // Landing-page prerequisites. A page is only generated for a broker whose
+    // row satisfies ph_agents_mark_republish: active, onboarded, headshot set,
+    // bio non-blank. Phone is ours on top of that — a page that shows the main
+    // office line instead of the broker is worse than no page.
+    // 40 characters is about one real sentence. It exists to stop " " and "n/a",
+    // not to police writing.
+    const BIO_MIN = 40;
+    const bioText = (v) => String(v ?? '').trim().replace(/\s+/g, ' ');
+    // Returns the human-readable list of what is still missing, in form order.
+    function profileGaps(me) {
+      const out = [];
+      if (!me?.headshot_url) out.push('a headshot');
+      if (phoneDigits(me?.phone).length !== 10) out.push('a phone number');
+      if (bioText(me?.bio).length < BIO_MIN) out.push('a short bio');
+      return out;
+    }
+    const listPhrase = (a) => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
     function openOnboarding(email, opts = {}) {
       const editing = opts.editing === true;
       const me = state.me;
-      // Someone who finished onboarding before the phone field existed gets
-      // sent back here for that one field, with copy that says why.
-      const phoneOnly = !editing && !!me.onboarding_completed_at && !String(me.phone || '').trim();
+      // A broker only gets a landing page and a booking page once all three of
+      // headshot, bio and phone are on the record — that is the exact gate in
+      // ph_agents_mark_republish. Anything less and no page is ever generated,
+      // so the broker walks away believing they are live when they are not.
+      const gaps = profileGaps(me);
+      // Someone who finished onboarding before a required field existed, or who
+      // skipped one, gets sent back here for just that field, with copy saying why.
+      const fixup = !editing && !!me.onboarding_completed_at && gaps.length > 0;
       const socials = me.social_links || {};
       const lines = new Set(me.lines_of_insurance || []);
       const firstName = String(me.full_name || '').split(' ')[0] || 'there';
@@ -1020,17 +1052,17 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       el.innerHTML = `
         <div class="ob-scroll"><div class="ob-card">
           <img class="ag-logo" src="${LOGO}" alt="ProtectHealth" />
-          <h1>${editing ? 'Edit your profile' : phoneOnly ? 'One more thing, ' + esc(firstName) : 'Welcome, ' + esc(firstName)}</h1>
+          <h1>${editing ? 'Edit your profile' : fixup ? 'One more thing, ' + esc(firstName) : 'Welcome, ' + esc(firstName)}</h1>
           <p class="ag-muted">${editing ? 'Update how you appear on your landing page and Meet the Team.'
-            : phoneOnly ? 'We need the phone number you want prospects to call. Right now your pages show the main office line instead of you.'
+            : fixup ? 'Your landing page and booking page are not live yet. They need ' + esc(listPhrase(gaps)) + ' before they can be built.'
             : 'This sets up your ProtectHealth landing page and your Meet the Team profile. Takes two minutes.'}</p>
 
-          <div class="section-t">Headshot</div>
+          <div class="section-t">Headshot <span class="req">Required</span></div>
           <div class="ob-photo">
             <div class="ob-photo-preview" id="ob-preview">${me.headshot_url ? `<img src="${esc(me.headshot_url)}" alt=""/>` : '<span>No photo yet</span>'}</div>
             <div>
               <label class="btn btn-ghost btn-sm" style="cursor:pointer">Choose photo<input type="file" id="ob-file" accept="image/png,image/jpeg,image/webp" hidden/></label>
-              <div class="hint">A clear, front-facing photo. JPG or PNG, up to 8&nbsp;MB. You can retake it anytime.</div>
+              <div class="hint">A clear, front-facing photo. JPG or PNG, up to 8&nbsp;MB. You can retake it anytime. Without a photo your landing page is not built.</div>
             </div>
           </div>
 
@@ -1042,8 +1074,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           </div>
           <div class="hint" style="margin:-4px 0 0">Leave the email blank to use your login address (${esc(me.email || '')}). Set it if you would rather clients write somewhere else. Changing it never affects how you sign in.</div>
 
-          <div class="section-t">Short bio</div>
-          <textarea id="ob-bio" class="rec-select" rows="4" maxlength="600" placeholder="A few sentences prospects will read on your page. Who you help and how.">${esc(me.bio || '')}</textarea>
+          <div class="section-t">Short bio <span class="req">Required</span></div>
+          <textarea id="ob-bio" class="rec-select" rows="4" minlength="${BIO_MIN}" maxlength="600" placeholder="A few sentences prospects will read on your page. Who you help and how.">${esc(me.bio || '')}</textarea>
+          <div class="ob-count" id="ob-bio-count"></div>
 
           <div class="section-t">Social links <span class="ag-muted" style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
           <div class="field"><label>LinkedIn</label><input id="ob-linkedin" value="${esc(socials.linkedin || '')}" placeholder="https://linkedin.com/in/…"/></div>
@@ -1060,8 +1093,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div style="display:flex;gap:10px;margin-top:24px;align-items:center">
             <button class="ag-btn" id="ob-save">${editing ? 'Save profile' : 'Save & continue'}</button>
             ${editing ? '<button class="btn btn-ghost" id="ob-cancel">Cancel</button>'
-              : phoneOnly ? '' /* nothing else is being asked — no skip past one field */
-              : '<button class="btn btn-ghost" id="ob-skip">Skip for now</button>'}
+              : fixup ? '' /* already onboarded and still missing a required field — no skip past it */
+              : '<button class="btn btn-ghost" id="ob-skip">Skip for now — no landing page yet</button>'}
             <span class="ag-status ob-status" style="min-height:1em"></span>
           </div>
         </div></div>`;
@@ -1072,11 +1105,25 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const phEl = $('#ob-phone');
       phEl?.addEventListener('blur', () => { phEl.value = fmtPhoneJs(phEl.value); });
 
+      // Live bio counter, so the minimum is visible while typing instead of
+      // arriving as a rejection after they press save.
+      const bioEl = $('#ob-bio'), bioCount = $('#ob-bio-count');
+      const paintBioCount = () => {
+        const n = bioText(bioEl.value).length;
+        const short = n < BIO_MIN;
+        bioCount.textContent = short ? `${BIO_MIN - n} more characters needed` : `${n} / 600`;
+        bioCount.classList.toggle('is-short', short);
+        if (!short) bioEl.classList.remove('is-invalid');
+      };
+      bioEl.addEventListener('input', paintBioCount);
+      paintBioCount();
+
       pendingHeadshotFile = null;
       $('#ob-file').addEventListener('change', (e) => {
         const f = e.target.files[0]; if (!f) return;
         if (f.size > 8 * 1024 * 1024) { setObStatus('That image is over 8 MB. Choose a smaller one.', true); return; }
         pendingHeadshotFile = f;
+        $('#ob-preview').classList.remove('is-invalid');
         const rd = new FileReader();
         rd.onload = () => { $('#ob-preview').innerHTML = `<img src="${rd.result}" alt=""/>`; };
         rd.readAsDataURL(f);
@@ -1090,6 +1137,62 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     async function saveOnboarding(email, editing) {
       const btn = $('#ob-save'); btn.disabled = true; setObStatus('Saving…');
       let headshot_url = state.me.headshot_url || null;
+
+      // ---- validate before anything expensive ----
+      // These run ahead of the headshot upload on purpose: failing after an
+      // 8 MB upload wastes the broker's time and a round trip.
+      //
+      // Admins are not required to have a landing page (some are not brokers),
+      // so the profile requirements only bind roster brokers.
+      const mustHaveProfile = !state.isAdmin;
+
+      // Phone is required for everyone here: it is the number on the landing
+      // page, the booking page and every email sent on their behalf.
+      const rawPhone = $('#ob-phone')?.value || '';
+      const digits = phoneDigits(rawPhone);
+      if (digits.length !== 10) {
+        btn.disabled = false;
+        setObStatus(digits.length ? 'That phone number needs 10 digits, like (702) 555-0148.' : 'Please add the phone number you want prospects to call.', true);
+        $('#ob-phone')?.classList.add('is-invalid');
+        $('#ob-phone')?.focus();
+        return;
+      }
+      $('#ob-phone')?.classList.remove('is-invalid');
+
+      // Headshot. Either one already on the record or one staged in this session.
+      if (mustHaveProfile && !pendingHeadshotFile && !headshot_url) {
+        btn.disabled = false;
+        setObStatus('Add a headshot. Without one your landing page is never built.', true);
+        $('#ob-preview')?.classList.add('is-invalid');
+        $('#ob-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // Bio. This is the field that silently cost brokers their page: the form
+      // used to accept a blank one, stamp onboarding_completed_at, and send the
+      // broker away believing they were live.
+      const bio = bioText($('#ob-bio')?.value);
+      if (mustHaveProfile && bio.length < BIO_MIN) {
+        btn.disabled = false;
+        setObStatus(bio.length
+          ? `Your bio needs at least ${BIO_MIN} characters — about one sentence. This is the text prospects read on your page.`
+          : 'Add a short bio. Without one your landing page is never built.', true);
+        $('#ob-bio')?.classList.add('is-invalid');
+        $('#ob-bio')?.focus();
+        return;
+      }
+      $('#ob-bio')?.classList.remove('is-invalid');
+
+      // Optional public contact email. Blank means "use my login email".
+      const pubEmail = ($('#ob-pubemail')?.value || '').trim();
+      if (pubEmail && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(pubEmail)) {
+        btn.disabled = false;
+        setObStatus('That contact email does not look right. Check it, or leave it blank to use your login address.', true);
+        $('#ob-pubemail')?.classList.add('is-invalid');
+        $('#ob-pubemail')?.focus();
+        return;
+      }
+      $('#ob-pubemail')?.classList.remove('is-invalid');
 
       // Storage RLS on broker-photos grants INSERT to the `authenticated` role
       // ONLY, so the upload request must carry a valid, unexpired user token.
@@ -1142,40 +1245,30 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       }
       const lines_of_insurance = $$('[data-line]').filter((c) => c.checked).map((c) => c.getAttribute('data-line'));
 
-      // Phone is required: it is the number on this broker's landing page,
-      // booking page and every email sent on their behalf. Ten US digits.
-      const rawPhone = $('#ob-phone')?.value || '';
-      const digits = phoneDigits(rawPhone);
-      if (digits.length !== 10) {
-        btn.disabled = false;
-        setObStatus(digits.length ? 'That phone number needs 10 digits, like (702) 555-0148.' : 'Please add the phone number you want prospects to call.', true);
-        $('#ob-phone')?.focus();
-        return;
-      }
-
-      // Optional public contact email. Blank means "use my login email".
-      const pubEmail = ($('#ob-pubemail')?.value || '').trim();
-      if (pubEmail && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(pubEmail)) {
-        btn.disabled = false;
-        setObStatus('That contact email does not look right. Check it, or leave it blank to use your login address.', true);
-        $('#ob-pubemail')?.focus();
-        return;
-      }
-
       const patch = {
         phone: fmtPhoneJs(digits),
         public_email: pubEmail || null,
-        bio: $('#ob-bio').value.trim() || null,
+        bio: bio || null,
         headshot_url,
         social_links,
         lines_of_insurance,
-        onboarding_completed_at: new Date().toISOString(),
       };
+      // Only claim onboarding is finished when the record actually qualifies for
+      // a landing page. Stamping it on an incomplete profile is what produced
+      // brokers who believed they were live and had no page. The same rule is
+      // enforced in the database by ph_agents_guard_profile, because this
+      // update goes straight from the browser to PostgREST.
+      const qualifies = !!headshot_url && bio.length >= BIO_MIN;
+      if (qualifies || state.me.onboarding_completed_at) {
+        patch.onboarding_completed_at = state.me.onboarding_completed_at && !qualifies
+          ? state.me.onboarding_completed_at
+          : new Date().toISOString();
+      }
       const { error } = await sb.from('ph_agents').update(patch).eq('auth_user_id', uid);
       if (error) { btn.disabled = false; setObStatus('Could not save: ' + error.message, true); return; }
 
       Object.assign(state.me, patch);
-      toast(editing ? 'Profile updated' : 'Profile saved');
+      toast(editing ? 'Profile updated' : qualifies ? 'Profile saved — your page goes live in about a minute' : 'Profile saved');
       enterApp(email);
     }
 
@@ -1514,6 +1607,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         try { await navigator.clipboard.writeText(b.dataset.copy); const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => (b.textContent = t), 1200); }
         catch (_e) { toast('Could not copy — long-press the link to copy it.'); }
       }));
+      $('#mypages-fix', v)?.addEventListener('click', () => { if (state.email) openOnboarding(state.email, { editing: true }); });
     }
     const statCard = (lbl, num, delta, ic = '') => `<div class="card stat">${ic ? `<div class="stat-ic">${ic}</div>` : ''}<div class="lbl">${lbl}</div><div class="num">${num}</div>${delta}</div>`;
 
@@ -1521,17 +1615,42 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     function brokerSlug(name) {
       return String(name || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-') || 'broker';
     }
-    // Shown once a broker has completed onboarding — they have a landing + booking page.
+    // The page only exists if the row passes ph_public_brokers(): is_active AND
+    // onboarding_completed_at AND headshot_url AND non-blank bio. This card used
+    // to gate on onboarding_completed_at alone, so a broker who was inactive, or
+    // missing a headshot or bio, was shown a confident link with a View button to
+    // a URL that 404s. Never advertise a page on weaker conditions than the ones
+    // that build it.
     function myPagesCard() {
-      if (!state.me?.onboarding_completed_at) return '';
-      const slug = brokerSlug(state.me.full_name);
+      const me = state.me;
+      if (!me?.onboarding_completed_at) return '';
+      const slug = brokerSlug(me.full_name);
       const base = 'https://www.protecthealth.com';
+
+      const blockers = [];
+      if (me.is_active === false) blockers.push('your roster record is marked inactive — ask the office');
+      if (!me.headshot_url) blockers.push('a headshot');
+      if (bioText(me.bio).length < BIO_MIN) blockers.push('a short bio');
+
+      const head = `<div class="card-h"><span class="grad-label">Your pages</span><h3 style="margin-left:8px">Your landing page &amp; booking calendar</h3></div>`;
+
+      if (blockers.length) {
+        return `<div class="card" style="border:1.5px solid #fecdca;background:linear-gradient(180deg,#fff7f6,#ffffff)">
+          ${head}
+          <div class="card-b" style="display:grid;gap:10px;padding-top:8px">
+            <div style="font-weight:750;color:#b42318">Not live yet</div>
+            <div class="cell-sub">Your pages are built from your profile. They need ${esc(listPhrase(blockers))} first. Nothing is published until then, so there is no link to share yet.</div>
+            <div><button class="btn btn-primary btn-sm" type="button" id="mypages-fix">Finish my profile</button></div>
+          </div>
+        </div>`;
+      }
+
       return `<div class="card" style="border:1.5px solid #d3e2ff;background:linear-gradient(180deg,#f1f7ff,#ffffff)">
-        <div class="card-h"><span class="grad-label">Your pages</span><h3 style="margin-left:8px">Your landing page &amp; booking calendar</h3></div>
+        ${head}
         <div class="card-b" style="display:grid;gap:12px;padding-top:8px">
           ${pageRow('Landing page', base + '/broker/' + slug, '🌐', 'Your public page — send it to prospects or link it in your bio.')}
           ${pageRow('Booking calendar', base + '/book/' + slug, '📅', 'People pick a time here and it lands in your CRM automatically.')}
-          <div class="cell-sub" style="margin-top:2px">New or updated details go live the next time the site updates.</div>
+          <div class="cell-sub" style="margin-top:2px">Just finished your profile? The site rebuilds within a couple of minutes — give it a moment before you share these.</div>
         </div>
       </div>`;
     }
