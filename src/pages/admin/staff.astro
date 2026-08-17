@@ -218,6 +218,17 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
   .st-test { font-size: 0.78rem; color: var(--blue); text-decoration: underline; margin-left: 8px; }
   .st-saved { font-size: 0.8rem; font-weight: 700; color: #16803c; }
   .st-saved.is-bad { color: #b3261e; }
+  /* Kill switch. Muted until it is on, then amber, so a paused broker is
+     obvious when scanning the list. */
+  .st-pause { display: flex; gap: 10px; align-items: flex-start; margin-top: 11px;
+              padding: 10px 12px; border: 1px solid #e2e9f1; border-radius: 10px;
+              background: #fbfcfe; cursor: pointer; }
+  .st-pause:hover { border-color: #cfe0f7; }
+  .st-pause.is-on { background: #fff8ec; border-color: #f0c987; }
+  .st-pause input { margin-top: 2px; width: 16px; height: 16px; cursor: pointer; flex: none; }
+  .st-pause-copy { display: block; font-size: 0.86rem; line-height: 1.45; }
+  .st-pause.is-on .st-pause-copy b { color: #92400e; }
+  .st-pause-hint { display: block; color: var(--muted, #5a6f85); font-size: 0.78rem; margin-top: 3px; }
   .st-empty { padding: 26px; text-align: center; }
 </style>
 
@@ -467,6 +478,14 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
             </select>
             <button type="button" class="cm-btn primary st-save">Save</button>
           </div>
+
+          <label class="st-pause${a.automations_paused ? ' is-on' : ''}">
+            <input type="checkbox" class="st-pause-box"${a.automations_paused ? ' checked' : ''} />
+            <span class="st-pause-copy">
+              <b>Pause client emails</b>
+              <span class="st-pause-hint">Stops review requests, appointment reminders, birthday and holiday sends, and booking confirmations to this broker's clients. They still get their own lead alerts, commission notices and ticket mail. Saves immediately.</span>
+            </span>
+          </label>
           ${cands.length ? `<div class="st-cands">${cands.map((c) => {
             const url = CAL_BASE + c.ghl_calendar_id;
             return `<button type="button" class="st-cand" data-url="${esc(url)}">Use “${esc(c.name)}”</button>
@@ -482,6 +501,31 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
 
         card.querySelectorAll('.st-cand').forEach((b) =>
           b.addEventListener('click', () => { card.querySelector('.st-url').value = b.getAttribute('data-url'); }));
+
+        // Pause saves on its own rather than waiting for Save, because it is a
+        // kill switch — an admin ticking it expects sending to stop now, not
+        // after they remember to press a button. Enforcement is server-side
+        // (ph_agent_paused, checked at send time), so this only writes the flag.
+        const pauseBox = card.querySelector('.st-pause-box');
+        pauseBox.addEventListener('change', async () => {
+          const on = pauseBox.checked;
+          pauseBox.disabled = true;
+          note.classList.remove('is-bad');
+          note.textContent = on ? 'Pausing client emails…' : 'Resuming client emails…';
+          const { error } = await sb.from('ph_agents')
+            .update({ automations_paused: on }).eq('id', id);
+          pauseBox.disabled = false;
+          if (error) {
+            pauseBox.checked = !on;             // put the box back, nothing saved
+            note.classList.add('is-bad');
+            note.textContent = error.message;
+            return;
+          }
+          card.querySelector('.st-pause').classList.toggle('is-on', on);
+          note.textContent = on
+            ? 'Client emails paused. Their own alerts still send.'
+            : 'Client emails resumed.';
+        });
 
         card.querySelector('.st-save').addEventListener('click', async (e) => {
           const btn = e.target; btn.disabled = true;
