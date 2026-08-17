@@ -1015,20 +1015,27 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       return dg.length === 11 && dg.startsWith('1') ? dg.slice(1) : dg;
     };
 
-    // Landing-page prerequisites. A page is only generated for a broker whose
-    // row satisfies ph_agents_mark_republish: active, onboarded, headshot set,
-    // bio non-blank. Phone is ours on top of that — a page that shows the main
+    // Landing-page prerequisites. A page is generated for a broker whose row
+    // satisfies ph_public_brokers(): active, onboarded, headshot set, bio
+    // non-blank. Phone is ours on top of that — a page that shows the main
     // office line instead of the broker is worse than no page.
-    // 40 characters is about one real sentence. It exists to stop " " and "n/a",
-    // not to police writing.
+    //
+    // BIO_MIN is a QUALITY FLOOR ON NEW WRITES ONLY, enforced in saveOnboarding.
+    // It is deliberately NOT part of profileGaps(), because profileGaps drives
+    // the "is my page live" card and the login gate, and those have to mirror
+    // the database exactly. Using 40 there told a broker with a short-but-real
+    // bio that their page was "not live yet" while it was serving happily on
+    // the public site — the same lie as before, just inverted. Never claim a
+    // live page is missing.
     const BIO_MIN = 40;
     const bioText = (v) => String(v ?? '').trim().replace(/\s+/g, ' ');
     // Returns the human-readable list of what is still missing, in form order.
+    // Mirrors ph_public_brokers() exactly: bio only has to be non-blank.
     function profileGaps(me) {
       const out = [];
       if (!me?.headshot_url) out.push('a headshot');
       if (phoneDigits(me?.phone).length !== 10) out.push('a phone number');
-      if (bioText(me?.bio).length < BIO_MIN) out.push('a short bio');
+      if (!bioText(me?.bio)) out.push('a short bio');
       return out;
     }
     const listPhrase = (a) => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
@@ -1258,7 +1265,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // brokers who believed they were live and had no page. The same rule is
       // enforced in the database by ph_agents_guard_profile, because this
       // update goes straight from the browser to PostgREST.
-      const qualifies = !!headshot_url && bio.length >= BIO_MIN;
+      // Mirrors ph_agents_guard_profile / ph_public_brokers: headshot present and
+      // a non-blank bio. BIO_MIN is enforced separately above as a floor on what
+      // a broker may SAVE; it is not what decides whether a page exists.
+      const qualifies = !!headshot_url && bio.length > 0;
       if (qualifies || state.me.onboarding_completed_at) {
         patch.onboarding_completed_at = state.me.onboarding_completed_at && !qualifies
           ? state.me.onboarding_completed_at
@@ -1627,10 +1637,13 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const slug = brokerSlug(me.full_name);
       const base = 'https://www.protecthealth.com';
 
+      // Mirrors ph_public_brokers() exactly. Do not tighten these past what the
+      // database actually requires — a stricter rule here reports a live page as
+      // missing, which is the same failure this card was built to remove.
       const blockers = [];
       if (me.is_active === false) blockers.push('your roster record is marked inactive — ask the office');
       if (!me.headshot_url) blockers.push('a headshot');
-      if (bioText(me.bio).length < BIO_MIN) blockers.push('a short bio');
+      if (!bioText(me.bio)) blockers.push('a short bio');
 
       const head = `<div class="card-h"><span class="grad-label">Your pages</span><h3 style="margin-left:8px">Your landing page &amp; booking calendar</h3></div>`;
 
