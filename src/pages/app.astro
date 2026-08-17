@@ -1371,7 +1371,12 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
         ev.preventDefault();
 
-        const tab = window.open('about:blank', '_blank', 'noopener');
+        // Deliberately NO 'noopener' in the feature string: passing it makes
+        // window.open return null, which leaves an orphaned about:blank tab we
+        // can never navigate. Null the opener on the handle instead — same
+        // protection, and we keep the reference we need.
+        const tab = window.open('about:blank', '_blank');
+        if (tab) { try { tab.opener = null; } catch (_) { /* cross-origin, fine */ } }
 
         try {
           let { data: { session } } = await sb.auth.getSession();
