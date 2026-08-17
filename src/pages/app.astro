@@ -673,6 +673,11 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
     );
     const LOGO = root.getAttribute('data-logo');
+    // Read from the data attributes, not the Astro frontmatter — this script is
+    // bundled separately and never sees the module-scope consts up top.
+    const SB_URL = root.getAttribute('data-supabase-url');
+    const SB_ANON = root.getAttribute('data-supabase-anon');
+    const PETE_URL = 'https://help.guidedbroker.com/';
 
     const gate = root.querySelector('[data-gate]');
     const app = root.querySelector('[data-app]');
@@ -1321,7 +1326,14 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       html += navItem('availability', 'Availability');
       html += navItem('reviews', 'Reviews');
       html += '<div class="nav-sec">Resources</div>';
-      html += `<a class="nav-item" href="https://guided-broker.pages.dev" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>Ask Pete · Resources</a>`;
+      // The Resource Center is gated — it renders no carrier link and no
+      // commission table until it knows who is asking. Rather than make a
+      // signed-in broker retype their email, the click handler below asks
+      // ph-concierge for a single-use, ten-minute handoff token and lands them
+      // already identified. The href stays the plain URL so middle-click and
+      // "open in new tab" still work; those just meet the gate, which is the
+      // correct fallback rather than a broken link.
+      html += `<a class="nav-item" id="ask-pete" href="${PETE_URL}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>Ask Pete · Resources</a>`;
       // Support tickets. Opens in a new tab so a broker mid-call does not lose
       // whatever they had open here. /support reads the same Supabase session
       // off this origin and fills their name and email in itself, so nothing
@@ -1340,6 +1352,57 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       }
       n.innerHTML = html;
       $$('.nav-item[data-route]', n).forEach((b) => b.addEventListener('click', () => go(b.dataset.route)));
+      wireAskPete(n);
+    }
+
+    // Hand a signed-in broker straight into the Resource Center without making
+    // them re-identify at the gate.
+    //
+    // The tab is opened synchronously inside the click, BEFORE any await. Safari
+    // and Firefox only treat window.open as user-initiated in that same tick, so
+    // opening after the fetch resolves gets silently blocked. We open about:blank
+    // first and set its location once the token lands.
+    function wireAskPete(scope) {
+      const link = $('#ask-pete', scope);
+      if (!link) return;
+
+      link.addEventListener('click', async (ev) => {
+        // Let modifier-clicks behave like a normal link.
+        if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
+        ev.preventDefault();
+
+        const tab = window.open('about:blank', '_blank', 'noopener');
+
+        try {
+          let { data: { session } } = await sb.auth.getSession();
+          const stale = !session?.expires_at || (session.expires_at * 1000 - Date.now() < 120000);
+          if (session && stale) {
+            const r = await sb.auth.refreshSession();
+            if (r?.data?.session) session = r.data.session;
+          }
+          const token = session?.access_token;
+          if (!token) throw new Error('no session');
+
+          const resp = await fetch(`${SB_URL}/functions/v1/ph-concierge`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: SB_ANON,
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ action: 'handoff' }),
+          });
+          const data = await resp.json();
+
+          // A broker who is not on the active roster falls through to the plain
+          // URL and meets the gate, which explains the problem far better than
+          // a dead tab would.
+          const dest = (data && data.ok && data.url) ? data.url : PETE_URL;
+          if (tab) tab.location = dest; else window.location.href = dest;
+        } catch (e) {
+          if (tab) tab.location = PETE_URL; else window.location.href = PETE_URL;
+        }
+      });
     }
 
     // ---- data load (RLS + mine() scope everything to this user's own book) ----
