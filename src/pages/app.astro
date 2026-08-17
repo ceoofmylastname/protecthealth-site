@@ -2774,21 +2774,24 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
         <button class="btn btn-ghost btn-sm" id="rec-back">← Contacts</button>
         <span class="avatar-sm" style="width:40px;height:40px;font-size:.9rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
-        <div><div style="font-size:1.2rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
+        <div><div class="rec-hd-name" style="font-size:1.2rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub rec-hd-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
         <span class="pill-status ${dispClass(c.disposition)}" id="rec-disp-pill" style="margin-left:8px">${esc(c.disposition || 'No disposition')}</span>
       </div>
       <div class="rec-grid">
         <div class="card"><div class="card-h"><span class="grad-label">Client data</span></div><div class="card-b">
           <div class="kv">
-            <div class="k">First name</div><div class="v">${esc(c.first_name || '—')}</div>
-            <div class="k">Last name</div><div class="v">${esc(c.last_name || '—')}</div>
-            <div class="k">Company</div><div class="v">${linkedCo ? `<a href="#" id="rec-company" style="color:var(--blue);font-weight:650;text-decoration:none">${esc(linkedCo.name)}</a>` : esc(c.company || '—')}</div>
-            ${c.job_title ? `<div class="k">Role / title</div><div class="v">${esc(c.job_title)}</div>` : ''}
-            <div class="k">Date of birth</div><div class="v">${esc(dob || '—')}</div>
-            <div class="k">Email</div><div class="v">${esc(c.email || '—')}</div>
-            <div class="k">Phone</div><div class="v">${esc(fmtPhone(c.phone) || '—')}</div>
-            <div class="k">Address</div><div class="v">${esc([c.street_address, c.city, [c.state, c.postal_code].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '—')}</div>
-            <div class="k">How we met</div><div class="v"><input class="cf-inline" id="rec-source" value="${esc(c.source || '')}" placeholder="Referral, website, event…"/></div>
+            <div class="k">First name</div><div class="v"><input class="cf-inline" data-fld="first_name" value="${esc(c.first_name || '')}" placeholder="—"/></div>
+            <div class="k">Last name</div><div class="v"><input class="cf-inline" data-fld="last_name" value="${esc(c.last_name || '')}" placeholder="—"/></div>
+            <div class="k">Company</div><div class="v">${linkedCo ? `<a href="#" id="rec-company" style="color:var(--blue);font-weight:650;text-decoration:none">${esc(linkedCo.name)}</a>` : `<input class="cf-inline" data-fld="company" value="${esc(c.company || '')}" placeholder="—"/>`}</div>
+            <div class="k">Role / title</div><div class="v"><input class="cf-inline" data-fld="job_title" value="${esc(c.job_title || '')}" placeholder="—"/></div>
+            <div class="k">Date of birth</div><div class="v"><input class="cf-inline" type="date" data-fld="date_of_birth" value="${esc(c.date_of_birth || '')}"/></div>
+            <div class="k">Email</div><div class="v"><input class="cf-inline" type="email" data-fld="email" value="${esc(c.email || '')}" placeholder="—"/></div>
+            <div class="k">Phone</div><div class="v"><input class="cf-inline" type="tel" data-fld="phone" value="${esc(c.phone || '')}" placeholder="—"/></div>
+            <div class="k">Street</div><div class="v"><input class="cf-inline" data-fld="street_address" value="${esc(c.street_address || '')}" placeholder="—"/></div>
+            <div class="k">City</div><div class="v"><input class="cf-inline" data-fld="city" value="${esc(c.city || '')}" placeholder="—"/></div>
+            <div class="k">State</div><div class="v"><input class="cf-inline" data-fld="state" value="${esc(c.state || '')}" placeholder="—"/></div>
+            <div class="k">ZIP</div><div class="v"><input class="cf-inline" data-fld="postal_code" value="${esc(c.postal_code || '')}" placeholder="—"/></div>
+            <div class="k">How we met</div><div class="v"><input class="cf-inline" data-fld="source" id="rec-source" value="${esc(c.source || '')}" placeholder="Referral, website, event…"/></div>
             ${state.customFields.map(customFieldRow).join('')}
           </div>
           <div class="section-t">Disposition</div>
@@ -2871,10 +2874,28 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         if (error) toast('Could not save.'); else if (okMsg) toast(okMsg);
         return !error;
       };
-      let srcT;
-      $('#rec-source')?.addEventListener('change', (e) => {
-        clearTimeout(srcT);
-        srcT = setTimeout(async () => { if (await saveField({ source: e.target.value.trim() || null })) { c.source = e.target.value.trim(); toast('Saved'); } }, 200);
+      // Client-data fields autosave on change. Six of these (first_name,
+      // last_name, email, phone, date_of_birth, city, state, postal_code,
+      // source) are also written by the GHL sync every five minutes, so the
+      // ph_contacts_zz_keep_local_edits trigger claims a field the moment a
+      // human touches it and refuses the sync's value from then on. Clearing a
+      // field releases the claim, which is why '' is sent as null.
+      $$('.cf-inline[data-fld]', v).forEach((inp) => {
+        let t;
+        inp.addEventListener('change', () => {
+          clearTimeout(t);
+          t = setTimeout(async () => {
+            const key = inp.getAttribute('data-fld');
+            const val = inp.value.trim() === '' ? null : inp.value.trim();
+            if (!(await saveField({ [key]: val }))) return;
+            c[key] = val;
+            toast('Saved');
+            // Keep the header in step so the record does not disagree with itself.
+            const hdr = $('.rec-hd-name'), sub = $('.rec-hd-sub');
+            if (hdr) hdr.textContent = nameOf(c);
+            if (sub) sub.textContent = `${c.email || ''}${c.phone ? ' · ' + fmtPhone(c.phone) : ''}`;
+          }, 200);
+        });
       });
       $$('.cf-inline[data-cf]', v).forEach((inp) => inp.addEventListener('change', async () => {
         const key = inp.getAttribute('data-cf');
