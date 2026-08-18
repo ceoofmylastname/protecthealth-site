@@ -1544,6 +1544,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           if (currentRoute === route) renderers[route]($('#view'));
         }).catch(() => {});
       }
+      // Repaint the sidebar now that loadData has the real count. buildNav()
+      // first runs during sign-in, when contactCount is still its initial 0,
+      // and loadData updates the number without repainting — so the badge read
+      // 0 no matter how many contacts you owned. The refresher below could not
+      // rescue it either: it only repaints when the fetched count DIFFERS from
+      // state, and state had already been set, so the guard always said "no
+      // change" and skipped.
+      buildNav();
+
       // Keep the Contacts badge honest: contacts created by landing-page
       // bookings and round robin arrive server-side while the app is open.
       mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).then(({ count }) => {
