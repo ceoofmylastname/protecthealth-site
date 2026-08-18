@@ -103,6 +103,7 @@ const SUPABASE_ANON =
             <option value="">Assign selected to…</option>
           </select>
           <button type="button" class="ac-bulk-go">Assign</button>
+          <button type="button" class="ac-bulk-del">Delete</button>
           <button type="button" class="ac-bulk-clear">Clear selection</button>
           <span class="ac-bulk-status" role="status"></span>
         </div>
@@ -156,6 +157,9 @@ const SUPABASE_ANON =
   .ac-bulk-go:hover { background: var(--blue); }
   .ac-bulk-go:disabled { opacity: .55; cursor: default; }
   .ac-bulk-clear { background: #fff; border: 1.5px solid var(--line) !important; color: var(--ink); }
+  .ac-bulk-del { background: #fff; border: 1.5px solid #f0c4c0 !important; color: #b3261e; }
+  .ac-bulk-del:hover { background: #b3261e; border-color: #b3261e !important; color: #fff; }
+  .ac-bulk-del:disabled { opacity: .55; cursor: default; }
   .ac-bulk-status { font-size: 0.85rem; color: var(--muted); }
   .ac-bulk-status.is-bad { color: #b3261e; }
   .ac-bulk-status.is-good { color: #0a7d3c; }
@@ -376,6 +380,33 @@ const SUPABASE_ANON =
       await Promise.all([loadRows(), loadStats()]);
     });
 
+    // Delete is a tombstone, not a DROP: nearly every contact originates in
+    // GoHighLevel and ph_sync_contacts_delta re-upserts on ghl_contact_id every
+    // five minutes, so a hard delete would come straight back. ph_contact_delete
+    // stamps deleted_at and closes the contact's pipeline cards; every read in
+    // /app and here filters on deleted_at is null.
+    $('.ac-bulk-del').addEventListener('click', async () => {
+      const st = $('.ac-bulk-status');
+      st.className = 'ac-bulk-status';
+      const ids = Array.from(picked);
+      if (!ids.length) return;
+      if (!confirm(`Delete ${ids.length} contact${ids.length === 1 ? '' : 's'}? They come off the book house-wide, their pipeline cards are removed, and they drop out of campaigns and review requests. This cannot be undone from here.`)) return;
+
+      const btn = $('.ac-bulk-del');
+      btn.disabled = true; st.textContent = 'Deleting…';
+      let done = 0, failed = 0;
+      for (let i = 0; i < ids.length; i += 200) {
+        const slice = ids.slice(i, i + 200);
+        const { data, error } = await sb.rpc('ph_contact_delete', { p_ids: slice });
+        if (error) failed += slice.length; else done += (data ?? 0);
+      }
+      btn.disabled = false;
+      if (failed) { st.textContent = `${done} deleted, ${failed} failed.`; st.classList.add('is-bad'); }
+      else { st.textContent = `${done} contact${done === 1 ? '' : 's'} deleted.`; st.classList.add('is-good'); }
+      clearPicks();
+      await Promise.all([loadRows(), loadStats()]);
+    });
+
     // ---------- data ----------
     async function loadAgents() {
       const { data } = await sb.from('ph_agents')
@@ -404,7 +435,7 @@ const SUPABASE_ANON =
         // p_all is the house-wide switch; the same RPC with no argument is what
         // /app calls for a personal book.
         sb.rpc('ph_dashboard_stats', { p_all: true }),
-        sb.from('ph_contacts').select('*', { count: 'exact', head: true }).is('agent_id', null),
+        sb.from('ph_contacts').select('*', { count: 'exact', head: true }).is('agent_id', null).is('deleted_at', null),
       ]);
       const d = statsRes.data || {};
       const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = Number(v || 0).toLocaleString(); };
@@ -417,7 +448,8 @@ const SUPABASE_ANON =
     function buildQuery(forCount) {
       let q = sb.from('ph_contacts')
         .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, origin, agent_id, ghl_date_added',
-          forCount ? { count: 'exact' } : undefined);
+          forCount ? { count: 'exact' } : undefined)
+        .is('deleted_at', null);
       if (query) {
         const s = query.replace(/[%,()]/g, ' ');
         q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`);

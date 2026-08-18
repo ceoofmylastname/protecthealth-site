@@ -515,10 +515,15 @@ export async function runImport(
       if (k && !byKey.has(k)) byKey.set(k, r);
     });
 
+    // A deleted contact must not match. Otherwise "update existing" would write
+    // into a tombstone nobody can see, and "skip duplicates" would skip someone
+    // the broker deliberately removed and is now re-importing.
+    const live = (q: any) => (isContacts ? q.is('deleted_at', null) : q);
+
     let lookupError: string | null = null;
     for (let i = 0; i < uniqueValues.length && !lookupError; i += LOOKUP_CHUNK) {
-      const { data, error } = await sb.from(table)
-        .select(lookupCols)
+      const { data, error } = await live(sb.from(table)
+        .select(lookupCols))
         .in(cfg.matchField, uniqueValues.slice(i, i + LOOKUP_CHUNK));
       if (error) { lookupError = error.message || 'lookup failed'; break; }
       absorb(data);
@@ -541,7 +546,7 @@ export async function runImport(
         const filter = missing.slice(i, i + OR_CHUNK)
           .map((v) => `${cfg.matchField}.ilike.${pgQuote(likeEscape(v))}`)
           .join(',');
-        const { data, error } = await sb.from(table).select(lookupCols).or(filter);
+        const { data, error } = await live(sb.from(table).select(lookupCols)).or(filter);
         if (error) break;
         absorb(data);
       }

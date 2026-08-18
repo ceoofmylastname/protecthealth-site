@@ -390,6 +390,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .btn:active{transform:scale(.97)}
   .btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 14px -5px rgba(25,123,255,.55)}
   .btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--ink2)}
+  /* Destructive, and it should read that way without shouting over the page. */
+  .btn-danger{border:1px solid #f0c4c0;background:#fff;color:#b3261e}
+  .btn-danger:hover{background:#b3261e;border-color:#b3261e;color:#fff}
   .btn-sm{padding:5px 11px;font-size:.78rem}
 
   .chip{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--line2);color:var(--ink2);white-space:nowrap}
@@ -459,6 +462,32 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .kcol-b.dropover{outline:2px dashed var(--blue);outline-offset:-4px;border-radius:11px;background:#e8effd66}
   .kcol-empty{border:1.5px dashed #d3dce8;border-radius:11px;padding:16px 10px;text-align:center;
     font-size:.72rem;color:#9aabc0}
+  /* Won / Lost live on the card. Kept quiet until hover so the board still
+     reads as names and stages rather than a wall of buttons. */
+  .k-act{display:flex;gap:6px;margin-top:9px;opacity:0;transition:opacity .15s}
+  .kcard:hover .k-act,.kcard:focus-within .k-act{opacity:1}
+  .k-btn{flex:1;padding:5px 8px;border-radius:8px;font-size:.71rem;font-weight:750;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);font-family:inherit}
+  .k-btn.is-won:hover{background:#0a7d3c;border-color:#0a7d3c;color:#fff}
+  .k-btn.is-lost:hover{background:#b3261e;border-color:#b3261e;color:#fff}
+  .kcol.is-closer .kcol-b{min-height:90px}
+  .pipe-out{font-size:.8rem}
+  @media(hover:none){.k-act{opacity:1}}
+
+  /* Bulk selection on Contacts */
+  .bulkbar{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--line);background:#f3f8ff}
+  .bulkbar[hidden]{display:none}
+  .bulk-n{font-weight:800;font-size:.86rem;color:var(--navy)}
+  .data th.pick-c,.data td.pick-c{width:34px;padding-right:0}
+  .data input.pick{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+  .data tr.is-picked td{background:#f3f8ff}
+
+  /* Dashboard: won / lost tiles */
+  .out-card .out-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:16px 20px 20px}
+  .out-cell .lbl{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .out-cell .num{font-size:1.9rem;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:4px;
+    font-variant-numeric:tabular-nums;color:var(--navy-deep)}
+  @media(max-width:1100px){.out-card .out-grid{grid-template-columns:repeat(2,1fr)}}
 
   .cal-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
   .cal-title{font-size:1.15rem;font-weight:800;letter-spacing:-.3px;min-width:190px}
@@ -836,7 +865,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], gcalEvents: null, oppContacts: {}, contactEmails: [], reviewRows: [] };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], outcomes: null, gcalEvents: null, oppContacts: {}, contactEmails: [], reviewRows: [] };
 
     // ---- personal scope ----
     // This app is a BROKER's desk, including when the broker happens to be an
@@ -1433,7 +1462,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         mine(sb.from('ph_leads').select('*')).order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         mine(sb.from('ph_agent_calendars').select('*')),
-        mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })),
+        mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).is('deleted_at', null),
         sb.from('ph_carriers').select('id, name, is_active').eq('is_active', true).order('name'),
         sb.from('ph_pipelines').select('*').eq('is_active', true).order('position'),
         sb.from('ph_pipeline_stages').select('*').order('position'),
@@ -1489,7 +1518,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!ids.length) { state.oppContacts = {}; return; }
       const { data } = await mine(sb.from('ph_contacts')
         .select('ghl_contact_id, first_name, last_name, email, phone, source, origin, tags, disposition, ghl_date_added'))
-        .in('ghl_contact_id', ids);
+        .in('ghl_contact_id', ids).is('deleted_at', null);
       const map = {};
       (data || []).forEach((c) => { map[c.ghl_contact_id] = c; });
       state.oppContacts = map;
@@ -1555,7 +1584,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
       // Keep the Contacts badge honest: contacts created by landing-page
       // bookings and round robin arrive server-side while the app is open.
-      mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).then(({ count }) => {
+      mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).is('deleted_at', null).then(({ count }) => {
         if (count != null && count !== state.contactCount) { state.contactCount = count; buildNav(); }
       });
     }
@@ -1578,15 +1607,23 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // the RPC reports the CALLER'S OWN book, admin or not, which is what this
     // desk is for. /admin passes p_all for the house-wide numbers.
     async function loadDash() {
-      const [statsRes, recentRes] = await Promise.all([
+      const [statsRes, recentRes, outRes] = await Promise.all([
         sb.rpc('ph_dashboard_stats'),
         mine(sb.from('ph_contacts')
           .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, ghl_date_added'))
+          .is('deleted_at', null)
           .order('ghl_date_added', { ascending: false, nullsFirst: false }).limit(8),
+        // Won / lost over the trailing window. The RPC reports the caller's own
+        // book (house-wide for an admin) and counts closed deals whose pipeline
+        // has since been deleted, so retiring a line never rewrites history.
+        sb.rpc('ph_pipeline_outcomes', { p_days: OUTCOME_DAYS }),
       ]);
       if (statsRes.data) state.dash = statsRes.data;
       state.recentContacts = recentRes.data ?? [];
+      // The RPC returns a single-row table, so unwrap it.
+      state.outcomes = (outRes && Array.isArray(outRes.data) ? outRes.data[0] : outRes?.data) || null;
     }
+    const OUTCOME_DAYS = 90;
 
     const money0 = (n) => '$' + Math.round(Number(n) || 0).toLocaleString();
 
@@ -1612,6 +1649,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const stageMax = Math.max(1, ...stages.map((s) => s.n));
       const bdays = Array.isArray(d.birthdays) ? d.birthdays : [];
       const recent = state.recentContacts || [];
+      // Won / lost over the trailing window, from ph_pipeline_outcomes.
+      const oc = state.outcomes || {};
+      const closed = (oc.won_count ?? 0) + (oc.lost_count ?? 0);
+      const winRate = closed ? Math.round((oc.won_count ?? 0) / closed * 100) : null;
       const premiumLine = (d.policies ?? 0) > 0
         ? `${d.policies} polic${d.policies === 1 ? 'y' : 'ies'} · ${money0(d.annual_premium)}/yr in force`
         : 'add policies to track premium';
@@ -1630,6 +1671,16 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           ${statCard('Appointments · next 7 days', week.length, `<span class="delta flat">${bookings.length} upcoming total</span>`, IC.cal)}
           ${statCard('Open deals', d.open_deals ?? 0, `<span class="delta flat">in your pipeline</span>`, IC.funnel)}
           ${statCard('Active clients', d.active_clients ?? 0, `<span class="delta up">${premiumLine}</span>`, IC.shield)}
+        </div>
+
+        <div class="card out-card">
+          <div class="card-h"><span class="grad-label">Dispositions</span><h3 style="margin-left:8px">Deals closed — last ${OUTCOME_DAYS} days</h3><div class="right"><button class="btn btn-ghost btn-sm" data-goto="pipeline">Open pipeline →</button></div></div>
+          <div class="out-grid">
+            <div class="out-cell"><div class="lbl">Won</div><div class="num" style="color:var(--green)">${oc.won_count ?? 0}</div><div class="cell-sub">${money0(oc.won_value)} in deal value</div></div>
+            <div class="out-cell"><div class="lbl">Lost</div><div class="num" style="color:var(--red)">${oc.lost_count ?? 0}</div><div class="cell-sub">${money0(oc.lost_value)} walked away</div></div>
+            <div class="out-cell"><div class="lbl">Win rate</div><div class="num">${winRate == null ? '—' : winRate + '%'}</div><div class="cell-sub">${closed ? closed + ' closed' : 'nothing closed yet'}</div></div>
+            <div class="out-cell"><div class="lbl">Still open</div><div class="num">${oc.open_count ?? 0}</div><div class="cell-sub">on the board now</div></div>
+          </div>
         </div>
 
         <div class="dash-2col">
@@ -1832,6 +1883,11 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           </div>
         </div>
         <div class="fchips" id="c-chips"></div>
+        <div class="bulkbar" id="c-bulk" hidden>
+          <span class="bulk-n" id="c-bulk-n"></span>
+          <button class="btn btn-danger btn-sm" id="c-bulk-del">Delete selected</button>
+          <button class="btn btn-ghost btn-sm" id="c-bulk-clear">Clear selection</button>
+        </div>
         <div class="colpop" id="c-colpop" hidden>
           ${ALL_COLS.map((col)=>`<label class="pickbox"><input type="checkbox" data-col="${col.key}" ${cCols.includes(col.key)?'checked':''}/> ${esc(col.label)}</label>`).join('')}
         </div>
@@ -1864,8 +1920,50 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $('#c-import', v)?.addEventListener('click', () => openImport(v));
       $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
       $('#c-fields', v)?.addEventListener('click', openFieldManager);
+      $('#c-bulk-clear', v)?.addEventListener('click', () => { cSel.clear(); loadContacts(v); });
+      $('#c-bulk-del', v)?.addEventListener('click', () => deleteContacts(Array.from(cSel), v));
+      cSel.clear();
       if (cMode === 'people') { paintFilterChips(v); loadTags(v); loadContacts(v); }
       else renderCompanies(v);
+    }
+
+    // ---- contact delete (soft) ----
+    // Rows are tombstoned, never dropped: 8,213 of 8,223 contacts originate in
+    // GoHighLevel, and ph_sync_contacts_delta re-upserts on ghl_contact_id every
+    // five minutes — a hard delete would simply come back. ph_contact_delete
+    // stamps deleted_at (and its trigger closes the contact's pipeline cards),
+    // and every read in this app filters deleted_at is null.
+    const cSel = new Set();
+    function paintBulk(v) {
+      const bar = $('#c-bulk', v); if (!bar) return;
+      bar.hidden = cSel.size === 0;
+      $('#c-bulk-n', v).textContent = cSel.size === 1 ? '1 contact selected' : `${cSel.size} contacts selected`;
+    }
+    async function deleteContacts(ids, listView, opts = {}) {
+      if (!ids.length) return false;
+      const what = opts.label || (ids.length === 1 ? 'this contact' : `${ids.length} contacts`);
+      // Deliberately does not promise that every automated email stops: a
+      // booked appointment still fires its reminders, because those are driven
+      // off ph_appointments rather than the contact row.
+      if (!confirm(`Delete ${what}? They come off your book, their pipeline cards are removed, and they drop out of campaigns and review requests. This cannot be undone from here.`)) return false;
+      // Chunked so one oversized URL can't fail the whole batch.
+      let done = 0, failed = 0;
+      for (let i = 0; i < ids.length; i += 200) {
+        const slice = ids.slice(i, i + 200);
+        const { data, error } = await sb.rpc('ph_contact_delete', { p_ids: slice });
+        if (error) failed += slice.length; else done += (data ?? 0);
+      }
+      if (failed) { toast(`Could not delete ${failed} of them — try again.`); if (!done) return false; }
+      cSel.clear();
+      toast(done === 1 ? 'Contact deleted' : `${done} contacts deleted`);
+      // The count badge, the board (cards go with the contact) and the dashboard
+      // all move as a result, so put them back in step before repainting.
+      const { count } = await mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).is('deleted_at', null);
+      if (count != null) { state.contactCount = count; buildNav(); }
+      await reloadOpps();
+      loadDash().catch(() => {});
+      if (listView && currentRoute === 'contacts') loadContacts(listView);
+      return true;
     }
 
     // Active filters as removable chips under the toolbar.
@@ -1953,7 +2051,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // Company record drawer: company data + the people tied to it.
     async function openCompany(coId) {
       const co = state.companies.find((x) => x.id === coId); if (!co) return;
-      const { data: people } = await mine(sb.from('ph_contacts').select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition')).eq('company_id', coId).order('first_name');
+      const { data: people } = await mine(sb.from('ph_contacts').select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition')).eq('company_id', coId).is('deleted_at', null).order('first_name');
       openDrawer(`
         <div class="drawer-h">
           <span class="avatar-sm" style="width:44px;height:44px;font-size:.95rem;background:${avColor(co.name)}">${initials(co.name)}</span>
@@ -2501,7 +2599,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const { data } = await mine(sb.from('ph_companies').select('*')).order('name');
         state.companies = data ?? [];
       } else {
-        const { count } = await mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true }));
+        const { count } = await mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true })).is('deleted_at', null);
         state.contactCount = count ?? state.contactCount;
         buildNav();
       }
@@ -2561,14 +2659,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
       const tbl = $('#c-table', v);
       const cols = ALL_COLS.filter((c) => cCols.includes(c.key));
-      const header = `<tr><th>Name</th>${cols.map((c) => `<th>${esc(c.label)}</th>`).join('')}</tr>`;
+      const header = `<tr><th class="pick-c"><input type="checkbox" class="pick" id="c-pick-all" aria-label="Select every contact on this page"/></th><th>Name</th>${cols.map((c) => `<th>${esc(c.label)}</th>`).join('')}</tr>`;
+      const span = cols.length + 2;
 
       if (idSet && idSet.size === 0) {
-        tbl.innerHTML = `<table class="data"><thead>${header}</thead><tbody><tr><td colspan="${cols.length + 1}"><div class="empty">No contacts match these filters.</div></td></tr></tbody></table>`;
-        $('#c-count', v).textContent = '0 contacts'; $('#c-pager', v).innerHTML = ''; return;
+        tbl.innerHTML = `<table class="data"><thead>${header}</thead><tbody><tr><td colspan="${span}"><div class="empty">No contacts match these filters.</div></td></tr></tbody></table>`;
+        $('#c-count', v).textContent = '0 contacts'; $('#c-pager', v).innerHTML = ''; paintBulk(v); return;
       }
 
-      let q = mine(sb.from('ph_contacts').select('*', { count: 'exact' })).order('ghl_date_added', { ascending: false, nullsFirst: false });
+      let q = mine(sb.from('ph_contacts').select('*', { count: 'exact' })).is('deleted_at', null).order('ghl_date_added', { ascending: false, nullsFirst: false });
       if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`); }
       if (cFilters.tag) q = q.contains('tags', [cFilters.tag]);
       if (cFilters.disposition) q = q.eq('disposition', cFilters.disposition);
@@ -2617,15 +2716,41 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       };
 
       tbl.innerHTML = `<table class="data"><thead>${header}</thead><tbody>${
-        rows.map((c) => `<tr class="rowlink" data-contact="${esc(c.ghl_contact_id)}">
+        rows.map((c) => `<tr class="rowlink${cSel.has(c.ghl_contact_id) ? ' is-picked' : ''}" data-contact="${esc(c.ghl_contact_id)}">
+          <td class="pick-c"><input type="checkbox" class="pick" data-pick="${esc(c.ghl_contact_id)}" ${cSel.has(c.ghl_contact_id) ? 'checked' : ''} aria-label="Select ${esc(nameOf(c))}"/></td>
           <td><div class="cell-name"><span class="avatar-sm" style="background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>${esc(nameOf(c))}</div></td>
-          ${cols.map((col) => cellFor(col.key, c)).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length + 1}"><div class="empty">No contacts match.</div></td></tr>`
+          ${cols.map((col) => cellFor(col.key, c)).join('')}</tr>`).join('') || `<tr><td colspan="${span}"><div class="empty">No contacts match.</div></td></tr>`
       }</tbody></table>`;
       const total = count ?? rows.length;
       $('#c-count', v).textContent = total.toLocaleString() + ' contact' + (total === 1 ? '' : 's');
       const pages = Math.max(1, Math.ceil(total / per));
       $('#c-pager', v).innerHTML = `<button ${cPage<=0?'disabled':''} data-pg="prev">← Prev</button><span>Page ${cPage+1} of ${Math.max(1,pages)}</span><button ${cPage>=pages-1?'disabled':''} data-pg="next">Next →</button>`;
       $$('[data-pg]', v).forEach((b) => b.addEventListener('click', () => { cPage += b.dataset.pg === 'next' ? 1 : -1; loadContacts(v); }));
+      // The checkbox sits inside the row, and the row opens the record — so the
+      // click has to stop there or picking someone would navigate away.
+      // The whole cell, not just the 16px box: clipping the checkbox by a few
+      // pixels should never navigate away from a selection in progress.
+      $$('td.pick-c', v).forEach((td) => td.addEventListener('click', (e) => e.stopPropagation()));
+      $$('[data-pick]', v).forEach((box) => box.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = box.dataset.pick;
+        if (box.checked) cSel.add(id); else cSel.delete(id);
+        box.closest('tr')?.classList.toggle('is-picked', box.checked);
+        const all = $('#c-pick-all', v);
+        if (all) all.checked = rows.length > 0 && rows.every((c) => cSel.has(c.ghl_contact_id));
+        paintBulk(v);
+      }));
+      const pickAll = $('#c-pick-all', v);
+      if (pickAll) {
+        pickAll.checked = rows.length > 0 && rows.every((c) => cSel.has(c.ghl_contact_id));
+        pickAll.addEventListener('click', (e) => {
+          e.stopPropagation();
+          rows.forEach((c) => { if (pickAll.checked) cSel.add(c.ghl_contact_id); else cSel.delete(c.ghl_contact_id); });
+          $$('[data-pick]', v).forEach((b) => { b.checked = pickAll.checked; b.closest('tr')?.classList.toggle('is-picked', pickAll.checked); });
+          paintBulk(v);
+        });
+      }
+      paintBulk(v);
       $$('tr[data-contact]', v).forEach((r) => r.addEventListener('click', () => openContact(r.dataset.contact, rows)));
     }
 
@@ -2683,30 +2808,101 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const pipe = pipes.find((p) => p.line_key === pipeLineKey);
       const stages = state.pipelineStages.filter((s) => s.pipeline_id === pipe.id).sort((a, b) => a.position - b.position);
       const opts = pipes.map((p) => `<option value="${esc(p.line_key)}"${p.line_key === pipeLineKey ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
-      const total = state.opps.filter((o) => o.pipeline_id === pipe.id).length;
+      // The board is open work only. Won and Lost are dispositions, not places a
+      // card lives: closing one takes it off the board and moves the number to
+      // the dashboard tiles, which is what makes the board a to-do list rather
+      // than an archive that grows forever.
+      const openHere = state.opps.filter((o) => o.pipeline_id === pipe.id && o.status === 'open');
+      const total = openHere.length;
+      const out = state.outcomes || {};
       v.innerHTML = `
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0b2a4a">
             <span>Pipeline</span>
             <select id="pipe-line" style="padding:9px 12px;border:1.5px solid #d9e1ea;border-radius:10px;font-size:0.95rem;font-weight:600;background:#fff;color:#0b2a4a;min-width:190px">${opts}</select>
           </label>
-          <div class="cell-sub">${total} deal${total === 1 ? '' : 's'} in ${esc(pipe.name)}</div>
+          <div class="cell-sub">${total} open deal${total === 1 ? '' : 's'} in ${esc(pipe.name)}</div>
+          <div class="pipe-out cell-sub">Last ${OUTCOME_DAYS} days · <b style="color:var(--green)">${out.won_count ?? 0} won</b> · <b style="color:var(--red)">${out.lost_count ?? 0} lost</b></div>
+          ${state.isAdmin ? `<button class="btn btn-danger btn-sm" id="pipe-del" style="margin-left:auto">Delete pipeline</button>` : ''}
         </div>
         <div id="kanban">${stages.map((s) => {
+          const closer = s.is_won ? 'won' : s.is_lost ? 'lost' : '';
           // Oldest-in-stage first: what has been sitting longest needs the call.
-          const items = state.opps
-            .filter((o) => o.pipeline_id === pipe.id && o.stage_id === s.id)
+          const items = openHere
+            .filter((o) => o.stage_id === s.id)
             .sort((a, b) => +new Date(a.stage_entered_at || a.created_at || 0) - +new Date(b.stage_entered_at || b.created_at || 0));
           const stale = items.filter((o) => o.stage_entered_at && (Date.now() - +new Date(o.stage_entered_at)) / 864e5 >= STALE_DAYS).length;
           const dot = s.is_won ? 'var(--green)' : s.is_lost ? 'var(--red)' : s.position === 1 ? 'var(--blue)' : s.position === 2 ? 'var(--amber)' : 'var(--violet)';
-          return `<div class="kcol">
+          // A closing column never holds cards, so its header carries the running
+          // count from ph_pipeline_outcomes instead of a deal tally that is
+          // always zero.
+          const meta = closer
+            ? `${closer === 'won' ? (out.won_count ?? 0) : (out.lost_count ?? 0)} in last ${OUTCOME_DAYS} days`
+            : `${items.length} deal${items.length === 1 ? '' : 's'}${stale ? ` · <span style="color:var(--amber);font-weight:700">${stale} aging</span>` : ''}`;
+          const empty = closer
+            ? `<div class="kcol-empty">Drop a deal here to mark it ${closer}. It comes off the board and lands in your numbers.</div>`
+            : '<div class="kcol-empty">Drop a deal here</div>';
+          return `<div class="kcol${closer ? ' is-closer' : ''}">
             <div class="kcol-h"><div class="t"><span class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${dot}"></span>${esc(s.name)}</div>
-              <div class="meta">${items.length} deal${items.length === 1 ? '' : 's'}${stale ? ` · <span style="color:var(--amber);font-weight:700">${stale} aging</span>` : ''}</div></div>
-            <div class="kcol-b" data-stage="${s.id}">${items.map(oppCard).join('') || '<div class="kcol-empty">Drop a deal here</div>'}</div>
+              <div class="meta">${meta}</div></div>
+            <div class="kcol-b" data-stage="${s.id}"${closer ? ` data-closer="${closer}"` : ''}>${items.map(oppCard).join('') || empty}</div>
           </div>`;
         }).join('')}</div>`;
       $('#pipe-line', v).addEventListener('change', (e) => { pipeLineKey = e.target.value; renderPipeline(v); });
+      $('#pipe-del', v)?.addEventListener('click', () => deletePipeline(pipe, total, v));
       wirePipe(v);
+    }
+
+    // Retiring a line. Open cards on it are dropped — open work on a pipeline
+    // nobody writes any more is noise. Won and lost cards are detached instead
+    // of deleted, so the dashboard numbers for closed business do not move
+    // retroactively when a line is retired.
+    async function deletePipeline(pipe, openCount, v) {
+      const tail = openCount
+        ? `\n\n${openCount} open deal${openCount === 1 ? '' : 's'} on it will be removed. Deals already marked won or lost stay in your dashboard numbers.`
+        : '\n\nDeals already marked won or lost stay in your dashboard numbers.';
+      if (!confirm(`Delete the ${pipe.name} pipeline and its stages?${tail}`)) return;
+      const { error } = await sb.rpc('ph_pipeline_delete', { p_id: pipe.id });
+      if (error) { toast(error.message?.includes('not authorised') ? 'Only an admin can delete a pipeline.' : 'Could not delete that pipeline.'); return; }
+      const [pipeRes, pstgRes] = await Promise.all([
+        sb.from('ph_pipelines').select('*').eq('is_active', true).order('position'),
+        sb.from('ph_pipeline_stages').select('*').order('position'),
+      ]);
+      state.pipelines = pipeRes.data ?? [];
+      state.pipelineStages = pstgRes.data ?? [];
+      pipeLineKey = null;
+      await reloadOpps();
+      loadDash().catch(() => {});
+      toast(`${pipe.name} pipeline deleted`);
+      if (currentRoute === 'pipeline') renderPipeline($('#view'));
+    }
+
+    // Won / Lost from a card or a drop. Goes through ph_opportunity_close so the
+    // close is stamped (closed_at / closed_by) and a win also sets the contact to
+    // Active Client — a plain status update would move the card but leave the
+    // client record saying Lead.
+    async function closeOpp(id, outcome, v) {
+      const o = state.opps.find((x) => x.id === id);
+      const c = o ? (state.oppContacts || {})[o.contact_id] || {} : {};
+      const who = [c.first_name, c.last_name].filter(Boolean).join(' ') || o?.title || 'this deal';
+      const ask = outcome === 'won'
+        ? `Mark ${who} as WON? The card comes off the board, the win counts on your dashboard, and the contact is set to Active Client.`
+        : `Mark ${who} as LOST? The card comes off the board and the loss counts on your dashboard.`;
+      if (!confirm(ask)) return;
+      const prev = o ? o.status : null;
+      if (o) o.status = outcome;                      // card leaves the board now
+      if (v && currentRoute === 'pipeline') renderPipeline(v);
+      const { error } = await sb.rpc('ph_opportunity_close', { p_id: id, p_outcome: outcome });
+      if (error) {
+        if (o) o.status = prev;
+        if (v && currentRoute === 'pipeline') renderPipeline(v);
+        toast('Could not close that deal.');
+        return;
+      }
+      toast(outcome === 'won' ? 'Marked won — counted on your dashboard' : 'Marked lost — counted on your dashboard');
+      // Refresh the outcome tiles so the number on the board moves with the card.
+      await loadDash().catch(() => {});
+      if (v && currentRoute === 'pipeline') renderPipeline(v);
     }
     // "3d in stage" / "today" — how long this deal has sat where it is.
     function inStage(ts) {
@@ -2748,10 +2944,21 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         <span class="k-added" title="Date added">${esc(fmtDate(c.ghl_date_added || o.created_at))}</span>
       </div>
       ${o.value ? `<div class="k-val">$${Number(o.value).toLocaleString()}</div>` : ''}
+      <div class="k-act">
+        <button class="k-btn is-won" data-close="won" data-id="${o.id}" title="Mark this deal won">✓ Won</button>
+        <button class="k-btn is-lost" data-close="lost" data-id="${o.id}" title="Mark this deal lost">✕ Lost</button>
+      </div>
     </div>`;
     };
     function wirePipe(v) {
       let dragId = null, didDrag = false;
+      // Won / Lost sit inside the card, and the card opens the contact record —
+      // so these have to swallow the click or closing a deal would navigate away
+      // underneath the confirm.
+      $$('[data-close]', v).forEach((b) => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeOpp(b.dataset.id, b.dataset.close, v);
+      }));
       $$('.kcard', v).forEach((c) => {
         c.addEventListener('dragstart', () => { dragId = c.dataset.opp; didDrag = true; c.classList.add('dragging'); });
         c.addEventListener('dragend', () => { dragId = null; c.classList.remove('dragging'); setTimeout(() => { didDrag = false; }, 0); });
@@ -2766,6 +2973,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           const stageId = col.dataset.stage;
           const o = state.opps.find((x) => x.id === dragId);
           if (!o || o.stage_id === stageId) return;
+          // Dropping on the Won or Lost column is the same act as pressing the
+          // button on the card: it closes the deal rather than parking it in a
+          // column, so it goes through the same RPC.
+          if (col.dataset.closer) { const id = dragId; dragId = null; closeOpp(id, col.dataset.closer, v); return; }
           const stage = state.pipelineStages.find((s) => s.id === stageId);
           const prev = o.stage_id, prevStatus = o.status, prevEntered = o.stage_entered_at;
           o.stage_id = stageId;
@@ -3058,7 +3269,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // LEFT client data · MIDDLE activity · RIGHT notes + appointments.
     async function openContact(cid, cached) {
       let c = (cached || []).find((x) => x.ghl_contact_id === cid);
-      if (!c) { const { data } = await mine(sb.from('ph_contacts').select('*')).eq('ghl_contact_id', cid).maybeSingle(); c = data; }
+      if (!c) { const { data } = await mine(sb.from('ph_contacts').select('*')).eq('ghl_contact_id', cid).is('deleted_at', null).maybeSingle(); c = data; }
       if (!c) return;
       currentRoute = 'contact-record';
       $('#page-title').textContent = nameOf(c);
@@ -3102,6 +3313,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         <span class="avatar-sm" style="width:40px;height:40px;font-size:.9rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
         <div><div class="rec-hd-name" style="font-size:1.2rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub rec-hd-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
         <span class="pill-status ${dispClass(c.disposition)}" id="rec-disp-pill" style="margin-left:8px">${esc(c.disposition || 'No disposition')}</span>
+        <button class="btn btn-danger btn-sm" id="rec-delete" style="margin-left:auto">Delete contact</button>
       </div>
       <div class="rec-grid">
         <div class="card"><div class="card-h"><span class="grad-label">Client data</span></div><div class="card-b">
@@ -3153,6 +3365,11 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
       $('#rec-back').addEventListener('click', () => go('contacts'));
       $('#rec-book')?.addEventListener('click', () => openBookAppt(cid, c));
+      $('#rec-delete')?.addEventListener('click', async () => {
+        // confirm() renders plain text, so the name goes in unescaped.
+        const gone = await deleteContacts([cid], null, { label: nameOf(c) });
+        if (gone) go('contacts');
+      });
 
       // disposition change → writes ph_contacts.disposition; DB trigger handles in-force.
       $('#rec-disp').addEventListener('change', async (e) => {
