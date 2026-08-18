@@ -927,7 +927,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!uid) { const { data: authUser } = await sb.auth.getUser(); uid = authUser?.user?.id ?? null; }
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
-      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at';
+      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at, intake_token';
       let me = null;
       if (uid) {
         const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
@@ -1666,6 +1666,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       v.innerHTML = `
       <div class="view-grid dash-anim">
         ${myPagesCard()}
+        ${intakeCard()}
         <div class="stat-row">
           ${statCard('New contacts · 30 days', new30, delta == null ? `<span class="delta flat">${d.total_contacts ?? 0} in your book</span>` : `<span class="delta ${delta >= 0 ? 'up' : 'flat'}">${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)}% vs prior 30</span>`, IC.people)}
           ${statCard('Appointments · next 7 days', week.length, `<span class="delta flat">${bookings.length} upcoming total</span>`, IC.cal)}
@@ -1809,6 +1810,24 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           ${pageRow('Landing page', base + '/broker/' + slug, '🌐', 'Your public page — send it to prospects or link it in your bio.')}
           ${pageRow('Booking calendar', base + '/book/' + slug, '📅', 'People pick a time here and it lands in your CRM automatically.')}
           <div class="cell-sub" style="margin-top:2px">Just finished your profile? The site rebuilds within a couple of minutes — give it a moment before you share these.</div>
+        </div>
+      </div>`;
+    }
+    // Intake form link. Deliberately its OWN card rather than a third row inside
+    // myPagesCard: that card is gated on onboarding, a headshot and a bio,
+    // because /broker/<slug> and /book/<slug> genuinely do not exist without
+    // them. The intake form has no such dependency — it is a token against a
+    // roster row — so a brand new broker should be able to start filling their
+    // book on day one, before they have written a bio or sent in a headshot.
+    function intakeCard() {
+      const token = state.me?.intake_token;
+      if (!token) return '';
+      const url = 'https://www.protecthealth.com/add-contact?a=' + encodeURIComponent(token);
+      return `<div class="card" style="border:1.5px solid #cdebd9;background:linear-gradient(180deg,#f2fbf6,#ffffff)">
+        <div class="card-h"><span class="grad-label">Your form</span><h3 style="margin-left:8px">Add a contact without logging in</h3></div>
+        <div class="card-b" style="display:grid;gap:12px;padding-top:8px">
+          ${pageRow('Contact intake form', url, '📝', 'Bookmark it on your phone. Anyone you add lands in YOUR book with the tags, lines and disposition you pick.')}
+          <div class="cell-sub" style="margin-top:2px">This link is private — it writes straight into your book, so treat it like a password and do not post it publicly.</div>
         </div>
       </div>`;
     }

@@ -1,0 +1,299 @@
+---
+// Per-broker contact intake form.
+//
+//   /add-contact?a=<intake_token>
+//
+// A broker's shareable link for adding somebody to their own CRM book without
+// logging in — standing at an event, in a car, on a phone. The token in the
+// URL is the whole identity: ph-intake resolves it to an agent server-side, and
+// this page never learns the agent's id, email or anything else about them
+// beyond the display name it shows back so they know the link is theirs.
+//
+// Deliberately ONE page rather than /add-contact/[slug] per broker. The
+// per-broker static routes (/broker/<slug>, /book/<slug>) are generated at
+// build time from ph_public_brokers(), which requires a headshot, a bio and
+// completed onboarding — so a brand new broker would have no intake form until
+// they finished their profile AND the site rebuilt. A token on a single static
+// page works for every active broker the moment their roster row exists.
+import Base from '../layouts/Base.astro';
+
+const FN_URL = 'https://hrzonmnswzwridwqbspb.supabase.co/functions/v1';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+const title = 'Add a Contact — ProtectHealth';
+---
+<Base title={title} description="Add a contact to your ProtectHealth book." noindex={true}>
+  <main class="ic" data-fn={FN_URL} data-anon={ANON} id="ic">
+    <div class="ic-card">
+      <div class="ic-brand"><img src="/assets/logo.webp" alt="ProtectHealth" width="170" /></div>
+
+      <!-- resolving the token -->
+      <section data-pane="loading">
+        <div class="ic-spin" aria-hidden="true"></div>
+        <p class="ic-mut" style="text-align:center">Checking your link…</p>
+      </section>
+
+      <!-- token no good -->
+      <section data-pane="bad" hidden>
+        <h1>This link isn't working</h1>
+        <p class="ic-mut">It may have been retyped, cut short, or replaced. Ask the office for a fresh intake link — the one in your CRM dashboard under <b>Your pages</b> is always current.</p>
+      </section>
+
+      <!-- the form -->
+      <section data-pane="form" hidden>
+        <h1>Add a contact</h1>
+        <p class="ic-mut" id="ic-who"></p>
+
+        <form id="ic-form" novalidate>
+          <div class="ic-row">
+            <label class="ic-f"><span>First name <b class="ic-req">*</b></span>
+              <input name="first_name" autocomplete="given-name" autocapitalize="words" required /></label>
+            <label class="ic-f"><span>Last name</span>
+              <input name="last_name" autocomplete="family-name" autocapitalize="words" /></label>
+          </div>
+
+          <label class="ic-f"><span>Email</span>
+            <input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" /></label>
+          <label class="ic-f"><span>Phone</span>
+            <input name="phone" type="tel" inputmode="tel" autocomplete="tel" /></label>
+          <p class="ic-hint">Email or phone — at least one, so you can reach them.</p>
+
+          <label class="ic-f"><span>Date of birth</span>
+            <input name="date_of_birth" type="date" /></label>
+          <label class="ic-f"><span>Company</span>
+            <input name="company" autocapitalize="words" /></label>
+
+          <details class="ic-more">
+            <summary>Address <span class="ic-mut">(optional)</span></summary>
+            <label class="ic-f"><span>Street</span><input name="street_address" autocomplete="address-line1" /></label>
+            <div class="ic-row3">
+              <label class="ic-f"><span>City</span><input name="city" autocomplete="address-level2" /></label>
+              <label class="ic-f"><span>State</span><input name="state" maxlength="2" autocomplete="address-level1" style="text-transform:uppercase" /></label>
+              <label class="ic-f"><span>ZIP</span><input name="postal_code" inputmode="numeric" autocomplete="postal-code" /></label>
+            </div>
+          </details>
+
+          <label class="ic-f"><span>Disposition</span>
+            <select name="disposition" id="ic-disp"></select></label>
+
+          <div class="ic-block" id="ic-lines-w">
+            <div class="ic-lbl">Lines of insurance</div>
+            <p class="ic-hint">Each one you pick opens a deal on that pipeline.</p>
+            <div class="ic-chips" id="ic-lines"></div>
+          </div>
+
+          <div class="ic-block" id="ic-tags-w">
+            <div class="ic-lbl">Tags</div>
+            <div class="ic-chips" id="ic-tags"></div>
+          </div>
+
+          <label class="ic-f"><span>Note</span>
+            <textarea name="note" rows="3" placeholder="Where you met them, what they need, when to follow up…"></textarea></label>
+
+          <p class="ic-err" id="ic-err" role="alert" hidden></p>
+          <button type="submit" class="ic-go" id="ic-go">Add to my book</button>
+        </form>
+      </section>
+
+      <!-- saved -->
+      <section data-pane="done" hidden>
+        <div class="ic-tick" aria-hidden="true">✓</div>
+        <h1 id="ic-done-h">Added</h1>
+        <p class="ic-mut" id="ic-done-p"></p>
+        <button type="button" class="ic-go ic-ghost" id="ic-again">Add another</button>
+      </section>
+    </div>
+    <p class="ic-foot">ProtectHealth · Las Vegas, Nevada</p>
+  </main>
+</Base>
+
+<style>
+  .ic { min-height: 100vh; background: #eef3fb; padding: 22px 14px 40px;
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .ic-card { max-width: 520px; margin: 0 auto; background: #fff; border-radius: 18px;
+             padding: 26px 22px 30px; box-shadow: 0 8px 34px rgba(11, 42, 74, .10); }
+  .ic-brand { text-align: center; margin-bottom: 18px; }
+  .ic-brand img { height: auto; }
+  .ic h1 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: -.02em; color: #0b2a4a; text-align: center; }
+  .ic-mut { color: #5b6b7c; font-size: .92rem; margin: 0 0 18px; text-align: center; }
+  .ic-hint { color: #8493a6; font-size: .8rem; margin: -4px 0 14px; }
+  .ic-foot { text-align: center; color: #8493a6; font-size: .75rem; margin: 18px 0 0; }
+
+  .ic-f { display: block; margin-bottom: 13px; }
+  .ic-f > span { display: block; font-size: .78rem; font-weight: 700; color: #45566a;
+                 text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+  .ic-req { color: #b3261e; }
+  /* 16px minimum on inputs: anything smaller and iOS Safari zooms the viewport
+     on focus, which on a phone in the field is genuinely disruptive. */
+  .ic input, .ic select, .ic textarea {
+    width: 100%; box-sizing: border-box; font: inherit; font-size: 16px;
+    padding: 12px 13px; border: 1.5px solid #d9e1ea; border-radius: 11px;
+    background: #fbfcfe; color: #0f172a; -webkit-appearance: none; appearance: none;
+  }
+  .ic select { background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%235b6b7c' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+               background-repeat: no-repeat; background-position: right 13px center; background-size: 11px; padding-right: 34px; }
+  .ic textarea { resize: vertical; }
+  .ic input:focus, .ic select:focus, .ic textarea:focus {
+    outline: none; border-color: #2563c9; background: #fff; box-shadow: 0 0 0 3px rgba(37, 99, 201, .13); }
+  .ic-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .ic-row3 { display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 9px; }
+  @media (max-width: 400px) { .ic-row { grid-template-columns: 1fr; gap: 0; } }
+
+  .ic-more { margin: 4px 0 15px; border: 1.5px solid #e6edf6; border-radius: 11px; padding: 0 13px; }
+  .ic-more summary { cursor: pointer; padding: 12px 0; font-size: .88rem; font-weight: 650; color: #0b2a4a; }
+  .ic-more[open] { padding-bottom: 4px; }
+
+  .ic-block { margin: 18px 0; }
+  .ic-lbl { font-size: .78rem; font-weight: 700; color: #45566a; text-transform: uppercase;
+            letter-spacing: .04em; margin-bottom: 6px; }
+  .ic-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* Chips rather than a checkbox list: this gets used one-handed on a phone,
+     and a 40px tap target beats a 16px box every time. */
+  .ic-chip { position: relative; }
+  .ic-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .ic-chip span { display: inline-block; padding: 9px 14px; border: 1.5px solid #d9e1ea;
+                  border-radius: 999px; font-size: .87rem; font-weight: 600; color: #45566a;
+                  background: #fff; cursor: pointer; user-select: none; transition: all .12s; }
+  .ic-chip input:checked + span { background: #2563c9; border-color: #2563c9; color: #fff; }
+  .ic-chip input:focus-visible + span { box-shadow: 0 0 0 3px rgba(37, 99, 201, .3); }
+
+  .ic-go { width: 100%; margin-top: 8px; padding: 15px; border: 0; border-radius: 12px;
+           background: linear-gradient(90deg, #2563c9, #123f6b); color: #fff;
+           font: inherit; font-size: 1rem; font-weight: 750; cursor: pointer; }
+  .ic-go:disabled { opacity: .55; cursor: default; }
+  .ic-ghost { background: #fff; color: #2563c9; border: 1.5px solid #d3e2ff; }
+  .ic-err { background: #fdf2f1; border: 1px solid #f6d5d2; color: #b3261e; font-size: .87rem;
+            padding: 10px 12px; border-radius: 10px; margin: 12px 0 0; }
+  .ic-err[hidden] { display: none; }
+
+  .ic-tick { width: 62px; height: 62px; margin: 6px auto 16px; border-radius: 50%;
+             background: #e7f7ee; color: #0a7d3c; font-size: 2rem; line-height: 62px;
+             text-align: center; font-weight: 800; }
+  .ic-spin { width: 26px; height: 26px; margin: 20px auto 14px; border-radius: 50%;
+             border: 3px solid #dbe6f5; border-top-color: #2563c9; animation: icspin .8s linear infinite; }
+  @keyframes icspin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .ic-spin { animation: none; } }
+</style>
+
+<script>
+  // Astro bundles this separately from the frontmatter, so nothing above is in
+  // scope here. Config arrives on the root element's data attributes.
+  const root = document.getElementById('ic');
+  const FN = root.getAttribute('data-fn');
+  const ANON = root.getAttribute('data-anon');
+  const $ = (s) => root.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const pane = (name) => {
+    root.querySelectorAll('[data-pane]').forEach((s) => { s.hidden = s.getAttribute('data-pane') !== name; });
+  };
+
+  // Accept ?a= and ?t=, and the hash form too. People paste these into notes
+  // apps and messaging clients that mangle one form or the other.
+  function readToken() {
+    const q = new URLSearchParams(location.search);
+    const h = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+    return (q.get('a') || q.get('t') || h.get('a') || h.get('t') || '').trim();
+  }
+
+  async function call(action, extra) {
+    const r = await fetch(FN + '/ph-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify({ action, token: TOKEN, ...(extra || {}) }),
+    });
+    return r.json().catch(() => ({ ok: false, error: 'bad_response' }));
+  }
+
+  const TOKEN = readToken();
+  let cfg = null;
+
+  function chips(host, values, kind) {
+    host.innerHTML = values.map((v, i) => `
+      <label class="ic-chip">
+        <input type="checkbox" data-${kind}="${esc(v)}" id="${kind}-${i}" />
+        <span>${esc(v)}</span>
+      </label>`).join('');
+  }
+
+  function picked(kind) {
+    return Array.from(root.querySelectorAll(`[data-${kind}]`))
+      .filter((c) => c.checked).map((c) => c.getAttribute('data-' + kind));
+  }
+
+  async function boot() {
+    if (!TOKEN) { pane('bad'); return; }
+    const res = await call('resolve');
+    if (!res || !res.ok) { pane('bad'); return; }
+    cfg = res;
+
+    $('#ic-who').innerHTML = `Goes straight into <b>${esc(res.agent_name)}</b>'s book.`;
+    $('#ic-disp').innerHTML = (res.dispositions || ['Lead'])
+      .map((d) => `<option${d === 'Lead' ? ' selected' : ''}>${esc(d)}</option>`).join('');
+
+    const lines = res.lines || [], tags = res.tags || [];
+    if (lines.length) chips($('#ic-lines'), lines, 'line'); else $('#ic-lines-w').hidden = true;
+    if (tags.length) chips($('#ic-tags'), tags, 'tag'); else $('#ic-tags-w').hidden = true;
+
+    pane('form');
+  }
+
+  const ERRORS = {
+    first_name_required: 'Please enter a first name.',
+    contact_method_required: 'Please add an email address or a phone number.',
+    bad_token: 'This link is no longer valid. Ask the office for a fresh one.',
+    save_failed: 'Something went wrong saving that. Please try again.',
+  };
+
+  $('#ic-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const err = $('#ic-err');
+    const go = $('#ic-go');
+    const g = (n) => (form.elements[n]?.value || '').trim();
+
+    err.hidden = true;
+    if (!g('first_name')) { err.textContent = ERRORS.first_name_required; err.hidden = false; return; }
+    if (!g('email') && !g('phone')) { err.textContent = ERRORS.contact_method_required; err.hidden = false; return; }
+
+    go.disabled = true; go.textContent = 'Saving…';
+    const res = await call('submit', {
+      payload: {
+        first_name: g('first_name'), last_name: g('last_name'),
+        email: g('email'), phone: g('phone'), date_of_birth: g('date_of_birth'),
+        company: g('company'), street_address: g('street_address'),
+        city: g('city'), state: g('state').toUpperCase(), postal_code: g('postal_code'),
+        disposition: g('disposition'), note: g('note'),
+        tags: picked('tag'), coverage_types: picked('line'),
+      },
+    });
+    go.disabled = false; go.textContent = 'Add to my book';
+
+    if (!res || !res.ok) {
+      err.textContent = ERRORS[res && res.error] || ERRORS.save_failed;
+      err.hidden = false;
+      return;
+    }
+
+    // Say plainly which of the two things happened. A broker re-entering
+    // somebody they already have should know the record was topped up rather
+    // than duplicated, or they will go looking for a second card that is not
+    // there.
+    $('#ic-done-h').textContent = res.created ? 'Added to your book' : 'Contact updated';
+    $('#ic-done-p').textContent = res.created
+      ? `${res.name || 'They'} is in your CRM now, with a deal on every line you picked.`
+      : `${res.name || 'They'} was already in your book, so this filled in the blanks and added your tags, lines and disposition.`;
+    form.reset();
+    root.querySelectorAll('input[type="checkbox"]').forEach((c) => { c.checked = false; });
+    pane('done');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  $('#ic-again').addEventListener('click', () => {
+    pane('form');
+    $('#ic-err').hidden = true;
+    root.querySelector('input[name="first_name"]')?.focus();
+  });
+
+  boot();
+</script>
