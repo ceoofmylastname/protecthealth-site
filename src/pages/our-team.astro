@@ -57,8 +57,6 @@ const members: Member[] = [
     ].filter((s) => s.url),
   })),
 ];
-const cols: Member[][] = [[], [], []];
-members.forEach((m, i) => cols[i % 3].push(m));
 
 const schemas = [
   breadcrumbSchema([
@@ -108,40 +106,39 @@ const schemas = [
         <h2 style="margin-top:0;">Meet the Brokers</h2>
         <p style="color:var(--muted);max-width:560px;margin:10px auto 0;">Licensed professionals across Nevada, each with their own page where you can read their story and book time directly.</p>
       </div>
-      <div class="ts" id="ts">
-        <div class="ts-photos">
-          {cols.map((col, ci) => (
-            <div class={`ts-col ts-col-${ci + 1}`}>
-              {col.map((m) => (
-                <a class="ts-photo" data-tsid={m.id} href={m.href} aria-label={`${m.name}, ${m.role} at ProtectHealth`}>
-                  <img src={m.photo} alt={`${m.name}, ${m.role} at ProtectHealth`} loading="lazy" />
-                </a>
-              ))}
+      <div class="bx">
+        {members.map((m) => (
+          <div class="bx-card">
+            {/* Photo and name are two separate links to the same page rather
+                than one stretched link over the whole card. The social icons
+                have to sit INSIDE the photo's positioning context (an absolute
+                child of .bx-card lands at the bottom of the card, on top of the
+                name), and they cannot be nested inside another anchor without
+                producing invalid HTML that browsers silently unnest.
+                The photo link is out of the tab order so keyboard users get one
+                stop per broker, not two identical ones. */}
+            <div class="bx-media">
+              <a class="bx-shot" href={m.href} tabindex="-1" aria-hidden="true">
+                <img src={m.photo} alt="" loading="lazy" decoding="async" />
+              </a>
+              {m.social.length > 0 && (
+                <span class="bx-social">
+                  {m.social.map((s) => (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.label} aria-label={`${m.name} on ${s.label}`}>
+                    {s.label === 'linkedin' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.55V9h3.57v11.45Z"/></svg>}
+                    {s.label === 'facebook' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.78-3.9 1.09 0 2.24.2 2.24.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12Z"/></svg>}
+                    {s.label === 'instagram' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16Zm0 3.68a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32Zm0 10.16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88Z"/></svg>}
+                    </a>
+                  ))}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-        <div class="ts-list">
-          {members.map((m) => (
-            <div class="ts-row" data-tsid={m.id} data-href={m.href}>
-              <span class="ts-line">
-                <span class="ts-dash"></span>
-                <a class="ts-name" href={m.href}>{m.name}</a>
-                {m.social.length > 0 && (
-                  <span class="ts-social">
-                    {m.social.map((s) => (
-                      <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.label} aria-label={`${m.name} on ${s.label}`}>
-                        {s.label === 'linkedin' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.55V9h3.57v11.45Z"/></svg>}
-                        {s.label === 'facebook' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.78-3.9 1.09 0 2.24.2 2.24.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12Z"/></svg>}
-                        {s.label === 'instagram' && <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16Zm0 3.68a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32Zm0 10.16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88Z"/></svg>}
-                      </a>
-                    ))}
-                  </span>
-                )}
-              </span>
-              <span class="ts-role">{m.role}</span>
-            </div>
-          ))}
-        </div>
+            <a class="bx-meta" href={m.href}>
+              <span class="bx-name">{m.name}</span>
+              <span class="bx-role">{m.role}</span>
+            </a>
+          </div>
+        ))}
       </div>
       {brokers.length === 0 && (
         <p style="text-align:center;color:var(--muted);margin-top:18px;">More broker profiles are being added — check back soon.</p>
@@ -149,86 +146,91 @@ const schemas = [
     </div>
   </section>
 
-  <script is:inline>
-    // Cross-highlight: hovering a photo lights up its name row and vice versa.
-    (function () {
-      const root = document.getElementById('ts');
-      if (!root) return;
-      const all = [...root.querySelectorAll('[data-tsid]')];
-      const set = (id) => {
-        root.classList.toggle('has-active', !!id);
-        all.forEach((el) => {
-          el.classList.toggle('on', !!id && el.dataset.tsid === id);
-        });
-      };
-      all.forEach((el) => {
-        el.addEventListener('mouseenter', () => set(el.dataset.tsid));
-        el.addEventListener('mouseleave', () => set(null));
-      });
-      // Whole name-row is clickable (it is a div so the social links inside
-      // stay valid HTML); real links inside it win.
-      root.querySelectorAll('.ts-row[data-href]').forEach((row) => {
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', (e) => {
-          if (e.target.closest('a')) return;
-          location.href = row.dataset.href;
-        });
-      });
-    })();
-  </script>
 </Base>
 
-<style is:global>
-  /* Team showcase: staggered grayscale mosaic + interlinked name list. Global
-     and namespaced under .ts (house rule for anything a script classes at
-     runtime). */
-  .ts { display: flex; align-items: flex-start; gap: 48px; max-width: 980px; margin: 26px auto 0; }
-  .ts-photos { display: flex; gap: 12px; flex-shrink: 0; }
-  .ts-col { display: flex; flex-direction: column; gap: 12px; }
-  .ts-col-1 { width: 155px; }
-  .ts-col-2 { width: 172px; margin-top: 66px; }
-  .ts-col-3 { width: 162px; margin-top: 30px; }
-  .ts-photo { display: block; border-radius: 14px; overflow: hidden; background: #dfe7f2; }
-  .ts-col-1 .ts-photo { height: 165px; }
-  .ts-col-2 .ts-photo { height: 182px; }
-  .ts-col-3 .ts-photo { height: 172px; }
-  /* object-position keeps the FACE in frame no matter what shape the broker
-     uploads: portraits and selfies keep the head visible instead of cropping
-     it at the top of the card. */
-  .ts-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block;
-    filter: grayscale(1) brightness(.8); transition: filter .45s ease, opacity .35s ease; }
-  .ts.has-active .ts-photo:not(.on) img { opacity: .55; }
-  .ts-photo.on img { filter: grayscale(0) brightness(1); }
+<style>
+  /* Broker grid.
+     Replaces a 980px-wide three-column photo mosaic sat next to a separate list
+     of the same names. That layout printed every broker twice, used barely
+     four-fifths of the container, and grew a full row taller with each new
+     broker -- with twenty of them the section ran most of a screen deep and
+     still looked like a narrow column.
+     One card per broker in an auto-filling grid instead: five across on a wide
+     desktop, and it re-flows to four, three and two without a single hard-coded
+     breakpoint for column count. */
+  .bx { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+        gap: 30px 22px; margin-top: 34px; }
 
-  .ts-list { display: flex; flex-direction: column; gap: 20px; flex: 1; min-width: 0; padding-top: 8px; }
-  .ts-row { display: block; text-decoration: none; transition: opacity .3s ease; }
-  .ts.has-active .ts-row:not(.on) { opacity: .45; }
-  .ts-line { display: flex; align-items: center; gap: 10px; }
-  .ts-dash { width: 16px; height: 11px; border-radius: 5px; background: rgba(15,53,103,.22); flex-shrink: 0;
-    transition: background .3s ease, width .3s ease; }
-  .ts-row.on .ts-dash { background: var(--blue, #197bff); width: 21px; }
-  .ts-name { font-size: 1.06rem; font-weight: 700; letter-spacing: -.3px; color: var(--navy, #0f3567); line-height: 1; text-decoration: none; }
-  .ts-role { display: block; margin-top: 7px; padding-left: 26px; font-size: .66rem; font-weight: 650;
-    text-transform: uppercase; letter-spacing: .2em; color: var(--muted, #8494ab); }
-  .ts-social { display: flex; align-items: center; gap: 6px; margin-left: 2px;
-    opacity: 0; transform: translateX(-8px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
-  .ts-row.on .ts-social { opacity: 1; transform: translateX(0); pointer-events: auto; }
-  .ts-social a { display: grid; place-items: center; padding: 4px; border-radius: 6px; color: var(--muted, #8494ab);
-    transition: color .15s, background .15s, transform .15s; }
-  .ts-social a:hover { color: var(--navy, #0f3567); background: rgba(15,53,103,.08); transform: scale(1.12); }
-  .ts-social svg { width: 12px; height: 12px; display: block; }
-
-  @media (max-width: 860px) {
-    .ts { flex-direction: column; gap: 28px; }
-    .ts-photos { overflow-x: auto; padding-bottom: 6px; max-width: 100%;
-      -webkit-overflow-scrolling: touch; }
-    .ts-col-1 { width: 120px; }
-    .ts-col-2 { width: 134px; margin-top: 48px; }
-    .ts-col-3 { width: 126px; margin-top: 22px; }
-    .ts-col-1 .ts-photo { height: 130px; }
-    .ts-col-2 .ts-photo { height: 144px; }
-    .ts-col-3 .ts-photo { height: 136px; }
-    .ts-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; padding-top: 0; }
+  .bx-card { position: relative; transition: opacity .3s ease; }
+  /* Dim the rest of the grid on hover -- the one bit of personality worth
+     keeping from the old mosaic. Guarded by hover:hover so a touch device,
+     where :hover sticks until you tap elsewhere, never leaves the grid
+     half-faded. */
+  @media (hover: hover) {
+    .bx:hover .bx-card { opacity: .5; }
+    .bx:hover .bx-card:hover { opacity: 1; }
   }
-  @media (max-width: 480px) { .ts-list { grid-template-columns: 1fr; } }
+
+  /* The photo box is its own positioning context so the social icons land on
+     the PHOTO. Anchored to .bx-card they sat at the bottom of the whole card,
+     directly on top of the broker's name. */
+  .bx-media { position: relative; }
+  .bx-shot { display: block; overflow: hidden; border-radius: 18px;
+    background: #dfe7f2; aspect-ratio: 3 / 4; box-shadow: 0 1px 2px rgba(15,42,84,.06); }
+  /* object-position keeps the FACE in frame whatever shape the broker uploads:
+     portraits and phone selfies keep the head visible instead of cropping it
+     off at the top of the card. */
+  .bx-shot img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%;
+    display: block; filter: grayscale(1) brightness(.86);
+    transition: filter .45s ease, transform .5s cubic-bezier(.22,1,.36,1); }
+  .bx-card:hover .bx-shot img { filter: grayscale(0) brightness(1); transform: scale(1.045); }
+  /* Soft floor under the photo so the white icon chips stay legible over a
+     pale shirt or a bright backdrop. */
+  .bx-media::after { content: ''; position: absolute; inset: auto 0 0 0; height: 42%;
+    border-radius: 0 0 18px 18px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(11,42,74,0), rgba(11,42,74,.34));
+    opacity: 0; transition: opacity .35s ease; }
+  .bx-card:hover .bx-media::after { opacity: 1; }
+
+  .bx-meta { display: block; text-decoration: none; }
+  .bx-name { display: block; margin-top: 13px; font-size: 1rem; font-weight: 700;
+    letter-spacing: -.25px; line-height: 1.25; color: var(--navy, #0f3567);
+    /* One broker is on the roster under an email address rather than a name.
+       Without this it runs straight over the neighbouring card. */
+    overflow-wrap: anywhere; }
+  .bx-role { display: block; margin-top: 4px; font-size: .63rem; font-weight: 650;
+    text-transform: uppercase; letter-spacing: .18em; color: var(--muted, #8494ab); }
+
+  /* Socials sit ON the photo, revealed on hover. */
+  .bx-social { position: absolute; left: 12px; bottom: 12px; z-index: 2;
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .25s ease, transform .25s ease; }
+  .bx-card:hover .bx-social, .bx-card:focus-within .bx-social { opacity: 1; transform: translateY(0); }
+  .bx-social a { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px;
+    color: #0f3567; background: rgba(255,255,255,.92); backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(11,42,74,.18); transition: transform .15s, background .15s; }
+  .bx-social a:hover { background: #fff; transform: translateY(-2px); }
+  .bx-social svg { width: 13px; height: 13px; display: block; }
+
+  .bx-meta:focus-visible { outline: 2px solid var(--blue, #197bff); outline-offset: 3px; border-radius: 6px; }
+
+  /* Two across on a phone. 138px is the smallest a headshot can be and still
+     read as a face; below that the grid drops to a single column on its own. */
+  @media (max-width: 780px) {
+    .bx { grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 22px 14px; margin-top: 26px; }
+    .bx-shot { border-radius: 14px; }
+    .bx-media::after { border-radius: 0 0 14px 14px; opacity: 1; }
+    .bx-name { margin-top: 10px; font-size: .92rem; }
+    .bx-role { letter-spacing: .14em; }
+    /* No hover on touch, so show the socials rather than hiding them behind a
+       gesture that does not exist. */
+    .bx-social { opacity: 1; transform: none; left: 9px; bottom: 9px; gap: 5px; }
+    .bx-social a { width: 25px; height: 25px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bx-shot img, .bx-card, .bx-social { transition: none; }
+    .bx-card:hover .bx-shot img { transform: none; }
+  }
 </style>
