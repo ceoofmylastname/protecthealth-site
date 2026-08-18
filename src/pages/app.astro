@@ -582,6 +582,17 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .rv-stars-mini{color:#f5b301;letter-spacing:1px;font-size:.95rem;white-space:nowrap}
   .pickbox{display:flex;align-items:center;gap:7px;font-size:.84rem;padding:5px 2px;cursor:pointer}
   .pickbox input{width:15px;height:15px;flex:none}
+  /* CSV import wizard (drawer) */
+  .imp-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .imp-bad{color:var(--red)}
+  .imp-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table.imp-map{font-size:.8rem}
+  table.imp-map th,table.imp-map td{padding:8px 10px;white-space:nowrap;vertical-align:middle}
+  table.imp-map th{position:static}
+  table.imp-map .rec-select{min-width:150px;padding:6px 8px;font-size:.8rem}
+  .imp-bar{height:9px;border-radius:99px;background:var(--line2);overflow:hidden;margin:4px 0 8px}
+  .imp-bar span{display:block;height:100%;background:var(--grad);width:0;transition:width .2s}
+  .imp-errs{max-height:270px;overflow-y:auto}
   .dep-row{margin-bottom:10px;padding:10px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
   .dep-row input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.85rem;background:#fff;width:100%}
   .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
@@ -664,6 +675,12 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
   <script>
   import { createClient } from '@supabase/supabase-js';
+  // CSV import: parser, alias table, matching rules and the batch runner. Shared
+  // verbatim with /admin/contacts so the two importers cannot drift apart.
+  import {
+    readCsv, fieldsFor, matchOptions, autoMap, sampleValues, objectLabel,
+    failedRowsCsv, runImport, BATCH_SIZE,
+  } from '../lib/csv-import';
 
   const root = document.querySelector('.ph');
   if (root) {
@@ -1783,6 +1800,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           ${cMode==='people'
             ? '<button class="btn btn-primary btn-sm" id="c-add">+ Add Contact</button>'
             : '<button class="btn btn-primary btn-sm" id="co-add">+ Add Company</button>'}
+          <button class="btn btn-ghost btn-sm" id="c-import">⤒ Import</button>
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-carriers">Manage carriers</button>' : ''}
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-fields">Manage fields</button>' : ''}
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
@@ -1834,6 +1852,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       }));
       $('#c-add', v)?.addEventListener('click', () => openAddContact(v));
       $('#co-add', v)?.addEventListener('click', () => openCompanyForm(null, v));
+      $('#c-import', v)?.addEventListener('click', () => openImport(v));
       $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
       $('#c-fields', v)?.addEventListener('click', openFieldManager);
       if (cMode === 'people') { paintFilterChips(v); loadTags(v); loadContacts(v); }
@@ -2184,6 +2203,304 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       reloadOpps();
       loadContacts(listView);
     }
+
+    // ================= CSV IMPORT =================
+    // A four-step wizard in the shared drawer: file → behaviour → column
+    // mapping → run. Entirely client side — no edge function, no migration.
+    // The parser, the alias table, the matching rules and the batch runner live
+    // in src/lib/csv-import.ts and are shared with /admin/contacts.
+    let imp = null;
+
+    async function openImport(listView) {
+      if (imp && imp.downloadUrl) { URL.revokeObjectURL(imp.downloadUrl); }
+      imp = {
+        step: 1, listView, target: cMode === 'companies' ? 'companies' : 'contacts',
+        header: [], rows: [], lines: [], mapping: [], fileName: '',
+        mode: 'create_update', matchField: cMode === 'companies' ? 'name' : 'email', skipBlanks: true,
+        ownerId: state.agentId || null, running: false, result: null,
+        fatal: null, downloadUrl: null,
+      };
+      // Admins decide who the rows land on, so they need the roster. A broker
+      // never sees the picker: everything they import is theirs, which is also
+      // the only thing ph_contacts_agent_insert would let them write.
+      if (state.isAdmin && !state.roster) {
+        const { data } = await sb.from('ph_agents').select('id, full_name, email').eq('is_active', true).order('full_name');
+        state.roster = data ?? [];
+      }
+      paintImport();
+    }
+
+    const impFields = () => fieldsFor(imp.target, state.customFields);
+
+    function paintImport() {
+      const steps = ['File', 'Behaviour', 'Columns', 'Import'];
+      const body = imp.step === 1 ? impStep1() : imp.step === 2 ? impStep2() : imp.step === 3 ? impStep3() : impStep4();
+      openDrawer(`
+        <div class="drawer-h">
+          <div>
+            <div style="font-size:1.15rem;font-weight:800">Import from CSV</div>
+            <div class="cell-sub">Step ${imp.step} of 4 · ${esc(steps[imp.step - 1])}${imp.fileName ? ' · ' + esc(imp.fileName) : ''}</div>
+          </div>
+          <button class="drawer-x" data-x>✕</button>
+        </div>
+        <div class="drawer-b">${body}</div>`);
+      $$('#drawer [data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      if (imp.step === 1) wireStep1();
+      else if (imp.step === 2) wireStep2();
+      else if (imp.step === 3) wireStep3();
+      else wireStep4();
+    }
+
+    const impGo = (n) => { imp.step = n; paintImport(); };
+
+    // ---- step 1: what, and from which file ----
+    function impStep1() {
+      const t = (v, label, hint) => `
+        <label class="pickbox"><input type="radio" name="imp-target" value="${v}" ${imp.target === v ? 'checked' : ''}/>
+          <span><b>${esc(label)}</b> <span class="cell-sub">${esc(hint)}</span></span></label>`;
+      return `
+        <div class="section-t">What are you importing</div>
+        ${t('contacts', 'Contacts', 'people, into your book')}
+        ${t('companies', 'Companies', 'group / employer records')}
+        <div class="section-t">Your file</div>
+        <div class="field"><label>CSV file</label><input type="file" id="imp-file" accept=".csv,text/csv"/></div>
+        <p class="cell-sub" id="imp-msg">The first row must be the column headings. Quoted fields, commas and line breaks inside quotes are all handled.</p>
+        <div class="imp-actions">
+          <button class="btn btn-primary" id="imp-next" ${imp.rows.length ? '' : 'disabled'}>Next</button>
+          <button class="btn btn-ghost" data-x>Cancel</button>
+        </div>`;
+    }
+
+    function wireStep1() {
+      $$('#drawer [name="imp-target"]').forEach((r) => r.addEventListener('change', () => {
+        imp.target = r.value;
+        imp.matchField = imp.target === 'companies' ? 'name' : 'email';
+        imp.mapping = [];
+      }));
+      // Updates in place rather than repainting: a repaint would blow away the
+      // file input and with it the file the browser is holding for us.
+      $('#imp-file').addEventListener('change', async (e) => {
+        const msg = $('#imp-msg'), next = $('#imp-next');
+        const f = e.target.files && e.target.files[0];
+        imp.header = []; imp.rows = []; imp.lines = []; imp.mapping = []; imp.fileName = '';
+        next.disabled = true; msg.classList.remove('imp-bad');
+        if (!f) { msg.textContent = 'Pick a .csv file to continue.'; return; }
+        msg.textContent = 'Reading…';
+        let text = '';
+        try { text = await f.text(); }
+        catch { msg.textContent = 'That file could not be read.'; msg.classList.add('imp-bad'); return; }
+        const r = readCsv(text);
+        if (r.error) { msg.textContent = r.error; msg.classList.add('imp-bad'); return; }
+        imp.header = r.header; imp.rows = r.rows; imp.lines = r.lines; imp.fileName = f.name;
+        msg.textContent = `${r.rows.length.toLocaleString()} data row${r.rows.length === 1 ? '' : 's'} · ${r.header.length} column${r.header.length === 1 ? '' : 's'}.`;
+        next.disabled = false;
+      });
+      $('#imp-next').addEventListener('click', () => { if (imp.rows.length) impGo(2); });
+    }
+
+    // ---- step 2: create, update, or both ----
+    function impStep2() {
+      const mode = (v, label, hint) => `
+        <label class="pickbox"><input type="radio" name="imp-mode" value="${v}" ${imp.mode === v ? 'checked' : ''}/>
+          <span><b>${esc(label)}</b> <span class="cell-sub">${esc(hint)}</span></span></label>`;
+      const owner = state.isAdmin ? `
+        <div class="section-t">Owner</div>
+        <div class="field"><label>Assign every imported record to</label>
+          <select id="imp-owner">
+            <option value="">Unassigned / house</option>
+            ${(state.roster || []).map((a) => `<option value="${esc(a.id)}" ${imp.ownerId === a.id ? 'selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('')}
+          </select>
+          <div class="cell-sub" style="margin-top:5px">An unassigned record is invisible to every broker until somebody is put against it.</div>
+        </div>` : `
+        <div class="section-t">Owner</div>
+        <p class="cell-sub">Everything you import is added to your own book.</p>`;
+      return `
+        <div class="section-t">What to do with each row</div>
+        ${mode('create', 'Create only', 'skip anything that already exists')}
+        ${mode('create_update', 'Create and update', 'add the new, patch the matches')}
+        ${mode('update', 'Update only', 'skip anything we do not already have')}
+        <div class="section-t">Matching</div>
+        <div class="field"><label>Find existing records based on</label>
+          <select id="imp-match">${matchOptions(imp.target).map((o) => `<option value="${esc(o.value)}" ${imp.matchField === o.value ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select>
+          <div class="cell-sub" style="margin-top:5px">Email is compared lowercase and trimmed; phone is compared on digits only with a leading 1 stripped, so (702) 555-0134 and +1 702 555 0134 are the same person.</div>
+        </div>
+        <label class="pickbox"><input type="checkbox" id="imp-blanks" ${imp.skipBlanks ? 'checked' : ''}/>
+          <span>Don't overwrite existing values with blanks</span></label>
+        ${owner}
+        <div class="imp-actions">
+          <button class="btn btn-ghost" id="imp-back">Back</button>
+          <button class="btn btn-primary" id="imp-next">Next</button>
+        </div>`;
+    }
+
+    function wireStep2() {
+      $$('#drawer [name="imp-mode"]').forEach((r) => r.addEventListener('change', () => { imp.mode = r.value; }));
+      $('#imp-match').addEventListener('change', (e) => { imp.matchField = e.target.value; });
+      $('#imp-blanks').addEventListener('change', (e) => { imp.skipBlanks = e.target.checked; });
+      $('#imp-owner')?.addEventListener('change', (e) => { imp.ownerId = e.target.value || null; });
+      $('#imp-back').addEventListener('click', () => impGo(1));
+      $('#imp-next').addEventListener('click', () => {
+        // The guess only runs once, so a mapping the user has corrected survives
+        // a trip back to step 2.
+        if (!imp.mapping.length) imp.mapping = autoMap(imp.header, impFields());
+        impGo(3);
+      });
+    }
+
+    // ---- step 3: one row per column in the file ----
+    function impStep3() {
+      const fields = impFields();
+      const obj = objectLabel(imp.target);
+      const rows = imp.header.map((h, i) => {
+        const val = imp.mapping[i] || '';
+        const samples = sampleValues(imp.rows, i);
+        return `<tr>
+          <td style="font-weight:650">${esc(h || 'Column ' + (i + 1))}</td>
+          <td class="cell-sub">${esc(samples.join(' · ')) || '—'}</td>
+          <td><span class="pill-status ${val ? 'st-green' : 'st-gray'}" data-mapstatus="${i}">${val ? 'Mapped' : 'Not mapped'}</span></td>
+          <td><select class="rec-select" disabled><option>${esc(obj)}</option></select></td>
+          <td><select class="rec-select" data-map="${i}">
+            <option value="">— Not mapped —</option>
+            ${fields.map((f) => `<option value="${esc(f.value)}" ${val === f.value ? 'selected' : ''}>${esc(f.label)}</option>`).join('')}
+          </select></td>
+        </tr>`;
+      }).join('');
+      const matchLabel = (matchOptions(imp.target).find((o) => o.value === imp.matchField) || {}).label || imp.matchField;
+      return `
+        <div class="section-t">Match your columns</div>
+        <p class="cell-sub" style="margin-bottom:10px">Anything left unmapped is skipped. <b>Note</b> writes into the contact's notes tab rather than a field. Tags and lines of insurance split on <b>;</b> or <b>,</b>.</p>
+        <div class="imp-tablewrap"><table class="data imp-map">
+          <thead><tr><th>Column in file</th><th>Sample values</th><th>Status</th><th>Object</th><th>Field</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+        <p class="cell-sub" id="imp-map-msg" style="margin-top:10px">Matching on <b>${esc(matchLabel)}</b> — that column has to be mapped.</p>
+        <div class="imp-actions">
+          <button class="btn btn-ghost" id="imp-back">Back</button>
+          <button class="btn btn-primary" id="imp-next">Start import</button>
+        </div>`;
+    }
+
+    function wireStep3() {
+      $$('#drawer [data-map]').forEach((sel) => sel.addEventListener('change', () => {
+        const i = +sel.dataset.map;
+        imp.mapping[i] = sel.value;
+        const pill = $(`#drawer [data-mapstatus="${i}"]`);
+        pill.textContent = sel.value ? 'Mapped' : 'Not mapped';
+        pill.classList.toggle('st-green', !!sel.value);
+        pill.classList.toggle('st-gray', !sel.value);
+      }));
+      $('#imp-back').addEventListener('click', () => impGo(2));
+      $('#imp-next').addEventListener('click', () => {
+        const msg = $('#imp-map-msg');
+        const label = (matchOptions(imp.target).find((o) => o.value === imp.matchField) || {}).label || imp.matchField;
+        if (imp.mapping.indexOf(imp.matchField) < 0) {
+          msg.innerHTML = `You chose to find existing records by <b>${esc(label)}</b>, but no column in the file is mapped to it. Map one, or go back and match on something else.`;
+          msg.classList.add('imp-bad');
+          return;
+        }
+        if (!imp.mapping.filter(Boolean).length) {
+          msg.textContent = 'Nothing is mapped yet, so there is nothing to import.';
+          msg.classList.add('imp-bad');
+          return;
+        }
+        msg.classList.remove('imp-bad');
+        impRun();
+      });
+    }
+
+    // ---- step 4: run it, then show what happened ----
+    function impStep4() {
+      if (imp.fatal) {
+        return `<div class="section-t">Import stopped</div>
+          <p class="cell-sub imp-bad">${esc(imp.fatal)}</p>
+          <div class="imp-actions"><button class="btn btn-primary" data-x>Close</button></div>`;
+      }
+      if (!imp.result) {
+        return `
+          <div class="section-t">Importing</div>
+          <p class="cell-sub" style="margin-bottom:10px">${imp.rows.length.toLocaleString()} rows, ${BATCH_SIZE} at a time. Leave this open until it finishes.</p>
+          <div class="imp-bar"><span id="imp-fill" style="width:0%"></span></div>
+          <p class="cell-sub" id="imp-count">0 of ${imp.rows.length.toLocaleString()}</p>`;
+      }
+      const r = imp.result;
+      const n = (x) => Number(x || 0).toLocaleString();
+      const shown = r.errors.slice(0, 100);
+      return `
+        <div class="section-t">Results</div>
+        <div class="kv">
+          <div class="k">Created</div><div class="v">${n(r.created)}</div>
+          <div class="k">Updated</div><div class="v">${n(r.updated)}</div>
+          <div class="k">Skipped as duplicate</div><div class="v">${n(r.skippedDuplicate)}</div>
+          <div class="k">Skipped as not found</div><div class="v">${n(r.skippedNotFound)}</div>
+          <div class="k">Failed</div><div class="v">${n(r.failed)}</div>
+        </div>
+        ${r.noteErrors.length ? `<p class="cell-sub imp-bad" style="margin-top:10px">Some notes could not be saved: ${esc(r.noteErrors[0])}</p>` : ''}
+        ${r.errors.length ? `
+          <div class="section-t">What failed</div>
+          <div class="imp-errs">${shown.map((e) => `<div class="feed-item"><div class="feed-ic">⚠</div><div><div style="font-weight:650">Row ${e.line}</div><div class="cell-sub">${esc(e.message)}</div></div></div>`).join('')}</div>
+          ${r.errors.length > shown.length ? `<p class="cell-sub">…and ${n(r.errors.length - shown.length)} more. Download the file below for all of them.</p>` : ''}
+          <div class="imp-actions">
+            <button class="btn btn-ghost btn-sm" id="imp-dl">Download failed rows</button>
+          </div>` : '<p class="cell-sub" style="margin-top:12px">No errors.</p>'}
+        <div class="imp-actions">
+          <button class="btn btn-primary" data-x>Done</button>
+        </div>`;
+    }
+
+    function wireStep4() {
+      $('#imp-dl')?.addEventListener('click', () => {
+        const csv = failedRowsCsv(imp.header, imp.result.errors);
+        if (imp.downloadUrl) URL.revokeObjectURL(imp.downloadUrl);
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+        imp.downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = imp.downloadUrl;
+        a.download = (imp.fileName || 'import').replace(/\.csv$/i, '') + '-failed.csv';
+        a.click();
+      });
+    }
+
+    async function impRun() {
+      imp.running = true; imp.result = null; imp.fatal = null;
+      impGo(4);
+      const fill = $('#imp-fill'), count = $('#imp-count');
+      const total = imp.rows.length;
+      try {
+        imp.result = await runImport(sb, {
+          target: imp.target, header: imp.header, rows: imp.rows, lines: imp.lines,
+          mapping: imp.mapping, mode: imp.mode, matchField: imp.matchField,
+          skipBlanks: imp.skipBlanks, ownerId: imp.ownerId,
+        }, (done) => {
+          if (fill) fill.style.width = (total ? Math.round((done / total) * 100) : 100) + '%';
+          if (count) count.textContent = `${done.toLocaleString()} of ${total.toLocaleString()}`;
+        });
+      } catch (err) {
+        imp.fatal = 'Could not finish the import: ' + (err?.message || err);
+      }
+      imp.running = false;
+      paintImport();
+      if (imp.result) {
+        const r = imp.result;
+        toast(`Import done — ${r.created} created, ${r.updated} updated${r.failed ? ', ' + r.failed + ' failed' : ''}`);
+        await refreshAfterImport();
+      }
+    }
+
+    // Put the list behind the drawer back in step with the database.
+    async function refreshAfterImport() {
+      if (imp.target === 'companies') {
+        const { data } = await mine(sb.from('ph_companies').select('*')).order('name');
+        state.companies = data ?? [];
+      } else {
+        const { count } = await mine(sb.from('ph_contacts').select('*', { count: 'exact', head: true }));
+        state.contactCount = count ?? state.contactCount;
+        buildNav();
+      }
+      const v = imp.listView;
+      if (!v || currentRoute !== 'contacts') return;
+      if (cMode === 'people') loadContacts(v); else renderCompanies(v);
+    }
+
     async function loadTags(v) {
       // Admin-defined tags first, then any other tags that exist in THIS
       // user's own book (ph_contact_tags is RLS-scoped, so a broker only ever

@@ -94,6 +94,7 @@ const SUPABASE_ANON =
             <option value="">Any disposition</option>
           </select>
           <button type="button" class="cm-btn ac-clear">Clear filters</button>
+          <button type="button" class="cm-btn primary ac-import">⤒ Import CSV</button>
         </div>
 
         <div class="ac-bulk" hidden>
@@ -111,6 +112,17 @@ const SUPABASE_ANON =
         <div class="ac-pager"></div>
       </div>
 
+    </div>
+
+    <!-- CSV import wizard. Inside .ac on purpose: every helper on this page is
+         scoped to that root, so a modal hung off <body> would be invisible to
+         them. -->
+    <div class="ac-imp" hidden>
+      <div class="ac-imp-back"></div>
+      <div class="ac-imp-card" role="dialog" aria-modal="true" aria-label="Import from CSV">
+        <button type="button" class="ac-imp-x" aria-label="Close">×</button>
+        <div class="ac-imp-body"></div>
+      </div>
     </div>
   </section>
 </Base>
@@ -186,10 +198,67 @@ const SUPABASE_ANON =
   .ac-pager button:disabled { opacity: .45; cursor: default; }
   .ac-pager span { font-size: 0.85rem; color: var(--muted); }
   .ac-empty { padding: 30px; text-align: center; color: var(--muted); }
+
+  /* ---------- CSV import ---------- */
+  /* .cm-btn is the shared admin button vocabulary. It was only ever defined
+   * inside /admin/campaigns, so the toolbar's Clear filters button on this page
+   * rendered as a bare UA button. Same rules, defined where they are used. */
+  .cm-btn {
+    padding: 10px 18px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
+    font-family: var(--font); font-weight: 700; font-size: 0.9rem; cursor: pointer; color: var(--ink);
+  }
+  .cm-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .cm-btn:disabled { opacity: .5; cursor: default; }
+  .cm-field { display: grid; gap: 5px; margin-bottom: 12px; }
+  .cm-field label { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+  .cm-field input, .cm-field select {
+    padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line);
+    font-family: var(--font); font-size: 0.94rem; background: #fff; width: 100%;
+  }
+  .cm-field input:focus, .cm-field select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+
+  .ac-imp { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px 14px; }
+  /* Same trap as the ticket modal and the bulk bar: a class rule with a display
+   * value beats the UA's `[hidden]`, so this has to say so explicitly. */
+  .ac-imp[hidden] { display: none; }
+  .ac-imp-back { position: absolute; inset: 0; background: rgba(11,42,74,.42); backdrop-filter: blur(2px); }
+  .ac-imp-card {
+    position: relative; background: #fff; border-radius: 18px; width: min(860px, 100%);
+    max-height: 88vh; overflow: auto; box-shadow: 0 24px 70px rgba(11,42,74,.28); padding: 26px 26px 30px;
+  }
+  .ac-imp-x { position: absolute; top: 12px; right: 14px; background: none; border: 0; font-size: 1.8rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+  .ac-imp-x:hover { color: var(--ink); }
+  .ac-imp-h { margin: 0 30px 3px 0; font-size: 1.28rem; color: var(--ink); line-height: 1.25; }
+  .ac-imp-sub { color: var(--muted); font-size: 0.86rem; margin: 0 0 18px; }
+  .ac-imp-sec { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin: 20px 0 9px; }
+  .ac-imp-opt { display: flex; gap: 9px; align-items: flex-start; font-size: 0.9rem; padding: 5px 0; cursor: pointer; }
+  .ac-imp-opt input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--blue); flex: none; }
+  .ac-imp-opt b { color: var(--ink); }
+  .ac-imp-note { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin: 6px 0 0; }
+  .ac-imp-note.is-bad { color: #b3261e; }
+  .ac-imp-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+  .ac-imp-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 12px; }
+  .ac-imp-wrap .ac-table td, .ac-imp-wrap .ac-table th { white-space: nowrap; padding: 9px 11px; }
+  .ac-imp-wrap select { padding: 7px 9px; border: 1.5px solid var(--line); border-radius: 9px; font-family: var(--font); font-size: 0.83rem; background: #fff; min-width: 160px; }
+  .ac-imp-bar { height: 9px; border-radius: 999px; background: #eef3f8; overflow: hidden; margin: 6px 0 8px; }
+  .ac-imp-bar span { display: block; height: 100%; width: 0; background: linear-gradient(120deg, var(--blue), #19c8ff); transition: width .2s; }
+  .ac-imp-res { display: grid; grid-template-columns: 190px 1fr; gap: 7px 14px; font-size: 0.9rem; }
+  .ac-imp-res .k { color: var(--muted); font-weight: 700; }
+  .ac-imp-errs { max-height: 260px; overflow-y: auto; border: 1.5px solid var(--line); border-radius: 12px; }
+  .ac-imp-err { padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
+  .ac-imp-err:last-child { border-bottom: 0; }
+  .ac-imp-err b { color: var(--ink); }
+  .ac-imp-err span { color: var(--muted); }
 </style>
 
 <script>
   import { createClient } from '@supabase/supabase-js';
+  // CSV import: parser, alias table, matching rules and the batch runner. Shared
+  // verbatim with the broker CRM at /app so the two importers cannot drift.
+  import {
+    readCsv, fieldsFor, matchOptions, autoMap, sampleValues, objectLabel,
+    failedRowsCsv, runImport, BATCH_SIZE,
+  } from '../../lib/csv-import';
 
   const root = document.querySelector('.ac');
   if (root) {
@@ -221,6 +290,7 @@ const SUPABASE_ANON =
     let dispFilter = '';
     let picked = new Set();
     let searchTimer = null;
+    let customFields = [];    // ph_custom_fields, offered as import targets
 
     const fmtPhone = (p) => {
       const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
@@ -321,6 +391,12 @@ const SUPABASE_ANON =
         '<option value="">Assign selected to…</option>' + opts + '<option value="__none">Remove the owner</option>';
       $('.ac-disp-filter').innerHTML =
         '<option value="">Any disposition</option>' + DISPOSITIONS.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    }
+
+    async function loadCustomFields() {
+      const { data } = await sb.from('ph_custom_fields')
+        .select('key, label').eq('is_active', true).order('position');
+      customFields = data ?? [];
     }
 
     async function loadStats() {
@@ -477,6 +553,278 @@ const SUPABASE_ANON =
       }));
     }
 
+    // ---------- CSV import ----------
+    // Four steps in the modal: file → behaviour → column mapping → run. This
+    // page is admin-only by definition, so the owner picker is always shown and
+    // "Unassigned / house" is a real choice here in a way it is not in /app.
+    // The parser, alias table, matching rules and batch runner are shared with
+    // /app via src/lib/csv-import.ts.
+    const impModal = $('.ac-imp');
+    const impBody = $('.ac-imp-body');
+    let imp = null;
+
+    $('.ac-import').addEventListener('click', openImport);
+    $('.ac-imp-x').addEventListener('click', closeImport);
+    $('.ac-imp-back').addEventListener('click', closeImport);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !impModal.hidden && !(imp && imp.running)) closeImport();
+    });
+
+    function openImport() {
+      if (imp && imp.downloadUrl) URL.revokeObjectURL(imp.downloadUrl);
+      imp = {
+        step: 1, target: 'contacts', header: [], rows: [], lines: [], mapping: [],
+        fileName: '', mode: 'create_update', matchField: 'email', skipBlanks: true,
+        ownerId: null, running: false, result: null, fatal: null, downloadUrl: null,
+      };
+      impModal.hidden = false;
+      paintImport();
+    }
+    function closeImport() {
+      impModal.hidden = true;
+      if (imp && imp.downloadUrl) { URL.revokeObjectURL(imp.downloadUrl); imp.downloadUrl = null; }
+    }
+
+    const impFields = () => fieldsFor(imp.target, customFields);
+    const impGo = (n) => { imp.step = n; paintImport(); };
+
+    function paintImport() {
+      const steps = ['File', 'Behaviour', 'Columns', 'Import'];
+      const body = imp.step === 1 ? impStep1() : imp.step === 2 ? impStep2() : imp.step === 3 ? impStep3() : impStep4();
+      impBody.innerHTML = `
+        <h2 class="ac-imp-h">Import from CSV</h2>
+        <p class="ac-imp-sub">Step ${imp.step} of 4 · ${esc(steps[imp.step - 1])}${imp.fileName ? ' · ' + esc(imp.fileName) : ''}</p>
+        ${body}`;
+      if (imp.step === 1) wireStep1();
+      else if (imp.step === 2) wireStep2();
+      else if (imp.step === 3) wireStep3();
+      else wireStep4();
+    }
+
+    // ---- step 1: what, and from which file ----
+    function impStep1() {
+      const t = (v, label, hint) => `
+        <label class="ac-imp-opt"><input type="radio" name="imp-target" value="${v}"${imp.target === v ? ' checked' : ''} />
+          <span><b>${esc(label)}</b> — ${esc(hint)}</span></label>`;
+      return `
+        <div class="ac-imp-sec">What are you importing</div>
+        ${t('contacts', 'Contacts', 'people, into ph_contacts')}
+        ${t('companies', 'Companies', 'group / employer records')}
+        <div class="ac-imp-sec">Your file</div>
+        <div class="cm-field"><label>CSV file</label><input type="file" class="imp-file" accept=".csv,text/csv" /></div>
+        <p class="ac-imp-note imp-msg">The first row must be the column headings. Quoted fields, commas and line breaks inside quotes are all handled.</p>
+        <div class="ac-imp-actions">
+          <button type="button" class="cm-btn primary imp-next" disabled>Next</button>
+          <button type="button" class="cm-btn imp-cancel">Cancel</button>
+        </div>`;
+    }
+
+    function wireStep1() {
+      $$('[name="imp-target"]').forEach((r) => r.addEventListener('change', () => {
+        imp.target = r.value; imp.matchField = imp.target === 'companies' ? 'name' : 'email'; imp.mapping = [];
+      }));
+      // Updated in place rather than repainted: a repaint would replace the file
+      // input and drop the file the browser is holding for us.
+      $('.imp-file').addEventListener('change', async (e) => {
+        const msg = $('.imp-msg'), next = $('.imp-next');
+        const f = e.target.files && e.target.files[0];
+        imp.header = []; imp.rows = []; imp.lines = []; imp.mapping = []; imp.fileName = '';
+        next.disabled = true; msg.classList.remove('is-bad');
+        if (!f) { msg.textContent = 'Pick a .csv file to continue.'; return; }
+        msg.textContent = 'Reading…';
+        let text = '';
+        try { text = await f.text(); }
+        catch { msg.textContent = 'That file could not be read.'; msg.classList.add('is-bad'); return; }
+        const r = readCsv(text);
+        if (r.error) { msg.textContent = r.error; msg.classList.add('is-bad'); return; }
+        imp.header = r.header; imp.rows = r.rows; imp.lines = r.lines; imp.fileName = f.name;
+        msg.textContent = `${r.rows.length.toLocaleString()} data row${r.rows.length === 1 ? '' : 's'} · ${r.header.length} column${r.header.length === 1 ? '' : 's'}.`;
+        next.disabled = false;
+      });
+      $('.imp-next').addEventListener('click', () => { if (imp.rows.length) impGo(2); });
+      $('.imp-cancel').addEventListener('click', closeImport);
+    }
+
+    // ---- step 2: create, update, or both ----
+    function impStep2() {
+      const mode = (v, label, hint) => `
+        <label class="ac-imp-opt"><input type="radio" name="imp-mode" value="${v}"${imp.mode === v ? ' checked' : ''} />
+          <span><b>${esc(label)}</b> — ${esc(hint)}</span></label>`;
+      return `
+        <div class="ac-imp-sec">What to do with each row</div>
+        ${mode('create', 'Create only', 'skip anything that already exists')}
+        ${mode('create_update', 'Create and update', 'add the new, patch the matches')}
+        ${mode('update', 'Update only', 'skip anything we do not already have')}
+        <div class="ac-imp-sec">Matching</div>
+        <div class="cm-field"><label>Find existing records based on</label>
+          <select class="imp-match">${matchOptions(imp.target).map((o) => `<option value="${esc(o.value)}"${imp.matchField === o.value ? ' selected' : ''}>${esc(o.label)}</option>`).join('')}</select>
+        </div>
+        <p class="ac-imp-note">Email is compared lowercase and trimmed; phone is compared on digits only with a leading 1 stripped, so (702) 555-0134 and +1 702 555 0134 are the same person.</p>
+        <label class="ac-imp-opt" style="margin-top:10px"><input type="checkbox" class="imp-blanks"${imp.skipBlanks ? ' checked' : ''} />
+          <span>Don't overwrite existing values with blanks</span></label>
+        <div class="ac-imp-sec">Owner</div>
+        <div class="cm-field"><label>Assign every imported record to</label>
+          <select class="imp-owner">
+            <option value=""${imp.ownerId ? '' : ' selected'}>Unassigned / house</option>
+            ${agents.map((a) => `<option value="${esc(a.id)}"${imp.ownerId === a.id ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('')}
+          </select>
+        </div>
+        <p class="ac-imp-note">An unassigned contact is invisible to every broker in the company until somebody is put against it.</p>
+        <div class="ac-imp-actions">
+          <button type="button" class="cm-btn imp-back">Back</button>
+          <button type="button" class="cm-btn primary imp-next">Next</button>
+        </div>`;
+    }
+
+    function wireStep2() {
+      $$('[name="imp-mode"]').forEach((r) => r.addEventListener('change', () => { imp.mode = r.value; }));
+      $('.imp-match').addEventListener('change', (e) => { imp.matchField = e.target.value; });
+      $('.imp-blanks').addEventListener('change', (e) => { imp.skipBlanks = e.target.checked; });
+      $('.imp-owner').addEventListener('change', (e) => { imp.ownerId = e.target.value || null; });
+      $('.imp-back').addEventListener('click', () => impGo(1));
+      $('.imp-next').addEventListener('click', () => {
+        // Guess once, so a mapping the admin has corrected survives a trip back.
+        if (!imp.mapping.length) imp.mapping = autoMap(imp.header, impFields());
+        impGo(3);
+      });
+    }
+
+    // ---- step 3: one row per column in the file ----
+    function impStep3() {
+      const fields = impFields();
+      const obj = objectLabel(imp.target);
+      const body = imp.header.map((h, i) => {
+        const val = imp.mapping[i] || '';
+        const samples = sampleValues(imp.rows, i);
+        return `<tr>
+          <td class="ac-nm">${esc(h || 'Column ' + (i + 1))}</td>
+          <td class="ac-sub">${esc(samples.join(' · ')) || '—'}</td>
+          <td><span class="ac-pill${val ? ' green' : ''}" data-mapstatus="${i}">${val ? 'Mapped' : 'Not mapped'}</span></td>
+          <td><select disabled><option>${esc(obj)}</option></select></td>
+          <td><select data-map="${i}">
+            <option value="">— Not mapped —</option>
+            ${fields.map((f) => `<option value="${esc(f.value)}"${val === f.value ? ' selected' : ''}>${esc(f.label)}</option>`).join('')}
+          </select></td>
+        </tr>`;
+      }).join('');
+      const label = (matchOptions(imp.target).find((o) => o.value === imp.matchField) || {}).label || imp.matchField;
+      return `
+        <div class="ac-imp-sec">Match your columns</div>
+        <p class="ac-imp-note" style="margin-bottom:12px">Anything left unmapped is skipped. <b>Note</b> writes into the contact's notes tab rather than a field. Tags and lines of insurance split on <b>;</b> or <b>,</b>.</p>
+        <div class="ac-imp-wrap"><table class="ac-table">
+          <thead><tr><th>Column in file</th><th>Sample values</th><th>Status</th><th>Object</th><th>Field</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table></div>
+        <p class="ac-imp-note imp-msg">Matching on <b>${esc(label)}</b> — that column has to be mapped.</p>
+        <div class="ac-imp-actions">
+          <button type="button" class="cm-btn imp-back">Back</button>
+          <button type="button" class="cm-btn primary imp-next">Start import</button>
+        </div>`;
+    }
+
+    function wireStep3() {
+      $$('[data-map]').forEach((sel) => sel.addEventListener('change', () => {
+        const i = Number(sel.getAttribute('data-map'));
+        imp.mapping[i] = sel.value;
+        const pill = $$('[data-mapstatus]').find((el) => el.getAttribute('data-mapstatus') === String(i));
+        if (!pill) return;
+        pill.textContent = sel.value ? 'Mapped' : 'Not mapped';
+        pill.classList.toggle('green', !!sel.value);
+      }));
+      $('.imp-back').addEventListener('click', () => impGo(2));
+      $('.imp-next').addEventListener('click', () => {
+        const msg = $('.imp-msg');
+        const label = (matchOptions(imp.target).find((o) => o.value === imp.matchField) || {}).label || imp.matchField;
+        if (imp.mapping.indexOf(imp.matchField) < 0) {
+          msg.innerHTML = `You chose to find existing records by <b>${esc(label)}</b>, but no column in the file is mapped to it. Map one, or go back and match on something else.`;
+          msg.classList.add('is-bad');
+          return;
+        }
+        if (!imp.mapping.filter(Boolean).length) {
+          msg.textContent = 'Nothing is mapped yet, so there is nothing to import.';
+          msg.classList.add('is-bad');
+          return;
+        }
+        msg.classList.remove('is-bad');
+        impRun();
+      });
+    }
+
+    // ---- step 4: run it, then show what happened ----
+    function impStep4() {
+      if (imp.fatal) {
+        return `<div class="ac-imp-sec">Import stopped</div>
+          <p class="ac-imp-note is-bad">${esc(imp.fatal)}</p>
+          <div class="ac-imp-actions"><button type="button" class="cm-btn primary imp-done">Close</button></div>`;
+      }
+      if (!imp.result) {
+        return `
+          <div class="ac-imp-sec">Importing</div>
+          <p class="ac-imp-note" style="margin-bottom:10px">${imp.rows.length.toLocaleString()} rows, ${BATCH_SIZE} at a time. Leave this open until it finishes.</p>
+          <div class="ac-imp-bar"><span class="imp-fill"></span></div>
+          <p class="ac-imp-note imp-count">0 of ${imp.rows.length.toLocaleString()}</p>`;
+      }
+      const r = imp.result;
+      const n = (x) => Number(x || 0).toLocaleString();
+      const shown = r.errors.slice(0, 100);
+      return `
+        <div class="ac-imp-sec">Results</div>
+        <div class="ac-imp-res">
+          <div class="k">Created</div><div>${n(r.created)}</div>
+          <div class="k">Updated</div><div>${n(r.updated)}</div>
+          <div class="k">Skipped as duplicate</div><div>${n(r.skippedDuplicate)}</div>
+          <div class="k">Skipped as not found</div><div>${n(r.skippedNotFound)}</div>
+          <div class="k">Failed</div><div>${n(r.failed)}</div>
+        </div>
+        ${r.noteErrors.length ? `<p class="ac-imp-note is-bad">Some notes could not be saved: ${esc(r.noteErrors[0])}</p>` : ''}
+        ${r.errors.length ? `
+          <div class="ac-imp-sec">What failed</div>
+          <div class="ac-imp-errs">${shown.map((e) => `<div class="ac-imp-err"><b>Row ${e.line}</b> <span>${esc(e.message)}</span></div>`).join('')}</div>
+          ${r.errors.length > shown.length ? `<p class="ac-imp-note">…and ${n(r.errors.length - shown.length)} more. Download the file below for all of them.</p>` : ''}
+          <div class="ac-imp-actions"><button type="button" class="cm-btn imp-dl">Download failed rows</button></div>` : '<p class="ac-imp-note">No errors.</p>'}
+        <div class="ac-imp-actions"><button type="button" class="cm-btn primary imp-done">Done</button></div>`;
+    }
+
+    function wireStep4() {
+      $('.imp-done')?.addEventListener('click', closeImport);
+      $('.imp-dl')?.addEventListener('click', () => {
+        const csv = failedRowsCsv(imp.header, imp.result.errors);
+        if (imp.downloadUrl) URL.revokeObjectURL(imp.downloadUrl);
+        // BOM so Excel opens the accented names correctly.
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+        imp.downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = imp.downloadUrl;
+        a.download = (imp.fileName || 'import').replace(/\.csv$/i, '') + '-failed.csv';
+        a.click();
+      });
+    }
+
+    async function impRun() {
+      imp.running = true; imp.result = null; imp.fatal = null;
+      impGo(4);
+      const fill = $('.imp-fill'), count = $('.imp-count');
+      const total = imp.rows.length;
+      try {
+        imp.result = await runImport(sb, {
+          target: imp.target, header: imp.header, rows: imp.rows, lines: imp.lines,
+          mapping: imp.mapping, mode: imp.mode, matchField: imp.matchField,
+          skipBlanks: imp.skipBlanks, ownerId: imp.ownerId,
+        }, (done) => {
+          if (fill) fill.style.width = (total ? Math.round((done / total) * 100) : 100) + '%';
+          if (count) count.textContent = `${done.toLocaleString()} of ${total.toLocaleString()}`;
+        });
+      } catch (err) {
+        imp.fatal = 'Could not finish the import: ' + ((err && err.message) || err);
+      }
+      imp.running = false;
+      paintImport();
+      if (imp.result) {
+        clearPicks();
+        await Promise.all([loadRows(), loadStats()]);
+      }
+    }
+
     // ---------- boot ----------
     async function boot() {
       const { data: { session } } = await sb.auth.getSession();
@@ -490,7 +838,7 @@ const SUPABASE_ANON =
       view('app');
 
       await loadAgents();
-      await Promise.all([loadRows(), loadStats()]);
+      await Promise.all([loadRows(), loadStats(), loadCustomFields()]);
     }
 
     sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
