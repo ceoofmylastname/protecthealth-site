@@ -196,6 +196,22 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
   .st-tag.house { background: #fdf3e3; color: #96690d; }
   .st-tag.admin { background: #f1ecfd; color: #5b3fc4; }
 
+  /* Name + login email editor. Folded away by default: renaming a broker moves
+     their public landing page URL, so it should take a deliberate click rather
+     than sit open next to the everyday booking-link field. */
+  .st-rename { border: 1px solid var(--line); background: #fff; color: var(--muted); font-family: var(--font);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; cursor: pointer; }
+  .st-rename:hover { border-color: var(--blue); color: var(--blue); }
+  .st-idedit { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 8px; align-items: center;
+    margin-top: 10px; padding: 12px; border: 1.5px solid #d9e6fb; border-radius: 11px; background: #f7fbff; }
+  .st-idedit[hidden] { display: none; }
+  .st-idedit input { padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px;
+    font-family: var(--font); font-size: 0.88rem; background: #fff; min-width: 0; }
+  .st-idedit input:focus { outline: none; border-color: var(--blue); }
+  .st-idhint { grid-column: 1 / -1; margin: 2px 0 0; font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+  @media (max-width: 780px) { .st-idedit { grid-template-columns: 1fr; } }
+
   .st-counts { text-align: right; color: var(--muted); font-size: 0.82rem; line-height: 1.7; white-space: nowrap; }
   .st-counts b { color: var(--ink); font-size: 1rem; }
 
@@ -459,10 +475,18 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
             <div>
               <div class="st-name">${esc(a.full_name)}
                 ${a.ghl_role === 'admin' ? '<span class="st-tag admin">Admin</span>' : ''}
-                ${a.is_active ? '' : '<span class="st-tag">Switched off</span>'}</div>
+                ${a.is_active ? '' : '<span class="st-tag">Switched off</span>'}
+                <button type="button" class="st-rename" title="Edit name and login email">Edit</button></div>
               <div class="st-sub">
                 ${a.email ? `<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>` : '<i>no email</i>'}
                 ${a.phone_pretty ? ` · <a href="tel:${esc(String(a.phone).replace(/\D/g, ''))}">${esc(a.phone_pretty)}</a>` : ' · <i>no phone</i>'}
+              </div>
+              <div class="st-idedit" hidden>
+                <input type="text" class="st-fname" value="${esc(a.full_name ?? '')}" placeholder="Full name" autocomplete="off" />
+                <input type="email" class="st-femail" value="${esc(a.email ?? '')}" placeholder="Login email" autocomplete="off" spellcheck="false" />
+                <button type="button" class="cm-btn primary st-idsave">Save</button>
+                <button type="button" class="cm-btn st-idcancel">Cancel</button>
+                <p class="st-idhint">The email is what they sign in with. Changing it moves the login too, so the old address stops working straight away.</p>
               </div>
             </div>
             <div class="st-counts"><b>${a.contacts_owned}</b> contacts<br><b>${a.leads_owned}</b> leads</div>
@@ -498,6 +522,9 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
       list.querySelectorAll('.st-card').forEach((card) => {
         const id = card.getAttribute('data-id');
         const note = card.querySelector('.st-saved');
+        // The row behind this card. renderList() builds the markup in a
+        // separate map(), so the agent object is not otherwise in scope here.
+        const a = rows.find((r) => r.id === id) || {};
 
         card.querySelectorAll('.st-cand').forEach((b) =>
           b.addEventListener('click', () => { card.querySelector('.st-url').value = b.getAttribute('data-url'); }));
@@ -525,6 +552,62 @@ const CAL_BASE = 'https://link.protecthealth.com/widget/booking/';
           note.textContent = on
             ? 'Client emails paused. Their own alerts still send.'
             : 'Client emails resumed.';
+        });
+
+        // ---- name + login email ----
+        // These two do NOT go through sb.from('ph_agents').update() like the
+        // fields below. ph_agents_guard_profile silently resets full_name and
+        // email on a browser write, and ph_agents.email is only half the story
+        // anyway: auth.users.email has to move with it or the broker cannot
+        // sign in. ph-staff does both server-side in one call.
+        const idBox = card.querySelector('.st-idedit');
+        const idBtn = card.querySelector('.st-rename');
+        idBtn.addEventListener('click', () => {
+          const open = idBox.hidden;
+          idBox.hidden = !open;
+          idBtn.textContent = open ? 'Close' : 'Edit';
+          if (open) card.querySelector('.st-fname').focus();
+        });
+        card.querySelector('.st-idcancel').addEventListener('click', () => {
+          idBox.hidden = true; idBtn.textContent = 'Edit';
+          note.classList.remove('is-bad'); note.textContent = '';
+        });
+        card.querySelector('.st-idsave').addEventListener('click', async (e) => {
+          const btn = e.target;
+          const full_name = card.querySelector('.st-fname').value.trim();
+          const email = card.querySelector('.st-femail').value.trim();
+          note.classList.remove('is-bad');
+
+          if (!full_name) { note.classList.add('is-bad'); note.textContent = 'Enter a full name.'; return; }
+          // Confirm before moving a login, because the broker's old address
+          // stops working the moment this succeeds and they will not be told.
+          const current = (a.email || '').toLowerCase();
+          if (email.toLowerCase() !== current && !confirm(
+            `Move this login from ${a.email || '(none)'} to ${email}?\n\n` +
+            `They will have to sign in with the new address from now on. Their password does not change.`)) return;
+
+          btn.disabled = true; note.textContent = 'Saving…';
+          const { data, error } = await sb.functions.invoke('ph-staff', {
+            body: { action: 'update_agent', agent_id: id, full_name, email },
+          });
+          btn.disabled = false;
+
+          if (error || !data || data.error) {
+            note.classList.add('is-bad');
+            note.textContent = (data && data.error) || error?.message || 'Could not save.';
+            return;
+          }
+          if (!data.changed) { note.textContent = 'Nothing changed.'; return; }
+
+          // A rename moves the public landing page, because the URL is built
+          // from the name. Say so rather than letting them find out from a
+          // broker whose link stopped working.
+          note.textContent = 'Saved. The website updates itself within a couple of minutes.'
+            + (data.slug_changed
+                ? ` Their landing page moved to /broker/${data.new_slug}, so /broker/${data.old_slug} will stop working. Anyone holding the old link needs the new one.`
+                : '');
+          idBox.hidden = true; idBtn.textContent = 'Edit';
+          await load();
         });
 
         card.querySelector('.st-save').addEventListener('click', async (e) => {
