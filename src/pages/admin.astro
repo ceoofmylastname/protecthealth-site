@@ -99,7 +99,7 @@ const SUPABASE_ANON =
             <p class="ab-hint ad-muted">Brokers set their own password at <code>/app</code> using this code. Say it out loud in the meeting, then clear it when the room empties. The code only ever works on an account that has <b>never</b> had a password, so it can't be used against a broker who is already set up.</p>
             <p class="sc-status-line ad-muted">Checking&hellip;</p>
             <div class="ab-row">
-              <input type="text" class="sc-code" placeholder="Setup code (8+ characters)" autocomplete="off" spellcheck="false" />
+              <input type="text" class="sc-code" placeholder="Setup code (6+ characters)" autocomplete="off" spellcheck="false" />
               <input type="datetime-local" class="sc-exp" title="When the code stops working. Defaults to 24 hours." />
               <button type="button" class="ab-go sc-save">Set code</button>
               <button type="button" class="ab-go sc-clear" style="background:#b91c1c;display:none">Clear</button>
@@ -222,6 +222,11 @@ const SUPABASE_ANON =
   .ab-status { margin: 10px 0 0; font-size: 0.9rem; min-height: 1.1em; }
   .ab-status.is-good { color: #0a7d3c; }
   .ab-status.is-bad { color: #c0392b; }
+  /* .sc-msg carries the setup-code result. It used to render in the same muted
+     grey as the surrounding hints, so a rejected save read as instructions
+     rather than an error and looked like the button simply did nothing. */
+  .sc-msg { margin: 10px 0 0; font-size: 0.9rem; min-height: 1.1em; }
+  .sc-msg.is-bad { color: #c0392b; font-weight: 650; }
 
   .ad-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
   .ad-list { display: grid; gap: 9px; max-height: 74vh; overflow-y: auto; padding-right: 4px; }
@@ -464,15 +469,30 @@ const SUPABASE_ANON =
           : '';
       }
 
+      // Must match MIN_SETUP_CODE in ph-auth. If this floor is ever the lower of
+      // the two, the button appears to work and the server rejects it, which is
+      // exactly how a 6-digit code looked like a broken Save button for a week.
+      const SC_MIN = 6;
       saveBtn.addEventListener('click', async () => {
         const code = codeEl.value.trim();
-        if (code.replace(/\s+/g, '').length < 8) { msgEl.textContent = 'Use at least 8 characters.'; return; }
+        const n = code.replace(/\s+/g, '').length;
+        if (n < SC_MIN) {
+          // Say what was wrong with THIS input, not the rule in the abstract.
+          // The old copy read like a placeholder hint sitting under the field,
+          // so a rejected save was indistinguishable from a save that did
+          // nothing at all.
+          msgEl.textContent = `That code is ${n} character${n === 1 ? '' : 's'}. It needs at least ${SC_MIN}.`;
+          msgEl.classList.add('is-bad');
+          return;
+        }
+        msgEl.classList.remove('is-bad');
         saveBtn.disabled = true; msgEl.textContent = 'Saving…';
         // datetime-local is wall-clock with no zone; hand the server an ISO instant.
         const expires_at = expEl.value ? new Date(expEl.value).toISOString() : '';
         const { ok, json } = await scCall({ action: 'admin_set_setup_code', code, expires_at });
         saveBtn.disabled = false;
-        if (!ok || !json.ok) { msgEl.textContent = json.error || 'Could not save the code.'; return; }
+        if (!ok || !json.ok) { msgEl.textContent = json.error || 'Could not save the code.'; msgEl.classList.add('is-bad'); return; }
+        msgEl.classList.remove('is-bad');
         msgEl.textContent = 'Code is live. Read it out to the room.';
         codeEl.value = '';
         scRefresh();
