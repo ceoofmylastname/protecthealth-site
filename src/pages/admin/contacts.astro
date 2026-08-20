@@ -79,9 +79,10 @@ const SUPABASE_ANON =
         </div>
 
         <p class="ac-note ad-muted">
-          A contact with no owner is invisible to every broker in the company — it only becomes
-          somebody's work once it has a name against it. Assign from the Owner column, or tick
-          several and assign them together.
+          Click any row to open the contact and correct a name, phone number, email or address —
+          the change lands on the same record the owning broker sees. A contact with no owner is
+          invisible to every broker in the company; assign from the Owner column, or tick several
+          and assign them together.
         </p>
 
         <div class="ad-toolbar ac-toolbar">
@@ -123,6 +124,19 @@ const SUPABASE_ANON =
       <div class="ac-imp-card" role="dialog" aria-modal="true" aria-label="Import from CSV">
         <button type="button" class="ac-imp-x" aria-label="Close">×</button>
         <div class="ac-imp-body"></div>
+      </div>
+    </div>
+
+    <!-- Contact card. Clicking a row opens it. Same client-data panel a broker
+         sees on their own record in /app, against the same ph_contacts row —
+         there is no admin copy of a contact, so a correction made here IS what
+         the owning broker's desk shows. Inside .ac for the same reason the
+         import wizard is. -->
+    <div class="ac-cd" hidden>
+      <div class="ac-cd-back"></div>
+      <div class="ac-cd-card" role="dialog" aria-modal="true" aria-label="Contact">
+        <button type="button" class="ac-cd-x" aria-label="Close">×</button>
+        <div class="ac-cd-body"></div>
       </div>
     </div>
   </section>
@@ -253,6 +267,60 @@ const SUPABASE_ANON =
   .ac-imp-err:last-child { border-bottom: 0; }
   .ac-imp-err b { color: var(--ink); }
   .ac-imp-err span { color: var(--muted); }
+
+  /* ---------- contact card ---------- */
+  .ac-table tbody tr { cursor: pointer; }
+  .ac-table tbody tr:hover td { background: #f7fafd; }
+  .ac-table tbody tr.is-picked:hover td { background: #eaf2fd; }
+
+  .ac-cd { position: fixed; inset: 0; z-index: 210; display: grid; place-items: center; padding: 20px 14px; }
+  /* Same trap as every other overlay on this page: a class rule with a display
+   * value beats the UA's `[hidden]`. */
+  .ac-cd[hidden] { display: none; }
+  .ac-cd-back { position: absolute; inset: 0; background: rgba(11,42,74,.42); backdrop-filter: blur(2px); }
+  .ac-cd-card {
+    position: relative; background: #fff; border-radius: 18px; width: min(720px, 100%);
+    max-height: 90vh; overflow: auto; box-shadow: 0 24px 70px rgba(11,42,74,.28); padding: 26px 26px 30px;
+  }
+  .ac-cd-x { position: absolute; top: 12px; right: 14px; background: none; border: 0; font-size: 1.8rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+  .ac-cd-x:hover { color: var(--ink); }
+  .ac-cd-hd { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 34px 4px 0; }
+  .ac-cd-hd h2 { margin: 0; font-size: 1.3rem; color: var(--ink); line-height: 1.25; }
+  .ac-cd-sub { color: var(--muted); font-size: 0.86rem; margin: 0 0 4px; }
+  .ac-cd-sec { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin: 22px 0 9px; display: flex; align-items: center; gap: 10px; }
+  .ac-cd-kv { display: grid; grid-template-columns: 168px 1fr; gap: 8px 14px; align-items: center; }
+  .ac-cd-kv .k { font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+  .ac-cd-kv .v { min-width: 0; }
+  .ac-cd-in {
+    width: 100%; padding: 8px 11px; border: 1.5px solid var(--line); border-radius: 9px;
+    font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink);
+  }
+  .ac-cd-in:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .ac-cd-in.is-saving { border-color: #e6c98a; background: #fffaf0; }
+  .ac-cd-in.is-bad { border-color: #b3261e; background: #fdecea; }
+  .ac-cd-sel { padding: 8px 11px; border: 1.5px solid var(--line); border-radius: 9px; font-family: var(--font); font-size: 0.9rem; background: #fff; color: var(--ink); max-width: 100%; }
+  .ac-cd-sel:focus { outline: none; border-color: var(--blue); }
+  /* A field the GoHighLevel sync also writes, once a human has claimed it.
+   * ph_contacts_keep_local_edits claims on `is distinct from`, so this marks a
+   * real claim and does not light up on a re-save at the same value. */
+  .ac-cd-lock { font-size: 0.68rem; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #16803c; margin-left: 7px; white-space: nowrap; }
+  .ac-cd-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ac-cd-pick { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 0.85rem; cursor: pointer; background: #fff; }
+  .ac-cd-pick input { width: 15px; height: 15px; accent-color: var(--blue); }
+  .ac-cd-pick:hover { border-color: var(--blue); }
+  .ac-cd-legacy { font-size: 0.78rem; font-weight: 700; padding: 6px 11px; border-radius: 999px; background: #eef3f8; color: #5a6f85; }
+  .ac-cd-note { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin: 8px 0 0; }
+  .ac-cd-status { font-size: 0.85rem; color: var(--muted); margin: 14px 0 0; min-height: 1.2em; }
+  .ac-cd-status.is-bad { color: #b3261e; }
+  .ac-cd-status.is-good { color: #0a7d3c; }
+  .ac-cd-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .ac-cd-del { background: #fff; border: 1.5px solid #f0c4c0; color: #b3261e; }
+  .ac-cd-del:hover { background: #b3261e; border-color: #b3261e; color: #fff; }
+
+  @media (max-width: 640px) {
+    .ac-cd-kv { grid-template-columns: 1fr; gap: 4px; }
+    .ac-cd-kv .k { margin-top: 8px; }
+  }
 </style>
 
 <script>
@@ -279,10 +347,19 @@ const SUPABASE_ANON =
 
     const PER = 50;
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
+    // Same list as /app's BROKER_LINES. Kept in step by hand: the two pages are
+    // separate bundles and a shared module for nine strings is not worth it.
+    const COVERAGE_TYPES = ['Health', 'Medicare', 'Dental', 'Vision', 'Life', 'Annuities', 'Group Benefits', 'Supplements', 'Accident / Gap'];
     const PILL = {
       'Active Client': 'green', 'Lead': 'blue', 'Follow-Up': 'amber',
       'Wrong Number': 'red', 'Do Not Call': 'red',
     };
+    // The nine columns ph_contacts_keep_local_edits can claim — i.e. the ones
+    // the 5-minute GoHighLevel sync would otherwise overwrite. Editing one here
+    // freezes it against the sync; clearing it hands the field back.
+    const CLAIMABLE = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'state', 'postal_code', 'source']);
+    // Columns the list shows, so a card edit knows whether to repaint the table.
+    const LISTED = new Set(['first_name', 'last_name', 'email', 'phone', 'source']);
 
     let agents = [];          // active roster, for the owner dropdowns
     let agentName = new Map();
@@ -294,7 +371,8 @@ const SUPABASE_ANON =
     let dispFilter = '';
     let picked = new Set();
     let searchTimer = null;
-    let customFields = [];    // ph_custom_fields, offered as import targets
+    let customFields = [];    // ph_custom_fields, offered as import targets and on the card
+    let officeTags = [];      // ph_tags, the office list the card ticks from
 
     const fmtPhone = (p) => {
       const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
@@ -350,6 +428,17 @@ const SUPABASE_ANON =
       $$('.ac-table tr[data-cid]').forEach((tr) => tr.classList.toggle('is-picked', picked.has(tr.getAttribute('data-cid'))));
     }
     $('.ac-bulk-clear').addEventListener('click', () => { clearPicks(); renderRows(); });
+
+    // Row click opens the contact card. Delegated off .ac-list rather than the
+    // <tbody>, because renderRows() replaces the whole table on every repaint
+    // and a listener on the table would go with it. Anything inside the row
+    // that has its own behaviour — the tickbox, the owner dropdown, a mailto
+    // link — keeps its click.
+    $('.ac-list').addEventListener('click', (e) => {
+      if (e.target.closest('input, select, textarea, button, a, label')) return;
+      const tr = e.target.closest('tr[data-cid]');
+      if (tr) openCard(tr.getAttribute('data-cid'));
+    });
 
     $('.ac-bulk-go').addEventListener('click', async () => {
       const sel = $('.ac-bulk-owner');
@@ -425,9 +514,17 @@ const SUPABASE_ANON =
     }
 
     async function loadCustomFields() {
+      // field_type + options are only used by the card; the import mapper needs
+      // key and label alone, which is why this used to select just those two.
       const { data } = await sb.from('ph_custom_fields')
-        .select('key, label').eq('is_active', true).order('position');
+        .select('key, label, field_type, options').eq('is_active', true).order('position');
       customFields = data ?? [];
+    }
+
+    async function loadTags() {
+      const { data } = await sb.from('ph_tags')
+        .select('name').eq('is_active', true).order('position');
+      officeTags = (data ?? []).map((t) => t.name);
     }
 
     async function loadStats() {
@@ -857,6 +954,288 @@ const SUPABASE_ANON =
       }
     }
 
+    // ---------- contact card ----------
+    // The whole reason this exists: a misspelt name or a dead phone number used
+    // to be correctable only by the broker who owned the contact, and 3,000-odd
+    // records have no owner at all — so for those it could not be corrected
+    // anywhere in the product. ph_contacts_agent_update is already
+    // `ph_is_admin() OR agent_id = ph_agent_id()`, so no page code decides who
+    // may edit what and no permission work was needed here.
+    const cdModal = $('.ac-cd');
+    const cdBody = $('.ac-cd-body');
+    let cd = null;            // { c } — the open contact, or null
+
+    const CARD_FIELDS = [
+      ['first_name', 'First name', 'text'],
+      ['last_name', 'Last name', 'text'],
+      ['company', 'Company', 'text'],
+      ['job_title', 'Role / title', 'text'],
+      ['date_of_birth', 'Date of birth', 'date'],
+      ['email', 'Email', 'email'],
+      ['phone', 'Phone', 'tel'],
+      ['street_address', 'Street', 'text'],
+      ['city', 'City', 'text'],
+      ['state', 'State', 'text'],
+      ['postal_code', 'ZIP', 'text'],
+      ['source', 'How we met', 'text'],
+    ];
+
+    $('.ac-cd-x').addEventListener('click', closeCard);
+    $('.ac-cd-back').addEventListener('click', closeCard);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !cdModal.hidden) closeCard();
+    });
+
+    function closeCard() { cdModal.hidden = true; cd = null; }
+
+    async function openCard(cid) {
+      cdModal.hidden = false;
+      cdBody.innerHTML = '<p class="ac-cd-sub">Loading…</p>';
+      // The list only selects the eight columns it shows, so the card reads the
+      // row again rather than working from `rows`.
+      const { data, error } = await sb.from('ph_contacts').select('*')
+        .eq('ghl_contact_id', cid).is('deleted_at', null).maybeSingle();
+      if (error || !data) {
+        cdBody.innerHTML = `<div class="ac-cd-hd"><h2>Could not open this contact</h2></div>
+          <p class="ac-cd-sub">${esc(error ? error.message : 'It may have been deleted while this page was open.')}</p>`;
+        return;
+      }
+      cd = { c: data };
+      paintCard();
+    }
+
+    function cardStatus(msg, kind) {
+      const el = $('.ac-cd-status');
+      if (!el) return;
+      el.className = 'ac-cd-status' + (kind ? ' is-' + kind : '');
+      el.textContent = msg;
+    }
+
+    // Every write on this card goes through here. It returns the saved row so
+    // the card can repaint from what the database actually holds rather than
+    // from what was typed — which is how the claim markers stay honest.
+    async function cardSave(patch) {
+      if (!cd) return null;
+      const cid = cd.c.ghl_contact_id;
+      cardStatus('Saving…');
+      const { data, error } = await sb.from('ph_contacts')
+        .update(patch).eq('ghl_contact_id', cid).select('*');
+      if (error) {
+        // Aug 17–20 2026 was three days of brokers silently losing edits because
+        // a `malformed array literal` came back as a bare "Could not save."
+        // Whatever comes back now goes to the console in full, and the SQLSTATE
+        // goes on screen, so the next one costs minutes rather than days.
+        console.error('[contact save failed]', { patch, code: error.code, message: error.message, details: error.details, hint: error.hint });
+        cardStatus(`Could not save${error.code ? ' — ' + error.code : ''}: ${error.message}`, 'bad');
+        return null;
+      }
+      const row = data && data[0];
+      if (row) cd.c = row;
+      cardStatus('Saved', 'good');
+      repaintListRow(cid, patch);
+      return row || cd.c;
+    }
+
+    // Keep the table underneath in step with the card. Repainted from the saved
+    // record, not refetched — except an owner change while an owner filter is
+    // on, where the contact may no longer belong on this page at all.
+    function repaintListRow(cid, patch) {
+      const row = rows.find((r) => r.ghl_contact_id === cid);
+      const keys = Object.keys(patch);
+      if (row) keys.forEach((k) => { if (k in row) row[k] = cd.c[k]; });
+      if (keys.some((k) => LISTED.has(k) || k === 'disposition' || k === 'agent_id')) renderRows();
+      if (keys.includes('disposition') || keys.includes('agent_id')) loadStats();
+      if (keys.includes('agent_id') && ownerFilter) loadRows();
+    }
+
+    function paintCard() {
+      const c = cd.c;
+      const locked = new Set(c.locked_fields || []);
+      const custom = c.custom || {};
+
+      const mark = (key) =>
+        CLAIMABLE.has(key) && locked.has(key)
+          ? `<span class="ac-cd-lock" data-lockfor="${esc(key)}">Kept</span>`
+          : `<span class="ac-cd-lock" data-lockfor="${esc(key)}"></span>`;
+
+      const fieldRow = ([key, label, type]) => `
+        <div class="k">${esc(label)}${mark(key)}</div>
+        <div class="v"><input class="ac-cd-in" type="${type}" data-fld="${esc(key)}" value="${esc(c[key] ?? '')}" placeholder="—" /></div>`;
+
+      const customRow = (f) => {
+        const val = custom[f.key] ?? '';
+        if (f.field_type === 'select') {
+          const opts = ['<option value=""></option>']
+            .concat((f.options || []).map((o) => `<option${o === val ? ' selected' : ''}>${esc(o)}</option>`)).join('');
+          return `<div class="k">${esc(f.label)}</div><div class="v"><select class="ac-cd-in" data-cf="${esc(f.key)}">${opts}</select></div>`;
+        }
+        const type = f.field_type === 'number' ? 'number' : f.field_type === 'date' ? 'date' : 'text';
+        return `<div class="k">${esc(f.label)}</div><div class="v"><input class="ac-cd-in" type="${type}" data-cf="${esc(f.key)}" value="${esc(val)}" placeholder="—" /></div>`;
+      };
+
+      const ownerOpts =
+        `<option value="__none"${!c.agent_id ? ' selected' : ''}>— No owner —</option>` +
+        agents.map((a) => `<option value="${esc(a.id)}"${a.id === c.agent_id ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('') +
+        (c.agent_id && !agentName.has(c.agent_id) ? `<option value="${esc(c.agent_id)}" selected>Inactive broker</option>` : '');
+
+      cdBody.innerHTML = `
+        <div class="ac-cd-hd">
+          <h2 class="ac-cd-name">${esc(nameOf(c))}</h2>
+          <span class="ac-pill ${PILL[c.disposition] || ''} ac-cd-pill">${esc(c.disposition || 'No disposition')}</span>
+        </div>
+        <p class="ac-cd-sub ac-cd-line">${esc([c.email, fmtPhone(c.phone)].filter(Boolean).join(' · ')) || 'No email or phone on file'}</p>
+
+        <div class="ac-cd-sec">Client data</div>
+        <div class="ac-cd-kv">
+          ${CARD_FIELDS.map(fieldRow).join('')}
+          ${customFields.map(customRow).join('')}
+        </div>
+        <p class="ac-cd-note">Each box saves as you leave it. Fields marked <b>Kept</b> are also written by the GoHighLevel sync every five minutes and are now held at the value in this CRM. Clearing one hands it back to the sync.</p>
+
+        <div class="ac-cd-sec">Disposition &amp; owner</div>
+        <div class="ac-cd-kv">
+          <div class="k">Disposition</div>
+          <div class="v"><select class="ac-cd-sel ac-cd-disp">${DISPOSITIONS.map((d) => `<option${d === c.disposition ? ' selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
+          <div class="k">Owner</div>
+          <div class="v"><select class="ac-cd-sel ac-cd-owner">${ownerOpts}</select></div>
+        </div>
+        <p class="ac-cd-note">A contact with no owner is invisible to every broker in the company.</p>
+
+        <div class="ac-cd-sec">Lines of insurance</div>
+        <div class="ac-cd-picks ac-cd-lines">${COVERAGE_TYPES.map((l) => `
+          <label class="ac-cd-pick"><input type="checkbox" data-line="${esc(l)}"${(c.coverage_types || []).includes(l) ? ' checked' : ''} /> ${esc(l)}</label>`).join('')}
+        </div>
+
+        <div class="ac-cd-sec">Tags</div>
+        <div class="ac-cd-picks ac-cd-tags"></div>
+
+        <p class="ac-cd-status" role="status" aria-live="polite"></p>
+        <div class="ac-cd-actions">
+          <button type="button" class="cm-btn primary ac-cd-done">Close</button>
+          <button type="button" class="cm-btn ac-cd-del">Delete contact</button>
+        </div>`;
+
+      paintTags();
+      wireCard();
+    }
+
+    // Tags that came from GoHighLevel or an import are shown but not offered:
+    // only the ph_tags office list is rewritten from the tickboxes, and a save
+    // carries the legacy set through untouched. Same rule as /app.
+    function legacyTags() {
+      const lower = officeTags.map((t) => t.toLowerCase());
+      return (cd.c.tags || []).filter((t) => !lower.includes(String(t).toLowerCase()));
+    }
+
+    function paintTags() {
+      const cur = cd.c.tags || [];
+      const host = $('.ac-cd-tags');
+      if (!host) return;
+      host.innerHTML =
+        (officeTags.map((t) => `
+          <label class="ac-cd-pick"><input type="checkbox" data-tag="${esc(t)}"${cur.some((x) => String(x).toLowerCase() === t.toLowerCase()) ? ' checked' : ''} /> ${esc(t)}</label>`).join('')
+          || '<span class="ac-cd-note">No tags defined — add them under Manage fields in the CRM.</span>')
+        + legacyTags().map((t) => `<span class="ac-cd-legacy" title="Imported tag — not on the office list">${esc(t)}</span>`).join('');
+      $$('.ac-cd-tags [data-tag]').forEach((box) => box.addEventListener('change', onTagPick));
+    }
+
+    async function onTagPick() {
+      const picked = $$('.ac-cd-tags [data-tag]').filter((b) => b.checked).map((b) => b.getAttribute('data-tag'));
+      const next = legacyTags().concat(picked);
+      await cardSave({ tags: next });
+      paintTags();   // repaints from cd.c either way: the saved row, or the unchanged one
+    }
+
+    function wireCard() {
+      // Scalar fields. `''` is deliberately sent as null and never as an empty
+      // string: ph_contacts_keep_local_edits releases a field's claim on a blank
+      // and holds it on a value, and an empty string is a value — so sending ''
+      // would freeze the field empty against the sync forever.
+      $$('.ac-cd-in[data-fld]').forEach((inp) => {
+        inp.addEventListener('change', async () => {
+          const key = inp.getAttribute('data-fld');
+          const raw = inp.value.trim();
+          const val = raw === '' ? null : raw;
+          if ((cd.c[key] ?? null) === val) return;   // no-op: the trigger claims on `is distinct from`, so neither does this
+          inp.classList.remove('is-bad');
+          inp.classList.add('is-saving');
+          const row = await cardSave({ [key]: val });
+          inp.classList.remove('is-saving');
+          if (!row) { inp.classList.add('is-bad'); return; }
+          inp.value = row[key] ?? '';
+          refreshMarks();
+          refreshHeader();
+        });
+      });
+
+      // Office custom fields live in one jsonb column, so a change rewrites the
+      // whole object with that key set or dropped.
+      $$('.ac-cd-in[data-cf]').forEach((inp) => {
+        inp.addEventListener('change', async () => {
+          const key = inp.getAttribute('data-cf');
+          const next = Object.assign({}, cd.c.custom || {});
+          if (inp.value === '' || inp.value == null) delete next[key]; else next[key] = inp.value;
+          inp.classList.remove('is-bad');
+          inp.classList.add('is-saving');
+          const ok = await cardSave({ custom: next });
+          inp.classList.remove('is-saving');
+          if (!ok) inp.classList.add('is-bad');
+        });
+      });
+
+      $('.ac-cd-disp').addEventListener('change', async (e) => {
+        const prev = cd.c.disposition;
+        const row = await cardSave({ disposition: e.target.value });
+        if (!row) { e.target.value = prev || ''; return; }
+        const pill = $('.ac-cd-pill');
+        pill.className = 'ac-pill ' + (PILL[row.disposition] || '') + ' ac-cd-pill';
+        pill.textContent = row.disposition || 'No disposition';
+      });
+
+      $('.ac-cd-owner').addEventListener('change', async (e) => {
+        const prev = cd.c.agent_id;
+        const val = e.target.value === '__none' ? null : e.target.value;
+        if (!await cardSave({ agent_id: val })) e.target.value = prev || '__none';
+      });
+
+      $$('.ac-cd-lines [data-line]').forEach((box) => box.addEventListener('change', async () => {
+        const want = $$('.ac-cd-lines [data-line]').filter((b) => b.checked).map((b) => b.getAttribute('data-line'));
+        if (!await cardSave({ coverage_types: want })) box.checked = !box.checked;
+      }));
+
+      $('.ac-cd-done').addEventListener('click', closeCard);
+
+      // Same tombstone as the bulk bar: nearly every contact originates in
+      // GoHighLevel and the delta sync re-upserts every five minutes, so a hard
+      // delete would come straight back.
+      $('.ac-cd-del').addEventListener('click', async () => {
+        const cid = cd.c.ghl_contact_id;
+        if (!confirm(`Delete ${nameOf(cd.c)}? They come off the book house-wide, their pipeline cards are removed, and they drop out of campaigns and review requests. This cannot be undone from here.`)) return;
+        const { error } = await sb.rpc('ph_contact_delete', { p_ids: [cid] });
+        if (error) { console.error('[contact delete failed]', error); cardStatus(`Could not delete — ${error.code || ''} ${error.message}`, 'bad'); return; }
+        closeCard();
+        picked.delete(cid);
+        await Promise.all([loadRows(), loadStats()]);
+      });
+    }
+
+    // Claim markers are read back off the saved row, so they follow the
+    // trigger's own rule rather than guessing from what was typed.
+    function refreshMarks() {
+      const locked = new Set(cd.c.locked_fields || []);
+      $$('[data-lockfor]').forEach((el) => {
+        const key = el.getAttribute('data-lockfor');
+        el.textContent = CLAIMABLE.has(key) && locked.has(key) ? 'Kept' : '';
+      });
+    }
+
+    function refreshHeader() {
+      const c = cd.c;
+      const nm = $('.ac-cd-name'), line = $('.ac-cd-line');
+      if (nm) nm.textContent = nameOf(c);
+      if (line) line.textContent = [c.email, fmtPhone(c.phone)].filter(Boolean).join(' · ') || 'No email or phone on file';
+    }
+
     // ---------- boot ----------
     async function boot() {
       const { data: { session } } = await sb.auth.getSession();
@@ -870,7 +1249,7 @@ const SUPABASE_ANON =
       view('app');
 
       await loadAgents();
-      await Promise.all([loadRows(), loadStats(), loadCustomFields()]);
+      await Promise.all([loadRows(), loadStats(), loadCustomFields(), loadTags()]);
     }
 
     sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
