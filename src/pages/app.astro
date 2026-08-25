@@ -627,6 +627,29 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
   .rec-grid .card-b{max-height:none}
   @media(max-width:1150px){.rec-grid{grid-template-columns:1fr}}
+  /* A grid cell that stacks two cards, so Documents sits UNDER Emails in the
+     same column instead of wrapping to the start of the next row. */
+  .rec-col{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+  /* documents panel */
+  .doc-drop{border:1.5px dashed var(--line);border-radius:12px;background:#fbfcfe;padding:16px;text-align:center;
+    transition:border-color .12s,background .12s;cursor:pointer}
+  .doc-drop:hover,.doc-drop.on{border-color:var(--blue);background:#f2f7ff}
+  .doc-drop .doc-drop-t{font-size:.85rem;font-weight:650;color:var(--ink2)}
+  .doc-drop .doc-drop-s{font-size:.74rem;color:var(--muted);margin-top:3px}
+  .doc-bar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+  .doc-bar .rec-select{flex:1;padding:7px 10px;font-size:.82rem}
+  .doc-folder{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:16px 0 6px;display:flex;align-items:center;gap:8px}
+  .doc-folder .doc-count{font-weight:650;letter-spacing:0;text-transform:none;font-size:.72rem}
+  .doc-row{display:flex;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line2);font-size:.84rem}
+  .doc-row .feed-ic{cursor:pointer}
+  .doc-row .doc-main{min-width:0;flex:1;cursor:pointer}
+  .doc-row .doc-name{font-weight:650;overflow-wrap:anywhere}
+  .doc-row .doc-x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 5px;border-radius:6px;flex:none}
+  .doc-row .doc-x:hover{background:#fdecea;color:#b3261e}
+  .doc-prog{height:4px;border-radius:99px;background:var(--line2);overflow:hidden;margin-top:10px}
+  .doc-prog span{display:block;height:100%;background:var(--blue);width:0;transition:width .15s}
 
   /* onboarding */
   #onboarding{position:fixed;inset:0;z-index:90;background:var(--bg)}
@@ -712,6 +735,13 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     scanValues, createReviewedValues, templateCsv,
     KIND_LABEL, CREATE_VALUE, mapKey,
   } from '../lib/csv-import';
+
+  // Documents panel on a contact record: folder vocabulary, upload limits,
+  // storage-key shaping and folder ordering. Pure decisions, unit-tested in
+  // scripts/test-contact-files.mjs.
+  import {
+    DOC_FOLDERS, DOC_MAX_BYTES, docIcon, fmtBytes, docPath, splitQueue, groupFolders,
+  } from '../lib/contact-files';
 
   const root = document.querySelector('.ph');
   if (root) {
@@ -867,7 +897,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], outcomes: null, gcalEvents: null, oppContacts: {}, contactEmails: [], reviewRows: [] };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], outcomes: null, gcalEvents: null, oppContacts: {}, contactEmails: [], contactFiles: [], reviewRows: [] };
 
     // ---- personal scope ----
     // This app is a BROKER's desk, including when the broker happens to be an
@@ -882,6 +912,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // gets a clean empty desk rather than an unfiltered query.
     const NO_AGENT = '00000000-0000-0000-0000-000000000000';
     const mine = (q) => q.eq('agent_id', state.agentId || NO_AGENT);
+
+    // Document folders on a contact record are one level deep on purpose — a
+    // nested tree is slower to file into than it is to search. The starter set
+    // and the upload limits come from ../lib/contact-files.
 
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
@@ -3517,9 +3551,24 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div class="cell-sub">Loading…</div>
         </div></div>
 
-        <div class="card"><div class="card-h"><span class="grad-label">Emails</span></div><div class="card-b" id="rec-emails">
-          <div class="cell-sub">Loading…</div>
-        </div></div>
+        <div class="rec-col">
+          <div class="card"><div class="card-h"><span class="grad-label">Emails</span></div><div class="card-b" id="rec-emails">
+            <div class="cell-sub">Loading…</div>
+          </div></div>
+
+          <div class="card"><div class="card-h"><span class="grad-label">Documents</span><span class="cell-sub" id="rec-files-count" style="margin-left:auto"></span></div><div class="card-b">
+            <div class="doc-bar">
+              <select id="rec-file-folder" class="rec-select" title="Folder the next upload goes into">${DOC_FOLDERS.map((f) => `<option>${esc(f)}</option>`).join('')}<option value="__new">+ New folder…</option></select>
+            </div>
+            <div class="doc-drop" id="rec-file-drop" role="button" tabindex="0">
+              <div class="doc-drop-t">Drop files here, or click to choose</div>
+              <div class="doc-drop-s">PDF, CSV, Excel, Word, images — anything up to 50 MB each</div>
+              <input type="file" id="rec-file-input" multiple hidden />
+            </div>
+            <div id="rec-file-status"></div>
+            <div id="rec-files"><div class="cell-sub" style="margin-top:12px">Loading…</div></div>
+          </div></div>
+        </div>
 
         <div class="card"><div class="card-h"><span class="grad-label">Notes & appointments</span><button class="btn btn-ghost btn-sm" id="rec-book" style="margin-left:auto">+ Book appointment</button></div><div class="card-b">
           <div id="rec-appts"><div class="cell-sub">Loading…</div></div>
@@ -3695,6 +3744,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       loadContactNotes(cid);
       loadContactAppointments(c);
       loadContactEmails(cid);
+      wireContactFiles(cid);
       $('#rec-note-save').addEventListener('click', () => saveNote(cid));
     }
 
@@ -4011,6 +4061,181 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           ${body}
         </div>`);
       $('[data-x]').addEventListener('click', closeDrawer);
+    }
+
+    // ---- Documents on a contact record ----
+    // Bytes go to the private 'contact-files' bucket at <contact_id>/<uuid>-<name>;
+    // ph_contact_files is the index the panel reads. The first path segment is
+    // the contact id because the storage RLS policy checks ownership against it.
+    // Nothing is ever served from a public URL — every open mints a 5-minute
+    // signed link, same as ticket attachments.
+
+    function wireContactFiles(cid) {
+      const drop = $('#rec-file-drop');
+      const input = $('#rec-file-input');
+      const folderSel = $('#rec-file-folder');
+      if (!drop || !input || !folderSel) return;
+
+      // "+ New folder…" is a prompt rather than a second modal: the broker is
+      // mid-upload and a drawer here would bury the file picker.
+      folderSel.addEventListener('change', () => {
+        if (folderSel.value !== '__new') return;
+        const raw = window.prompt('New folder name');
+        const name = String(raw || '').trim().slice(0, 60);
+        if (!name) { folderSel.selectedIndex = 0; return; }
+        if (!$$('option', folderSel).some((o) => o.value !== '__new' && o.textContent === name)) {
+          folderSel.insertBefore(new Option(name, name), folderSel.lastElementChild);
+        }
+        folderSel.value = name;
+      });
+
+      drop.addEventListener('click', () => input.click());
+      drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+      input.addEventListener('change', () => { uploadContactFiles(cid, Array.from(input.files || [])); input.value = ''; });
+
+      // dragover must be cancelled or the browser navigates to the dropped file.
+      ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('on'); }));
+      ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('on'); }));
+      drop.addEventListener('drop', (e) => uploadContactFiles(cid, Array.from(e.dataTransfer?.files || [])));
+
+      loadContactFiles(cid);
+    }
+
+    async function loadContactFiles(cid) {
+      const host = $('#rec-files'); if (!host) return;
+      const { data, error } = await sb.from('ph_contact_files')
+        .select('id, folder, name, path, mime, size_bytes, uploaded_by_name, created_at')
+        .eq('contact_id', cid).order('created_at', { ascending: false }).limit(500);
+      if (error) { host.innerHTML = `<div class="cell-sub" style="margin-top:12px">Could not load documents: ${esc(error.message)}</div>`; return; }
+      state.contactFiles = data ?? [];
+      renderContactFiles(cid);
+    }
+
+    function renderContactFiles(cid) {
+      const host = $('#rec-files'); if (!host) return;
+      const files = state.contactFiles || [];
+      const count = $('#rec-files-count');
+      if (count) count.textContent = files.length ? `${files.length} file${files.length === 1 ? '' : 's'}` : '';
+
+      if (!files.length) {
+        host.innerHTML = '<div class="cell-sub" style="margin-top:12px">No documents yet. Applications, signed policies, ID photos and spreadsheets all live here.</div>';
+        return;
+      }
+
+      host.innerHTML = groupFolders(files).map(([folder, inFolder]) => {
+        const rows = inFolder.map((f) => `
+          <div class="doc-row" data-doc="${esc(f.id)}">
+            <div class="feed-ic" data-open>${docIcon(f.mime, f.name)}</div>
+            <div class="doc-main" data-open>
+              <div class="doc-name">${esc(f.name)}</div>
+              <div class="cell-sub">${esc(fmtBytes(f.size_bytes))} · ${esc(fmtDateTime(f.created_at))}${f.uploaded_by_name ? ' · ' + esc(f.uploaded_by_name) : ''}</div>
+            </div>
+            <button class="doc-x" data-move title="Move to another folder">⇄</button>
+            <button class="doc-x" data-del title="Delete this file">✕</button>
+          </div>`).join('');
+        return `<div class="doc-folder">📁 ${esc(folder)} <span class="doc-count">${inFolder.length}</span></div>${rows}`;
+      }).join('');
+
+      $$('.doc-row', host).forEach((row) => {
+        const id = row.getAttribute('data-doc');
+        $$('[data-open]', row).forEach((el) => el.addEventListener('click', () => openContactFile(id)));
+        $('[data-del]', row).addEventListener('click', () => deleteContactFile(cid, id));
+        $('[data-move]', row).addEventListener('click', () => moveContactFile(cid, id));
+      });
+    }
+
+    async function uploadContactFiles(cid, files) {
+      if (!files.length) return;
+      const status = $('#rec-file-status');
+      const folder = ($('#rec-file-folder')?.value || 'Other').replace('__new', 'Other');
+
+      const { queue, notes } = splitQueue(files);
+      if (!queue.length) {
+        if (status) status.innerHTML = `<div class="cell-sub" style="color:#b3261e;margin-top:10px">${esc(notes.join(' · '))}</div>`;
+        return;
+      }
+
+      let done = 0;
+      const paint = () => {
+        if (!status) return;
+        status.innerHTML = `<div class="cell-sub" style="margin-top:10px">Uploading ${done}/${queue.length}…</div>
+          <div class="doc-prog"><span style="width:${Math.round((done / queue.length) * 100)}%"></span></div>`;
+      };
+      paint();
+
+      const uploader = state.me?.full_name || state.me?.email || null;
+      const failed = [];
+
+      // Serial, not Promise.all: a broker dropping fifteen scans on hotel wifi
+      // gets a progress bar that moves instead of fifteen stalled sockets.
+      for (const file of queue) {
+        const path = docPath(cid, crypto.randomUUID(), file.name);
+        const up = await sb.storage.from('contact-files').upload(path, file, {
+          contentType: file.type || 'application/octet-stream', upsert: false,
+        });
+        if (up.error) { failed.push(`${file.name} (${up.error.message})`); done++; paint(); continue; }
+
+        const { data, error } = await sb.from('ph_contact_files').insert({
+          contact_id: cid, folder, name: file.name.slice(0, 200), path,
+          mime: file.type || null, size_bytes: file.size, uploaded_by_name: uploader,
+        }).select().single();
+
+        if (error) {
+          // The row is what the panel reads, so an orphaned object is dead
+          // weight in a private bucket. Take it back out.
+          await sb.storage.from('contact-files').remove([path]);
+          failed.push(`${file.name} (${error.message})`);
+        } else {
+          state.contactFiles = [data].concat(state.contactFiles || []);
+        }
+        done++; paint();
+      }
+
+      renderContactFiles(cid);
+      const ok = queue.length - failed.length;
+      if (status) {
+        const lines = notes.concat(failed.length ? [`Did not upload: ${failed.join(', ')}`] : []);
+        status.innerHTML = lines.length
+          ? `<div class="cell-sub" style="color:#b3261e;margin-top:10px">${esc(lines.join(' · '))}</div>` : '';
+      }
+      if (ok) toast(`${ok} file${ok === 1 ? '' : 's'} uploaded`);
+    }
+
+    async function openContactFile(id) {
+      const f = (state.contactFiles || []).find((x) => String(x.id) === String(id));
+      if (!f) return;
+      const { data, error } = await sb.storage.from('contact-files').createSignedUrl(f.path, 300);
+      if (error || !data?.signedUrl) { toast('Could not open that file: ' + (error?.message || 'unknown error')); return; }
+      window.open(data.signedUrl, '_blank', 'noopener');
+    }
+
+    async function moveContactFile(cid, id) {
+      const f = (state.contactFiles || []).find((x) => String(x.id) === String(id));
+      if (!f) return;
+      const known = [...new Set(DOC_FOLDERS.concat((state.contactFiles || []).map((x) => x.folder).filter(Boolean)))];
+      const raw = window.prompt(`Move "${f.name}" to which folder?\n\n${known.join(' · ')}`, f.folder || 'Other');
+      const folder = String(raw || '').trim().slice(0, 60);
+      if (!folder || folder === f.folder) return;
+      const { error } = await sb.from('ph_contact_files').update({ folder }).eq('id', f.id);
+      if (error) { toast('Could not move that file: ' + error.message); return; }
+      f.folder = folder;
+      renderContactFiles(cid);
+      toast(`Moved to ${folder}`);
+    }
+
+    async function deleteContactFile(cid, id) {
+      const f = (state.contactFiles || []).find((x) => String(x.id) === String(id));
+      if (!f) return;
+      if (!window.confirm(`Delete "${f.name}"? This cannot be undone.`)) return;
+      // Row first. If the object removal fails the panel is still correct and
+      // the bytes are unreachable anyway; the other order can leave a row
+      // pointing at nothing, which reads as data loss to whoever clicks it.
+      const { error } = await sb.from('ph_contact_files').delete().eq('id', f.id);
+      if (error) { toast('Could not delete that file: ' + error.message); return; }
+      await sb.storage.from('contact-files').remove([f.path]);
+      state.contactFiles = (state.contactFiles || []).filter((x) => x.id !== f.id);
+      renderContactFiles(cid);
+      toast('File deleted');
     }
 
     // Edit which carriers cover this client, in a small modal-like drawer section.
