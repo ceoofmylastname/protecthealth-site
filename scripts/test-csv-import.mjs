@@ -209,5 +209,40 @@ ok('template maps onto itself with no gaps',
   autoMap(tpl.header, fields).filter(Boolean).length === tpl.header.length,
   tpl.header.filter((h, i) => !autoMap(tpl.header, fields)[i]));
 
+
+// ---- note columns land in the notes tab, whatever they are called ---------
+// GoHighLevel exports "Last Note"; that column used to arrive NOT MAPPED and
+// its contents were silently dropped.
+const noteFields = fieldsFor('contacts', CATALOGUE.customFields);
+const noteHdr = (h) => autoMap(readCsv(h + '\nx@y.com,hello').header, noteFields);
+ok('"Last Note" maps to the Note field', noteHdr('Email,Last Note')[1] === '__note', noteHdr('Email,Last Note'));
+ok('"Last Activity Note" maps too', noteHdr('Email,Last Activity Note')[1] === '__note');
+ok('"Comments" still maps', noteHdr('Email,Comments')[1] === '__note');
+ok('"Note" still maps', noteHdr('Email,Note')[1] === '__note');
+const twoNotes = autoMap(readCsv('Email,Notes,Last Note\nx@y.com,a,b').header, noteFields);
+ok('a file with two note columns fills two slots',
+  twoNotes[1] === '__note' && twoNotes[2] === '__note:2', twoNotes);
+const threeNotes = autoMap(readCsv('Email,Note,Note 2,Last Note\nx@y.com,a,b,c').header, noteFields);
+ok('numbered note columns keep their own slots',
+  threeNotes[1] === '__note' && threeNotes[2] === '__note:2' && threeNotes[3] === '__note:3', threeNotes);
+ok('"Last Name" is not mistaken for a note',
+  noteHdr('Email,Last Name')[1] === 'last_name', noteHdr('Email,Last Name'));
+ok('"Policy notes" still belongs to the policy, not the notes tab',
+  noteHdr('Email,Policy Notes')[1] === 'pol1:notes', noteHdr('Email,Policy Notes'));
+
+// and it actually writes a ph_notes row
+const lastNote = readCsv('Email,First,Last Note\nlast@note.com,Dana,Task - Completed - PH-1s5k');
+const lnCfg = {
+  ...cfg, header: lastNote.header, rows: lastNote.rows, lines: lastNote.lines,
+  mapping: autoMap(lastNote.header, fields), valueMap: {},
+};
+const sb5 = fakeClient();
+const res5 = await runImport(sb5, lnCfg);
+ok('a Last Note column writes a row into ph_notes', sb5.db.ph_notes.length === 1, sb5.db.ph_notes);
+ok('the note body is what the file said',
+  sb5.db.ph_notes[0]?.body === 'Task - Completed - PH-1s5k', sb5.db.ph_notes[0]);
+ok('and it is hung on the imported contact', !!sb5.db.ph_notes[0]?.contact_id, sb5.db.ph_notes[0]);
+ok('the contact itself imported', res5.created === 1, res5);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

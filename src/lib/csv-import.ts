@@ -360,6 +360,17 @@ function policyFields(): CsvField[] {
   return out;
 }
 
+// Every header a note column arrives under. GoHighLevel exports "Last Note",
+// Radius Bob exports "Last Activity Note", other tools say "Comments" — all of
+// them are one thing to us: a row in ph_notes, which is what the record's
+// Notes & appointments panel reads.
+const NOTE_ALIASES = [
+  'note', 'notes', 'comment', 'comments', 'remarks',
+  'lastnote', 'lastnotes', 'latestnote', 'recentnote', 'mostrecentnote',
+  'lastactivitynote', 'activitynote', 'contactnote', 'contactnotes',
+  'notebody', 'notetext', 'lastcomment', 'internalnotes', 'agentnotes',
+];
+
 // Header names people actually export, normalised (lowercase, alphanumerics
 // only). The field's own name and its label are always matched first, so this
 // list only carries the synonyms.
@@ -381,13 +392,24 @@ export const ALIASES: Record<string, string[]> = {
   tags: ['tags', 'tag', 'labels'],
   coverage_types: ['coveragetypes', 'coverage', 'lines', 'lineofinsurance', 'linesofinsurance', 'producttype', 'productlines', 'linesofbusiness', 'lob'],
   [CARRIER_FIELD]: ['carrier', 'carriers', 'carriername', 'insurancecarrier', 'company1', 'insurer', 'writingcarrier'],
-  [NOTE_FIELD]: ['note', 'notes', 'comment', 'comments', 'remarks'],
+  [NOTE_FIELD]: NOTE_ALIASES,
   // ph_companies
   name: ['name', 'company', 'companyname', 'business', 'businessname', 'organization', 'organisation', 'account', 'accountname'],
   industry: ['industry', 'sector', 'vertical'],
   employee_count: ['employees', 'employeecount', 'numberofemployees', 'headcount', 'staff', 'size'],
   notes: ['notes', 'note', 'comments', 'description', 'remarks'],
 };
+
+// Note slots 2 and 3 take the numbered spellings first, then the same generic
+// list as slot 1. autoMap consumes a field once, so a file carrying both
+// "Notes" and "Last Note" fills slot 1 and slot 2 in header order rather than
+// leaving the second column unmapped and silently dropping what it says.
+(function seedNoteAliases() {
+  for (let i = 2; i <= 3; i++) {
+    const numbered = NOTE_ALIASES.map((a) => a + i).concat(NOTE_ALIASES.map((a) => a + '' + i));
+    ALIASES[`${NOTE_FIELD}:${i}`] = Array.from(new Set(numbered.concat(NOTE_ALIASES)));
+  }
+})();
 
 // Policy set aliases are generated rather than typed out: "Policy 2 Premium",
 // "policy2premium" and "premium2" all have to reach pol2:premium.
