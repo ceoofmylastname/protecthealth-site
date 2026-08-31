@@ -398,7 +398,7 @@ export const TEAM = [
     slug: 'jason-vasquez',
     name: 'Jason Vasquez',
     role: 'Licensed Broker & Benefits Advisor',
-    photo: '/assets/ext/hf_20260722_022210_91cf9399-8eb2-4ff4-be17-d3fe8f072dd9_min.webp',
+    photo: '/assets/team/jason-vasquez.webp',
     bio: [
       `Jason Vasquez is a licensed Line of Authority Broker with over 16 years of experience in the financial industry, helping individuals and families make informed decisions around protecting their financial future. His approach centers on the belief that insurance is not a standalone product, but a foundational component of a well-designed financial strategy, one that helps protect income, assets, and long-term goals when life takes an unexpected turn.`,
       `Born in the San Francisco Bay Area and raised in Las Vegas from a young age, Jason brings a grounded, real-world perspective to financial protection. His career has spanned multiple areas of finance, giving him a deep understanding of how risk management, cash flow, and long-term planning work together. This background allows him to educate clients in clear, relatable terms, without jargon or pressure, so they can make confident decisions for themselves and their families.`,
