@@ -57,6 +57,22 @@ An earlier revision of this file listed six config problems on this calendar as 
 
 Still unverified: round robin membership (Staff & location tab). The staff roster notes describe this calendar as having 4 members, which is why `ph-sync-staff` deliberately skips linking it as a personal calendar.
 
+## CRM appointment lifecycle (`/app`, Sep 8 2026)
+
+Native appointments live in `ph_appointments` and are booked, moved and cancelled through **one edge function, `ph-book`** (v10), never by writing the table from the browser. RLS would allow the direct write; the function exists because every one of those transitions has to also send branded mail, log it to `ph_email_log`, and re-check Google free/busy, and a client-side write does none of that.
+
+Actions: `slots` and `book` are public; `manual`, `reschedule` and `cancel` require the broker's JWT and accept an admin acting on another broker's row.
+
+Three rules that are easy to break here:
+
+- **Cancelling is a status change, never a delete.** `ph_appointments_no_double` is a partial unique index over `status = 'booked'`, so flipping the row to `cancelled` frees the slot the instant it commits, and `ph-reminders` filters on the same predicate so reminders stop with no code of its own. The row survives, which is what lets the contact record answer "what happened to Tuesday". `cancel_reason` is internal — the client is told the appointment is cancelled, never why.
+- **Rescheduling updates the SAME row** so the appointment keeps its id and the `ph_email_log` entries already pointing at it. It **must clear all four `reminder_*_sent_at` flags** — without that `ph-reminders` reads the new time as already reminded and the client hears nothing before a meeting that moved. It also carries `previous_start_at` and `reschedule_count`.
+- **Only native rows can be moved.** The appointments feed on a contact record also carries GHL-mirror rows off `ph_leads.appointment_start`; those are a copy of state that lives in GoHighLevel, so they render without controls. Do not add buttons to them.
+
+Client-facing mail from these paths (`kind` `reschedule` / `cancellation`) obeys `automations_paused` exactly like a confirmation does; the agent's own copy never does.
+
+Dependents are a `jsonb` array on `ph_contacts.dependents` — `{ relation, first_name, last_name, dob }`, any number of rows, relation from `DEP_RELATIONS`. The Add Contact form and the contact record share `depEditRow` / `wireDepEditor` / `readDeps`, so a change to the shape has exactly one place to land. The earlier fixed spouse-plus-four-children layout is gone; do not reintroduce a positional relation.
+
 ## Mobile (90% of traffic) — stage 1 landed Jul 27 2026
 
 **The CSS is still desktop-first: 35 `max-width` queries against 2 `min-width`.** Base styles are desktop and get collapsed downward, and the touch tier is a hand-maintained list of selectors under `@media (pointer: coarse), (max-width: 1023px)` in `global.css`. That is why `.lp-photo`, `.lp-aurora`, `.lp-grad`, the marquees and the spotlight were all animating on phones until Jul 27 — each one has to be added by hand. **Adding any new animation means adding it to that block too.** A full mobile-first inversion is planned but NOT done.

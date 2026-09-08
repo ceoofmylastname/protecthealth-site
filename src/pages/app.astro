@@ -623,7 +623,12 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .imp-bar span{display:block;height:100%;background:var(--grad);width:0;transition:width .2s}
   .imp-errs{max-height:270px;overflow-y:auto}
   .dep-row{margin-bottom:10px;padding:10px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
-  .dep-row input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.85rem;background:#fff;width:100%}
+  .dep-row input,.dep-row select{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.85rem;background:#fff;width:100%}
+  .dep-grid{display:grid;grid-template-columns:1fr 1fr 150px 145px 34px;gap:8px;align-items:center}
+  @media (max-width:760px){.dep-grid{grid-template-columns:1fr 1fr;}.dep-grid > :last-child{grid-column:2;justify-self:end}}
+  .dep-x{border:1px solid var(--line);background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#b3261e;font-size:.9rem;line-height:1}
+  .appt-acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .appt-dead{text-decoration:line-through;color:var(--muted)}
   .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
   .rec-grid .card-b{max-height:none}
   @media(max-width:1150px){.rec-grid{grid-template-columns:1fr}}
@@ -920,6 +925,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // Fixed vocabularies from Rob's spec.
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
     const POLICY_STATUSES = ['Quoted', 'Applied', 'Pending', 'Issued', 'Active', 'Lapsed', 'Cancelled', 'Declined'];
+    const DEP_RELATIONS = ['Spouse', 'Domestic Partner', 'Child', 'Other'];
     const PREMIUM_FREQS = ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Single'];
     const fmtMoney = (n) => n == null || n === '' ? '' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     // Matches the pipeline lines one-to-one, so a checked line maps straight to
@@ -2253,22 +2259,68 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     }
 
     // ================= ADD CONTACT (slide-in form) =================
-    function depRow(i, relation) {
-      const isSpouse = relation === 'Spouse';
+    const fmtDob = (v) => {
+      const d = new Date(String(v) + 'T00:00:00Z');
+      return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    // Read-only list, shared by the contact record and by the repaint after an
+    // edit so the two can never drift apart.
+    function depList(deps) {
+      const rows = Array.isArray(deps) ? deps : [];
+      if (!rows.length) return '<span class="cell-sub">None on file — add a spouse or children and they travel with every quote.</span>';
+      return rows.map((d) => `<div class="feed-item"><div class="feed-ic">👤</div><div><div style="font-weight:650">${esc([d.first_name, d.last_name].filter(Boolean).join(' ') || d.relation || 'Dependent')}</div><div class="cell-sub">${esc(d.relation || 'Dependent')}${d.dob ? ' · born ' + esc(fmtDob(d.dob)) : ''}</div></div></div>`).join('');
+    }
+    function depEditRow(d, i) {
+      const rel = d.relation || 'Child';
+      const opts = DEP_RELATIONS.concat(DEP_RELATIONS.includes(rel) ? [] : [rel]).map((r) => `<option ${r === rel ? 'selected' : ''}>${esc(r)}</option>`).join('');
       return `<div class="dep-row" data-dep="${i}">
-        <div style="font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:4px">${relation}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 130px;gap:8px">
-          <input data-dk="first_name" placeholder="First name"/>
-          <input data-dk="last_name" placeholder="Last name"/>
-          <input data-dk="dob" type="date" title="Date of birth"/>
+        <div class="dep-grid">
+          <input data-dk="first_name" placeholder="First name" value="${esc(d.first_name || '')}"/>
+          <input data-dk="last_name" placeholder="Last name" value="${esc(d.last_name || '')}"/>
+          <select data-dk="relation">${opts}</select>
+          <input data-dk="dob" type="date" title="Date of birth" value="${esc(d.dob || '')}"/>
+          <button type="button" class="dep-x" data-dep-del="${i}" aria-label="Remove this dependent" title="Remove">✕</button>
         </div>
       </div>`;
+    }
+    // Grows and shrinks a dependent list in place. `rows` is mutated, so the
+    // caller holds the live array; the DOM is repainted from it after every
+    // add or delete because the row indices are what wire the delete buttons.
+    function wireDepEditor(host, addBtn, rows) {
+      const paint = () => {
+        host.innerHTML = rows.length
+          ? rows.map((d, i) => depEditRow(d, i)).join('')
+          : '<div class="cell-sub">Nobody yet. Add a spouse, a child, anyone who needs to be on the plan.</div>';
+        $$('[data-dep-del]', host).forEach((b) => b.addEventListener('click', () => {
+          rows.splice(+b.getAttribute('data-dep-del'), 1); paint();
+        }));
+        $$('[data-dk]', host).forEach((inp) => inp.addEventListener('input', () => {
+          rows[+inp.closest('[data-dep]').getAttribute('data-dep')][inp.getAttribute('data-dk')] = inp.value;
+        }));
+      };
+      // First row of an empty household is almost always the spouse; every one
+      // after that is almost always a child. Saves two clicks in the common case
+      // and costs nothing when it guesses wrong.
+      addBtn.addEventListener('click', () => { rows.push({ relation: rows.length ? 'Child' : 'Spouse' }); paint(); });
+      paint();
+      return rows;
+    }
+    // Reads a dependent list back out of whatever DOM the two editors painted.
+    // A row with no name and no date of birth is somebody who clicked Add and
+    // changed their mind, not a dependent.
+    function readDeps(scope) {
+      return $$('.dep-row', scope).map((row) => {
+        const d = {};
+        $$('[data-dk]', row).forEach((inp) => { if (String(inp.value).trim()) d[inp.getAttribute('data-dk')] = String(inp.value).trim(); });
+        if (!d.first_name && !d.last_name && !d.dob) return null;
+        d.relation = d.relation || 'Child';
+        return d;
+      }).filter(Boolean);
     }
     function openAddContact(listView) {
       const carrierOpts = state.carriers.map((c) => `<label class="pickbox"><input type="checkbox" data-carrier="${c.id}"/> ${esc(c.name)}</label>`).join('');
       const covOpts = COVERAGE_TYPES.map((c) => `<label class="pickbox"><input type="checkbox" data-cov="${esc(c)}"/> ${esc(c)}</label>`).join('');
       const dispOpts = DISPOSITIONS.map((d) => `<option value="${esc(d)}"${d==='Lead'?' selected':''}>${esc(d)}</option>`).join('');
-      const deps = [depRow(0, 'Spouse'), depRow(1, 'Child 1'), depRow(2, 'Child 2'), depRow(3, 'Child 3'), depRow(4, 'Child 4')].join('');
       openDrawer(`
         <div class="drawer-h">
           <div><div style="font-size:1.15rem;font-weight:800">Add Contact</div><div class="cell-sub">Saved to your book automatically</div></div>
@@ -2309,8 +2361,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             <div class="section-t">Carriers</div>
             <div class="pickgrid" id="carrier-pick">${carrierOpts || '<div class="cell-sub">No carriers yet.</div>'}</div>
 
-            <div class="section-t">Dependents</div>
-            ${deps}
+            <div class="section-t">Dependents <button type="button" class="btn btn-ghost btn-sm" id="dep-add" style="margin-left:auto">+ Add dependent</button></div>
+            <div id="dep-rows"></div>
 
             <div style="display:flex;gap:10px;margin-top:22px">
               <button type="submit" class="btn btn-primary">Save Contact</button>
@@ -2320,6 +2372,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           </form>
         </div>`);
       $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      wireDepEditor($('#dep-rows'), $('#dep-add'), []);
       $('#add-form').addEventListener('submit', (e) => { e.preventDefault(); saveContact(e.target, listView); });
     }
 
@@ -2333,12 +2386,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
       const coverage = $$('[data-cov]', form).filter((c) => c.checked).map((c) => c.getAttribute('data-cov'));
       const carrierIds = $$('[data-carrier]', form).filter((c) => c.checked).map((c) => c.getAttribute('data-carrier'));
-      const dependents = $$('.dep-row', form).map((row, i) => {
-        const rel = i === 0 ? 'Spouse' : 'Child';
-        const d = {};
-        $$('[data-dk]', row).forEach((inp) => { if (inp.value.trim()) d[inp.getAttribute('data-dk')] = inp.value.trim(); });
-        return Object.keys(d).length ? { relation: rel, ...d } : null;
-      }).filter(Boolean);
+      const dependents = readDeps(form);
 
       // Local id keeps this out of the GHL sync's path entirely.
       const id = 'local:' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
@@ -3390,7 +3438,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const today = k === todayKey ? 'today' : '';
         const evs = (byDay[k] || []).slice(0, 3).map((e) => {
           if (e.gcal) return `<div class="cal-ev cal-ev-gcal" title="From your Google Calendar">${e.all_day ? '' : new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'}) + ' '}${esc(e.name)}</div>`;
-          return `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? '' : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`;
+          return `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? ` data-appt="${esc(String(e.id).replace(/^appt:/, ''))}"` : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`;
         }).join('');
         const more = (byDay[k] || []).length > 3 ? `<div class="cell-sub" style="margin-top:2px">+${byDay[k].length - 3} more</div>` : '';
         cells += `<div class="cal-cell ${dim} ${today}"><div class="dnum">${d.getDate()}</div>${evs}${more}</div>`;
@@ -3413,6 +3461,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         renderCalendar(v);
       }));
       $$('.cal-ev[data-lead]', v).forEach((e) => e.addEventListener('click', () => openLead(e.dataset.lead)));
+      $$('.cal-ev[data-appt]', v).forEach((el) => el.addEventListener('click', () => openApptPeek(
+        apptById(el.dataset.appt),
+        () => reloadAppts().then(() => { if (currentRoute === 'calendar') renderCalendar($('#view')); }),
+      )));
     }
 
     // ================= DRAWERS =================
@@ -3542,7 +3594,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div id="rec-lines">${(c.coverage_types || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None — add one to put this client in a pipeline</span>'}</div>
           <div class="section-t">Carriers <button class="btn btn-ghost btn-sm" id="rec-edit-carriers" style="margin-left:auto">Edit</button></div>
           <div id="rec-carriers">${carrierNames.map((n) => `<span class="chip">${esc(n)}</span>`).join(' ') || '<span class="cell-sub">None selected</span>'}</div>
-          ${deps.length ? `<div class="section-t">Dependents</div>${deps.map((d) => `<div class="feed-item"><div class="feed-ic">👤</div><div><div style="font-weight:650">${esc([d.first_name, d.last_name].filter(Boolean).join(' ') || d.relation)}</div><div class="cell-sub">${esc(d.relation)}${d.dob ? ' · ' + esc(d.dob) : ''}</div></div></div>`).join('')}` : ''}
+          <div class="section-t">Dependents <button class="btn btn-ghost btn-sm" id="rec-edit-deps" style="margin-left:auto">Edit</button></div>
+          <div id="rec-deps">${depList(deps)}</div>
           <div class="section-t">Tags <button class="btn btn-ghost btn-sm" id="rec-edit-tags" style="margin-left:auto">Edit</button></div>
           <div id="rec-tags">${(c.tags || []).map((t) => `<span class="chip tag">${esc(t)}</span>`).join(' ') || '<span class="cell-sub">None</span>'}</div>
         </div></div>
@@ -3599,6 +3652,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
       $('#rec-edit-carriers').addEventListener('click', () => editContactCarriers(cid, linkedIds));
       $('#rec-edit-lines').addEventListener('click', () => editContactLines(cid, c));
+      $('#rec-edit-deps').addEventListener('click', () => editContactDependents(cid, c));
       $('#rec-company')?.addEventListener('click', (e) => { e.preventDefault(); openCompany(c.company_id); });
 
       // Tags: broker picks from the admin-defined list; legacy imported tags
@@ -3808,21 +3862,73 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // invitee email so nothing slips through).
       const fromLeads = state.leads
         .filter((l) => l.ghl_contact_id === c.ghl_contact_id && l.appointment_start)
-        .map((l) => ({ when: l.appointment_start, sub: l.kind || 'appointment', note: null }));
+        .map((l) => ({ when: l.appointment_start, sub: l.kind || 'appointment', note: null, id: null }));
       const email = (c.email || '').toLowerCase();
-      let q = mine(sb.from('ph_appointments').select('*').eq('status', 'booked'));
+      // Cancelled ones stay in the list. A broker asking "what happened to
+      // Tuesday" is asking about a row that no longer exists if we filter it out,
+      // and the cancellation is exactly the answer.
+      let q = mine(sb.from('ph_appointments').select('*').in('status', ['booked', 'cancelled']));
       q = email
         ? q.or(`contact_id.eq.${c.ghl_contact_id},invitee_email.eq.${email}`)
         : q.eq('contact_id', c.ghl_contact_id);
       const { data: native } = await q.order('start_at');
+      state.recAppts = native || [];
       const fromNative = (native || []).map((a) => ({
         when: a.start_at,
-        sub: ['Booked on the landing page', a.line_key].filter(Boolean).join(' · '),
+        sub: [a.source === 'manual' ? 'Booked by you' : 'Booked on the landing page', a.line_key].filter(Boolean).join(' · '),
         note: a.notes || null,
+        id: a.id, status: a.status, was: a.previous_start_at, reason: a.cancel_reason,
       }));
       const appts = fromLeads.concat(fromNative).sort((a, b) => +new Date(a.when) - +new Date(b.when));
-      host.innerHTML = appts.length ? appts.map((a) => `<div class="feed-item"><div class="feed-ic">📅</div><div style="min-width:0"><div style="font-weight:650">${esc(fmtFull(a.when))}</div><div class="cell-sub">${esc(a.sub)}</div>${a.note ? `<div class="act-note">“${esc(a.note)}”</div>` : ''}</div></div>`).join('') : '<div class="cell-sub">No appointments.</div>';
+      host.innerHTML = appts.length ? appts.map((a) => {
+        const dead = a.status === 'cancelled';
+        const past = +new Date(a.when) < Date.now();
+        // Only native rows carry controls. A GHL-mirror appointment is a COPY of
+        // state that lives in GoHighLevel — moving it here would change nothing
+        // on the calendar the client was actually booked on.
+        const acts = (a.id && !dead && !past)
+          ? `<div class="appt-acts"><button class="btn btn-ghost btn-sm" data-appt-move="${a.id}">Reschedule</button><button class="btn btn-ghost btn-sm" data-appt-cancel="${a.id}">Cancel</button></div>`
+          : '';
+        return `<div class="feed-item"><div class="feed-ic">${dead ? '🚫' : '📅'}</div><div style="min-width:0">
+          <div style="font-weight:650" class="${dead ? 'appt-dead' : ''}">${esc(fmtFull(a.when))}</div>
+          <div class="cell-sub">${dead ? 'Cancelled' + (a.reason ? ' · ' + esc(a.reason) : '') : esc(a.sub)}</div>
+          ${(!dead && a.was) ? `<div class="cell-sub">Moved from ${esc(fmtFull(a.was))}</div>` : ''}
+          ${a.note ? `<div class="act-note">“${esc(a.note)}”</div>` : ''}
+          ${acts}
+        </div></div>`;
+      }).join('') : '<div class="cell-sub">No appointments.</div>';
+      const after = () => { reloadAppts(); loadContactAppointments(c); loadContactEmails(c.ghl_contact_id); };
+      $$('[data-appt-move]', host).forEach((b) => b.addEventListener('click', () => openRescheduleAppt(apptById(b.getAttribute('data-appt-move')), after)));
+      $$('[data-appt-cancel]', host).forEach((b) => b.addEventListener('click', () => openCancelAppt(apptById(b.getAttribute('data-appt-cancel')), after)));
     }
+
+    // Native appointment rows live in two places: state.recAppts while a contact
+    // record is open, state.appts everywhere else. Both are the same shape.
+    function apptById(id) {
+      return (state.recAppts || []).concat(state.appts || []).find((a) => String(a.id) === String(id)) || null;
+    }
+
+    // Every JWT-gated ph-book call routes through here. Booking, moving and
+    // cancelling all need the same session token and the same error shape, and
+    // three copies of this is how they stop agreeing.
+    async function phBook(body) {
+      const { data: sess } = await sb.auth.getSession();
+      const token = sess?.session?.access_token;
+      const r = await fetch(`${root.getAttribute('data-supabase-url')}/functions/v1/ph-book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: root.getAttribute('data-supabase-anon'), Authorization: 'Bearer ' + token },
+        body: JSON.stringify(body),
+      });
+      const j = await r.json().catch(() => ({}));
+      return { ok: r.ok && !!j.ok, j };
+    }
+
+    // <input type="date"> and <input type="time"> speak the browser's local
+    // wall clock, which is what `new Date(date + 'T' + time)` parses back. Using
+    // the same basis both ways means opening the reschedule drawer and saving
+    // without touching anything is a no-op rather than a silent time shift.
+    const localDateVal = (iso) => { const d = new Date(iso), p2 = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
+    const localTimeVal = (iso) => { const d = new Date(iso), p2 = (n) => String(n).padStart(2, '0'); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; };
     async function loadContactNotes(cid) {
       const host = $('#rec-notes'); if (!host) return;
       const { data } = await sb.from('ph_notes').select('*').eq('contact_id', cid).order('created_at', { ascending: false }).limit(50);
@@ -3854,20 +3960,104 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const start = new Date(f.date.value + 'T' + f.time.value);
         if (isNaN(start.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
         btn.disabled = true; st.textContent = 'Booking…';
-        const { data: sess } = await sb.auth.getSession();
-        const token = sess?.session?.access_token;
         try {
-          const r = await fetch(`${root.getAttribute('data-supabase-url')}/functions/v1/ph-book`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', apikey: root.getAttribute('data-supabase-anon'), Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ action: 'manual', contact_id: cid, start_at: start.toISOString(), line: f.line.value || null, notes: f.notes.value.trim() || null }),
-          });
-          const j = await r.json().catch(() => ({}));
-          if (!r.ok || !j.ok) { btn.disabled = false; st.textContent = j.error || 'Could not book that time.'; return; }
+          const { ok, j } = await phBook({ action: 'manual', contact_id: cid, start_at: start.toISOString(), line: f.line.value || null, notes: f.notes.value.trim() || null });
+          if (!ok) { btn.disabled = false; st.textContent = j.error || 'Could not book that time.'; return; }
           closeDrawer();
           toast(j.emailed ? 'Booked — confirmation emailed to the client' : 'Booked — on your calendar');
           reloadAppts();
           loadContactAppointments(c); loadContactActivity(cid, c);
+        } catch (_e) { btn.disabled = false; st.textContent = 'Network error — try again.'; }
+      });
+    }
+
+    function openApptPeek(a, after) {
+      if (!a) { toast('Could not find that appointment.'); return; }
+      const dead = a.status === 'cancelled';
+      const past = +new Date(a.start_at) < Date.now();
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">${esc(a.invitee_name || 'Appointment')}</div><div class="cell-sub">${esc(a.invitee_email || '')}${a.invitee_phone ? ' · ' + esc(fmtPhone(a.invitee_phone)) : ''}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div class="act-note"><b class="${dead ? 'appt-dead' : ''}">${esc(fmtFull(a.start_at))}</b>${a.line_key ? ' · ' + esc(a.line_key) : ''}${dead ? '<div class="cell-sub" style="margin-top:6px">Cancelled' + (a.cancel_reason ? ' · ' + esc(a.cancel_reason) : '') + '</div>' : ''}${a.previous_start_at && !dead ? '<div class="cell-sub" style="margin-top:6px">Moved from ' + esc(fmtFull(a.previous_start_at)) + '</div>' : ''}</div>
+          ${a.notes ? `<div class="section-t">Notes</div><div class="cell-sub">${esc(a.notes)}</div>` : ''}
+          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+            ${(!dead && !past) ? '<button class="btn btn-primary btn-sm" id="pk-move">Reschedule</button><button class="btn btn-danger btn-sm" id="pk-cancel">Cancel</button>' : ''}
+            ${a.contact_id ? '<button class="btn btn-ghost btn-sm" id="pk-open">Open contact</button>' : ''}
+          </div>
+          ${(dead || past) ? `<p class="cell-sub" style="margin-top:12px">${dead ? 'This one is already cancelled.' : 'This one has already happened.'}</p>` : ''}
+        </div>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      $('#pk-move')?.addEventListener('click', () => openRescheduleAppt(a, after));
+      $('#pk-cancel')?.addEventListener('click', () => openCancelAppt(a, after));
+      $('#pk-open')?.addEventListener('click', () => { closeDrawer(); openContact(a.contact_id); });
+    }
+
+    // Move an appointment. The server updates the SAME row, so the appointment
+    // keeps its id, its email history stays attached, and the reminder flags are
+    // cleared server-side — otherwise ph-reminders reads the new time as already
+    // reminded and the client hears nothing before a meeting that moved.
+    function openRescheduleAppt(a, after) {
+      if (!a) { toast('Could not find that appointment.'); return; }
+      const mins = Math.max(1, Math.round((+new Date(a.end_at) - +new Date(a.start_at)) / 60000));
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Reschedule</div><div class="cell-sub">${esc(a.invitee_name || 'this client')}${a.invitee_email ? ' · ' + esc(a.invitee_email) : ''}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <form id="rs-form" class="drawer-b">
+          <div class="act-note" style="margin-bottom:14px">Currently <b>${esc(fmtFull(a.start_at))}</b> · ${mins} min</div>
+          <div class="field"><label>New date</label><input name="date" type="date" required value="${esc(localDateVal(a.start_at))}" min="${new Date().toISOString().slice(0, 10)}"/></div>
+          <div class="field"><label>New time</label><input name="time" type="time" required value="${esc(localTimeVal(a.start_at))}"/></div>
+          <div class="field"><label>Notes</label><textarea name="notes" rows="3" placeholder="Anything to prep…">${esc(a.notes || '')}</textarea></div>
+          <div class="cell-sub" style="margin:4px 0 10px">${a.invitee_email ? 'The client gets an email showing the new time and the old one struck through. The old slot opens back up on your booking page.' : 'This contact has no email on file, so nothing is sent to them. The old slot still opens back up on your booking page.'}</div>
+          <button class="btn btn-primary" type="submit">Move it</button>
+          <div class="cell-sub" id="rs-status" style="margin-top:8px"></div>
+        </form>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      $('#rs-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target; const btn = f.querySelector('button[type="submit"]'); const st = $('#rs-status');
+        const start = new Date(f.date.value + 'T' + f.time.value);
+        if (isNaN(start.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
+        btn.disabled = true; st.textContent = 'Moving…';
+        try {
+          const { ok, j } = await phBook({ action: 'reschedule', appointment_id: a.id, start_at: start.toISOString(), notes: f.notes.value.trim() || null });
+          if (!ok) { btn.disabled = false; st.textContent = j.error || 'Could not move that appointment.'; return; }
+          closeDrawer();
+          toast(j.emailed ? 'Moved — the client has been emailed' : 'Moved — your calendar is updated');
+          if (after) after();
+        } catch (_e) { btn.disabled = false; st.textContent = 'Network error — try again.'; }
+      });
+    }
+
+    // Cancel an appointment. The server flips the status rather than deleting
+    // the row, so the slot frees immediately, the reminders stop, and the record
+    // still shows what was booked and that it did not happen.
+    function openCancelAppt(a, after) {
+      if (!a) { toast('Could not find that appointment.'); return; }
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Cancel appointment</div><div class="cell-sub">${esc(a.invitee_name || 'this client')}${a.invitee_email ? ' · ' + esc(a.invitee_email) : ''}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <form id="cx-form" class="drawer-b">
+          <div class="act-note" style="margin-bottom:14px"><b>${esc(fmtFull(a.start_at))}</b></div>
+          <div class="field"><label>Reason (for your records only)</label><input name="reason" placeholder="Client asked to move it, no longer needed…"/>
+            <div class="hint">This stays internal. The client is told the appointment is cancelled, never why.</div>
+          </div>
+          ${a.invitee_email ? '<label class="pickbox" style="margin-bottom:12px"><input type="checkbox" name="notify" checked/> Email the client that it is cancelled</label>' : '<div class="cell-sub" style="margin-bottom:12px">This contact has no email on file, so nothing can be sent to them.</div>'}
+          <div class="cell-sub" style="margin-bottom:12px">The slot reopens on your booking page and all reminders stop. Nothing is deleted — the appointment stays on the record as cancelled.</div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-danger" type="submit">Cancel this appointment</button>
+            <button class="btn btn-ghost" type="button" data-x>Keep it</button>
+          </div>
+          <div class="cell-sub" id="cx-status" style="margin-top:8px"></div>
+        </form>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      $('#cx-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target; const btn = f.querySelector('button[type="submit"]'); const st = $('#cx-status');
+        btn.disabled = true; st.textContent = 'Cancelling…';
+        try {
+          const { ok, j } = await phBook({ action: 'cancel', appointment_id: a.id, reason: f.reason.value.trim() || null, notify: f.notify ? f.notify.checked : false });
+          if (!ok) { btn.disabled = false; st.textContent = j.error || 'Could not cancel that appointment.'; return; }
+          closeDrawer();
+          toast(j.emailed ? 'Cancelled — the client has been emailed' : 'Cancelled — that slot is open again');
+          if (after) after();
         } catch (_e) { btn.disabled = false; st.textContent = 'Network error — try again.'; }
       });
     }
@@ -3973,6 +4163,36 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // database trigger opens a deal per line. A contact saved without one is
     // invisible on the board and there was previously no way to fix that from
     // the record, so this is an edit, not a display.
+    // Dependents on an existing record. Until now they could only be entered on
+    // the Add Contact form and were rendered read-only afterwards, so a spouse
+    // who arrived after the first call, or a misspelled child, had nowhere to go.
+    function editContactDependents(cid, c) {
+      const rows = (Array.isArray(c.dependents) ? c.dependents : []).map((d) => Object.assign({}, d));
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Dependents</div><div class="cell-sub">${esc(nameOf(c))} — everyone who needs to be on the plan</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div id="dep-rows"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="dep-add" style="margin-top:10px">+ Add dependent</button>
+          <div style="display:flex;gap:10px;margin-top:20px">
+            <button class="btn btn-primary" id="dep-save">Save dependents</button>
+            <button class="btn btn-ghost" type="button" data-x>Cancel</button>
+          </div>
+          <p class="cell-sub" id="dep-status" style="margin-top:8px"></p>
+        </div>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      wireDepEditor($('#dep-rows'), $('#dep-add'), rows);
+      $('#dep-save').addEventListener('click', async () => {
+        const next = readDeps($('#dep-rows'));
+        const btn = $('#dep-save'); btn.disabled = true; $('#dep-status').textContent = 'Saving…';
+        const { error } = await sb.from('ph_contacts').update({ dependents: next }).eq('ghl_contact_id', cid);
+        if (error) { btn.disabled = false; $('#dep-status').textContent = 'Could not save: ' + error.message; return; }
+        c.dependents = next;
+        $('#rec-deps').innerHTML = depList(next);
+        closeDrawer();
+        toast(next.length ? `Saved ${next.length} dependent${next.length === 1 ? '' : 's'}` : 'Dependents cleared');
+      });
+    }
+
     function editContactLines(cid, c) {
       const have = new Set(c.coverage_types || []);
       const opts = COVERAGE_TYPES.map((t) =>
