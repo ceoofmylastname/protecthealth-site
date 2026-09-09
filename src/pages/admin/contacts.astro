@@ -530,8 +530,12 @@ const SUPABASE_ANON =
     }
 
     async function loadTags() {
+      // agent_id null is the office list. Brokers now keep private tags in the
+      // same table and an admin can read all 57 brokers' worth, so without this
+      // filter the admin contact card would offer tick boxes for one broker's
+      // personal shorthand on another broker's contact.
       const { data } = await sb.from('ph_tags')
-        .select('name').eq('is_active', true).order('position');
+        .select('name').is('agent_id', null).eq('is_active', true).order('position');
       officeTags = (data ?? []).map((t) => t.name);
     }
 

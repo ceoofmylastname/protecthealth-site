@@ -73,6 +73,27 @@ Client-facing mail from these paths (`kind` `reschedule` / `cancellation`) obeys
 
 Dependents are a `jsonb` array on `ph_contacts.dependents` — `{ relation, first_name, last_name, dob }`, any number of rows, relation from `DEP_RELATIONS`. The Add Contact form and the contact record share `depEditRow` / `wireDepEditor` / `readDeps`, so a change to the shape has exactly one place to land. The earlier fixed spouse-plus-four-children layout is gone; do not reintroduce a positional relation.
 
+## Broker time off (`ph_time_off`, Sep 9 2026)
+
+`ph_agent_scheduling` answers "which hours do I work" as a recurring weekly pattern with one window per day. It cannot answer "not THIS Thursday", and turning Thursday off to protect three hours costs the whole day, every week. `ph_time_off` is the subtraction layer on top of it: `kind = 'once'` for an absolute window (vacation, a dentist appointment) and `kind = 'weekly'` for a weekday plus a local wall-clock window (a standing lunch).
+
+- **Weekly rules store LOCAL time, never an instant.** A noon lunch break is noon in March and noon in November. Storing a `timestamptz` would drift an hour at every DST boundary and nobody would work out why.
+- **`ph_time_off_busy(agent, from, to)` is the only expander.** It resolves both kinds into plain intervals in the agent's timezone. `ph-book` subtracts it from open slots and re-checks it before every write, and the month calendar in `/app` asks it for the visible range rather than expanding weekly rules client-side. Two expanders would eventually disagree about a DST week and the calendar would quietly be lying about what is bookable.
+- **A block may not be laid over a live appointment.** The `ph_time_off_guard` trigger refuses it and names the client and the time in the message, prefixed `BLOCKED_BY_APPOINTMENT:` so the dashboard can reword it. Enforced in the database because the app is not the only writer. The broker moves or cancels the appointment first — both of which they can now do.
+- **The public booking paths get no override.** A blocked slot is simply not offered, and a stale slot list is refused with the same wording as any other collision. A visitor is never told why: the reason on a block is the broker's own note ("dentist", "school run") and is nobody else's business.
+- **The broker paths can override.** `manual` and `reschedule` accept `override: true`, because a block is the broker's own note to themselves and the CRM should not tell them no on their own calendar. The 409 carries `blocked: true` plus the reason so the dashboard can name what they are about to break. A Google Calendar conflict is NOT overridable and comes back without that flag.
+- Time-off reads **fail open**, same as Google free/busy. A database hiccup that made every booking page return nothing would cost far more than the rare booking that lands in a blocked hour.
+
+## Tags: office and personal (Sep 9 2026)
+
+One table, `ph_tags`, two kinds of row. `agent_id is null` is the office list all 57 brokers share, admin-managed under Manage fields. `agent_id` set is that broker's own shorthand, invisible to everyone else. Contacts store tag **names** in a `text[]`, so both kinds are the same thing to a contact row and a second table would buy nothing.
+
+- **RLS does the hiding, not the UI.** Read is `agent_id is null or ph_is_admin() or agent_id = ph_agent_id()`. Write is admin, or a broker on rows where `agent_id = ph_agent_id()` — the `agent_id is not null` half is what stops a broker creating an office tag by leaving the column blank.
+- **Never insert a tag with a null `agent_id` on a broker's behalf.** An admin login that also has no broker profile has `state.agentId === null`, and a null insert passes the admin half of the policy and silently creates an OFFICE tag. Both personal-tag entry points check for that and refuse.
+- Uniqueness is per-scope: one "Renewal" in the office list, one per broker, and two brokers may each hold a personal tag of the same name. The old global `ph_tags_name_key` was dropped for exactly that reason.
+- Anything reading `ph_tags` as "the office list" must filter `.is('agent_id', null)` — an admin can read all 57 brokers' personal tags and would otherwise offer one broker's shorthand as a tick box on another broker's contact. `/admin/contacts.astro` and the field manager in `/app` both do this.
+- Tags are retired (`is_active = false`), never deleted, because contacts store names: a contact already carrying the tag keeps it and it simply stops being offered.
+
 ## Mobile (90% of traffic) — stage 1 landed Jul 27 2026
 
 **The CSS is still desktop-first: 35 `max-width` queries against 2 `min-width`.** Base styles are desktop and get collapsed downward, and the touch tier is a hand-maintained list of selectors under `@media (pointer: coarse), (max-width: 1023px)` in `global.css`. That is why `.lp-photo`, `.lp-aurora`, `.lp-grad`, the marquees and the spotlight were all animating on phones until Jul 27 — each one has to be added by hand. **Adding any new animation means adding it to that block too.** A full mobile-first inversion is planned but NOT done.

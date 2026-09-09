@@ -628,6 +628,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   @media (max-width:760px){.dep-grid{grid-template-columns:1fr 1fr;}.dep-grid > :last-child{grid-column:2;justify-self:end}}
   .dep-x{border:1px solid var(--line);background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#b3261e;font-size:.9rem;line-height:1}
   .appt-acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .tag-group{margin-bottom:12px}
+  .tag-group-h{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .tag-group-b{display:flex;flex-wrap:wrap;gap:8px}
+  .cal-ev-off{background:repeating-linear-gradient(45deg,#64748b,#64748b 4px,#57637a 4px,#57637a 8px);color:#fff;cursor:default}
   .appt-dead{text-decoration:line-through;color:var(--muted)}
   .rec-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:start}
   .rec-grid .card-b{max-height:none}
@@ -902,7 +906,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $$('.ag-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
 
     // ================= SESSION → APP =================
-    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], adminTags: [], dash: null, recentContacts: [], outcomes: null, gcalEvents: null, oppContacts: {}, contactEmails: [], contactFiles: [], reviewRows: [] };
+    const state = { me: null, isAdmin: false, agentId: null, leads: [], contacts: [], stages: [], calendars: [], contactCount: 0, carriers: [], pipelines: [], pipelineStages: [], opps: [], appts: [], mySched: null, companies: [], customFields: [], tags: [], timeOff: [], blockCache: {}, dash: null, recentContacts: [], outcomes: null, gcalEvents: null, oppContacts: {}, contactEmails: [], contactFiles: [], reviewRows: [] };
 
     // ---- personal scope ----
     // This app is a BROKER's desk, including when the broker happens to be an
@@ -926,6 +930,26 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     const DISPOSITIONS = ['Lead', 'Active Client', 'Follow-Up', 'Not Interested', 'No Answer', 'Wrong Number', 'Do Not Call'];
     const POLICY_STATUSES = ['Quoted', 'Applied', 'Pending', 'Issued', 'Active', 'Lapsed', 'Cancelled', 'Declined'];
     const DEP_RELATIONS = ['Spouse', 'Domestic Partner', 'Child', 'Other'];
+    // ph_tags carries two kinds of row and RLS hands a broker exactly the ones
+    // they are allowed to see: agent_id null is the office list everybody
+    // shares, agent_id set is that broker's own and is invisible to the other
+    // 56. One query, one array, two views of it. Pickers offer both halves;
+    // the admin field manager edits only the office half, or an admin would be
+    // deleting other people's private tags without knowing it.
+    // attr is the data attribute the surrounding form reads back.
+    function tagPickboxes(attr, checked) {
+      const cur = (checked || []).map((x) => String(x).toLowerCase());
+      const box = (t) => `<label class="pickbox"><input type="checkbox" data-${attr}="${esc(t.name)}" ${cur.includes(t.name.toLowerCase()) ? 'checked' : ''}/> ${esc(t.name)}</label>`;
+      const office = officeTags(), mine = myTags();
+      if (!office.length && !mine.length) return '<span class="cell-sub">No tags yet — add one of your own below.</span>';
+      return [
+        office.length ? `<div class="tag-group"><div class="tag-group-h">Office</div><div class="tag-group-b">${office.map(box).join(' ')}</div></div>` : '',
+        mine.length ? `<div class="tag-group"><div class="tag-group-h">Yours</div><div class="tag-group-b">${mine.map(box).join(' ')}</div></div>` : '',
+      ].join('');
+    }
+    const officeTags = () => (state.tags || []).filter((t) => !t.agent_id);
+    const myTags = () => (state.tags || []).filter((t) => t.agent_id);
+    const visibleTagNames = () => (state.tags || []).map((t) => t.name);
     const PREMIUM_FREQS = ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Single'];
     const fmtMoney = (n) => n == null || n === '' ? '' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     // Matches the pipeline lines one-to-one, so a checked line maps straight to
@@ -1500,7 +1524,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
 
     // ---- data load (RLS + mine() scope everything to this user's own book) ----
     async function loadData() {
-      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes, tagRes] = await Promise.all([
+      const [leadsRes, stagesRes, calsRes, cntRes, carrRes, pipeRes, pstgRes, oppRes, apptRes, schedRes, coRes, cfRes, tagRes, offRes] = await Promise.all([
         mine(sb.from('ph_leads').select('*')).order('created_at', { ascending: false }).limit(2000),
         sb.from('ph_stages').select('*').order('sort_order'),
         mine(sb.from('ph_agent_calendars').select('*')),
@@ -1514,6 +1538,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         mine(sb.from('ph_companies').select('*')).order('name'),
         sb.from('ph_custom_fields').select('*').eq('is_active', true).order('position'),
         sb.from('ph_tags').select('*').eq('is_active', true).order('position'),
+        mine(sb.from('ph_time_off').select('*')).order('created_at'),
       ]);
       state.leads = leadsRes.data ?? [];
       state.stages = stagesRes.data ?? [];
@@ -1530,7 +1555,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       state.mySched = (schedRes.data || []).find((s) => s.agent_id === state.agentId) || (schedRes.data || [])[0] || null;
       state.companies = coRes.data ?? [];
       state.customFields = cfRes.data ?? [];
-      state.adminTags = tagRes.data ?? [];
+      state.tags = tagRes.data ?? [];
+      state.timeOff = offRes.data ?? [];
     }
 
     // Unified appointment feed: GHL-mirror leads that carry an appointment_start
@@ -1923,6 +1949,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             : '<button class="btn btn-primary btn-sm" id="co-add">+ Add Company</button>'}
           <button class="btn btn-ghost btn-sm" id="c-import">⤒ Import</button>
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-carriers">Manage carriers</button>' : ''}
+          <button class="btn btn-ghost btn-sm" id="c-mytags">My tags</button>
           ${state.isAdmin ? '<button class="btn btn-ghost btn-sm" id="c-fields">Manage fields</button>' : ''}
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)" id="c-count"></span>
         </div>
@@ -1981,6 +2008,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $('#c-import', v)?.addEventListener('click', () => openImport(v));
       $('#c-carriers', v)?.addEventListener('click', openCarrierManager);
       $('#c-fields', v)?.addEventListener('click', openFieldManager);
+      $('#c-mytags', v)?.addEventListener('click', () => openMyTagManager(v));
       $('#c-bulk-clear', v)?.addEventListener('click', () => { cSel.clear(); loadContacts(v); });
       $('#c-bulk-del', v)?.addEventListener('click', () => deleteContacts(Array.from(cSel), v));
       cSel.clear();
@@ -2205,7 +2233,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             <button class="btn btn-primary btn-sm" type="submit">Add field</button>
             <p class="cell-sub" id="cf-status" style="margin-top:8px"></p>
           </form>
-          <div class="section-t">Tags brokers can use</div>
+          <div class="section-t">Office tags</div>
+          <div class="hint" style="margin-bottom:8px">Every broker sees these. Brokers also keep their own private tags, which are not listed here and are not yours to edit.</div>
           <div id="tg-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
           <form id="tg-form" style="display:flex;gap:8px;margin-top:10px">
             <input name="name" placeholder="New tag, e.g. VIP" style="flex:1"/>
@@ -2237,13 +2266,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         f.reset(); $('#cf-status').textContent = 'Added — it now shows on every contact card.';
       });
 
-      // Tag vocabulary (admin-only writes; brokers pick from this list).
+      // The OFFICE vocabulary. state.tags also holds this admin's own private
+      // tags, and an admin reading the table sees all 57 brokers' as well, so
+      // this list is filtered rather than printed whole.
       const paintTags = () => {
-        $('#tg-list').innerHTML = state.adminTags.map((t) => `<span class="fchip">${esc(t.name)}<button data-tg-del="${t.id}" aria-label="Remove">✕</button></span>`).join('') || '<span class="cell-sub">No tags yet.</span>';
+        $('#tg-list').innerHTML = officeTags().map((t) => `<span class="fchip">${esc(t.name)}<button data-tg-del="${t.id}" aria-label="Remove">✕</button></span>`).join('') || '<span class="cell-sub">No office tags yet.</span>';
         $$('#tg-list [data-tg-del]').forEach((b) => b.addEventListener('click', async () => {
           const { error } = await sb.from('ph_tags').update({ is_active: false }).eq('id', b.dataset.tgDel);
           if (error) { toast('Could not remove tag.'); return; }
-          state.adminTags = state.adminTags.filter((t) => t.id !== b.dataset.tgDel);
+          state.tags = state.tags.filter((t) => t.id !== b.dataset.tgDel);
           paintTags(); toast('Tag removed');
         }));
       };
@@ -2251,10 +2282,76 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $('#tg-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = e.target.name.value.trim().toLowerCase(); if (!name) return;
-        const { data, error } = await sb.from('ph_tags').insert({ name, position: 100 + state.adminTags.length }).select('*').single();
+        // agent_id explicitly null: this is an office tag, and the RLS check
+        // that lets an admin write one is the same clause that stops a broker.
+        const { data, error } = await sb.from('ph_tags').insert({ name, agent_id: null, position: 100 + officeTags().length }).select('*').single();
         if (error) { $('#tg-status').textContent = 'Could not add: ' + error.message; return; }
-        state.adminTags.push(data); e.target.reset(); paintTags();
-        $('#tg-status').textContent = 'Added — brokers can use it now.';
+        state.tags.push(data); e.target.reset(); paintTags();
+        $('#tg-status').textContent = 'Added — every broker can use it now.';
+      });
+    }
+
+    // A broker's own tags. Office tags are one shared vocabulary for 57 people
+    // and adding to it needs an admin, which is right — a shared list only stays
+    // useful while somebody guards it. This is the other half: a broker's own
+    // shorthand, on their own contacts, that nobody else ever sees. Writes are
+    // scoped by RLS, not by this screen: agent_id is stamped from the signed-in
+    // broker and the policy refuses anything else.
+    function openMyTagManager(listView) {
+      // A pure admin login has no broker profile, so there is no agent_id to
+      // stamp. Inserting with null would pass the admin half of the RLS check
+      // and silently create an OFFICE tag, which is the one thing this screen
+      // promises it will not do.
+      const canOwn = !!state.agentId;
+      const paint = () => {
+        const mine = myTags();
+        $('#mt-list').innerHTML = mine.length
+          ? mine.map((t) => `<span class="fchip">${esc(t.name)}<button data-mt-del="${t.id}" aria-label="Remove">✕</button></span>`).join('')
+          : '<span class="cell-sub">None yet. Add one below and it appears on every contact you open.</span>';
+        $$('#mt-list [data-mt-del]').forEach((b) => b.addEventListener('click', async () => {
+          const row = (state.tags || []).find((t) => t.id === b.dataset.mtDel);
+          // Retired, not deleted, matching what the office list does: contacts
+          // store tag NAMES, so a contact already carrying it keeps it and it
+          // simply stops being offered.
+          const { error } = await sb.from('ph_tags').update({ is_active: false }).eq('id', b.dataset.mtDel);
+          if (error) { toast('Could not remove that tag.'); return; }
+          state.tags = (state.tags || []).filter((t) => t.id !== b.dataset.mtDel);
+          paint();
+          toast(`Removed “${row ? row.name : 'tag'}” — contacts already tagged keep it`);
+        }));
+      };
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">My tags</div><div class="cell-sub">Private to you — no other broker sees these</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div id="mt-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+          ${canOwn ? `<form id="mt-form" style="display:flex;gap:8px;margin-top:14px">
+            <input name="name" placeholder="New tag, e.g. referral partner" style="flex:1" maxlength="40"/>
+            <button class="btn btn-primary btn-sm" type="submit">Add</button>
+          </form>` : '<div class="cell-sub" style="margin-top:14px">This login is an admin account with no broker profile, so it has no personal tag list. Office tags are under Manage fields.</div>'}
+          <p class="cell-sub" id="mt-status" style="margin-top:8px"></p>
+          <div class="section-t">Office tags</div>
+          <div class="hint">Shared by everyone, added by an admin. Listed here so you can see what already exists before inventing your own.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${officeTags().map((t) => `<span class="chip tag">${esc(t.name)}</span>`).join(' ') || '<span class="cell-sub">None defined.</span>'}</div>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+      paint();
+      $('#mt-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = e.target.name.value.trim().toLowerCase();
+        if (!name) return;
+        const st = $('#mt-status');
+        // Duplicating an office tag would give the broker two identical looking
+        // tick boxes that write the same string. Point at the existing one.
+        if (officeTags().some((t) => t.name.toLowerCase() === name)) {
+          st.textContent = `“${name}” is already an office tag — you can use it as is.`; return;
+        }
+        if (myTags().some((t) => t.name.toLowerCase() === name)) { st.textContent = 'You already have that one.'; return; }
+        const { data, error } = await sb.from('ph_tags')
+          .insert({ name, agent_id: state.agentId, position: 500 + myTags().length }).select('*').single();
+        if (error) { st.textContent = 'Could not add: ' + error.message; return; }
+        state.tags.push(data); e.target.reset(); st.textContent = ''; paint();
+        toast('Tag added');
+        if (listView && cMode === 'people') loadTags(listView);
       });
     }
 
@@ -2352,7 +2449,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
               <div class="hint">Setting this to <b>Active Client</b> marks the client in-force and records you as the writing agent.</div>
             </div>
             <div class="section-t">Tags</div>
-            <div>${state.adminTags.map((t) => `<label class="pickbox"><input type="checkbox" data-tagpick="${esc(t.name)}"/> ${esc(t.name)}</label>`).join(' ') || '<span class="cell-sub">No tags defined yet — admins add them under Manage fields.</span>'}</div>
+            <div>${tagPickboxes('tagpick', [])}</div>
 
             <div class="section-t">Lines of insurance</div>
             <div class="hint" style="margin-bottom:8px">Each line you check creates a deal in that pipeline.</div>
@@ -2457,8 +2554,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       catalogue: {
         customFields: state.customFields,
         carriers: state.carriers,
-        // state.adminTags holds ph_tags rows; the library wants bare names.
-        tags: (state.adminTags || []).map((t) => t.name),
+        // state.tags holds ph_tags rows; the library wants bare names.
+        tags: (state.tags || []).map((t) => t.name),
       },
     });
 
@@ -2680,7 +2777,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (kind === 'policy_status') return POLICY_STATUSES;
       if (kind === 'premium_freq') return PREMIUM_FREQS;
       if (kind === 'carrier') return state.carriers.map((c) => c.name);
-      return (state.adminTags || []).map((t) => t.name);
+      return (state.tags || []).map((t) => t.name);
     }
 
     function impStep4() {
@@ -2812,7 +2909,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const made = await createReviewedValues(sb, impCfg());
         madeErrors = made.errors || [];
         // Carriers come back in the same {id, name} shape state.carriers holds.
-        // Tags do not — state.adminTags carries whole ph_tags rows for the tag
+        // Tags do not — state.tags carries whole ph_tags rows for the tag
         // manager — so those are refetched after the run instead.
         if (made.catalogue.carriers) state.carriers = made.catalogue.carriers;
         imp.result = await runImport(sb, impCfg(), (done) => {
@@ -2843,7 +2940,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         sb.from('ph_tags').select('*').eq('is_active', true).order('position'),
       ]);
       if (carrRes.data) state.carriers = carrRes.data;
-      if (tagRes.data) state.adminTags = tagRes.data;
+      if (tagRes.data) state.tags = tagRes.data;
       if (imp.target === 'companies') {
         const { data } = await mine(sb.from('ph_companies').select('*')).order('name');
         state.companies = data ?? [];
@@ -2863,7 +2960,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // sees tags on their own contacts).
       const sel = $('#c-tag', v); if (!sel) return;
       const seen = new Set();
-      state.adminTags.forEach((t) => { seen.add(t.name.toLowerCase()); const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
+      state.tags.forEach((t) => { seen.add(t.name.toLowerCase()); const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
       try {
         const { data } = await sb.rpc('ph_contact_tags');
         (data || []).slice(0, 60).forEach((row) => {
@@ -3424,7 +3521,24 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           }
         }).catch(() => {});
       }
-      const all = appts.concat(state.gcalEvents || []);
+      // Blocked time. The grid does NOT expand weekly rules itself: it asks
+      // ph_time_off_busy for the visible range, which is the same function
+      // ph-book subtracts from open slots. Two expanders would eventually
+      // disagree about a DST week and the calendar would be quietly lying.
+      const monthKey = `${y}-${m}`;
+      if (state.blockCache[monthKey] === undefined) {
+        state.blockCache[monthKey] = [];
+        const from = new Date(start).toISOString();
+        const to = new Date(new Date(start).getTime() + 42 * 86400000).toISOString();
+        sb.rpc('ph_time_off_busy', { p_agent: state.agentId, p_from: from, p_to: to }).then(({ data }) => {
+          state.blockCache[monthKey] = (data || []).map((b) => ({
+            id: 'off:' + b.busy_start, when: b.busy_start, ends: b.busy_end,
+            name: (b.reason && String(b.reason).trim()) || 'Blocked', off: true,
+          }));
+          if (currentRoute === 'calendar') renderCalendar($('#view'));
+        }).catch(() => {});
+      }
+      const all = appts.concat(state.gcalEvents || []).concat(state.blockCache[monthKey] || []);
       const byDay = {};
       all.forEach((e) => { const d = new Date(e.when); const k = d.toLocaleDateString('en-CA', { timeZone: TZ }); (byDay[k] ||= []).push(e); });
       const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
@@ -3437,6 +3551,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const dim = d.getMonth() !== m ? 'dim' : '';
         const today = k === todayKey ? 'today' : '';
         const evs = (byDay[k] || []).slice(0, 3).map((e) => {
+          if (e.off) {
+            const hhmm = (t) => new Date(t).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
+            return `<div class="cal-ev cal-ev-off" title="Blocked — nobody can book this">${esc(hhmm(e.when))}–${esc(hhmm(e.ends))} ${esc(e.name)}</div>`;
+          }
           if (e.gcal) return `<div class="cal-ev cal-ev-gcal" title="From your Google Calendar">${e.all_day ? '' : new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'}) + ' '}${esc(e.name)}</div>`;
           return `<div class="cal-ev${e.native ? ' cal-ev-native' : ''}"${e.native ? ` data-appt="${esc(String(e.id).replace(/^appt:/, ''))}"` : ` data-lead="${e.id}"`}>${new Date(e.when).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'})} ${esc(e.name)}</div>`;
         }).join('');
@@ -3449,10 +3567,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div class="cal-title">${title}</div>
           <button class="btn btn-ghost btn-sm" data-mo="1">→</button>
           <button class="btn btn-ghost btn-sm" data-mo="0">Today</button>
+          <button class="btn btn-primary btn-sm" id="cal-block">＋ Block time</button>
           <span style="margin-left:auto;font-size:.8rem;color:var(--muted)">${appts.length} appointment${appts.length===1?'':'s'} on your calendar</span>
         </div>
         <div class="card" style="padding:0">
           <div class="cal-grid">${dows.map((d) => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-h"><span class="grad-label">Blocked time</span><span class="cell-sub" style="margin-left:auto">Nobody can book these hours</span></div>
+          <div class="card-b" id="cal-off">${timeOffList()}</div>
         </div>`;
       $$('[data-mo]', v).forEach((b) => b.addEventListener('click', () => {
         const d = +b.dataset.mo;
@@ -3461,10 +3584,158 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         renderCalendar(v);
       }));
       $$('.cal-ev[data-lead]', v).forEach((e) => e.addEventListener('click', () => openLead(e.dataset.lead)));
+      $('#cal-block', v)?.addEventListener('click', () => openTimeOffForm());
+      wireTimeOffList(v);
       $$('.cal-ev[data-appt]', v).forEach((el) => el.addEventListener('click', () => openApptPeek(
         apptById(el.dataset.appt),
         () => reloadAppts().then(() => { if (currentRoute === 'calendar') renderCalendar($('#view')); }),
       )));
+    }
+
+    // ================= TIME OFF =================
+    // ph_agent_scheduling answers "which hours do I work" as a recurring weekly
+    // pattern. It cannot answer "not THIS Thursday", and turning Thursday off to
+    // protect three hours costs the whole day, every week. These are the
+    // subtractions on top of it.
+    const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const hhmm12 = (t) => {
+      const [h, mi] = String(t || '').split(':').map(Number);
+      if (isNaN(h)) return String(t || '');
+      const ap = h >= 12 ? 'PM' : 'AM', h12 = ((h + 11) % 12) + 1;
+      return `${h12}:${String(mi || 0).padStart(2, '0')} ${ap}`;
+    };
+    function timeOffLabel(r) {
+      if (r.kind === 'weekly') {
+        const until = r.effective_until ? ` · until ${esc(fmtDob(r.effective_until))}` : '';
+        return `Every ${WEEKDAYS[r.weekday] || 'week'}, ${hhmm12(r.start_time)} to ${hhmm12(r.end_time)}${until}`;
+      }
+      if (r.all_day) {
+        const a = fmtDate(r.starts_at);
+        // ends_at is midnight the morning AFTER the last blocked day, so the
+        // label subtracts a minute rather than announcing a day that is free.
+        const b = fmtDate(new Date(+new Date(r.ends_at) - 60000).toISOString());
+        return a === b ? `All day ${a}` : `All day, ${a} to ${b}`;
+      }
+      return fmtFull(r.starts_at) + ' to ' + new Date(r.ends_at).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
+    }
+    function timeOffList() {
+      const rows = (state.timeOff || []).slice().sort((a, b) => {
+        if (a.kind !== b.kind) return a.kind === 'weekly' ? -1 : 1;
+        return a.kind === 'weekly' ? (a.weekday - b.weekday) : (+new Date(a.starts_at) - +new Date(b.starts_at));
+      });
+      if (!rows.length) return '<div class="cell-sub">Nothing blocked. Use ＋ Block time for a dentist appointment, a school run, or a standing lunch.</div>';
+      return rows.map((r) => {
+        const past = r.kind === 'once' && +new Date(r.ends_at) < Date.now();
+        return `<div class="feed-item"><div class="feed-ic">${r.kind === 'weekly' ? '🔁' : '🚫'}</div><div style="min-width:0">
+          <div style="font-weight:650" class="${past ? 'appt-dead' : ''}">${esc(timeOffLabel(r))}</div>
+          <div class="cell-sub">${esc(r.reason || (r.kind === 'weekly' ? 'Recurring block' : 'Blocked'))}</div>
+        </div><button class="btn btn-ghost btn-sm" data-off-del="${r.id}" style="margin-left:auto">Remove</button></div>`;
+      }).join('');
+    }
+    function wireTimeOffList(v) {
+      $$('[data-off-del]', v || root).forEach((b) => b.addEventListener('click', async () => {
+        const id = b.getAttribute('data-off-del');
+        const row = (state.timeOff || []).find((r) => String(r.id) === String(id));
+        if (!confirm('Remove this block? Those hours become bookable again.')) return;
+        const { error } = await sb.from('ph_time_off').delete().eq('id', id);
+        if (error) { toast('Could not remove that block.'); return; }
+        state.timeOff = (state.timeOff || []).filter((r) => String(r.id) !== String(id));
+        state.blockCache = {};
+        toast(row && row.kind === 'weekly' ? 'Recurring block removed' : 'Block removed');
+        if (currentRoute === 'calendar') renderCalendar($('#view'));
+      }));
+    }
+    async function refreshTimeOff() {
+      const { data } = await mine(sb.from('ph_time_off').select('*')).order('created_at');
+      state.timeOff = data ?? [];
+      state.blockCache = {};
+    }
+    function openTimeOffForm() {
+      if (!state.agentId) { toast('This login has no broker profile, so it has no calendar to block.'); return; }
+      const today = new Date().toISOString().slice(0, 10);
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Block time</div><div class="cell-sub">Hours nobody can book — yours, not your clients'</div></div><button class="drawer-x" data-x>✕</button></div>
+        <form id="to-form" class="drawer-b">
+          <div class="field"><label>How often</label>
+            <select name="kind" id="to-kind"><option value="once">Just once</option><option value="weekly">Every week</option></select>
+          </div>
+          <div id="to-once">
+            <label class="pickbox" style="margin-bottom:10px"><input type="checkbox" name="all_day" id="to-allday"/> All day</label>
+            <div class="grid2">
+              <div class="field"><label>From</label><input name="date" type="date" value="${today}" min="${today}"/></div>
+              <div class="field"><label>To (same day unless you change it)</label><input name="end_date" type="date" value="${today}" min="${today}"/></div>
+            </div>
+            <div class="grid2" id="to-times">
+              <div class="field"><label>Start</label><input name="start" type="time" value="13:00"/></div>
+              <div class="field"><label>End</label><input name="end" type="time" value="16:00"/></div>
+            </div>
+          </div>
+          <div id="to-weekly" hidden>
+            <div class="field"><label>Day</label><select name="weekday">${WEEKDAYS.map((d, i) => `<option value="${i}" ${i === 4 ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+            <div class="grid2">
+              <div class="field"><label>Start</label><input name="w_start" type="time" value="12:00"/></div>
+              <div class="field"><label>End</label><input name="w_end" type="time" value="13:00"/></div>
+            </div>
+            <div class="field"><label>Stop repeating on (optional)</label><input name="until" type="date" min="${today}"/></div>
+          </div>
+          <div class="field"><label>Reason (yours only)</label><input name="reason" placeholder="Dentist, school run, admin block…" maxlength="80"/>
+            <div class="hint">Never shown to a client. Your booking page just stops offering those hours.</div>
+          </div>
+          <button class="btn btn-primary" type="submit">Block it</button>
+          <div class="cell-sub" id="to-status" style="margin-top:10px"></div>
+        </form>`);
+      $$('[data-x]').forEach((b) => b.addEventListener('click', closeDrawer));
+      const kind = $('#to-kind');
+      kind.addEventListener('change', () => {
+        $('#to-once').hidden = kind.value !== 'once';
+        $('#to-weekly').hidden = kind.value !== 'weekly';
+      });
+      $('#to-allday').addEventListener('change', (e) => { $('#to-times').hidden = e.target.checked; });
+
+      $('#to-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target, btn = f.querySelector('button[type="submit"]'), st = $('#to-status');
+        const reason = f.reason.value.trim() || null;
+        let row;
+        if (kind.value === 'weekly') {
+          if (f.w_end.value <= f.w_start.value) { st.textContent = 'The end time has to be after the start.'; return; }
+          row = { agent_id: state.agentId, kind: 'weekly', weekday: parseInt(f.weekday.value, 10),
+                  start_time: f.w_start.value, end_time: f.w_end.value,
+                  effective_until: f.until.value || null, reason };
+        } else {
+          const allDay = f.all_day.checked;
+          const d1 = f.date.value, d2 = f.end_date.value || f.date.value;
+          if (!d1) { st.textContent = 'Pick a date.'; return; }
+          if (d2 < d1) { st.textContent = 'The end date is before the start date.'; return; }
+          // All day means midnight to midnight the morning after the last day,
+          // so a one-day block covers that whole day and stops there.
+          const startsAt = allDay ? new Date(d1 + 'T00:00') : new Date(d1 + 'T' + f.start.value);
+          const endsAt = allDay
+            ? new Date(new Date(d2 + 'T00:00').getTime() + 86400000)
+            : new Date(d2 + 'T' + f.end.value);
+          if (isNaN(startsAt.getTime()) || isNaN(endsAt.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
+          if (endsAt <= startsAt) { st.textContent = 'The end has to be after the start.'; return; }
+          row = { agent_id: state.agentId, kind: 'once', all_day: allDay,
+                  starts_at: startsAt.toISOString(), ends_at: endsAt.toISOString(), reason };
+        }
+        btn.disabled = true; st.textContent = 'Saving…';
+        const { data, error } = await sb.from('ph_time_off').insert(row).select('*').single();
+        if (error) {
+          btn.disabled = false;
+          // The database refuses a block laid over a live appointment and names
+          // the client and the time in the message. Show that, not the raw error.
+          const m = /BLOCKED_BY_APPOINTMENT:\s*(.*)$/.exec(error.message || '');
+          st.textContent = m
+            ? `You already have ${m[1].trim()} in that window. Move or cancel it first, then block the time.`
+            : 'Could not save: ' + error.message;
+          return;
+        }
+        state.timeOff.push(data);
+        state.blockCache = {};
+        closeDrawer();
+        toast(row.kind === 'weekly' ? 'Blocked every week' : 'Time blocked');
+        if (currentRoute === 'calendar') renderCalendar($('#view'));
+      });
     }
 
     // ================= DRAWERS =================
@@ -3655,24 +3926,47 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $('#rec-edit-deps').addEventListener('click', () => editContactDependents(cid, c));
       $('#rec-company')?.addEventListener('click', (e) => { e.preventDefault(); openCompany(c.company_id); });
 
-      // Tags: broker picks from the admin-defined list; legacy imported tags
-      // on the record are preserved untouched.
+      // Tags: office list plus the broker's own, with a way to invent one on
+      // the spot. Tags that arrived from GoHighLevel or a CSV import are on the
+      // record but on neither list; they are carried through a save untouched
+      // rather than silently dropped.
       $('#rec-edit-tags').addEventListener('click', () => {
-        const adminNames = state.adminTags.map((t) => t.name);
-        const cur = c.tags || [];
+        const cur = (c.tags || []).slice();
         openDrawer(`
-          <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Tags</div><div class="cell-sub">${esc(nameOf(c))} — pick from the office list</div></div><button class="drawer-x" data-x>✕</button></div>
+          <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Tags</div><div class="cell-sub">${esc(nameOf(c))}</div></div><button class="drawer-x" data-x>✕</button></div>
           <div class="drawer-b">
-            <div style="display:flex;flex-wrap:wrap;gap:8px">${adminNames.map((t) => `<label class="pickbox"><input type="checkbox" data-tp="${esc(t)}" ${cur.some((x) => x.toLowerCase() === t.toLowerCase()) ? 'checked' : ''}/> ${esc(t)}</label>`).join('') || '<span class="cell-sub">No tags defined — ask an admin to add some under Manage fields.</span>'}</div>
+            <div id="tp-boxes">${tagPickboxes('tp', cur)}</div>
+            <form id="tp-new" style="display:flex;gap:8px;margin-top:14px">
+              <input name="name" placeholder="New tag, just for you" style="flex:1" maxlength="40"/>
+              <button class="btn btn-ghost btn-sm" type="submit">+ Add</button>
+            </form>
+            <div class="hint">A tag you add here is private to you. Office tags are shared and only an admin can add those.</div>
             <button class="btn btn-primary" id="tp-save" style="margin-top:16px">Save tags</button>
             <p class="cell-sub" id="tp-status" style="margin-top:8px"></p>
           </div>`);
         $('[data-x]').addEventListener('click', closeDrawer);
+        // Repaint keeps whatever is ticked right now, not what was ticked when
+        // the drawer opened, or adding a tag would quietly undo the last click.
+        const ticked = () => $$('[data-tp]').filter((x) => x.checked).map((x) => x.getAttribute('data-tp'));
+        $('#tp-new').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = e.target.name.value.trim().toLowerCase();
+          const st = $('#tp-status');
+          if (!name) return;
+          if (!state.agentId) { st.textContent = 'This login has no broker profile, so it has no personal tags.'; return; }
+          if (visibleTagNames().some((t) => t.toLowerCase() === name)) { st.textContent = `“${name}” already exists — tick it above.`; return; }
+          const keep = ticked();
+          const { data, error } = await sb.from('ph_tags')
+            .insert({ name, agent_id: state.agentId, position: 500 + myTags().length }).select('*').single();
+          if (error) { st.textContent = 'Could not add: ' + error.message; return; }
+          state.tags.push(data);
+          e.target.reset(); st.textContent = '';
+          $('#tp-boxes').innerHTML = tagPickboxes('tp', keep.concat(data.name));
+        });
         $('#tp-save').addEventListener('click', async () => {
-          const lowerAdmin = adminNames.map((t) => t.toLowerCase());
-          const legacy = cur.filter((t) => !lowerAdmin.includes(t.toLowerCase()));
-          const picked = $$('[data-tp]').filter((x) => x.checked).map((x) => x.getAttribute('data-tp'));
-          const next = legacy.concat(picked);
+          const known = visibleTagNames().map((t) => t.toLowerCase());
+          const legacy = cur.filter((t) => !known.includes(String(t).toLowerCase()));
+          const next = legacy.concat(ticked());
           const { error } = await sb.from('ph_contacts').update({ tags: next }).eq('ghl_contact_id', cid);
           if (error) { $('#tp-status').textContent = 'Could not save: ' + error.message; return; }
           c.tags = next;
@@ -3923,6 +4217,18 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       return { ok: r.ok && !!j.ok, j };
     }
 
+    // A block is the broker's own note to themselves, so ph-book refuses once
+    // with blocked:true and lets them insist. A Google Calendar conflict is a
+    // real commitment we cannot see inside, so it comes back WITHOUT that flag
+    // and there is nothing to offer.
+    async function phBookAllowingOverride(body, verb) {
+      let r = await phBook(body);
+      if (!r.ok && r.j && r.j.blocked && confirm(`${r.j.error} ${verb} anyway?`)) {
+        r = await phBook(Object.assign({}, body, { override: true }));
+      }
+      return r;
+    }
+
     // <input type="date"> and <input type="time"> speak the browser's local
     // wall clock, which is what `new Date(date + 'T' + time)` parses back. Using
     // the same basis both ways means opening the reschedule drawer and saving
@@ -3961,7 +4267,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         if (isNaN(start.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
         btn.disabled = true; st.textContent = 'Booking…';
         try {
-          const { ok, j } = await phBook({ action: 'manual', contact_id: cid, start_at: start.toISOString(), line: f.line.value || null, notes: f.notes.value.trim() || null });
+          const { ok, j } = await phBookAllowingOverride({ action: 'manual', contact_id: cid, start_at: start.toISOString(), line: f.line.value || null, notes: f.notes.value.trim() || null }, 'Book it');
           if (!ok) { btn.disabled = false; st.textContent = j.error || 'Could not book that time.'; return; }
           closeDrawer();
           toast(j.emailed ? 'Booked — confirmation emailed to the client' : 'Booked — on your calendar');
@@ -4018,7 +4324,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         if (isNaN(start.getTime())) { st.textContent = 'Pick a valid date and time.'; return; }
         btn.disabled = true; st.textContent = 'Moving…';
         try {
-          const { ok, j } = await phBook({ action: 'reschedule', appointment_id: a.id, start_at: start.toISOString(), notes: f.notes.value.trim() || null });
+          const { ok, j } = await phBookAllowingOverride({ action: 'reschedule', appointment_id: a.id, start_at: start.toISOString(), notes: f.notes.value.trim() || null }, 'Move it');
           if (!ok) { btn.disabled = false; st.textContent = j.error || 'Could not move that appointment.'; return; }
           closeDrawer();
           toast(j.emailed ? 'Moved — the client has been emailed' : 'Moved — your calendar is updated');
