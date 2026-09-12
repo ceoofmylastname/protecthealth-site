@@ -26,11 +26,12 @@ const TOPICS = {
   'nevada-core': 'Nevada Health Insurance & The Marketplace',
   ichra: 'Self-Employed, Realtors & 1099 Coverage',
   employers: 'Small Business, Benefits & Payroll',
+  'employer-tax': 'Employer Tax Credits & Retirement Mandates',
   medicare: 'Medicare',
   life: 'Life Insurance',
   'dental-vision': 'Dental & Vision',
 };
-const ORDER = ['nevada-core', 'ichra', 'employers', 'medicare', 'life', 'dental-vision'];
+const ORDER = ['nevada-core', 'ichra', 'employers', 'employer-tax', 'medicare', 'life', 'dental-vision'];
 
 function fm(src) {
   const block = src.split('---')[1] ?? '';

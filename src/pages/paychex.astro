@@ -1,0 +1,213 @@
+---
+// BOFU terminus for the `employer-tax` cluster: Nevada's retirement mandate, the
+// federal employer credits, and the payroll tax side of pre-tax premiums.
+//
+// Deliberately NOT a second /employers page. /employers is the general employer
+// benefits + partnership BOFU. This page owns tax and retirement compliance
+// intent only, so the two do not compete for the same queries. Cross-linked both
+// ways. If this page starts drifting into generic "payroll and HR" copy, that is
+// the cannibalization warning sign.
+//
+// formId stays 'employers' because GHL routing is configured for that value; the
+// "Website Intake: Landing Page" field records /paychex, which is what separates
+// these leads in the CRM. Do not invent a new formId without updating the
+// handlers in functions/api/*.js.
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE, ORG_ID, HF_ASSETS, BLOG_ART, breadcrumbSchema, speakableSchema } from '../lib/site';
+import ContentRail from '../components/ContentRail.astro';
+import { getCollection } from 'astro:content';
+
+const pageUrl = `${SITE.domain}/paychex`;
+
+// Reading library: the employer-tax cluster, TOFU first. Auto-updates as the
+// cluster grows, same pattern as the other BOFU pages.
+const clusterPosts = (await getCollection('blog'))
+  .filter((p) => p.data.cluster === 'employer-tax')
+  .sort((a, b) => (a.data.funnelStage === b.data.funnelStage ? 0 : a.data.funnelStage === 'TOFU' ? -1 : 1));
+const clusterQa = (await getCollection('qa'))
+  .filter((q) => q.data.cluster === 'employer-tax')
+  .sort((a, b) => a.data.question.localeCompare(b.data.question));
+
+const faq = [
+  { q: 'Does my Nevada business have to offer a retirement plan?', a: 'Nevada requires an employer with more than five employees in this State that has been in business at least 36 months to facilitate the Nevada Employee Savings Trust, unless it maintained a tax-favored retirement plan at any time in the current calendar year or the three immediately preceding calendar years. An employer meeting that exemption still has to certify it rather than ignore the state notice.' },
+  { q: 'Is there a penalty for not registering for Nevada NEST?', a: 'Nevada publishes no penalty amount. NRS Chapter 353D contains no fine, civil action or enforcement provision, and the per-employee penalty figures circulating online belong to other states’ programs. The obligation is still statutory, and the state tracks which employers have registered, certified exempt, or done neither.' },
+  { q: 'Is the Work Opportunity Tax Credit still available?', a: 'Not for new hires. WOTC was authorized only until December 31, 2025 and has not been extended, so state workforce agencies cannot issue certifications for an employee who begins work on or after January 1, 2026. Hires that started on or before December 31, 2025 can still be processed and claimed.' },
+  { q: 'What is a retirement plan actually going to cost?', a: 'Less than most owners assume, because the federal credits are substantial. An eligible employer with 50 or fewer employees can claim 100 percent of qualified startup costs subject to a cap, up to $1,000 per employee for employer contributions, and $500 a year for automatic enrollment. ProtectHealth brokers are insurance professionals, not tax professionals, so a licensed tax professional should confirm any figure against the actual return.' },
+  { q: 'Does exploring this cost anything?', a: 'No. The conversation with ProtectHealth is free and there is no obligation to change payroll providers, start a plan, or buy anything to have it.' },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Employer Tax Credit + Retirement Compliance Strategy, ProtectHealth',
+    description: 'ProtectHealth, an official Paychex partner, helps Nevada employers work through the state retirement mandate, the federal employer retirement plan credits, and the payroll tax treatment of pre-tax premiums.',
+    provider: { '@id': ORG_ID },
+    areaServed: { '@type': 'State', name: 'Nevada' },
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Employer Tax Credits & Retirement', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title="Nevada Employer Tax Credits & The Retirement Mandate | ProtectHealth"
+  description="Nevada requires retirement access at six employees. The federal credits that pay for a real plan are generous, and one credit everyone still markets has lapsed. ProtectHealth is an official Paychex partner."
+  ogImage={`${SITE.domain}/assets/og-employers.webp`}
+  schemas={schemas}
+>
+  <!-- HERO -->
+  <section class="lp-hero">
+    <div class="lp-photo" style={`background-image:url('${HF_ASSETS.employers}')`}></div>
+    <div class="lp-duo"></div>
+    <div class="lp-aurora"></div>
+    <div class="container">
+      <div class="lp-kick"><i></i> Nevada Employers · Official Paychex Partner</div>
+      <h1 class="lp-h1">The state made it mandatory.<br/><span class="lp-grad">The feds made it cheap.</span></h1>
+      <p class="lp-lead">Nevada now requires most employers with six or more people to offer retirement access. Federal credits will cover up to <b>100 percent of what a real plan costs to start.</b> Most owners have been told about the first part and none of the second.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="#talk" class="btn big">Get The Straight Answer</a>
+        <a href={SITE.phoneHref} class="btn big white no-arrow">Call {SITE.phone}</a>
+      </div>
+      <div class="lp-proof">
+        <span class="pp"><span class="stars">★★★★★</span> 4.9 · {SITE.reviews.count}+ Google reviews</span>
+        <span class="pp">✓ Official Paychex Partner</span>
+        <span class="pp">Free · No obligation</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Three Things Moved, Nobody Sent A Memo</div>
+      <p class="lp-statement">Most of what Nevada employers are being told about credits and mandates right now <span class="lp-mark">is either a year out of date or about another state.</span></p>
+      <p style="max-width:760px;color:var(--muted);">A state envelope arrives with an access code and a program nobody recognizes. An article quotes a per-employee fine that does not exist in Nevada. A payroll vendor markets a hiring credit that expired in December. Meanwhile the federal credits that would genuinely change the math on a retirement plan go unmentioned, because nobody makes money telling a nine-person company that setup might be fully covered.</p>
+
+      <div id="ai-summary" style="margin-top:26px;">
+        Nevada requires an employer with more than five employees in the State, and at least 36 months in business, to facilitate the Nevada Employee Savings Trust unless it already maintains a tax-favored retirement plan. Nevada publishes no non-compliance penalty amount, and NRS Chapter 353D contains no fine or enforcement provision. Federal credits under the SECURE 2.0 Act cover up to 100 percent of qualified retirement plan startup costs for an employer with 50 or fewer employees, up to $1,000 per employee for employer contributions, and $500 a year for automatic enrollment. The Work Opportunity Tax Credit was authorized only until December 31, 2025 and has not been extended, so certifications cannot be issued for hires beginning work on or after January 1, 2026. A Section 125 plan reduces the employer's own FICA and FUTA liability on every pre-tax premium dollar. ProtectHealth is a Las Vegas insurance brokerage and an official Paychex partner.
+      </div>
+    </div>
+  </section>
+
+  <!-- THE FOUR -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">What Is Actually True Right Now</div>
+        <h2 style="margin-top:0;">Three live levers. <span style="background:linear-gradient(120deg,var(--blue),#19c8ff);-webkit-background-clip:text;background-clip:text;color:transparent;">And one that is gone.</span></h2>
+        <p style="color:var(--muted);max-width:640px;margin:10px auto 0;">Verified against the statute, the IRS and the Department of Labor rather than against vendor marketing. Each one links to the full breakdown.</p>
+      </div>
+      <div class="lp-cards">
+        <div class="lp-card spot"><span class="n">01</span><h3>The Nevada Mandate Is Live</h3><p>Six or more employees and three years in business means the requirement applies now. There is no published penalty, which is not the same as it being optional.</p></div>
+        <div class="lp-card spot"><span class="n">02</span><h3>The Startup Credits Are Generous</h3><p>Up to 100 percent of qualified startup costs for 50 or fewer employees, for three years, plus up to $1,000 per employee on contributions.</p></div>
+        <div class="lp-card spot"><span class="n">03</span><h3>Pre-Tax Premiums Cut Your Own Tax</h3><p>A valid Section 125 plan removes those dollars from the wage base, so employer FICA and FUTA fall too. One document holds the whole thing up.</p></div>
+        <div class="lp-card spot"><span class="n">04</span><h3>WOTC Has Lapsed</h3><p>Authorized only through December 31, 2025 and not extended. No certification can be issued for a 2026 hire. Anyone still selling it is working from old material.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCAL EDITORIAL -->
+  <section class="section">
+    <div class="container article">
+      <div class="section-label">What This Means For A Clark County Business</div>
+      <h2 style="margin-top:0;">The mandate is the easy part. The choice underneath it is the expensive one.</h2>
+      <p>Nevada's requirement is satisfied two ways: facilitate the state program, or sponsor a qualifying plan of your own. Both are compliant, and they are not remotely equivalent. The state program is an individual retirement account, which caps an employee at $7,500 for 2026 against $24,500 in a 401(k), and it permits no employer contribution at all. So an owner who wants to reward a long-tenured manager, or shelter more of their own income, cannot do either through the state route. The full coverage test, the registration timeline and the honest read on enforcement are in <a href="/blog-post/nevada-retirement-plan-mandate">Nevada's retirement plan mandate</a>, and the specific question of whether a fine exists is answered in <a href="/qa/is-there-a-penalty-for-not-registering-for-nevada-nest">is there a penalty for not registering</a>.</p>
+      <p>Here is the part that changes the decision, and almost nobody leads with it. Since SECURE 2.0, an eligible employer with 50 or fewer employees can claim 100 percent of qualified startup costs rather than half, capped at the greater of $500 or the lesser of $250 per eligible rank-and-file employee or $5,000, for each of three years. A separate credit reimburses employer contributions at up to $1,000 per employee, in full for the first two years. A third adds $500 a year for building in automatic enrollment. Stacked, they frequently cover most of what a small plan costs in the early years. The amounts, the caps and the three-year lookback that disqualifies some employers are broken down in <a href="/blog-post/small-business-retirement-plan-tax-credits">the federal credits guide</a> and <a href="/qa/how-much-is-the-small-business-401k-startup-tax-credit">how much the startup credit is worth</a>. Your CPA files them. Our job is making sure nobody defaults into the state program without running the comparison once.</p>
+      <p>Then there is the lever sitting inside a payroll system you already own. When employees pay their share of health premiums through a Section 125 plan, those dollars leave the statutory definition of wages for Social Security, Medicare and federal unemployment tax, per <a href="https://www.irs.gov/instructions/i940" target="_blank" rel="noopener noreferrer">the IRS instructions for Form 940</a> on the FUTA side. Because the employer computes its own liability on that same base, employer payroll tax falls by roughly 7.65 percent of every pre-tax premium dollar, automatically, with nothing filed to claim it. The catch is a single written plan document that must be adopted before the plan year begins, and the most common defect we find is a payroll system applying pre-tax treatment that no document ever authorized. That mechanism is in <a href="/blog-post/section-125-plan-employer-payroll-tax-savings">how a Section 125 plan cuts employer payroll tax</a>, and the document risk in <a href="/qa/does-a-section-125-plan-need-a-written-document">does a Section 125 plan need a written document</a>.</p>
+      <p>One correction we would rather deliver than let you find out later. The Work Opportunity Tax Credit expired after December 31, 2025 and Congress has not extended it, so no state workforce agency can certify a hire that started in 2026. Nevada's own DETR page still presents the program as active with application instructions, which is exactly why employers keep being told it is available. Filing Form 8850 within 28 days of hire remains worth doing to preserve position if Congress acts retroactively, but it is not a credit anyone should budget. The receipts are in <a href="/qa/is-the-work-opportunity-tax-credit-still-available">is the Work Opportunity Tax Credit still available</a>.</p>
+      <p>This is where the partnership does real work. ProtectHealth owns the benefits and coverage strategy. Where the answer is payroll infrastructure, a retirement plan, or HR systems, you are introduced to a dedicated Paychex team by name rather than forwarded into a queue. If what you actually need is the wider employer picture rather than the tax and retirement side specifically, start at <a href="/employers">the employer benefits page</a> instead. We are insurance nerds, not tax professionals, and every figure on this page should be confirmed against your own return by a licensed tax professional before you act on it.</p>
+    </div>
+  </section>
+
+  <!-- PARTNER RESOURCES -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Partner Resources</div>
+        <h2 style="margin-top:0;">Straight from Paychex</h2>
+        <p style="color:var(--muted);max-width:640px;margin:8px auto 0;">Published Paychex material on the retirement and payroll side, linked so you can read the source rather than take our summary of it. ProtectHealth does not sell payroll.</p>
+      </div>
+      <div class="lp-cards">
+        <div class="lp-card spot"><h3>Retirement &amp; 401(k)</h3><p><a href="https://www.paychex.com/retirement-services" target="_blank" rel="noopener noreferrer">Retirement services overview</a> · <a href="https://www.paychex.com/articles/employee-benefits/is-a-safe-harbor-401k-right-for-you" target="_blank" rel="noopener noreferrer">Is a Safe Harbor 401(k) right for you</a> · <a href="https://www.paychex.com/articles/compliance/secure-act-changes" target="_blank" rel="noopener noreferrer">SECURE Act changes</a> · <a href="https://www.paychex.com/retirement-services/secure-act-faqs" target="_blank" rel="noopener noreferrer">SECURE Act FAQs</a></p></div>
+        <div class="lp-card spot"><h3>Employer Advantages</h3><p><a href="https://www.paychex.com/articles/employee-benefits/employer-advantages-of-401k-plans" target="_blank" rel="noopener noreferrer">Employer advantages of 401(k) plans</a> · <a href="https://www.paychex.com/partnerships/financial-advisors/articles/safe-harbor-401k-plans" target="_blank" rel="noopener noreferrer">Safe Harbor plan detail</a></p></div>
+        <div class="lp-card spot"><h3>Payroll &amp; PEO</h3><p><a href="https://www.paychex.com/payroll" target="_blank" rel="noopener noreferrer">Payroll</a> · <a href="https://www.paychex.com/peo" target="_blank" rel="noopener noreferrer">PEO</a> · <a href="https://www.paychex.com/payroll/compare-payroll-solutions" target="_blank" rel="noopener noreferrer">Compare solutions</a> · <a href="https://www.paychex.com/demos" target="_blank" rel="noopener noreferrer">Product demos</a></p></div>
+        <div class="lp-card spot"><h3>Tip &amp; Payroll Tax Tools</h3><p><a href="https://www.paychex.com/articles/payroll-taxes/how-to-calculate-fica-rate" target="_blank" rel="noopener noreferrer">How to calculate the FICA rate</a> · <a href="https://www.paychex.com/calculators/fica-tip-calculator" target="_blank" rel="noopener noreferrer">FICA tip calculator</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Straight Answers</div>
+        <h2 style="margin-top:0;">The questions owners ask first</h2>
+      </div>
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+    </div>
+  </section>
+
+  <!-- CONVERSATION -->
+  <section class="section soft" id="talk">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">No Commitment · No Seminar</div>
+        <h2 style="margin-top:0;">Run the comparison once</h2>
+        <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">Tell ProtectHealth where the business sits and you will hear which of these actually applies, including when the answer is that the state program is fine.</p>
+      </div>
+      <div class="lp-formwrap">
+        <LeadForm
+          formId="employers"
+          heading="Where does your business sit?"
+          submitLabel="Book An Employer Strategy Conversation"
+          confirmation="Got it. Someone from ProtectHealth will reach out to set up a short conversation. If a retirement plan or payroll change is worth exploring, we'll bring in our dedicated Paychex team, and your CPA should be in that conversation too. You'll always know who you're talking to and why."
+          fields={[
+            { name: 'first_name', label: 'First name', type: 'text' },
+            { name: 'last_name', label: 'Last name', type: 'text' },
+            { name: 'business', label: 'Business name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone number', type: 'tel' },
+            { name: 'industry', label: 'What industry are you in?', type: 'select', options: ['Restaurant, bar or hospitality', 'Salon, spa or wellness', 'Professional services', 'Retail', 'Construction or trades', 'Other'] },
+            { name: 'employees', label: 'How many employees do you have?', type: 'select', options: ['1-5', '6-9', '10-24', '25-49', '50+'] },
+            { name: 'friction', label: 'Which of these brought you here?', type: 'select', options: ['I got a Nevada retirement notice', 'We already have a retirement plan', 'Pre-tax premiums and payroll tax', 'Tax credits generally', 'Benefits for my team', "We're growing and systems are breaking"] },
+            { name: 'payroll', label: 'Do you currently work with a payroll provider?', type: 'select', options: ["Yes, and it's fine", "Yes, but I'd switch", 'No, I handle it myself', 'Not sure what we have'] },
+            { name: 'notes', label: 'Anything else we should know? (optional)', type: 'textarea', required: false },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- READING LIBRARY, below the form. Conversion first, education after. -->
+  <section class="section lp-read">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Not Ready To Talk Yet?</div>
+        <h2>Read your way in</h2>
+        <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">Every guide below is sourced to the statute, the IRS or the Department of Labor, with the date on each figure.</p>
+      </div>
+      <ContentRail
+        cue="Read The Guide →"
+        items={clusterPosts.map((p) => ({
+          href: `/blog-post/${p.id}`,
+          img: BLOG_ART[p.id]?.webp,
+          alt: BLOG_ART[p.id]?.alt,
+          badge: p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper',
+          title: p.data.title,
+        }))}
+      />
+      <div class="section-head center" style="margin-top:54px;margin-bottom:0;">
+        <div class="section-label">Quick Answers</div>
+        <h2 style="margin-top:0;">The questions business owners actually ask</h2>
+      </div>
+      <ContentRail pills={clusterQa.map((q) => ({ href: `/qa/${q.id}`, label: q.data.question }))} />
+      <p style="text-align:center;margin-top:30px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
+    </div>
+  </section>
+</Base>

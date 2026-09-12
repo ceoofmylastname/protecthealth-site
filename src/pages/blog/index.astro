@@ -1,11 +1,45 @@
 ---
+// Topic browser, replacing the flat reverse-chronological grid.
+//
+// Why: this page was one undifferentiated wall of cards. At 36 posts that was
+// already hard to scan and the content roadmap takes it to 134, at which point
+// reverse-chron is actively hostile to a visitor looking for one subject.
+//
+// Deliberately ONE URL. No /blog/topic/<cluster> pages, for two reasons: the
+// service pages already hub their clusters via SERVICE_CLUSTER, and the campaign
+// landing pages hub theirs, so topic pages would be a third set of hubs
+// competing for the same queries. Filtering is client-side over server-rendered
+// markup, so every post is in the HTML and indexable whether or not JS runs.
+//
+// The script only toggles the `hidden` property on elements Astro already
+// rendered. It never creates DOM, which is what keeps the scoped styles below
+// working (Astro scopes with data-astro-cid-*, and runtime-created elements
+// never receive that attribute).
 import Base from '../../layouts/Base.astro';
-import { SITE, BLOG_ART, breadcrumbSchema, srcsetFor, SIZES_CARD } from '../../lib/site';
+import { SITE, BLOG_ART, CLUSTER_LABELS, CLUSTER_ORDER, breadcrumbSchema, srcsetFor, SIZES_CARD } from '../../lib/site';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort((a, b) =>
-  b.data.datePublished.localeCompare(a.data.datePublished)
-);
+const all = await getCollection('blog');
+
+// Group by cluster in CLUSTER_ORDER, TOFU first inside each group so the entry
+// point to a subject is the first card a visitor sees, then newest first.
+const groups = CLUSTER_ORDER
+  .filter((c) => CLUSTER_LABELS[c])
+  .map((c) => ({
+    cluster: c,
+    ...CLUSTER_LABELS[c],
+    posts: all
+      .filter((p) => p.data.cluster === c)
+      .sort((a, b) => {
+        const stage = (x: string) => (x === 'TOFU' ? 0 : x === 'MOFU' ? 1 : 2);
+        const d = stage(a.data.funnelStage) - stage(b.data.funnelStage);
+        return d !== 0 ? d : b.data.datePublished.localeCompare(a.data.datePublished);
+      }),
+  }))
+  .filter((g) => g.posts.length > 0);
+
+const total = groups.reduce((n, g) => n + g.posts.length, 0);
+
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: `${SITE.domain}/` },
@@ -14,32 +48,206 @@ const schemas = [
 ];
 ---
 <Base
-  title="Insurance Guides & News | ProtectHealth Blog"
-  description="Plain-English guides on Nevada health insurance, self-employed coverage strategy, ICHRA, employer benefits, and more from the ProtectHealth team."
+  title="Insurance Guides By Topic | ProtectHealth Blog"
+  description="Browse plain-English guides by topic: Nevada health insurance, self-employed and 1099 coverage, small business benefits, employer tax and retirement, Medicare, life, dental and vision."
   schemas={schemas}
 >
   <section class="hero">
     <div class="container">
-      <div class="kicker">Blog / News</div>
+      <div class="kicker">Blog / Guides</div>
       <h1>Guides worth reading before you buy anything</h1>
-      <p class="lead">Strategy-first education for Nevadans, self-employed professionals, and business owners.</p>
+      <p class="lead">{total} guides across {groups.length} topics. Pick a subject, or search it.</p>
     </div>
   </section>
-  <section class="section">
+
+  <!-- TOPIC PICKER -->
+  <section class="section" style="padding-bottom:0;">
     <div class="container">
-      <div class="grid cols-3">
-        {posts.map((p) => (
-          <a class="img-card spot" href={`/blog-post/${p.id}`} style="text-decoration:none;">
-            {BLOG_ART[p.id] && <div class="thumb"><img src={BLOG_ART[p.id].webp} srcset={srcsetFor(BLOG_ART[p.id].webp)} sizes={SIZES_CARD} alt={BLOG_ART[p.id].alt} loading="lazy" /></div>}
-            <div class="body-pad">
-              <span class="badge">{p.data.category}</span>
-              <h3>{p.data.title}</h3>
-              <p>{p.data.description}</p>
-              <span class="more">Read More →</span>
-            </div>
-          </a>
-        ))}
+      <div class="tb-bar">
+        <div class="tb-chips" role="group" aria-label="Filter guides by topic">
+          <button type="button" class="tb-chip is-on" data-topic="all" aria-pressed="true">
+            All topics <span class="tb-n">{total}</span>
+          </button>
+          {groups.map((g) => (
+            <button type="button" class="tb-chip" data-topic={g.cluster} aria-pressed="false">
+              {g.label} <span class="tb-n">{g.posts.length}</span>
+            </button>
+          ))}
+        </div>
+        <div class="tb-tools">
+          <label class="tb-search">
+            <span class="sr-only">Search guides</span>
+            <input type="search" id="tb-q" placeholder="Search guides…" autocomplete="off" />
+          </label>
+          <label class="tb-toggle">
+            <input type="checkbox" id="tb-tofu" />
+            <span>Start-here guides only</span>
+          </label>
+        </div>
       </div>
+      <p class="tb-count" id="tb-count" aria-live="polite">Showing all {total} guides</p>
+      <p class="tb-empty" id="tb-empty" hidden>
+        Nothing matches that. <button type="button" class="tb-reset" id="tb-reset">Clear the filters</button> or
+        <a href="/qa">browse the Q&amp;A library</a> instead.
+      </p>
+    </div>
+  </section>
+
+  <!-- GROUPS -->
+  {groups.map((g) => (
+    <section class="section tb-group" data-group={g.cluster} id={g.cluster} style="padding-top:34px;">
+      <div class="container">
+        <div class="tb-head">
+          <h2>{g.label}</h2>
+          <p>{g.blurb}</p>
+        </div>
+        <div class="grid cols-3">
+          {g.posts.map((p) => (
+            <a
+              class="img-card spot tb-card"
+              href={`/blog-post/${p.id}`}
+              style="text-decoration:none;"
+              data-stage={p.data.funnelStage}
+              data-text={`${p.data.title} ${p.data.description} ${p.data.category} ${g.label}`.toLowerCase()}
+            >
+              {BLOG_ART[p.id] && <div class="thumb"><img src={BLOG_ART[p.id].webp} srcset={srcsetFor(BLOG_ART[p.id].webp)} sizes={SIZES_CARD} alt={BLOG_ART[p.id].alt} loading="lazy" /></div>}
+              <div class="body-pad">
+                <span class="badge">{p.data.funnelStage === 'TOFU' ? 'Start Here' : p.data.category}</span>
+                <h3>{p.data.title}</h3>
+                <p>{p.data.description}</p>
+                <span class="more">Read More →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <!-- Q&A CROSS-LINK -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Shorter Answers</div>
+        <h2 style="margin-top:0;">Just have one question?</h2>
+        <p style="color:var(--muted);max-width:620px;margin:8px auto 0;">The Q&amp;A library answers a single question per page, the way an advisor would answer it out loud.</p>
+      </div>
+      <p style="text-align:center;margin:0;"><a href="/qa" class="btn">Browse The Q&amp;A Library</a></p>
     </div>
   </section>
 </Base>
+
+<style>
+  .tb-bar { display: flex; flex-direction: column; gap: 16px; }
+  .tb-chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .tb-chip {
+    font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; min-height: 44px; border-radius: 30px;
+    border: 1px solid rgba(10, 40, 60, 0.14); background: #fff; color: var(--ink);
+  }
+  .tb-chip:hover { border-color: var(--blue); }
+  .tb-chip.is-on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .tb-n { font-size: 0.78rem; opacity: 0.62; font-variant-numeric: tabular-nums; }
+  .tb-tools { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+  .tb-search { flex: 1 1 min(280px, 100%); }
+  .tb-search input {
+    font: inherit; width: 100%; min-height: 44px; padding: 10px 15px;
+    border: 1px solid rgba(10, 40, 60, 0.16); border-radius: 10px; background: #fff;
+  }
+  .tb-toggle { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; cursor: pointer; font-size: 0.92rem; color: var(--muted); }
+  .tb-toggle input { width: 18px; height: 18px; }
+  .tb-count { margin: 16px 0 0; font-size: 0.88rem; color: var(--muted); }
+  .tb-empty { margin: 16px 0 0; font-size: 0.95rem; }
+  .tb-reset { font: inherit; color: var(--blue); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+  .tb-head { margin-bottom: 22px; }
+  .tb-head h2 { margin: 0 0 6px; }
+  .tb-head p { margin: 0; color: var(--muted); max-width: 640px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 700px) {
+    .tb-chip { font-size: 0.85rem; padding: 9px 13px; }
+  }
+</style>
+
+<script>
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.tb-chip'));
+  const groups = Array.from(document.querySelectorAll<HTMLElement>('.tb-group'));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('.tb-card'));
+  const q = document.getElementById('tb-q');
+  const tofu = document.getElementById('tb-tofu');
+  const count = document.getElementById('tb-count');
+  const empty = document.getElementById('tb-empty');
+  const reset = document.getElementById('tb-reset');
+  if (chips.length && groups.length) {
+    let topic = 'all';
+
+    const apply = () => {
+      const term = (q instanceof HTMLInputElement ? q.value : '').trim().toLowerCase();
+      const startOnly = tofu instanceof HTMLInputElement && tofu.checked;
+      let shown = 0;
+
+      for (const group of groups) {
+        const inTopic = topic === 'all' || group.getAttribute('data-group') === topic;
+        let visibleInGroup = 0;
+        for (const card of group.querySelectorAll<HTMLElement>('.tb-card')) {
+          const okStage = !startOnly || card.getAttribute('data-stage') === 'TOFU';
+          const okTerm = !term || (card.getAttribute('data-text') || '').includes(term);
+          const show = inTopic && okStage && okTerm;
+          card.hidden = !show;
+          if (show) visibleInGroup++;
+        }
+        group.hidden = visibleInGroup === 0;
+        shown += visibleInGroup;
+      }
+
+      if (count) {
+        const noFilters = topic === 'all' && !term && !startOnly;
+        count.textContent = noFilters
+          ? `Showing all ${cards.length} guides`
+          : `Showing ${shown} of ${cards.length} guides`;
+        count.hidden = shown === 0;
+      }
+      if (empty) empty.hidden = shown !== 0;
+    };
+
+    const setTopic = (next, focusHeading) => {
+      topic = next;
+      for (const chip of chips) {
+        const on = chip.getAttribute('data-topic') === topic;
+        chip.classList.toggle('is-on', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      apply();
+      if (focusHeading && topic !== 'all') {
+        const target = document.getElementById(topic);
+        if (target) target.scrollIntoView({ block: 'start' });
+      }
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () => {
+        const next = chip.getAttribute('data-topic') || 'all';
+        setTopic(next, false);
+        // Shareable: /blog#employer-tax opens straight into that topic.
+        history.replaceState(null, '', next === 'all' ? window.location.pathname : `#${next}`);
+      });
+    }
+    if (q) q.addEventListener('input', apply);
+    if (tofu) tofu.addEventListener('change', apply);
+    if (reset) {
+      reset.addEventListener('click', () => {
+        if (q instanceof HTMLInputElement) q.value = '';
+        if (tofu instanceof HTMLInputElement) tofu.checked = false;
+        setTopic('all', false);
+      });
+    }
+
+    // Deep link support, so other pages can point at a single topic.
+    const fromHash = window.location.hash.replace('#', '');
+    if (fromHash && chips.some((c) => c.getAttribute('data-topic') === fromHash)) {
+      setTopic(fromHash, true);
+    } else {
+      apply();
+    }
+  }
+</script>

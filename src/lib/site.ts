@@ -151,6 +151,9 @@ export function imageObject(art: Art | undefined, fallbackUrl?: string) {
 }
 
 export const BLOG_ART: Record<string, Art> = {
+  'nevada-retirement-plan-mandate': localBlogArt('nevada-retirement-plan-mandate', "A translucent glass nest cradling a single glowing golden orb on a dark reflective surface, with a tall doorway of cyan light opening in the darkness behind it, Nevada's retirement savings mandate", 'The state opened a door. Which one a business walks through is still a choice.'),
+  'small-business-retirement-plan-tax-credits': localBlogArt('small-business-retirement-plan-tax-credits', 'Three translucent glass discs stacked in a column of cyan light, each channeling golden light downward onto a small glowing glass storefront, the federal credits that pay for a small business retirement plan', 'Three credits, stacked. Most owners have heard of none of them.'),
+  'section-125-plan-employer-payroll-tax-savings': localBlogArt('section-125-plan-employer-payroll-tax-savings', 'A translucent glass funnel with golden coins pouring in and a thinner stream emerging below, a ribbon of cyan light carrying the difference away, pre-tax premiums reducing employer payroll tax', 'The same premium dollar, doing two jobs instead of one.'),
   'nevada-open-enrollment-health-insurance': localBlogArt('nevada-open-enrollment-health-insurance', 'Glass hourglass pouring golden light that wraps a protected Las Vegas home, the Nevada open enrollment window closing'),
   'silver-state-health-insurance-exchange': localBlogArt('silver-state-health-insurance-exchange', 'Nevada sculpted in gradient glass with streams of light flowing to a glowing marketplace pavilion, the Silver State Health Insurance Exchange'),
   'small-business-health-insurance': localBlogArt('small-business-health-insurance', 'A blooming canopy of gradient light sheltering a small glowing storefront and its team, small business health insurance'),
@@ -187,6 +190,18 @@ export const BLOG_ART: Record<string, Art> = {
 };
 
 export const QA_ART: Record<string, Art> = {
+  'does-my-nevada-business-have-to-offer-a-retirement-plan': localQaArt('does-my-nevada-business-have-to-offer-a-retirement-plan', 'A translucent glass threshold arch with six small glowing orbs gathered on one side and an open path of cyan light beyond it, the Nevada employer coverage test'),
+  'what-is-the-nevada-employee-savings-trust': localQaArt('what-is-the-nevada-employee-savings-trust', 'A ribbon of cyan light flowing from a central glass plinth into a row of small individual glass vaults each lit gold, the Nevada Employee Savings Trust moving payroll into personal accounts'),
+  'is-there-a-penalty-for-not-registering-for-nevada-nest': localQaArt('is-there-a-penalty-for-not-registering-for-nevada-nest', 'A hollow unlit glass seal lying dark beside a softly glowing glass ledger on a reflective surface, no published Nevada penalty behind the registration requirement'),
+  'how-much-can-employees-save-in-nevada-nest': localQaArt('how-much-can-employees-save-in-nevada-nest', 'Two translucent glass vessels side by side, a short one filled with gold light and a far taller one filled much higher, the IRA cap set against the 401k limit'),
+  'how-much-is-the-small-business-401k-startup-tax-credit': localQaArt('how-much-is-the-small-business-401k-startup-tax-credit', 'A translucent glass invoice standing upright with a broad beam of golden light dissolving most of its lower portion into particles, the startup cost credit covering the bill'),
+  'can-a-small-employer-get-a-credit-for-401k-matching': localQaArt('can-a-small-employer-get-a-credit-for-401k-matching', 'A translucent glass hand lowering a golden coin toward a mirrored surface where a reflected second coin rises to meet it, the employer contribution credit matching what the business puts in'),
+  'is-the-work-opportunity-tax-credit-still-available': localQaArt('is-the-work-opportunity-tax-credit-still-available', 'A sealed translucent glass door set in a dark wall with golden light fading behind it and a thin cyan line tracing the closed seam, the lapsed Work Opportunity Tax Credit'),
+  'what-is-a-safe-harbor-401k': localQaArt('what-is-a-safe-harbor-401k', 'A curving translucent glass harbor wall enclosing a small vessel lit warm gold in still water, turbulent cyan light breaking outside the wall, a Safe Harbor 401k plan design'),
+  'what-is-a-section-125-premium-only-plan': localQaArt('what-is-a-section-125-premium-only-plan', 'A single translucent glass lever on a dark plinth with one glowing golden path and one dim grey path diverging beneath it, the one choice a premium only plan offers'),
+  'do-pre-tax-premiums-lower-employer-payroll-taxes': localQaArt('do-pre-tax-premiums-lower-employer-payroll-taxes', 'A translucent glass block with a wedge cut out of it, the removed wedge glowing gold nearby and the block casting a visibly smaller shadow, pre-tax premiums shrinking the employer wage base'),
+  'can-an-s-corp-owner-participate-in-a-section-125-plan': localQaArt('can-an-s-corp-owner-participate-in-a-section-125-plan', 'A curving translucent glass barrier with a cluster of glowing orbs gathered inside and one larger orb held alone outside it, the owner excluded from a Section 125 cafeteria plan'),
+  'does-a-section-125-plan-need-a-written-document': localQaArt('does-a-section-125-plan-need-a-written-document', 'A single thin glass document on a plinth visibly bearing the weight of a large glass structure above it, one beam of gold light passing through, the plan document holding up the whole arrangement'),
   'is-an-ichra-legit': localQaArt('is-an-ichra-legit', 'A layered gradient glass shield on a marble plinth under a museum spotlight with a ring of verification light, ICHRA legitimacy proven'),
   'what-is-a-section-105-plan': localQaArt('what-is-a-section-105-plan', 'A glowing glass scroll casting a bridge of light and coins to a family at their home, a Section 105 plan at work'),
   'can-realtors-get-group-health-insurance': localQaArt('can-realtors-get-group-health-insurance', 'A lone professional raising a personal aurora of light beside a sheltered group dome, Realtors and group health insurance'),
@@ -508,9 +523,28 @@ export const AUTHORS: Record<string, Author> = {
 // because he runs Employer Group Services and drove the ICHRA campaign. Brian
 // owns individual health, the Nevada marketplace and Medicare as the agency
 // lead. Brenda owns the ancillary lines.
+// Display labels + running order for the content clusters. Used by /blog to
+// group and filter, and available to /qa when that index gets the same
+// treatment. Keep in sync with the cluster enum in src/content.config.ts:
+// a cluster missing from CLUSTER_ORDER simply will not render on /blog.
+export const CLUSTER_LABELS: Record<string, { label: string; blurb: string }> = {
+  'nevada-core': { label: 'Nevada Health Insurance', blurb: 'Enrollment windows, plan choice, networks and how coverage actually works in this state.' },
+  ichra: { label: 'Self-Employed & 1099', blurb: 'Realtors, freelancers and contractors, and the tax-advantaged structures that fit a 1099 income.' },
+  employers: { label: 'Small Business & Benefits', blurb: 'Group coverage, HR, payroll and the tipped-payroll rules Las Vegas runs on.' },
+  'employer-tax': { label: 'Employer Tax & Retirement', blurb: "Nevada's retirement mandate, the federal employer credits and the payroll tax side of pre-tax premiums." },
+  medicare: { label: 'Medicare', blurb: 'Turning 65, Advantage against Medigap, Part D, and the deadlines that follow you for decades.' },
+  life: { label: 'Life Insurance', blurb: 'How much, what kind, and how the number is actually calculated.' },
+  'dental-vision': { label: 'Dental & Vision', blurb: 'When the coverage pays for itself, and when it plainly does not.' },
+};
+
+// Reading order on /blog. Campaign clusters lead because they carry the
+// strategy content; product clusters follow.
+export const CLUSTER_ORDER = ['nevada-core', 'ichra', 'employers', 'employer-tax', 'medicare', 'life', 'dental-vision'];
+
 export const CLUSTER_AUTHOR: Record<string, string> = {
   ichra: 'robert-morgen',
   employers: 'robert-morgen',
+  'employer-tax': 'robert-morgen',
   'nevada-core': 'brian-douglas',
   medicare: 'brian-douglas',
   life: 'brenda-morgen',

@@ -41,6 +41,7 @@ const skip = new Set([currentId, ...exclude]);
 const CLUSTER_HUB: Record<string, { url: string; label: string; note: string }> = {
   ichra: { url: '/self-employed', label: 'Health Insurance For The Self-Employed', note: 'How ProtectHealth maps coverage to a 1099 income structure' },
   employers: { url: '/employers', label: 'Employer Benefits And HR Strategy', note: 'Benefits, payroll and HR handled as one picture' },
+  'employer-tax': { url: '/paychex', label: 'Employer Tax Credits And Retirement', note: 'The Nevada mandate, the federal credits and the payroll tax side' },
   'nevada-core': { url: '/services/health-insurance', label: 'Health Insurance Coverage', note: 'Plans, networks and what ProtectHealth checks first' },
   life: { url: '/services/life-insurance', label: 'Life Insurance Coverage', note: 'Term, whole life and how the amount is calculated' },
   'dental-vision': { url: '/services/dental-insurance', label: 'Dental And Vision Coverage', note: 'When the coverage pays for itself and when it does not' },
