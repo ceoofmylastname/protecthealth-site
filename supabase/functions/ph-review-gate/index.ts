@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
     const assets: Record<string, string | null> = {};
     for (const item of content.gallery) {
       const { data } = await sb.storage.from(BUCKET).createSignedUrl(item.asset, SIGNED_URL_TTL_S);
-      assets[item.id] = data?.signedUrl ?? null;
+      assets[item.id] = data?.signedUrl ?? (item as { image?: string }).image ?? null;
     }
     // Logo files for the co-branded footer preview.
     for (const f of ["logos/paychex-900x246.png", "logos/protecthealth.png"]) {
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
       assets[f] = data?.signedUrl ?? null;
     }
 
-    return json({ content, assets, viewer: t.label }, 200, origin);
+    return json({ content, assets }, 200, origin);
   }
 
   return json({ error: "Unknown action." }, 400, origin);

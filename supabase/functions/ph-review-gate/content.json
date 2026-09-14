@@ -1,20 +1,56 @@
 {
   "meta": {
-    "title": "Protect Health + Paychex: Go-to-Market Review",
-    "version": "Draft 1, September 13, 2026",
-    "notice": "This is a draft for review. Nothing on this page is live, published, or approved unless its status chip says so. Do not screenshot or forward creative marked Draft or Needs review.",
+    "title": "Your payroll is a tax asset you are not claiming.",
+    "version": "Draft 1 · September 13, 2026",
+    "notice": "Draft for review. Nothing on this page is live, published, or approved unless its status chip says so. Do not forward creative marked Draft or Needs review.",
     "lanes": {
       "A": "Paychex published language used verbatim. No approval needed.",
       "B": "Our copy built on Paychex published figures. Courtesy review.",
       "C": "Our own math or claims. Requires Sean's written approval and a source log."
     },
-    "statuses": ["Draft", "Needs review", "Approved", "Live"]
+    "statuses": [
+      "Draft",
+      "Needs review",
+      "Approved",
+      "Live"
+    ],
+    "kicker": "ProtectHealth + Paychex · Go-to-market review",
+    "sub": "The plan, the creative, and the six decisions that unlock it. Read in order.",
+    "hero_art": "https://www.protecthealth.com/assets/blog-art/nevada-retirement-plan-mandate.webp",
+    "reading_order": [
+      {
+        "n": "01",
+        "title": "Decide",
+        "what": "Six decisions, each with a default. Five minutes.",
+        "href": "#decisions"
+      },
+      {
+        "n": "02",
+        "title": "Understand",
+        "what": "Why this shape, who we reach, how a click becomes a broker call. Fifteen minutes.",
+        "href": "#umbrella"
+      },
+      {
+        "n": "03",
+        "title": "See it",
+        "what": "The creative, the landing page, the timeline, and what is still open. Ten minutes.",
+        "href": "#gallery"
+      }
+    ],
+    "marquee": [
+      "One story, five doors",
+      "25 URLs per cluster",
+      "No CTA until the third stage",
+      "Insurance nerds, not tax professionals",
+      "Official Paychex Partner",
+      "Las Vegas · Nevada"
+    ]
   },
   "sections": [
     {
       "id": "decisions",
-      "title": "Decisions we need from you",
-      "lede": "Six items. Each has a default so you are confirming, not authoring. Reply with the number and yes, or the number and what you want changed.",
+      "title": "Six decisions. Then we launch.",
+      "lede": "Each one has a default, so you are confirming, not authoring. Reply with the number and yes, or the number and what to change.",
       "blocks": [
         {
           "type": "decisions",
@@ -61,8 +97,8 @@
     },
     {
       "id": "umbrella",
-      "title": "One story, five doors",
-      "lede": "Every asset in this plan makes the same argument. A Nevada employer's payroll is a tax asset they are not claiming, and the reason they are not claiming it is structure, not eligibility.",
+      "title": "One story. Five doors.",
+      "lede": "Every asset makes the same argument. What changes is the first sentence.",
       "blocks": [
         {
           "type": "p",
@@ -74,13 +110,43 @@
         },
         {
           "type": "table",
-          "head": ["Door", "The first sentence", "Who it reaches", "Status"],
+          "head": [
+            "Door",
+            "The first sentence",
+            "Who it reaches",
+            "Status"
+          ],
           "rows": [
-            ["Retirement", "Nevada requires you to offer a retirement route. Most owners chose the one they cannot contribute to.", "Any Nevada employer with six or more employees", "Cluster built, 16 pages live on branch, 10 more written"],
-            ["Tips", "If you take tips, a federal credit you probably never filed for got bigger last year.", "Restaurants, bars, salons, barbershops, nail, spa", "Creative scripted, MOFU written"],
-            ["Location credits", "Where your people work changes what you can claim.", "Clark County employers in designated zones", "Not started"],
-            ["Activity credits", "Construction, engineering and food science qualify more often than their owners think.", "Trades, manufacturing, software, labs", "Not started"],
-            ["Hiring", "Folded into location and activity.", "See note", "Retired as a standalone door"]
+            [
+              "Retirement",
+              "Nevada requires you to offer a retirement route. Most owners chose the one they cannot contribute to.",
+              "Any Nevada employer with six or more employees",
+              "Cluster built, 16 pages live on branch, 10 more written"
+            ],
+            [
+              "Tips",
+              "If you take tips, a federal credit you probably never filed for got bigger last year.",
+              "Restaurants, bars, salons, barbershops, nail, spa",
+              "Creative scripted, MOFU written"
+            ],
+            [
+              "Location credits",
+              "Where your people work changes what you can claim.",
+              "Clark County employers in designated zones",
+              "Not started"
+            ],
+            [
+              "Activity credits",
+              "Construction, engineering and food science qualify more often than their owners think.",
+              "Trades, manufacturing, software, labs",
+              "Not started"
+            ],
+            [
+              "Hiring",
+              "Folded into location and activity.",
+              "See note",
+              "Retired as a standalone door"
+            ]
           ]
         },
         {
@@ -89,12 +155,13 @@
           "title": "Why the hiring door was retired",
           "text": "The work opportunity tax credit lapsed after December 31, 2025 and has not been extended. Department of Labor guidance in TEGL No. 09-25, dated April 28, 2026, states that state workforce agencies may not issue certifications during a lapse. Nevada's own DETR pages still present the program as active, which is why employers here keep hearing it is live. The only honest residual step is filing Form 8850 within 28 days of hire to preserve position in case Congress extends retroactively. That is one Q&A page, not a campaign."
         }
-      ]
+      ],
+      "art": "https://www.protecthealth.com/assets/buyers-guide/04-toolbox.webp"
     },
     {
       "id": "funnel-why",
-      "title": "Why three stages, and why in this order",
-      "lede": "You know what a funnel is. What follows is why this specific shape, because the shape is doing work that a single landing page and a single ad cannot.",
+      "title": "Why we never ask first.",
+      "lede": "You know what a funnel is. Here is why this one has three stages, in this order, and why the opt-in appears exactly once.",
       "blocks": [
         {
           "type": "h3",
@@ -142,12 +209,13 @@
           "title": "The employer-tax cluster is the proof this shape exists",
           "text": "Sixteen pages are built and committed: three top-of-funnel posts on the Nevada retirement mandate, small business retirement plan tax credits, and Section 125 payroll tax savings, with twelve question-and-answer children and the bottom-of-funnel hub. Ten more pages are written for the middle: the state program against a 401(k), the PEO as a credit mechanism, and eight children including two correction pages. Two of the sixteen are correction pages, one on the WOTC lapse and one on the absence of any published Nevada non-compliance penalty. Nobody else in the market is answering either correctly, and when an AI model has conflicting inputs, the source that names and corrects the common error is the one it cites."
         }
-      ]
+      ],
+      "art": "https://www.protecthealth.com/assets/buyers-guide/01-hero.webp"
     },
     {
       "id": "audience",
-      "title": "Who we reach, and on which platform",
-      "lede": "LinkedIn and Meta are not doing the same job. Treating them the same is the fastest way to burn budget.",
+      "title": "Two platforms. Two different jobs.",
+      "lede": "LinkedIn finds people we cannot otherwise identify. Meta does everything else. Treating them the same burns budget.",
       "blocks": [
         {
           "type": "p",
@@ -159,13 +227,37 @@
         },
         {
           "type": "table",
-          "head": ["", "LinkedIn", "Meta"],
+          "head": [
+            "",
+            "LinkedIn",
+            "Meta"
+          ],
           "rows": [
-            ["Job", "Cold prospecting against a firmographic filter", "Volume top of funnel plus all retargeting"],
-            ["Targeting", "Title, company size, industry, geography", "Interest and behavior, lookalikes, custom audiences"],
-            ["Creative", "Static, informational, no CTA", "Video for the ladder, static for reach"],
-            ["What we measure", "Cost per landing page view by title", "View-depth bucket fill rate, cost per bucket entry"],
-            ["Share of budget", "Smaller", "Larger"]
+            [
+              "Job",
+              "Cold prospecting against a firmographic filter",
+              "Volume top of funnel plus all retargeting"
+            ],
+            [
+              "Targeting",
+              "Title, company size, industry, geography",
+              "Interest and behavior, lookalikes, custom audiences"
+            ],
+            [
+              "Creative",
+              "Static, informational, no CTA",
+              "Video for the ladder, static for reach"
+            ],
+            [
+              "What we measure",
+              "Cost per landing page view by title",
+              "View-depth bucket fill rate, cost per bucket entry"
+            ],
+            [
+              "Share of budget",
+              "Smaller",
+              "Larger"
+            ]
           ]
         },
         {
@@ -174,12 +266,37 @@
         },
         {
           "type": "table",
-          "head": ["Door", "Primary segment", "Geography", "Note"],
+          "head": [
+            "Door",
+            "Primary segment",
+            "Geography",
+            "Note"
+          ],
           "rows": [
-            ["Retirement", "Owners and GMs, six to one hundred employees, any industry", "Clark County, then Washoe", "Largest addressable set. Everyone with six employees is in scope."],
-            ["Tips, food and beverage", "Restaurant, bar and hospitality owners", "Las Vegas metro", "Established credit, high awareness, low filing rate"],
-            ["Tips, beauty services", "Salon, barbershop, nail, esthetics, med-spa owners", "Las Vegas metro", "New since 2025. Near-zero awareness. Strongest unclaimed opening."],
-            ["Location and activity", "Trades, manufacturing, software", "Clark County zones", "Requires the location cluster first"]
+            [
+              "Retirement",
+              "Owners and GMs, six to one hundred employees, any industry",
+              "Clark County, then Washoe",
+              "Largest addressable set. Everyone with six employees is in scope."
+            ],
+            [
+              "Tips, food and beverage",
+              "Restaurant, bar and hospitality owners",
+              "Las Vegas metro",
+              "Established credit, high awareness, low filing rate"
+            ],
+            [
+              "Tips, beauty services",
+              "Salon, barbershop, nail, esthetics, med-spa owners",
+              "Las Vegas metro",
+              "New since 2025. Near-zero awareness. Strongest unclaimed opening."
+            ],
+            [
+              "Location and activity",
+              "Trades, manufacturing, software",
+              "Clark County zones",
+              "Requires the location cluster first"
+            ]
           ]
         },
         {
@@ -192,8 +309,8 @@
     },
     {
       "id": "path",
-      "title": "The path from ad to broker",
-      "lede": "What happens after someone clicks matters more to Paychex than the creative does. Here is every hop.",
+      "title": "Every hop from click to broker.",
+      "lede": "What happens after the click matters more to Paychex than the creative does.",
       "blocks": [
         {
           "type": "diagram",
@@ -221,12 +338,13 @@
           "title": "Tracking is verified before any ad runs",
           "text": "PartnerId=461541 has to survive every hop. Redirects, link shorteners and QR generators all strip query parameters, so every outbound link is tested after every page edit. Meta pixel and Conversions API confirmed. LinkedIn Insight Tag installed. UTM taxonomy written down before the first campaign is built, not reverse-engineered from the first report."
         }
-      ]
+      ],
+      "art": "https://www.protecthealth.com/assets/buyers-guide/06-conversation.webp"
     },
     {
       "id": "ladder",
-      "title": "The retargeting ladder",
-      "lede": "Video viewers sort themselves by how long they watch. We speak to each bucket differently, because how long someone watched tells us what they already believe.",
+      "title": "How long they watched tells us what to say.",
+      "lede": "Video viewers sort themselves. Each bucket gets different copy because each bucket already believes something different.",
       "blocks": [
         {
           "type": "p",
@@ -234,11 +352,31 @@
         },
         {
           "type": "table",
-          "head": ["Bucket", "What we know about them", "What they see next", "Copy posture"],
+          "head": [
+            "Bucket",
+            "What we know about them",
+            "What they see next",
+            "Copy posture"
+          ],
           "rows": [
-            ["25%", "The hook held them, then they left. They saw the claim, not the reasoning.", "A different top-of-funnel video on the same door, or a static restating the fact with one supporting number.", "Restate. Do not escalate."],
-            ["50%", "They got through the correction. They know the common belief is wrong.", "Middle-of-funnel: the comparison piece or the calculator, framed as the natural next question.", "Compare. Point somewhere. Still no form."],
-            ["75%", "They watched nearly all of it. The reasoning landed.", "The landing page, with copy that assumes they already accept the premise.", "Ask. Once."]
+            [
+              "25%",
+              "The hook held them, then they left. They saw the claim, not the reasoning.",
+              "A different top-of-funnel video on the same door, or a static restating the fact with one supporting number.",
+              "Restate. Do not escalate."
+            ],
+            [
+              "50%",
+              "They got through the correction. They know the common belief is wrong.",
+              "Middle-of-funnel: the comparison piece or the calculator, framed as the natural next question.",
+              "Compare. Point somewhere. Still no form."
+            ],
+            [
+              "75%",
+              "They watched nearly all of it. The reasoning landed.",
+              "The landing page, with copy that assumes they already accept the premise.",
+              "Ask. Once."
+            ]
           ]
         },
         {
@@ -257,8 +395,8 @@
     },
     {
       "id": "organic",
-      "title": "Organic first, then paid behind the winners",
-      "lede": "Organic posts are the cheapest test we have. The ones that earn attention on their own are the ones that get budget.",
+      "title": "Organic votes. Paid follows.",
+      "lede": "Every asset runs free first. The ones that earn attention on their own are the ones that get money.",
       "blocks": [
         {
           "type": "p",
@@ -278,21 +416,45 @@
         },
         {
           "type": "table",
-          "head": ["Week", "Organic", "Paid"],
+          "head": [
+            "Week",
+            "Organic",
+            "Paid"
+          ],
           "rows": [
-            ["1", "Post V1, V2, V3 and three statics across Protect Health pages", "Nothing"],
-            ["2", "Read the seven-day numbers against the trigger", "Boost any post that clears both thresholds"],
-            ["3", "Post the next three statics", "Top-of-funnel video live on Meta and LinkedIn behind the winners"],
-            ["4", "Continue cadence", "Buckets have volume. Switch on 25 and 50 percent follow-ups."],
-            ["5", "Continue cadence", "Switch on 75 percent follow-up to the landing page. A/B test begins."]
+            [
+              "1",
+              "Post V1, V2, V3 and three statics across Protect Health pages",
+              "Nothing"
+            ],
+            [
+              "2",
+              "Read the seven-day numbers against the trigger",
+              "Boost any post that clears both thresholds"
+            ],
+            [
+              "3",
+              "Post the next three statics",
+              "Top-of-funnel video live on Meta and LinkedIn behind the winners"
+            ],
+            [
+              "4",
+              "Continue cadence",
+              "Buckets have volume. Switch on 25 and 50 percent follow-ups."
+            ],
+            [
+              "5",
+              "Continue cadence",
+              "Switch on 75 percent follow-up to the landing page. A/B test begins."
+            ]
           ]
         }
       ]
     },
     {
       "id": "video",
-      "title": "The three top-of-funnel videos",
-      "lede": "All three are corrections, because a correction is the only pattern interrupt that survives contact with a skeptical business owner. The first line has to work as on-screen text, because most of the audience sees it with sound off.",
+      "title": "Three videos that contradict the accountant.",
+      "lede": "All three are corrections, because a correction is the only pattern interrupt a skeptical owner cannot scroll past. No CTA on any of them.",
       "blocks": [
         {
           "type": "script",
@@ -355,8 +517,8 @@
     },
     {
       "id": "gallery",
-      "title": "Creative",
-      "lede": "Every asset carries its lane and its status. Nothing here is live. Assets marked Draft are for your eyes and should not be forwarded.",
+      "title": "The creative.",
+      "lede": "Every asset carries its lane and its status. Top-of-funnel pieces are ProtectHealth voice and ProtectHealth art. Co-branded pieces follow the Paychex guidelines to the letter.",
       "blocks": [
         {
           "type": "gallery",
@@ -366,8 +528,8 @@
     },
     {
       "id": "landing",
-      "title": "The landing page",
-      "lede": "Mirrors the layout Paychex's own partner portal shows as a good example, in Protect Health's visual language, and captures to our CRM.",
+      "title": "The landing page.",
+      "lede": "Paychex's approved layout, in ProtectHealth's frame, capturing to our CRM.",
       "blocks": [
         {
           "type": "p",
@@ -379,17 +541,57 @@
         },
         {
           "type": "table",
-          "head": ["Section", "What it does", "Lane"],
+          "head": [
+            "Section",
+            "What it does",
+            "Lane"
+          ],
           "rows": [
-            ["Hero", "States the umbrella in one line. Names Nevada. No form yet.", "B"],
-            ["Mechanism", "How payroll structure changes what can be claimed. Three short paragraphs, no numbers of our own.", "B"],
-            ["Proof", "Paychex published figures, verbatim, attributed. NAPEO and Paychex client survey stats.", "A"],
-            ["Estimator", "Paychex's own calculators, embedded or linked. We do not build our own math.", "A"],
-            ["The ask", "Our form. Name, business, employee count, what brought you here. formId employers.", "B"],
-            ["Split CTA", "Talk to a Protect Health broker, or go straight to Paychex with PartnerId attached.", "A"],
-            ["Paychex section", "The portal's approved copy blocks, verbatim, in the portal's approved layout.", "A"],
-            ["Reading library", "The employer-tax cluster articles, below the form, for anyone who wants more before committing.", "B"],
-            ["Footer", "Co-branded lockup on white per the Winning Team flyer. Legal block with control number.", "A"]
+            [
+              "Hero",
+              "States the umbrella in one line. Names Nevada. No form yet.",
+              "B"
+            ],
+            [
+              "Mechanism",
+              "How payroll structure changes what can be claimed. Three short paragraphs, no numbers of our own.",
+              "B"
+            ],
+            [
+              "Proof",
+              "Paychex published figures, verbatim, attributed. NAPEO and Paychex client survey stats.",
+              "A"
+            ],
+            [
+              "Estimator",
+              "Paychex's own calculators, embedded or linked. We do not build our own math.",
+              "A"
+            ],
+            [
+              "The ask",
+              "Our form. Name, business, employee count, what brought you here. formId employers.",
+              "B"
+            ],
+            [
+              "Split CTA",
+              "Talk to a Protect Health broker, or go straight to Paychex with PartnerId attached.",
+              "A"
+            ],
+            [
+              "Paychex section",
+              "The portal's approved copy blocks, verbatim, in the portal's approved layout.",
+              "A"
+            ],
+            [
+              "Reading library",
+              "The employer-tax cluster articles, below the form, for anyone who wants more before committing.",
+              "B"
+            ],
+            [
+              "Footer",
+              "Co-branded lockup on white per the Winning Team flyer. Legal block with control number.",
+              "A"
+            ]
           ]
         },
         {
@@ -420,12 +622,32 @@
         },
         {
           "type": "table",
-          "head": ["", "Arm A, control", "Arm B, challenger"],
+          "head": [
+            "",
+            "Arm A, control",
+            "Arm B, challenger"
+          ],
           "rows": [
-            ["Destination", "Paychex referral form direct", "Protect Health landing page"],
-            ["Path to Fred", "The referral form", "Our handoff"],
-            ["What we can measure ourselves", "Click and cost per click", "Everything through to form submission and lead quality"],
-            ["What settles it", "Confirmed referrals per arm, from Fred's weekly count", "Same"]
+            [
+              "Destination",
+              "Paychex referral form direct",
+              "Protect Health landing page"
+            ],
+            [
+              "Path to Fred",
+              "The referral form",
+              "Our handoff"
+            ],
+            [
+              "What we can measure ourselves",
+              "Click and cost per click",
+              "Everything through to form submission and lead quality"
+            ],
+            [
+              "What settles it",
+              "Confirmed referrals per arm, from Fred's weekly count",
+              "Same"
+            ]
           ]
         },
         {
@@ -442,8 +664,8 @@
     },
     {
       "id": "email",
-      "title": "Email to the existing list",
-      "lede": "Shown here, not sent. Goes to employer contacts only, using the portal's approved template with Fred in the rep slot.",
+      "title": "The email we are not sending yet.",
+      "lede": "Shown, not sent. Employer contacts only. Paychex's approved template with Fred in the rep slot.",
       "blocks": [
         {
           "type": "p",
@@ -470,33 +692,91 @@
         },
         {
           "type": "table",
-          "head": ["", "Detail"],
+          "head": [
+            "",
+            "Detail"
+          ],
           "rows": [
-            ["Segment", "Contacts tagged as business owner or employer contact. Nobody else."],
-            ["Sender", "The assigned broker. House identity if unassigned."],
-            ["Link target", "The landing page, with UTM source set to email and the door set to peo."],
-            ["Timing", "After the suppression list is refreshed and after the landing page is approved. Not before."],
-            ["Cadence", "One send. One follow-up at ten days to non-openers. Then stop."]
+            [
+              "Segment",
+              "Contacts tagged as business owner or employer contact. Nobody else."
+            ],
+            [
+              "Sender",
+              "The assigned broker. House identity if unassigned."
+            ],
+            [
+              "Link target",
+              "The landing page, with UTM source set to email and the door set to peo."
+            ],
+            [
+              "Timing",
+              "After the suppression list is refreshed and after the landing page is approved. Not before."
+            ],
+            [
+              "Cadence",
+              "One send. One follow-up at ten days to non-openers. Then stop."
+            ]
           ]
         }
       ]
     },
     {
       "id": "measurement",
-      "title": "What we measure and when we look",
-      "lede": "Every number below is either something we read in our own systems every day, or Fred's weekly count. Nothing depends on a report we cannot see.",
+      "title": "What we measure, and when we look.",
+      "lede": "Every number is in our systems daily, or in Fred's count on Fridays. Nothing depends on a report we cannot see.",
       "blocks": [
         {
           "type": "table",
-          "head": ["Metric", "Where it lives", "Cadence", "What it tells us"],
+          "head": [
+            "Metric",
+            "Where it lives",
+            "Cadence",
+            "What it tells us"
+          ],
           "rows": [
-            ["Organic saves, shares, watch time", "Meta and LinkedIn native", "Daily", "Which posts earn paid budget"],
-            ["Cost per view-depth bucket entry", "Meta Ads Manager", "Daily", "Whether the ladder is filling and at what price"],
-            ["Landing page view rate", "Our analytics", "Daily", "Whether the page loads and holds"],
-            ["Form conversion rate", "CRM, formId employers", "Daily", "Whether the page earns its existence"],
-            ["Lead quality", "CRM pipeline stage", "Weekly", "Whether the leads are real employers"],
-            ["Confirmed referrals by arm", "Fred's weekly count", "Fridays", "Which routing wins. The only number that settles the test."],
-            ["Cost per confirmed referral", "Derived", "Weekly", "The number Paychex cares about"]
+            [
+              "Organic saves, shares, watch time",
+              "Meta and LinkedIn native",
+              "Daily",
+              "Which posts earn paid budget"
+            ],
+            [
+              "Cost per view-depth bucket entry",
+              "Meta Ads Manager",
+              "Daily",
+              "Whether the ladder is filling and at what price"
+            ],
+            [
+              "Landing page view rate",
+              "Our analytics",
+              "Daily",
+              "Whether the page loads and holds"
+            ],
+            [
+              "Form conversion rate",
+              "CRM, formId employers",
+              "Daily",
+              "Whether the page earns its existence"
+            ],
+            [
+              "Lead quality",
+              "CRM pipeline stage",
+              "Weekly",
+              "Whether the leads are real employers"
+            ],
+            [
+              "Confirmed referrals by arm",
+              "Fred's weekly count",
+              "Fridays",
+              "Which routing wins. The only number that settles the test."
+            ],
+            [
+              "Cost per confirmed referral",
+              "Derived",
+              "Weekly",
+              "The number Paychex cares about"
+            ]
           ]
         },
         {
@@ -511,24 +791,72 @@
     },
     {
       "id": "timeline",
-      "title": "Timeline",
-      "lede": "Sequenced so the retargeting ladder has audiences to run to, and so the A/B test starts on a proven page.",
+      "title": "Timeline.",
+      "lede": "Organic a week ahead of paid, so money follows evidence. The ladder two weeks after that, so it has audiences to run to.",
       "blocks": [
         {
           "type": "timeline",
           "items": [
-            {"when": "Sep 13", "what": "This review page live. Creative brief locked. Top-of-funnel video scripts final.", "status": "Done"},
-            {"when": "Sep 14 to 16", "what": "Creative production: nine statics, three videos. Wave 2 of the employer-tax cluster merged to main.", "status": "In progress"},
-            {"when": "Sep 17", "what": "Decisions one through six confirmed. Landing page build begins on the approved layout.", "status": "Waiting on you"},
-            {"when": "Sep 18 to 22", "what": "Landing page built, tracking verified end to end, form routing tested into the CRM.", "status": "Planned"},
-            {"when": "Sep 22", "what": "Fred's four-week baseline window opens. First weekly count due Sep 26.", "status": "Planned"},
-            {"when": "Sep 23", "what": "Organic posting begins. V1, V2, V3 and three statics across Protect Health pages.", "status": "Planned"},
-            {"when": "Sep 30", "what": "Seven-day organic read. Boost budget behind any post clearing both thresholds.", "status": "Planned"},
-            {"when": "Oct 1", "what": "Paid top of funnel live on Meta and LinkedIn behind the winners. Buckets begin filling.", "status": "Planned"},
-            {"when": "Oct 7", "what": "Email send to employer contacts, once suppression list is refreshed.", "status": "Planned"},
-            {"when": "Oct 14", "what": "25 and 50 percent follow-ups switch on.", "status": "Planned"},
-            {"when": "Oct 20", "what": "75 percent follow-up switches on. Baseline complete. A/B routing test begins.", "status": "Planned"},
-            {"when": "Nov 17", "what": "Four-week minimum reached. First read on the routing test.", "status": "Planned"}
+            {
+              "when": "Sep 13",
+              "what": "This review page live. Creative brief locked. Top-of-funnel video scripts final.",
+              "status": "Done"
+            },
+            {
+              "when": "Sep 14 to 16",
+              "what": "Creative production: nine statics, three videos. Wave 2 of the employer-tax cluster merged to main.",
+              "status": "In progress"
+            },
+            {
+              "when": "Sep 17",
+              "what": "Decisions one through six confirmed. Landing page build begins on the approved layout.",
+              "status": "Waiting on you"
+            },
+            {
+              "when": "Sep 18 to 22",
+              "what": "Landing page built, tracking verified end to end, form routing tested into the CRM.",
+              "status": "Planned"
+            },
+            {
+              "when": "Sep 22",
+              "what": "Fred's four-week baseline window opens. First weekly count due Sep 26.",
+              "status": "Planned"
+            },
+            {
+              "when": "Sep 23",
+              "what": "Organic posting begins. V1, V2, V3 and three statics across Protect Health pages.",
+              "status": "Planned"
+            },
+            {
+              "when": "Sep 30",
+              "what": "Seven-day organic read. Boost budget behind any post clearing both thresholds.",
+              "status": "Planned"
+            },
+            {
+              "when": "Oct 1",
+              "what": "Paid top of funnel live on Meta and LinkedIn behind the winners. Buckets begin filling.",
+              "status": "Planned"
+            },
+            {
+              "when": "Oct 7",
+              "what": "Email send to employer contacts, once suppression list is refreshed.",
+              "status": "Planned"
+            },
+            {
+              "when": "Oct 14",
+              "what": "25 and 50 percent follow-ups switch on.",
+              "status": "Planned"
+            },
+            {
+              "when": "Oct 20",
+              "what": "75 percent follow-up switches on. Baseline complete. A/B routing test begins.",
+              "status": "Planned"
+            },
+            {
+              "when": "Nov 17",
+              "what": "Four-week minimum reached. First read on the routing test.",
+              "status": "Planned"
+            }
           ]
         },
         {
@@ -537,20 +865,43 @@
           "title": "Why organic is a full week ahead of paid",
           "text": "The seven-day organic read is what decides which creative gets budget. Launching paid on the same day as organic means spending on a guess. One week of lag is the cost of spending on evidence."
         }
-      ]
+      ],
+      "art": "https://www.protecthealth.com/assets/buyers-guide/05-timing.webp"
     },
     {
       "id": "compliance",
-      "title": "Compliance",
-      "lede": "Three lanes, and the lines we do not cross regardless of lane.",
+      "title": "Three lanes. Five hard lines.",
+      "lede": "What we can say without asking, what needs a courtesy look, and what we do not say at all.",
       "blocks": [
         {
+          "type": "callout",
+          "kind": "note",
+          "title": "Two visual systems, on purpose",
+          "text": "Top-of-funnel creative is ProtectHealth's voice and ProtectHealth's art: dark, glass, cyan and gold, the same language as the site. Paychex is not named and the mark does not appear, so it is ours to ship. Anything carrying the Paychex mark switches to their system: white-dominant, blue only on the logo and buttons, simple and classic. The two never mix on one surface, which is what keeps both sides happy."
+        },
+        {
           "type": "table",
-          "head": ["Lane", "What it covers", "What it needs"],
+          "head": [
+            "Lane",
+            "What it covers",
+            "What it needs"
+          ],
           "rows": [
-            ["A", "Paychex published language used verbatim: portal copy blocks, approved stats with attribution, the video introductions, the testimonial.", "Nothing. Already approved."],
-            ["B", "Our copy built on Paychex published figures. Nevada law and IRS rules stated with primary-source citations.", "Courtesy review."],
-            ["C", "Our own math, our own claims about outcomes, anything an employer could read as tax advice.", "Sean's written approval and a source log. We are avoiding Lane C in this wave entirely."]
+            [
+              "A",
+              "Paychex published language used verbatim: portal copy blocks, approved stats with attribution, the video introductions, the testimonial.",
+              "Nothing. Already approved."
+            ],
+            [
+              "B",
+              "Our copy built on Paychex published figures. Nevada law and IRS rules stated with primary-source citations.",
+              "Courtesy review."
+            ],
+            [
+              "C",
+              "Our own math, our own claims about outcomes, anything an employer could read as tax advice.",
+              "Sean's written approval and a source log. We are avoiding Lane C in this wave entirely."
+            ]
           ]
         },
         {
@@ -591,59 +942,266 @@
         },
         {
           "type": "table",
-          "head": ["Claim", "Attribution"],
+          "head": [
+            "Claim",
+            "Attribution"
+          ],
           "rows": [
-            ["16% more likely to report increased profitability vs small businesses without a PEO", "NAPEO"],
-            ["27% savings on HR administration costs", "NAPEO"],
-            ["50% more likely to stay in business", "NAPEO"],
-            ["98% of PEO clients would recommend it to a small business colleague", "NAPEO"],
-            ["$1,775 average savings per employee per year", "U.S. Department of Labor, 2024"],
-            ["91% of clients recommend other companies switch to Paychex", "Paychex Client Survey, June 2022, N=300"],
-            ["78% of business leaders spend over 10 hours per week on HR duties", "Paychex, published"],
-            ["Pays one out of every 11 American private sector employees", "Paychex, published"],
-            ["Largest 401(k) recordkeeper in the U.S. by number of plans", "PLANSPONSOR"],
-            ["401(k) allows $24,500 in 2026 versus $7,500 for an IRA", "IRS Notice 2025-67"]
+            [
+              "16% more likely to report increased profitability vs small businesses without a PEO",
+              "NAPEO"
+            ],
+            [
+              "27% savings on HR administration costs",
+              "NAPEO"
+            ],
+            [
+              "50% more likely to stay in business",
+              "NAPEO"
+            ],
+            [
+              "98% of PEO clients would recommend it to a small business colleague",
+              "NAPEO"
+            ],
+            [
+              "$1,775 average savings per employee per year",
+              "U.S. Department of Labor, 2024"
+            ],
+            [
+              "91% of clients recommend other companies switch to Paychex",
+              "Paychex Client Survey, June 2022, N=300"
+            ],
+            [
+              "78% of business leaders spend over 10 hours per week on HR duties",
+              "Paychex, published"
+            ],
+            [
+              "Pays one out of every 11 American private sector employees",
+              "Paychex, published"
+            ],
+            [
+              "Largest 401(k) recordkeeper in the U.S. by number of plans",
+              "PLANSPONSOR"
+            ],
+            [
+              "401(k) allows $24,500 in 2026 versus $7,500 for an IRA",
+              "IRS Notice 2025-67"
+            ]
           ]
         }
       ]
     },
     {
       "id": "open",
-      "title": "Open items and who owns them",
-      "lede": "Everything that is not done, with a name on it.",
+      "title": "Open items, with names on them.",
+      "lede": "Everything not done, and who is holding it.",
       "blocks": [
         {
           "type": "table",
-          "head": ["Item", "Owner", "Blocks"],
+          "head": [
+            "Item",
+            "Owner",
+            "Blocks"
+          ],
           "rows": [
-            ["Decisions one through six confirmed", "Sean", "Landing page build, co-branded creative status"],
-            ["Fred's weekly count committed in writing, with referral definition", "Fred, via Robert", "The A/B test"],
-            ["Referral form title changed to Protect Health", "Sean", "Arm A presentation"],
-            ["Document control number process for partner pieces", "Sean", "PEO legal footers on net-new creative"],
-            ["Suppression list refreshed on the sending domain", "Johnathon", "Email send"],
-            ["Employer-contact segment built in the CRM", "Johnathon", "Email send"],
-            ["Wave 2 of the employer-tax cluster merged to main", "Johnathon", "Reading library on the landing page"],
-            ["Location and activity credit clusters", "Johnathon", "Doors three and four"]
+            [
+              "Decisions one through six confirmed",
+              "Sean",
+              "Landing page build, co-branded creative status"
+            ],
+            [
+              "Fred's weekly count committed in writing, with referral definition",
+              "Fred, via Robert",
+              "The A/B test"
+            ],
+            [
+              "Referral form title changed to Protect Health",
+              "Sean",
+              "Arm A presentation"
+            ],
+            [
+              "Document control number process for partner pieces",
+              "Sean",
+              "PEO legal footers on net-new creative"
+            ],
+            [
+              "Suppression list refreshed on the sending domain",
+              "Johnathon",
+              "Email send"
+            ],
+            [
+              "Employer-contact segment built in the CRM",
+              "Johnathon",
+              "Email send"
+            ],
+            [
+              "Wave 2 of the employer-tax cluster merged to main",
+              "Johnathon",
+              "Reading library on the landing page"
+            ],
+            [
+              "Location and activity credit clusters",
+              "Johnathon",
+              "Doors three and four"
+            ]
           ]
         }
       ]
     }
   ],
   "gallery": [
-    {"id": "s1", "title": "Restaurant owner, back office, morning", "door": "Tips, food and beverage", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s1.jpg", "note": "Top of funnel. No CTA. Paychex not named."},
-    {"id": "s2", "title": "Salon owner at reception", "door": "Tips, beauty services", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s2.jpg", "note": "Top of funnel. No CTA."},
-    {"id": "s3", "title": "Barbershop, owner at the register", "door": "Tips, beauty services", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s3.jpg", "note": "Top of funnel. No CTA."},
-    {"id": "s4", "title": "Med-spa front desk", "door": "Tips, beauty services", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s4.jpg", "note": "Top of funnel. No CTA."},
-    {"id": "s5", "title": "Contractor, tailgate, tablet", "door": "Retirement", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s5.jpg", "note": "Top of funnel. No CTA."},
-    {"id": "s6", "title": "Small professional office, six people", "door": "Retirement", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s6.jpg", "note": "Top of funnel. No CTA."},
-    {"id": "s7", "title": "Owner and employee reviewing a document", "door": "Retirement", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s7.jpg", "note": "Middle of funnel. Points at the comparison article."},
-    {"id": "s8", "title": "Empty interior before open", "door": "Any", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s8.jpg", "note": "25 percent bucket restatement."},
-    {"id": "s9", "title": "Payroll register on a desk, hands and paper", "door": "Any", "format": "Static, 1:1 / 4:5 / 9:16", "lane": "B", "status": "Draft", "asset": "s9.jpg", "note": "50 percent bucket comparison."},
-    {"id": "v1", "title": "V1: The Nevada retirement mandate", "door": "Retirement", "format": "Video, 9:16 / 1:1, 25 to 30 seconds", "lane": "B", "status": "Draft", "asset": "v1.mp4", "note": "Script in the video section above."},
-    {"id": "v2", "title": "V2: The 2025 tip credit expansion", "door": "Tips, beauty services", "format": "Video, 9:16 / 1:1, 25 to 30 seconds", "lane": "B", "status": "Draft", "asset": "v2.mp4", "note": "Script in the video section above."},
-    {"id": "v3", "title": "V3: The loss year correction", "door": "Tips, food and beverage", "format": "Video, 9:16 / 1:1, 25 to 30 seconds", "lane": "B", "status": "Draft", "asset": "v3.mp4", "note": "Script in the video section above."},
-    {"id": "lp", "title": "Landing page, desktop and mobile", "door": "All", "format": "Page mockup", "lane": "A and B", "status": "Draft", "asset": "lp.jpg", "note": "Portal layout, Protect Health chrome, co-branded footer."},
-    {"id": "em", "title": "Email to employer contacts", "door": "PEO", "format": "Email mockup", "lane": "A", "status": "Draft", "asset": "em.jpg", "note": "Portal template, Protect Health shell, Fred in the rep slot."},
-    {"id": "wt", "title": "Winning Team flyer, reference", "door": "PEO", "format": "PDF, two pages", "lane": "A", "status": "Approved", "asset": "winning-team.pdf", "note": "Document 173193, dated 03/10/2026. The approved co-branded lockup we mirror."}
+    {
+      "id": "a1",
+      "title": "Nevada's retirement mandate",
+      "door": "Retirement",
+      "format": "Blog hero, live on site",
+      "lane": "B",
+      "status": "Live",
+      "asset": "a1.webp",
+      "image": "https://www.protecthealth.com/assets/blog-art/nevada-retirement-plan-mandate.webp",
+      "note": "A glass nest cradling a single golden orb, a doorway of cyan light behind it. Runs as the TOFU static for the retirement door."
+    },
+    {
+      "id": "a2",
+      "title": "The credits that pay for a plan",
+      "door": "Retirement",
+      "format": "Blog hero, live on site",
+      "lane": "B",
+      "status": "Live",
+      "asset": "a2.webp",
+      "image": "https://www.protecthealth.com/assets/blog-art/small-business-retirement-plan-tax-credits.webp",
+      "note": "Three glass discs channeling gold light onto a small storefront. MOFU static, points at the credits article."
+    },
+    {
+      "id": "a3",
+      "title": "Section 125 payroll tax savings",
+      "door": "Retirement",
+      "format": "Blog hero, live on site",
+      "lane": "B",
+      "status": "Live",
+      "asset": "a3.webp",
+      "image": "https://www.protecthealth.com/assets/blog-art/section-125-plan-employer-payroll-tax-savings.webp",
+      "note": "A glass funnel, coins in, a thinner stream out, cyan carrying the difference away."
+    },
+    {
+      "id": "s1",
+      "title": "The tip jar that got bigger",
+      "door": "Tips, beauty services",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s1.webp",
+      "note": "Prompt: a translucent glass tip jar on a salon counter, gold coins rising out of it and hanging in the air, a cyan doorway opening in the dark behind. House style, no text, bottom 18% clean."
+    },
+    {
+      "id": "s2",
+      "title": "Twenty years on the shelf",
+      "door": "Tips, food and beverage",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s2.webp",
+      "note": "Prompt: twenty small glass ledgers stacked on a dark shelf, one glowing gold, cyan light tracing the shelf edge. The carryforward, visualized."
+    },
+    {
+      "id": "s3",
+      "title": "The match that isn't there",
+      "door": "Retirement",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s3.webp",
+      "note": "Prompt: two glass jars side by side, one small with a lid sealed shut, one tall and open with gold pouring in from above. State program vs 401(k)."
+    },
+    {
+      "id": "s4",
+      "title": "Whose name is on the door",
+      "door": "Tips, food and beverage",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s4.webp",
+      "note": "Prompt: a glass storefront door with a nameplate lit gold, a larger shadowed building behind it. The credit stays with the customer."
+    },
+    {
+      "id": "s5",
+      "title": "Six chairs",
+      "door": "Retirement",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s5.webp",
+      "note": "Prompt: six translucent glass chairs in a row under a single warm spotlight, the sixth one glowing cyan. The mandate threshold."
+    },
+    {
+      "id": "s6",
+      "title": "One page",
+      "door": "Tips, any",
+      "format": "Static, 1:1 / 4:5 / 9:16",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "s6.webp",
+      "note": "Prompt: a single sheet of glass paper standing upright on a dark desk, Form 8846 implied by a faint gold grid, cyan edge light. Nobody filed it."
+    },
+    {
+      "id": "v1",
+      "title": "V1 · The Nevada retirement mandate",
+      "door": "Retirement",
+      "format": "Video, 9:16 / 1:1, 25 to 30 seconds",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "v1.mp4",
+      "note": "Script in the video section. House style motion: slow push on glass objects, cyan and gold light, no cuts faster than four seconds."
+    },
+    {
+      "id": "v2",
+      "title": "V2 · The 2025 tip credit expansion",
+      "door": "Tips, beauty services",
+      "format": "Video, 9:16 / 1:1, 25 to 30 seconds",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "v2.mp4",
+      "note": "Script in the video section."
+    },
+    {
+      "id": "v3",
+      "title": "V3 · The loss year correction",
+      "door": "Tips, food and beverage",
+      "format": "Video, 9:16 / 1:1, 25 to 30 seconds",
+      "lane": "B",
+      "status": "Draft",
+      "asset": "v3.mp4",
+      "note": "Script in the video section."
+    },
+    {
+      "id": "lp",
+      "title": "Landing page, desktop and mobile",
+      "door": "All",
+      "format": "Page mockup",
+      "lane": "A and B",
+      "status": "Draft",
+      "asset": "lp.webp",
+      "note": "Paychex approved layout, white-dominant per their guidelines, inside ProtectHealth's frame. Co-branded footer per the Winning Team flyer."
+    },
+    {
+      "id": "em",
+      "title": "Email to employer contacts",
+      "door": "PEO",
+      "format": "Email mockup",
+      "lane": "A",
+      "status": "Draft",
+      "asset": "em.webp",
+      "note": "Portal template, ProtectHealth shell, Fred in the rep slot."
+    },
+    {
+      "id": "wt",
+      "title": "Winning Team flyer",
+      "door": "PEO",
+      "format": "PDF, two pages, reference",
+      "lane": "A",
+      "status": "Approved",
+      "asset": "winning-team.pdf",
+      "note": "Document 173193, dated 03/10/2026. The approved co-branded lockup we mirror on every white surface."
+    }
   ]
 }
