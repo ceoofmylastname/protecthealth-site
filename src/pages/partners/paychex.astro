@@ -10,8 +10,8 @@
 // Keep this route out of: sitemap, llms.txt, CLUSTER_ORDER, the blog topic
 // browser, and any nav. See REVIEW_PAGE_SETUP.md.
 
-const GATE_URL = import.meta.env.PUBLIC_SUPABASE_URL + "/functions/v1/ph-review-gate";
-const ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const GATE_URL = "https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-review-gate";
+const ANON_KEY = "";
 ---
 <!doctype html>
 <html lang="en">
@@ -95,7 +95,7 @@ const ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   async function call(payload) {
     const r = await fetch(GATE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     const j = await r.json().catch(() => ({ error: "Something went wrong." }));
