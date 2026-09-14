@@ -15,20 +15,14 @@
       "Live"
     ],
     "kicker": "ProtectHealth + Paychex · Go-to-market review",
-    "sub": "The campaign, the creative, the landing page, and the six decisions that unlock it.",
+    "sub": "The campaign, the creative, the landing page, and what happens after someone opts in.",
     "hero_art": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png",
     "reading_order": [
       {
-        "n": "00",
+        "n": "01",
         "title": "The playbook",
         "what": "Nine moves in order. Two minutes.",
         "href": "#playbook"
-      },
-      {
-        "n": "01",
-        "title": "Decide",
-        "what": "Six decisions with defaults. Five minutes.",
-        "href": "#decisions"
       },
       {
         "n": "02",
@@ -147,7 +141,7 @@
               "when": "Days 0 to 10 after opt-in",
               "do": "Nurture automatically.",
               "why": "A form is the start of a sequence, not the end of one. The right email goes to the right door without anyone sorting.",
-              "who": "Five emails and two texts, branched on the friction they picked. A restaurant gets the Form 8846 walkthrough. A retirement lead gets the state program versus 401(k). Email four introduces Fred, verbatim from the Paychex portal.",
+              "who": "Five emails, branched on the friction they picked. A restaurant gets the Form 8846 walkthrough. A retirement lead gets the state program versus 401(k). Email four introduces Fred, verbatim from the Paychex portal.",
               "asset": "Opt-in sequence, section 12",
               "art": "c8"
             },
@@ -168,54 +162,6 @@
               "who": "Lowest cost per confirmed referral wins. The next content cluster is built for it. The other doors keep their organic cadence.",
               "asset": "Timeline, section 14",
               "art": "c9"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "decisions",
-      "title": "Six decisions. Then we launch.",
-      "lede": "Each one has a default, so you are confirming, not authoring. Reply with the number and yes, or the number and what to change.",
-      "blocks": [
-        {
-          "type": "decisions",
-          "items": [
-            {
-              "n": 1,
-              "q": "The tip credit campaign now runs on the corrected premise.",
-              "context": "The original hook was that a net loss disqualifies a restaurant from the FICA tip credit and that Paychex claims it on the client's behalf through its EIN. We verified both halves against primary sources and neither holds. The section 45B credit is a general business credit under section 38: nonrefundable, but section 39 carries it back one year and forward twenty. And 26 CFR 31.3511-1 assigns section 45B, section 51, section 1396 and section 45S to the CPEO's customer, not the CPEO. The corrected angle is stronger: the credit was always the client's, most operators have never filed Form 8846, and as of tax years beginning after December 31, 2024 it reaches barbering, hair care, nail care, esthetics, and body and spa treatment.",
-              "default": "Run on the corrected premise. Retire the EIN framing everywhere."
-            },
-            {
-              "n": 2,
-              "q": "Fred reports a weekly referral count in two buckets.",
-              "context": "The A/B test compares traffic sent straight to the Paychex referral form against traffic sent to our landing page. Because the two arms have different destinations, the pipe a lead arrives through is the arm. Fred counts leads that came via the referral form separately from leads that came via our handoff. We need a fixed day, a named recipient, a written definition of what counts as a referral, and a four-week baseline before launch.",
-              "default": "Fridays, to Robert and Johnathon, with a referral defined as a name plus a scheduled conversation."
-            },
-            {
-              "n": 3,
-              "q": "The Offerings Lockup is cleared for an insurance agency partner.",
-              "context": "The Paychex guidelines say not to use the HR | Payroll | Benefits | Insurance lockup where it creates channel conflict, and name Bank and Financial Advisors as examples. Protect Health is an insurance agency. The Winning Team flyer, dated March 2026, uses the full lockup with the Protect Health mark, so precedent says we are clear. We would rather confirm than assume.",
-              "default": "Use the lockup as the Winning Team flyer does."
-            },
-            {
-              "n": 4,
-              "q": "Document control numbers for partner-produced PEO pieces.",
-              "context": "Every Paychex PEO piece carries a control number and date in its legal footer, such as 173193 03/10/2026 on the Winning Team flyer. We cannot invent one. Tonight's creative avoids the problem by keeping PEO language off net-new assets and reserving it for the landing page, which mirrors your approved layout.",
-              "default": "Reuse 173193 on anything that is a direct derivative of the Winning Team flyer. Keep PEO claims off other creative until you tell us the process."
-            },
-            {
-              "n": 5,
-              "q": "Email to the Protect Health list goes to employer contacts only.",
-              "context": "The list is largely individual health insurance clients. Sending a payroll and HR offer to individuals who bought an ACA plan is an audience mismatch that costs deliverability, and the domain already has open bounce and suppression work. We segment to business owners and employer contacts, and use the portal's second template with Fred in the rep slot.",
-              "default": "Employer contacts only. Individual clients receive nothing from this campaign."
-            },
-            {
-              "n": 6,
-              "q": "Launch sequencing: TOFU first, ladder two weeks later.",
-              "context": "The 25/50/75 view-depth audiences only exist for video and need time to fill before the retargeting layer has anyone in it. Even on a clean approval, top of funnel launches first and the retargeting ladder switches on once the buckets have volume.",
-              "default": "Approve the sequence as drawn in the timeline."
             }
           ]
         }
@@ -444,7 +390,7 @@
         },
         {
           "type": "p",
-          "text": "The click lands on our landing page with UTMs identifying the platform, the door, and the creative. The page loads our tracking first, then renders. The form posts to our CRM with formId set to employers, which routes it to the employer pipeline, and the Landing Page field records the URL, which is what separates these leads from everything else in the system."
+          "text": "The click lands on our landing page with UTMs identifying the platform, the door, and the creative. The page loads our tracking first, then renders. The form posts to our CRM with Source Form and Landing Page fields separate these leads from everything else."
         },
         {
           "type": "p",
@@ -660,7 +606,7 @@
           "type": "link",
           "href": "https://www.protecthealth.com/payroll-tax-asset",
           "label": "Open the landing page",
-          "note": "Public URL. Capturing to formId employers with the Landing Page field set. Noindex until approved."
+          "note": "Public URL. Writes to ph_leads with the Source Form and Landing Page fields set. Noindex until approved."
         },
         {
           "type": "p",
@@ -700,7 +646,7 @@
             ],
             [
               "The ask",
-              "Our form. Name, business, employee count, what brought you here. formId employers.",
+              "Our form. Name, business, employee count, what brought you here. ph_leads.",
               "B"
             ],
             [
@@ -855,73 +801,89 @@
     {
       "id": "automation",
       "title": "What fires when someone opts in.",
-      "lede": "The form is the start of a sequence, not the end of one. Every step below runs in GoHighLevel off the Source Form field.",
+      "lede": "Everything runs in-house on the ProtectHealth CRM. No third-party marketing tool in the path.",
       "blocks": [
         {
           "type": "table",
           "head": [
             "When",
             "What happens",
-            "Where"
+            "Where it runs"
           ],
           "rows": [
             [
               "Instantly",
-              "Contact upserted with Industry, Employee Count, Biggest Friction, Payroll Provider, Source Form and Landing Page fields. Tag campaign:paychex.",
-              "GHL, via /api/lead"
+              "Lead written to ph_leads with Industry, Employees, Biggest Friction, Payroll Provider, Source Form and Landing Page as real fields. Campaign tag paychex.",
+              "/api/lead on Cloudflare, Supabase"
             ],
             [
               "Instantly",
-              "Lead lands in the employer pipeline. Assigned broker notified by SMS and email with the four answers in the body.",
-              "GHL workflow"
+              "Round robin assigns a broker from the active rotation, least recently assigned first. Deal opens on the employer pipeline at New Lead.",
+              "ph_round_robin, ph_opportunities"
             ],
             [
               "Instantly",
-              "Lead confirmation email to the prospect. Plain, short, from the assigned broker. Names the next step.",
-              "GHL email 1"
+              "Broker gets the lead in their own dashboard with the four answers. Confirmation email goes to the prospect from the house address with the broker as reply-to.",
+              "/app, ph_emails via Resend"
             ],
             [
-              "Within 5 minutes, business hours",
-              "Broker calls. If no answer, SMS with a booking link.",
-              "Broker + GHL"
+              "3 minutes",
+              "Ops alert to the house inbox with the assigned broker named, so the assignment has landed before the alert renders.",
+              "ph-booking-emails house notify"
+            ],
+            [
+              "1 hour",
+              "If the broker has not opened the lead, it reassigns to the next broker in rotation.",
+              "ph-lead-ttl, every five minutes"
             ],
             [
               "Day 1",
-              "Email 2: the one-page answer to the door they came in through. Retirement gets the NEST vs 401(k) comparison. Tips gets the Form 8846 walkthrough.",
-              "GHL email, branched on Source Form + Landing Page"
+              "Email 2, branched on Biggest Friction. Retirement gets the state program versus 401(k). Tips gets the Form 8846 walkthrough. Benefits gets Section 125. Payroll gets the PEO explainer.",
+              "ph_campaigns, offset from lead date, audience by field"
             ],
             [
               "Day 3",
-              "Email 3: the correction. Whichever common belief their door is built on, stated and corrected with the source.",
-              "GHL email"
+              "Email 3, the correction for their door, with the source cited.",
+              "ph_campaigns"
             ],
             [
-              "Day 5",
-              "Broker follow-up task. SMS if unreached.",
-              "GHL task + SMS"
+              "Every morning, 7 AM",
+              "Broker's follow-up digest lists this deal until it moves stage, with the intake answers and tap-to-call links. Cadence comes from the stage table.",
+              "ph-followup-digest"
             ],
             [
               "Day 7",
-              "Email 4: the Paychex introduction using the portal's approved template, Fred in the rep slot. Only to leads who chose payroll or HR as the friction.",
-              "GHL email, branched"
+              "Email 4, the Paychex introduction using the portal's approved template with Fred in the rep slot. Only to leads whose friction is payroll or HR, or whose payroll provider is not already Paychex.",
+              "ph_campaigns, audience filter"
             ],
             [
               "Day 10",
-              "Email 5: last note. Offer the twenty-minute strategy call. Exit the sequence.",
-              "GHL email"
+              "Email 5, the last note. Sequence ends.",
+              "ph_campaigns"
             ],
             [
               "Any time",
-              "Booking confirmed: sequence exits, booking sequence takes over. Reply received: sequence pauses, broker notified.",
-              "GHL exit conditions"
+              "Booking confirmed: sequence stops, the booking emails and reminders take over. Reply received: the broker sees it on the contact record. Unsubscribe: one click, honoured locally first.",
+              "ph_appointments, ph-unsubscribe"
+            ],
+            [
+              "On disposition",
+              "Marked Active Client: review request fires the same instant, and the commission-qualified email goes to the broker.",
+              "Disposition triggers, already live"
             ]
           ]
         },
         {
           "type": "callout",
           "kind": "note",
-          "title": "Why it branches on fields, not tags",
-          "text": "The four employer questions on the form land in real custom fields, not note text. That is what lets email 2 send the retirement comparison to a retirement lead and the Form 8846 walkthrough to a restaurant lead, without a human sorting anything. Full email copy is in the automation spec."
+          "title": "Why the emails are data, not code",
+          "text": "Each email in the sequence is a campaign row: copy, offset from the lead date, send hour, and an audience filter on the friction field. That is the same engine already sending birthday and holiday mail to eight thousand contacts. Changing a subject line is an edit in the admin, not a deploy. Every link in the sequence is a trigger link, so a booking can be traced to the exact email that produced it."
+        },
+        {
+          "type": "callout",
+          "kind": "warn",
+          "title": "Email only for now",
+          "text": "Text messages need Twilio plus A2P registration, which the CRM plan deliberately left for last. The digest and the sequence are built so an SMS version is a second renderer, not a rebuild. Until then every touch in this sequence is email or a broker call."
         }
       ]
     },
@@ -959,7 +921,7 @@
             ],
             [
               "Form conversion rate",
-              "CRM, formId employers",
+              "CRM, ph_leads",
               "Daily",
               "Whether the page earns its existence"
             ],
@@ -989,7 +951,7 @@
         },
         {
           "type": "p",
-          "text": "PartnerId=461541 intact through every hop on both arms. Our event firing before the redirect on the Paychex link. UTMs distinguishing arm, platform, door and creative. Meta pixel and Conversions API confirmed on the landing page. LinkedIn Insight Tag installed. formId set to employers and the Landing Page field capturing the URL. Every outbound link tested after every page edit."
+          "text": "PartnerId=461541 intact through every hop on both arms. Our event firing before the redirect on the Paychex link. UTMs distinguishing arm, platform, door and creative. Meta pixel and Conversions API confirmed on the landing page. LinkedIn Insight Tag installed. Source Form and Landing Page fields separate these leads from everything else. Every outbound link tested after every page edit."
         }
       ]
     },
@@ -1013,12 +975,12 @@
             },
             {
               "when": "Sep 17",
-              "what": "Decisions one through six confirmed. Landing page build begins on the approved layout.",
-              "status": "Waiting on you"
+              "what": "Creative and landing page approved by Paychex. Landing page build finalized on the approved layout.",
+              "status": "Planned"
             },
             {
               "when": "Sep 18 to 22",
-              "what": "Landing page built, tracking verified end to end, form routing tested into the CRM.",
+              "what": "Landing page live, tracking verified end to end, form routing tested into the CRM and the broker rotation.",
               "status": "Planned"
             },
             {
@@ -1190,63 +1152,6 @@
             [
               "401(k) allows $24,500 in 2026 versus $7,500 for an IRA",
               "IRS Notice 2025-67"
-            ]
-          ]
-        }
-      ]
-    },
-    {
-      "id": "open",
-      "title": "Open items, with names on them.",
-      "lede": "Everything not done, and who is holding it.",
-      "blocks": [
-        {
-          "type": "table",
-          "head": [
-            "Item",
-            "Owner",
-            "Blocks"
-          ],
-          "rows": [
-            [
-              "Decisions one through six confirmed",
-              "Sean",
-              "Landing page build, co-branded creative status"
-            ],
-            [
-              "Fred's weekly count committed in writing, with referral definition",
-              "Fred, via Robert",
-              "The A/B test"
-            ],
-            [
-              "Referral form title changed to Protect Health",
-              "Sean",
-              "Arm A presentation"
-            ],
-            [
-              "Document control number process for partner pieces",
-              "Sean",
-              "PEO legal footers on net-new creative"
-            ],
-            [
-              "Suppression list refreshed on the sending domain",
-              "Johnathon",
-              "Email send"
-            ],
-            [
-              "Employer-contact segment built in the CRM",
-              "Johnathon",
-              "Email send"
-            ],
-            [
-              "Wave 2 of the employer-tax cluster merged to main",
-              "Johnathon",
-              "Reading library on the landing page"
-            ],
-            [
-              "Location and activity credit clusters",
-              "Johnathon",
-              "Doors three and four"
             ]
           ]
         }
