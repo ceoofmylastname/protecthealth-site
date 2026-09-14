@@ -151,7 +151,7 @@
               "do": "Hand off and count.",
               "why": "Paychex cares about referrals, not impressions. Every payroll conversation goes to Fred with the partner ID attached, and Fred reports two buckets so the routing test has a number.",
               "who": "Benefits stay with us. Payroll and HR go to Fred. Confirmed referrals per arm, cost per confirmed referral.",
-              "asset": "Measurement, section 13",
+              "asset": "Measurement, section 12",
               "art": "c7"
             },
             {
@@ -160,7 +160,7 @@
               "do": "Double down on what worked.",
               "why": "One door will pull most of the volume. That door gets its own page, its own cluster expansion, and most of next month's budget.",
               "who": "Lowest cost per confirmed referral wins. The next content cluster is built for it. The other doors keep their organic cadence.",
-              "asset": "Timeline, section 14",
+              "asset": "Monthly read on cost per confirmed referral",
               "art": "c9"
             }
           ]
@@ -954,85 +954,6 @@
           "text": "PartnerId=461541 intact through every hop on both arms. Our event firing before the redirect on the Paychex link. UTMs distinguishing arm, platform, door and creative. Meta pixel and Conversions API confirmed on the landing page. LinkedIn Insight Tag installed. Source Form and Landing Page fields separate these leads from everything else. Every outbound link tested after every page edit."
         }
       ]
-    },
-    {
-      "id": "timeline",
-      "title": "Timeline.",
-      "lede": "Organic a week ahead of paid, so money follows evidence. The ladder two weeks after that, so it has audiences to run to.",
-      "blocks": [
-        {
-          "type": "timeline",
-          "items": [
-            {
-              "when": "Sep 13",
-              "what": "This review page live. Creative brief locked. Top-of-funnel video scripts final.",
-              "status": "Done"
-            },
-            {
-              "when": "Sep 14 to 16",
-              "what": "Creative production: nine statics, three videos. Wave 2 of the employer-tax cluster merged to main.",
-              "status": "In progress"
-            },
-            {
-              "when": "Sep 17",
-              "what": "Creative and landing page approved by Paychex. Landing page build finalized on the approved layout.",
-              "status": "Planned"
-            },
-            {
-              "when": "Sep 18 to 22",
-              "what": "Landing page live, tracking verified end to end, form routing tested into the CRM and the broker rotation.",
-              "status": "Planned"
-            },
-            {
-              "when": "Sep 22",
-              "what": "Fred's four-week baseline window opens. First weekly count due Sep 26.",
-              "status": "Planned"
-            },
-            {
-              "when": "Sep 23",
-              "what": "Organic posting begins. V1, V2, V3 and three statics across Protect Health pages.",
-              "status": "Planned"
-            },
-            {
-              "when": "Sep 30",
-              "what": "Seven-day organic read. Boost budget behind any post clearing both thresholds.",
-              "status": "Planned"
-            },
-            {
-              "when": "Oct 1",
-              "what": "Paid top of funnel live on Meta and LinkedIn behind the winners. Buckets begin filling.",
-              "status": "Planned"
-            },
-            {
-              "when": "Oct 7",
-              "what": "Email send to employer contacts, once suppression list is refreshed.",
-              "status": "Planned"
-            },
-            {
-              "when": "Oct 14",
-              "what": "25 and 50 percent follow-ups switch on.",
-              "status": "Planned"
-            },
-            {
-              "when": "Oct 20",
-              "what": "75 percent follow-up switches on. Baseline complete. A/B routing test begins.",
-              "status": "Planned"
-            },
-            {
-              "when": "Nov 17",
-              "what": "Four-week minimum reached. First read on the routing test.",
-              "status": "Planned"
-            }
-          ]
-        },
-        {
-          "type": "callout",
-          "kind": "note",
-          "title": "Why organic is a full week ahead of paid",
-          "text": "The seven-day organic read is what decides which creative gets budget. Launching paid on the same day as organic means spending on a guess. One week of lag is the cost of spending on evidence."
-        }
-      ],
-      "art": "https://www.protecthealth.com/assets/buyers-guide/05-timing.webp"
     },
     {
       "id": "compliance",
