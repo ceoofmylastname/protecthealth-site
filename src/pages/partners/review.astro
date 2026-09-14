@@ -1,0 +1,493 @@
+---
+// /partners/review
+// Gated partner review page. Static shell only. The review content is served
+// by the ph-review-gate edge function after a valid six-digit code, so nothing
+// sensitive is in this HTML.
+//
+// This file is self-contained on purpose: no layout import, no shared
+// components, scoped styles. Swap in the site layout later if wanted.
+//
+// Keep this route out of: sitemap, llms.txt, CLUSTER_ORDER, the blog topic
+// browser, and any nav. See REVIEW_PAGE_SETUP.md.
+
+const GATE_URL = import.meta.env.PUBLIC_SUPABASE_URL + "/functions/v1/ph-review-gate";
+const ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Partner review · Protect Health</title>
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================================================ GATE -->
+<section id="gate" class="gate" aria-labelledby="gate-h">
+  <form class="gate-panel" id="gate-form" novalidate>
+    <div class="gate-brand">
+      <span class="gate-wordmark">ProtectHealth</span>
+      <span class="gate-sub">Partner review</span>
+    </div>
+    <h1 id="gate-h">Enter your review code</h1>
+    <p class="gate-help">Six digits. It was sent to you directly. Sessions last eight hours.</p>
+    <div class="code" role="group" aria-label="Six-digit code">
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2" />
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3" />
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4" />
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5" />
+      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6" />
+    </div>
+    <p class="gate-err" id="gate-err" role="alert"></p>
+    <button class="btn" type="submit" id="gate-btn">Open the review</button>
+  </form>
+</section>
+
+<!-- ============================================================ DOC -->
+<div id="doc" class="doc" hidden>
+  <header class="top">
+    <div class="top-in">
+      <span class="wordmark">ProtectHealth</span>
+      <span class="top-meta" id="top-meta"></span>
+      <button class="btn-quiet" id="signout" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <div class="frame">
+    <nav class="rail" aria-label="Sections">
+      <ol id="rail-list"></ol>
+    </nav>
+
+    <main id="main" class="page" tabindex="-1">
+      <div class="notice" id="notice"></div>
+      <h1 id="doc-title"></h1>
+      <p class="version" id="doc-version"></p>
+      <div id="sections"></div>
+      <footer class="doc-foot">
+        <p>Protect Health · Las Vegas, Nevada · This page is not indexed and is not linked from the site.</p>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script define:vars={{ GATE_URL, ANON_KEY }}>
+  // ------------------------------------------------------------ helpers
+  const $ = (s, r = document) => r.querySelector(s);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v;
+      else if (k === "html") n.innerHTML = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+    return n;
+  };
+  const KEY = "ph_review_token";
+
+  async function call(payload) {
+    const r = await fetch(GATE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json().catch(() => ({ error: "Something went wrong." }));
+    if (!r.ok) throw new Error(j.error || "Something went wrong.");
+    return j;
+  }
+
+  // --------------------------------------------------------------- gate
+  const inputs = [...document.querySelectorAll(".code input")];
+  const err = $("#gate-err");
+  const btn = $("#gate-btn");
+
+  inputs.forEach((inp, i) => {
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/\D/g, "").slice(-1);
+      if (inp.value && inputs[i + 1]) inputs[i + 1].focus();
+      if (inputs.every((x) => x.value)) $("#gate-form").requestSubmit();
+    });
+    inp.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !inp.value && inputs[i - 1]) inputs[i - 1].focus();
+    });
+    inp.addEventListener("paste", (e) => {
+      const t = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+      if (t.length === 6) {
+        e.preventDefault();
+        inputs.forEach((x, k) => (x.value = t[k]));
+        $("#gate-form").requestSubmit();
+      }
+    });
+  });
+
+  $("#gate-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.textContent = "";
+    const code = inputs.map((x) => x.value).join("");
+    if (code.length !== 6) { err.textContent = "Enter all six digits."; return; }
+    btn.disabled = true; btn.textContent = "Checking";
+    try {
+      const { token } = await call({ action: "verify", code });
+      sessionStorage.setItem(KEY, token);
+      await open(token);
+    } catch (ex) {
+      err.textContent = ex.message;
+      inputs.forEach((x) => (x.value = ""));
+      inputs[0].focus();
+    } finally {
+      btn.disabled = false; btn.textContent = "Open the review";
+    }
+  });
+
+  $("#signout").addEventListener("click", () => {
+    sessionStorage.removeItem(KEY);
+    location.reload();
+  });
+
+  // --------------------------------------------------------------- open
+  async function open(token) {
+    const { content, assets, viewer } = await call({ action: "load", token });
+    render(content, assets, viewer);
+    $("#gate").hidden = true;
+    $("#doc").hidden = false;
+    $("#main").focus({ preventScroll: true });
+  }
+
+  (async () => {
+    const t = sessionStorage.getItem(KEY);
+    if (!t) { inputs[0].focus(); return; }
+    try { await open(t); } catch { sessionStorage.removeItem(KEY); inputs[0].focus(); }
+  })();
+
+  // ------------------------------------------------------------- render
+  const chip = (text, kind) => el("span", { class: `chip chip-${kind}` }, text);
+  const laneChip = (l) => chip(`Lane ${l}`, "lane");
+  const statusChip = (s) => chip(s, "st-" + s.toLowerCase().replace(/\s+/g, "-"));
+
+  function table(b) {
+    return el("div", { class: "tbl-wrap" },
+      el("table", {},
+        el("thead", {}, el("tr", {}, b.head.map((h) => el("th", { scope: "col" }, h)))),
+        el("tbody", {}, b.rows.map((r) => el("tr", {}, r.map((c, i) => el(i === 0 ? "th" : "td", i === 0 ? { scope: "row" } : {}, c)))))
+      )
+    );
+  }
+
+  function callout(b) {
+    return el("aside", { class: `callout callout-${b.kind}` },
+      el("p", { class: "callout-t" }, b.title),
+      el("p", {}, b.text)
+    );
+  }
+
+  function quote(b) {
+    return el("figure", { class: "quote" },
+      el("blockquote", {}, b.lines.map((l) => el("p", {}, l))),
+      el("figcaption", {}, b.attribution)
+    );
+  }
+
+  function script(b) {
+    return el("article", { class: "script", id: b.id },
+      el("div", { class: "script-head" },
+        el("h3", {}, b.title),
+        el("div", { class: "chips" }, chip(b.door, "door"), laneChip(b.lane), statusChip(b.status))
+      ),
+      el("p", { class: "script-why" }, b.why),
+      el("ol", { class: "script-lines" }, b.lines.map((l) => el("li", {}, l))),
+      el("p", { class: "script-note" }, el("strong", {}, "On screen: "), b.onscreen),
+      el("p", { class: "script-note" }, el("strong", {}, "Sources: "), b.sources)
+    );
+  }
+
+  function timeline(b) {
+    return el("ol", { class: "tl" }, b.items.map((it) =>
+      el("li", { class: "tl-i" },
+        el("span", { class: "tl-when" }, it.when),
+        el("div", { class: "tl-body" }, el("p", {}, it.what), statusChip(it.status))
+      )
+    ));
+  }
+
+  function decisions(b) {
+    return el("ol", { class: "dec" }, b.items.map((d) =>
+      el("li", { class: "dec-i" },
+        el("span", { class: "dec-n", "aria-hidden": "true" }, d.n),
+        el("div", { class: "dec-body" },
+          el("h3", {}, d.q),
+          el("p", {}, d.context),
+          el("p", { class: "dec-default" }, el("strong", {}, "Default: "), d.default)
+        )
+      )
+    ));
+  }
+
+  function gallery(content, assets) {
+    return el("div", { class: "gal" }, content.gallery.map((g) => {
+      const url = assets[g.id];
+      const isVideo = /\.mp4$/i.test(g.asset);
+      const isPdf = /\.pdf$/i.test(g.asset);
+      let media;
+      if (!url) media = el("div", { class: "gal-ph" }, "Asset not uploaded yet");
+      else if (isVideo) media = el("video", { src: url, controls: "", playsinline: "", preload: "metadata" });
+      else if (isPdf) media = el("a", { class: "gal-ph gal-link", href: url, target: "_blank", rel: "noopener" }, "Open PDF");
+      else media = el("img", { src: url, alt: g.title, loading: "lazy" });
+      return el("figure", { class: "gal-i" },
+        el("div", { class: "gal-media" }, media),
+        el("figcaption", {},
+          el("p", { class: "gal-t" }, g.title),
+          el("p", { class: "gal-m" }, `${g.door} · ${g.format}`),
+          el("div", { class: "chips" }, laneChip(g.lane), statusChip(g.status)),
+          el("p", { class: "gal-n" }, g.note)
+        )
+      );
+    }));
+  }
+
+  function diagramLeadPath() {
+    const s = `
+<svg viewBox="0 0 720 300" role="img" aria-labelledby="lp-t" xmlns="http://www.w3.org/2000/svg">
+  <title id="lp-t">Lead path: ad, landing page, CRM, broker, Fred</title>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0b2a51"/></marker></defs>
+  <g font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="13" fill="#111">
+    <rect x="10" y="40" width="130" height="56" rx="6" fill="#fff" stroke="#0b2a51"/><text x="75" y="63" text-anchor="middle" font-weight="600">Ad click</text><text x="75" y="82" text-anchor="middle" font-size="11">Meta · LinkedIn · UTM</text>
+    <rect x="200" y="40" width="150" height="56" rx="6" fill="#fff" stroke="#0b2a51"/><text x="275" y="63" text-anchor="middle" font-weight="600">Landing page</text><text x="275" y="82" text-anchor="middle" font-size="11">tracking fires first</text>
+    <rect x="410" y="40" width="130" height="56" rx="6" fill="#fff" stroke="#0b2a51"/><text x="475" y="63" text-anchor="middle" font-weight="600">CRM</text><text x="475" y="82" text-anchor="middle" font-size="11">formId employers</text>
+    <rect x="590" y="40" width="120" height="56" rx="6" fill="#fff" stroke="#0b2a51"/><text x="650" y="63" text-anchor="middle" font-weight="600">Broker</text><text x="650" y="82" text-anchor="middle" font-size="11">first call</text>
+    <rect x="410" y="180" width="130" height="56" rx="6" fill="#fff" stroke="#0059a2"/><text x="475" y="203" text-anchor="middle" font-weight="600" fill="#0059a2">Paychex form</text><text x="475" y="222" text-anchor="middle" font-size="11">PartnerId=461541</text>
+    <rect x="590" y="180" width="120" height="56" rx="6" fill="#fff" stroke="#0059a2"/><text x="650" y="203" text-anchor="middle" font-weight="600" fill="#0059a2">Fred</text><text x="650" y="222" text-anchor="middle" font-size="11">weekly count</text>
+    <text x="360" y="150" text-anchor="middle" font-size="11" fill="#555">Split CTA on the page: benefits stay with us, payroll and HR go to Paychex with the ID attached</text>
+    <text x="280" y="275" text-anchor="middle" font-size="11" fill="#555">Arm A of the test skips the page and sends the click straight to the Paychex form. Arm B is the path drawn above.</text>
+  </g>
+  <g fill="none" stroke="#0b2a51" stroke-width="1.5" marker-end="url(#ar)">
+    <path d="M140,68 L200,68"/><path d="M350,68 L410,68"/><path d="M540,68 L590,68"/>
+    <path d="M650,96 L650,180"/>
+    <path d="M300,96 C300,160 380,208 410,208"/>
+    <path d="M540,208 L590,208"/>
+  </g>
+</svg>`;
+    return el("figure", { class: "diagram", html: s });
+  }
+
+  function block(b, content, assets) {
+    switch (b.type) {
+      case "p": return el("p", {}, b.text);
+      case "h3": return el("h3", {}, b.text);
+      case "table": return table(b);
+      case "callout": return callout(b);
+      case "quote": return quote(b);
+      case "script": return script(b);
+      case "timeline": return timeline(b);
+      case "decisions": return decisions(b);
+      case "gallery": return gallery(content, assets);
+      case "diagram": return b.id === "lead-path" ? diagramLeadPath() : null;
+      default: return null;
+    }
+  }
+
+  function render(content, assets, viewer) {
+    $("#top-meta").textContent = `${content.meta.version} · viewing as ${viewer}`;
+    $("#doc-title").textContent = content.meta.title;
+    $("#doc-version").textContent = content.meta.version;
+
+    const n = $("#notice");
+    n.replaceChildren(
+      el("p", { class: "notice-t" }, "Read this first"),
+      el("p", {}, content.meta.notice),
+      el("dl", { class: "lanes" },
+        Object.entries(content.meta.lanes).flatMap(([k, v]) => [el("dt", {}, laneChip(k)), el("dd", {}, v)])
+      ),
+      el("div", { class: "chips" }, content.meta.statuses.map(statusChip))
+    );
+
+    const rail = $("#rail-list");
+    const secs = $("#sections");
+    rail.replaceChildren(); secs.replaceChildren();
+
+    for (const s of content.sections) {
+      rail.append(el("li", {}, el("a", { href: `#${s.id}` }, s.title)));
+      const sec = el("section", { id: s.id, class: "sec" },
+        el("h2", {}, s.title),
+        s.lede ? el("p", { class: "lede" }, s.lede) : null,
+        s.blocks.map((b) => block(b, content, assets))
+      );
+      secs.append(sec);
+    }
+
+    // Current-section marking in the rail.
+    const links = [...rail.querySelectorAll("a")];
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => {
+        if (!e.isIntersecting) return;
+        links.forEach((a) => a.removeAttribute("aria-current"));
+        const a = links.find((x) => x.getAttribute("href") === `#${e.target.id}`);
+        if (a) a.setAttribute("aria-current", "true");
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    secs.querySelectorAll(".sec").forEach((x) => io.observe(x));
+  }
+</script>
+
+<style is:global>
+  /* ------------------------------------------------------------ tokens */
+  :root {
+    --navy: #0b2a51;
+    --page: #eef4fa;
+    --panel: #f4f8fc;
+    --accent: #197bff;
+    --ink: #111;
+    --muted: #4b5563;
+    --line: #d5dfeb;
+    --white: #fff;
+    --px-blue: #0059a2; /* Paychex Blue. Only for Paychex elements in previews. */
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --measure: 68ch;
+    --r: 6px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 1.0625rem; line-height: 1.6; touch-action: manipulation; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; top: 8px; background: var(--navy); color: #fff; padding: .5rem .75rem; border-radius: var(--r); z-index: 10; }
+  .skip:focus { left: 8px; }
+  [hidden] { display: none !important; }
+
+  /* type scale, tracking tightens as size grows */
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.15; letter-spacing: -.02em; margin: 0 0 .25rem; }
+  h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.5rem, 3vw, 1.9rem); line-height: 1.2; letter-spacing: -.015em; margin: 0 0 .5rem; }
+  h3 { font-family: var(--sans); font-weight: 650; font-size: 1.125rem; line-height: 1.35; letter-spacing: -.005em; margin: 1.75rem 0 .5rem; }
+  p { margin: 0 0 1rem; max-width: var(--measure); }
+  a { color: var(--accent); }
+
+  /* ------------------------------------------------------------- gate */
+  .gate { min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; background: var(--navy); }
+  .gate-panel { background: var(--white); border-radius: 14px; padding: 2rem; width: min(100%, 26rem); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .gate-brand { display: flex; align-items: baseline; gap: .6rem; margin-bottom: 1.25rem; }
+  .gate-wordmark, .wordmark { font-family: var(--serif); font-size: 1.15rem; color: var(--navy); }
+  .gate-sub { color: var(--muted); font-size: .95rem; }
+  .gate h1 { font-size: 1.6rem; }
+  .gate-help { color: var(--muted); font-size: .95rem; margin-bottom: 1.25rem; }
+  .code { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5rem; margin-bottom: .75rem; }
+  .code input { width: 100%; aspect-ratio: 1 / 1.2; font: 600 1.5rem var(--sans); text-align: center; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); }
+  .code input:focus { border-color: var(--accent); background: #fff; }
+  .gate-err { min-height: 1.4em; color: #b3261e; font-size: .95rem; margin: 0 0 .75rem; }
+  .btn { width: 100%; padding: .85rem 1rem; font: 600 1rem var(--sans); color: #fff; background: var(--navy); border: 0; border-radius: var(--r); cursor: pointer; }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn-quiet { font: 500 .9rem var(--sans); color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.35); border-radius: var(--r); padding: .4rem .7rem; cursor: pointer; }
+  .btn-quiet:active { transform: scale(.98); }
+
+  /* -------------------------------------------------------------- doc */
+  .top { position: sticky; top: 0; z-index: 5; background: var(--navy); color: #fff; }
+  .top-in { max-width: 1180px; margin: 0 auto; padding: .7rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+  .top .wordmark { color: #fff; }
+  .top-meta { flex: 1; font-size: .85rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .frame { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 240px 1fr; gap: 3rem; padding: 2rem 1.25rem 4rem; }
+  .rail { position: sticky; top: 4.25rem; align-self: start; max-height: calc(100dvh - 5rem); overflow: auto; }
+  .rail ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+  .rail a { display: block; padding: .35rem .85rem; color: var(--muted); text-decoration: none; font-size: .92rem; line-height: 1.35; margin-left: -2px; border-left: 2px solid transparent; }
+  .rail a:active { color: var(--navy); }
+  .rail a[aria-current] { color: var(--navy); border-left-color: var(--navy); font-weight: 600; }
+
+  .page { min-width: 0; }
+  .version { color: var(--muted); margin-bottom: 1.5rem; }
+  .lede { font-size: 1.15rem; line-height: 1.5; color: #1f2937; margin-bottom: 1.25rem; }
+  .sec { padding: 2.25rem 0; border-top: 1px solid var(--line); scroll-margin-top: 4.5rem; }
+
+  .notice { background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--navy); border-radius: var(--r); padding: 1.1rem 1.25rem; margin: 1rem 0 2rem; }
+  .notice-t { font-weight: 650; margin-bottom: .25rem; }
+  .lanes { display: grid; grid-template-columns: auto 1fr; gap: .35rem .75rem; margin: .75rem 0; max-width: var(--measure); }
+  .lanes dt, .lanes dd { margin: 0; }
+  .lanes dd { font-size: .95rem; color: var(--muted); }
+
+  /* chips carry real state; they are the one structural device */
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; margin: .35rem 0; }
+  .chip { display: inline-block; font-size: .78rem; font-weight: 600; line-height: 1; padding: .3rem .5rem; border-radius: 999px; border: 1px solid var(--line); background: var(--white); color: var(--muted); }
+  .chip-lane { color: var(--navy); border-color: var(--navy); }
+  .chip-door { color: #374151; }
+  .chip-st-draft { background: #fff7e6; border-color: #f0c36b; color: #7a4b00; }
+  .chip-st-needs-review { background: #eef4ff; border-color: #9ec0ff; color: #1b4fa3; }
+  .chip-st-approved { background: #e9f7ee; border-color: #8fd3a5; color: #14532d; }
+  .chip-st-live { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .chip-st-done { background: #e9f7ee; border-color: #8fd3a5; color: #14532d; }
+  .chip-st-in-progress { background: #eef4ff; border-color: #9ec0ff; color: #1b4fa3; }
+  .chip-st-waiting-on-you { background: #fff7e6; border-color: #f0c36b; color: #7a4b00; }
+  .chip-st-planned { background: var(--white); color: var(--muted); }
+
+  .tbl-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .95rem; background: var(--white); }
+  th, td { text-align: left; vertical-align: top; padding: .6rem .75rem; border-bottom: 1px solid var(--line); }
+  thead th { font-weight: 650; color: var(--navy); border-bottom: 2px solid var(--navy); }
+  tbody th { font-weight: 600; width: 22%; }
+
+  .callout { background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 1rem 1.15rem; margin: 1.25rem 0; max-width: var(--measure); }
+  .callout-warn { border-left: 4px solid #d97706; }
+  .callout-note { border-left: 4px solid var(--accent); }
+  .callout-t { font-weight: 650; margin-bottom: .25rem; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .quote { margin: 1.25rem 0; padding: 1rem 1.25rem; background: var(--panel); border-left: 3px solid var(--px-blue); max-width: var(--measure); }
+  .quote blockquote { margin: 0; }
+  .quote p { font-size: .98rem; }
+  .quote figcaption { font-size: .85rem; color: var(--muted); margin-top: .5rem; }
+
+  .script { background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 1.25rem 1.4rem; margin: 1.25rem 0; }
+  .script-head h3 { margin: 0 0 .35rem; }
+  .script-why { color: var(--muted); font-size: .95rem; }
+  .script-lines { font-family: var(--serif); font-size: 1.12rem; line-height: 1.55; padding-left: 1.25rem; margin: 1rem 0; max-width: var(--measure); }
+  .script-lines li { margin-bottom: .6rem; }
+  .script-note { font-size: .92rem; color: var(--muted); }
+
+  .tl { list-style: none; margin: 1rem 0; padding: 0; border-left: 2px solid var(--navy); }
+  .tl-i { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; padding: .6rem 0 .6rem 1.25rem; position: relative; }
+  .tl-i::before { content: ""; position: absolute; left: -6px; top: 1.05rem; width: 10px; height: 10px; border-radius: 50%; background: var(--white); border: 2px solid var(--navy); }
+  .tl-when { font-weight: 650; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .tl-body p { margin-bottom: .25rem; }
+
+  .dec { list-style: none; margin: 1rem 0; padding: 0; counter-reset: d; }
+  .dec-i { display: grid; grid-template-columns: 2.6rem 1fr; gap: .75rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
+  .dec-i:first-child { border-top: 0; }
+  .dec-n { font-family: var(--serif); font-size: 1.7rem; line-height: 1; color: var(--navy); }
+  .dec-body h3 { margin: 0 0 .4rem; }
+  .dec-body p { font-size: .98rem; }
+  .dec-default { background: var(--panel); padding: .6rem .8rem; border-radius: var(--r); }
+
+  .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; margin: 1rem 0; }
+  .gal-i { margin: 0; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  .gal-media { aspect-ratio: 4 / 5; background: var(--panel); display: grid; place-items: center; }
+  .gal-media img, .gal-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gal-ph { color: var(--muted); font-size: .9rem; text-align: center; padding: 1rem; }
+  .gal-link { text-decoration: underline; }
+  .gal figcaption { padding: .8rem .9rem 1rem; }
+  .gal-t { font-weight: 650; margin-bottom: .15rem; }
+  .gal-m, .gal-n { font-size: .88rem; color: var(--muted); margin-bottom: .35rem; }
+
+  .diagram { margin: 1rem 0 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: .75rem; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+
+  .doc-foot { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+
+  @media (max-width: 860px) {
+    .frame { grid-template-columns: 1fr; gap: 1rem; padding-top: 1.25rem; }
+    .rail { position: static; max-height: none; }
+    .rail ol { border-left: 0; display: flex; gap: .25rem; overflow-x: auto; padding-bottom: .5rem; }
+    .rail a { white-space: nowrap; border: 1px solid var(--line); border-radius: 999px; padding: .35rem .7rem; background: var(--white); margin-left: 0; }
+    .rail a[aria-current] { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .tl-i { grid-template-columns: 1fr; gap: .15rem; }
+    .dec-i { grid-template-columns: 2rem 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn:active, .btn-quiet:active { transform: none; } html { scroll-behavior: auto; } }
+  @media (forced-colors: active) { .chip, .callout, .script, .gal-i { border: 1px solid CanvasText; } }
+  @media print { .top, .rail, .gate { display: none !important; } body { background: #fff; } .sec { break-inside: avoid; } }
+</style>
+</body>
+</html>
