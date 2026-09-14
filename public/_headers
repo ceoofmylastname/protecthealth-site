@@ -24,3 +24,6 @@
 # Brand/editorial images change rarely and by filename when they do.
 /assets/*
   Cache-Control: public, max-age=604800
+
+/partners/paychex
+  X-Robots-Tag: noindex, nofollow, noarchive
