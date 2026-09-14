@@ -63,7 +63,7 @@
       "c4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_050744_f01f66b9-fa16-4033-b326-9156fc3a92f9.png",
       "c5": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051523_9636e192-1bf5-49cd-8bea-a4f60c778ccc.png",
       "c6": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2092f938-13be-4189-94c9-f2efb49c4495.png",
-      "c7": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_db72d42a-1dcb-4a09-9d91-550bc28ce25d.png",
+      "c7": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_055548_0d1d7a04-461b-4ccf-b610-a1cfa5156cc6.png",
       "c8": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f3fe1ada-175c-4dc0-b62c-d56678dab5bb.png",
       "c9": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_bc08394b-1252-4299-b4f7-db644c34ccd9.png",
       "hero": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png",
@@ -1357,7 +1357,7 @@
       "id": "c7",
       "eyebrow": "26 CFR 31.3511-1",
       "headline": "The credit was\nalways yours.",
-      "message": "No PEO claims it for you. Federal regulation puts it on your return.",
+      "message": "No payroll company claims it for you. Federal regulation puts it on your return.",
       "visual": {
         "type": "nameplate",
         "name": "Your business",
@@ -1366,9 +1366,9 @@
       "door": "Tips, any",
       "lane": "B",
       "status": "Needs review",
-      "caption": "The credit was always yours.\n\nThere's a pitch going around that a PEO claims your tip credit for you through its EIN. Federal regulation says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute it every year.\n\nThe difference, explained: https://www.protecthealth.com/payroll-tax-asset",
-      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_db72d42a-1dcb-4a09-9d91-550bc28ce25d.png",
-      "caption_linkedin": "There is a pitch going around that a PEO claims your tip credit for you through its EIN.\n\n26 CFR 31.3511-1 says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute the credit every year. That is real value. It is just a different sentence.\n\nhttps://www.protecthealth.com/payroll-tax-asset\n\n#PEO #Payroll #TaxCredits",
+      "caption": "The credit was always yours.\n\nThere's a pitch going around that a payroll company can claim your tip credit for you through its EIN. Federal regulation says the opposite. Specified credits, including the FICA tip credit, are taken by the business that employs the people. Not the payroll company.\n\nWhat a good payroll partner genuinely does is make your data clean enough to compute it every year.\n\nThe difference, explained: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_055548_0d1d7a04-461b-4ccf-b610-a1cfa5156cc6.png",
+      "caption_linkedin": "There is a pitch going around that a payroll company can claim your tip credit for you through its EIN.\n\n26 CFR 31.3511-1 says the opposite. Specified credits, including the FICA tip credit, are taken by the customer, the business that employs the people. Not the payroll provider.\n\nWhat a good payroll partner genuinely does is make your data clean enough to compute the credit every year. That is real value. It is just a different sentence.\n\nhttps://www.protecthealth.com/payroll-tax-asset\n\n#Payroll #TaxCredits #SmallBusiness",
       "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
