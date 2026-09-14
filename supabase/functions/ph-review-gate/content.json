@@ -19,6 +19,12 @@
     "hero_art": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png",
     "reading_order": [
       {
+        "n": "00",
+        "title": "The playbook",
+        "what": "Nine moves in order. Two minutes.",
+        "href": "#playbook"
+      },
+      {
         "n": "01",
         "title": "Decide",
         "what": "Six decisions with defaults. Five minutes.",
@@ -74,6 +80,99 @@
     }
   },
   "sections": [
+    {
+      "id": "playbook",
+      "title": "The playbook. Nine moves, in order.",
+      "lede": "If you read nothing else, read this. Each move says what we do, why, and which asset carries it.",
+      "blocks": [
+        {
+          "type": "playbook",
+          "steps": [
+            {
+              "n": "01",
+              "when": "Days 0 to 3",
+              "do": "Pick the door and the dream buyer.",
+              "why": "You cannot stop a scroll for everyone. You stop it for one person with one belief that is wrong.",
+              "who": "Retirement: every Nevada owner with six or more people. Beauty tips: salon, barber, nail and spa owners who were told the credit was a restaurant thing. Restaurants: owners who heard a loss year disqualified them.",
+              "asset": "Audience map, section 04",
+              "art": "c1"
+            },
+            {
+              "n": "02",
+              "when": "Days 1 to 7",
+              "do": "Post organic. No ask.",
+              "why": "Attention is earned before it is bought. A post with no CTA sorts the audience for free and tells us which door they walk through.",
+              "who": "Three videos and three statics on the ProtectHealth Meta and LinkedIn pages. Corrections only, nothing to click.",
+              "asset": "V1 to V3 scripts, nine creatives with captions",
+              "art": "c4"
+            },
+            {
+              "n": "03",
+              "when": "Day 8",
+              "do": "Read the seven-day numbers.",
+              "why": "Money follows evidence, never a guess. The trigger is defined so nobody argues about which post looked good.",
+              "who": "A post earns budget when saves and shares hit two times the trailing thirty-day median and watch time hits one and a half times. Both, not either.",
+              "asset": "Promotion trigger, section 07",
+              "art": "c5"
+            },
+            {
+              "n": "04",
+              "when": "Days 8 to 14",
+              "do": "Put budget behind the winners.",
+              "why": "Cold reach on Meta for volume, LinkedIn for the owners we cannot otherwise identify. Still no CTA at the top of the funnel; its only job is filling the buckets.",
+              "who": "Meta cold audiences by industry and geography. LinkedIn by title, company size six to one hundred, Clark County.",
+              "asset": "Platform split, section 04",
+              "art": "c2"
+            },
+            {
+              "n": "05",
+              "when": "Day 21 onward",
+              "do": "Retarget by how long they watched.",
+              "why": "Watch depth is a confession. A quarter means the hook held. Half means the correction landed. Three quarters means they are ready to be asked.",
+              "who": "25 percent sees a restatement. 50 percent sees the comparison or calculator. 75 percent sees the landing page with a hero that matches the ad. Three impressions per ten days, then stop.",
+              "asset": "Retargeting ladder, section 06",
+              "art": "c3"
+            },
+            {
+              "n": "06",
+              "when": "Ongoing",
+              "do": "Capture once, on one page.",
+              "why": "Asking early kills small-employer funnels. The page asks exactly once, after the mechanism and the proof, and matches the ad they came from.",
+              "who": "Four tap-to-select questions, then contact. Lands in the CRM with Industry, Employees, Friction and Payroll as real fields. Broker calls within the hour.",
+              "asset": "https://www.protecthealth.com/payroll-tax-asset",
+              "art": "c6"
+            },
+            {
+              "n": "07",
+              "when": "Days 0 to 10 after opt-in",
+              "do": "Nurture automatically.",
+              "why": "A form is the start of a sequence, not the end of one. The right email goes to the right door without anyone sorting.",
+              "who": "Five emails and two texts, branched on the friction they picked. A restaurant gets the Form 8846 walkthrough. A retirement lead gets the state program versus 401(k). Email four introduces Fred, verbatim from the Paychex portal.",
+              "asset": "Opt-in sequence, section 12",
+              "art": "c8"
+            },
+            {
+              "n": "08",
+              "when": "Fridays",
+              "do": "Hand off and count.",
+              "why": "Paychex cares about referrals, not impressions. Every payroll conversation goes to Fred with the partner ID attached, and Fred reports two buckets so the routing test has a number.",
+              "who": "Benefits stay with us. Payroll and HR go to Fred. Confirmed referrals per arm, cost per confirmed referral.",
+              "asset": "Measurement, section 13",
+              "art": "c7"
+            },
+            {
+              "n": "09",
+              "when": "Monthly",
+              "do": "Double down on what worked.",
+              "why": "One door will pull most of the volume. That door gets its own page, its own cluster expansion, and most of next month's budget.",
+              "who": "Lowest cost per confirmed referral wins. The next content cluster is built for it. The other doors keep their organic cadence.",
+              "asset": "Timeline, section 14",
+              "art": "c9"
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": "decisions",
       "title": "Six decisions. Then we launch.",
