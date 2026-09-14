@@ -12,3 +12,4 @@ public/assets/qa-art/*-[0-9][0-9][0-9].webp
 
 # Test bundles from esbuild (scripts/test-*.mjs)
 dist-test/
+supabase/.temp/
