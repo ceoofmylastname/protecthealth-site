@@ -15,26 +15,26 @@
       "Live"
     ],
     "kicker": "ProtectHealth + Paychex · Go-to-market review",
-    "sub": "The plan, the creative, and the six decisions that unlock it. Read in order.",
+    "sub": "The campaign, the creative, the landing page, and the six decisions that unlock it.",
     "hero_art": "https://www.protecthealth.com/assets/blog-art/nevada-retirement-plan-mandate.webp",
     "reading_order": [
       {
         "n": "01",
         "title": "Decide",
-        "what": "Six decisions, each with a default. Five minutes.",
+        "what": "Six decisions with defaults. Five minutes.",
         "href": "#decisions"
       },
       {
         "n": "02",
-        "title": "Understand",
-        "what": "Why this shape, who we reach, how a click becomes a broker call. Fifteen minutes.",
-        "href": "#umbrella"
+        "title": "See the creative",
+        "what": "Nine cards, ready to download and post. The landing page they link to.",
+        "href": "#creative"
       },
       {
         "n": "03",
-        "title": "See it",
-        "what": "The creative, the landing page, the timeline, and what is still open. Ten minutes.",
-        "href": "#gallery"
+        "title": "Understand the machine",
+        "what": "Why three stages, who we reach, how a click becomes a broker call, what fires when they opt in.",
+        "href": "#umbrella"
       }
     ],
     "marquee": [
@@ -44,7 +44,8 @@
       "Insurance nerds, not tax professionals",
       "Official Paychex Partner",
       "Las Vegas · Nevada"
-    ]
+    ],
+    "landing_url": "https://www.protecthealth.com/payroll-tax-asset"
   },
   "sections": [
     {
@@ -516,21 +517,26 @@
       ]
     },
     {
-      "id": "gallery",
-      "title": "The creative.",
-      "lede": "Every asset carries its lane and its status. Top-of-funnel pieces are ProtectHealth voice and ProtectHealth art. Co-branded pieces follow the Paychex guidelines to the letter.",
+      "id": "creative",
+      "title": "The creative. Download it, copy the caption, post it.",
+      "lede": "Nine cards, rendered live in the brand. Each one links to the landing page. Every card is Lane B and carries the co-branded footer, so Sean sees exactly what runs.",
       "blocks": [
         {
-          "type": "gallery",
-          "id": "creative"
+          "type": "creatives"
         }
       ]
     },
     {
       "id": "landing",
-      "title": "The landing page.",
-      "lede": "Paychex's approved layout, in ProtectHealth's frame, capturing to our CRM.",
+      "title": "The landing page is live.",
+      "lede": "Every creative links here. It captures to our CRM and hands payroll conversations to Paychex with the partner ID attached.",
       "blocks": [
+        {
+          "type": "link",
+          "href": "https://www.protecthealth.com/payroll-tax-asset",
+          "label": "Open the landing page",
+          "note": "Public URL. Capturing to formId employers with the Landing Page field set. Noindex until approved."
+        },
         {
           "type": "p",
           "text": "The portal's example layout is the reference: lockup top-left on white, bold headline, blue subheading, black body, bulleted benefits, blue button, image right. We keep that structure for the Paychex section so there is nothing to argue about on brand grounds, and we wrap it in Protect Health's navy chrome so the page belongs to our site."
@@ -718,6 +724,79 @@
               "One send. One follow-up at ten days to non-openers. Then stop."
             ]
           ]
+        }
+      ]
+    },
+    {
+      "id": "automation",
+      "title": "What fires when someone opts in.",
+      "lede": "The form is the start of a sequence, not the end of one. Every step below runs in GoHighLevel off the Source Form field.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "When",
+            "What happens",
+            "Where"
+          ],
+          "rows": [
+            [
+              "Instantly",
+              "Contact upserted with Industry, Employee Count, Biggest Friction, Payroll Provider, Source Form and Landing Page fields. Tag campaign:paychex.",
+              "GHL, via /api/lead"
+            ],
+            [
+              "Instantly",
+              "Lead lands in the employer pipeline. Assigned broker notified by SMS and email with the four answers in the body.",
+              "GHL workflow"
+            ],
+            [
+              "Instantly",
+              "Lead confirmation email to the prospect. Plain, short, from the assigned broker. Names the next step.",
+              "GHL email 1"
+            ],
+            [
+              "Within 5 minutes, business hours",
+              "Broker calls. If no answer, SMS with a booking link.",
+              "Broker + GHL"
+            ],
+            [
+              "Day 1",
+              "Email 2: the one-page answer to the door they came in through. Retirement gets the NEST vs 401(k) comparison. Tips gets the Form 8846 walkthrough.",
+              "GHL email, branched on Source Form + Landing Page"
+            ],
+            [
+              "Day 3",
+              "Email 3: the correction. Whichever common belief their door is built on, stated and corrected with the source.",
+              "GHL email"
+            ],
+            [
+              "Day 5",
+              "Broker follow-up task. SMS if unreached.",
+              "GHL task + SMS"
+            ],
+            [
+              "Day 7",
+              "Email 4: the Paychex introduction using the portal's approved template, Fred in the rep slot. Only to leads who chose payroll or HR as the friction.",
+              "GHL email, branched"
+            ],
+            [
+              "Day 10",
+              "Email 5: last note. Offer the twenty-minute strategy call. Exit the sequence.",
+              "GHL email"
+            ],
+            [
+              "Any time",
+              "Booking confirmed: sequence exits, booking sequence takes over. Reply received: sequence pauses, broker notified.",
+              "GHL exit conditions"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "note",
+          "title": "Why it branches on fields, not tags",
+          "text": "The four employer questions on the form land in real custom fields, not note text. That is what lets email 2 send the retirement comparison to a retirement lead and the Form 8846 walkthrough to a restaurant lead, without a human sorting anything. Full email copy is in the automation spec."
         }
       ]
     },
@@ -1202,6 +1281,177 @@
       "status": "Approved",
       "asset": "winning-team.pdf",
       "note": "Document 173193, dated 03/10/2026. The approved co-branded lockup we mirror on every white surface."
+    }
+  ],
+  "creatives": [
+    {
+      "id": "c1",
+      "eyebrow": "Nevada employers · 6 or more people",
+      "headline": "Six employees.\nOne obligation.",
+      "message": "Nevada requires a retirement route. Most owners picked the one they can't contribute to.",
+      "visual": {
+        "type": "chairs"
+      },
+      "door": "Retirement",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "Six employees. One obligation.\n\nNevada requires most employers with six or more people and three years in business to offer a retirement route. Most picked the state program. It's a Roth IRA the employee owns, and the employer is not permitted to put a dollar in.\n\nThat's a payroll deduction, not a benefit. The difference shows up the first time a candidate asks about a match.\n\nWhat the alternative actually costs, and the federal credits that cover most of it: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c2",
+      "eyebrow": "2026 contribution limits · IRS Notice 2025-67",
+      "headline": "$7,500\nvs $24,500.",
+      "message": "The state program vs a 401(k). Same employee, same year, before any match.",
+      "visual": {
+        "type": "bars",
+        "a": {
+          "label": "State program",
+          "value": 7500,
+          "max": 24500
+        },
+        "b": {
+          "label": "401(k)",
+          "value": 24500,
+          "max": 24500
+        }
+      },
+      "door": "Retirement",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "$7,500 vs $24,500.\n\nA NEST account is a Roth IRA, so it caps at the IRA limit. A 401(k) caps at $24,500 in employee deferrals for 2026, and the employer can add to it.\n\nSame employee. Same year. Three times the room.\n\nThe head-to-head, with what a plan really costs after the startup credits: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c3",
+      "eyebrow": "Nevada Employee Savings Trust",
+      "headline": "You can't\nmatch it.",
+      "message": "The state program does not accept employer money. A 401(k) does.",
+      "visual": {
+        "type": "toggle",
+        "label": "Employer match",
+        "value": "Not permitted"
+      },
+      "door": "Retirement",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "You can't match it.\n\nEmployer matching is not allowed in Nevada's state retirement program. Not discouraged. Not permitted.\n\nSo when you tell a candidate you offer retirement, and the shop down the street says they match four percent, those are not two versions of the same thing.\n\nWhat a match costs after the federal credits: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c4",
+      "eyebrow": "New for tax years after Dec 31, 2024",
+      "headline": "Salons, this\ncredit is yours now.",
+      "message": "The FICA tip credit reached hair, nails, esthetics and spa in 2025. Most owners never filed.",
+      "visual": {
+        "type": "checklist",
+        "items": [
+          "Barbering and hair care",
+          "Nail care",
+          "Esthetics",
+          "Body and spa treatment"
+        ]
+      },
+      "door": "Tips, beauty services",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "Salons, this credit is yours now.\n\nFor thirty years the FICA tip credit was a restaurant thing. For tax years beginning after December 31, 2024 it reaches barbering and hair care, nail care, esthetics, and body and spa treatment.\n\nSame credit. Same one-page form. Almost nobody in this valley has filed it.\n\nHow it works and what your payroll needs to capture: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c5",
+      "eyebrow": "IRC §38 and §39",
+      "headline": "A loss year didn't\nkill your credit.",
+      "message": "It carries forward twenty years. The only way to lose it is not filing.",
+      "visual": {
+        "type": "timeline",
+        "label": "Carries forward",
+        "value": "20 years"
+      },
+      "door": "Tips, food and beverage",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "A loss year didn't kill your credit.\n\nYour accountant told you a loss means you can't use the tip credit. Half right. It's nonrefundable, so it can't generate a refund. But it carries back one year and forward twenty.\n\nA loss parks the credit. It doesn't take it.\n\nThe businesses losing this money aren't the ones with losses. They're the ones who heard \"disqualified\" and never filed the form: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c6",
+      "eyebrow": "Form 8846",
+      "headline": "One page.\nNever filed.",
+      "message": "The tip credit lives on Form 8846. Most Las Vegas restaurants have never sent it.",
+      "visual": {
+        "type": "doc",
+        "title": "Form 8846",
+        "stamp": "Never filed"
+      },
+      "door": "Tips, food and beverage",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "One page. Never filed.\n\nThe FICA tip credit is computed on Form 8846. One page. It flows onto Form 3800 with your other general business credits.\n\nIf your payroll separates reported tips from service charges, it takes an afternoon a year. Most Las Vegas restaurants have never done it once.\n\nWhat your records need to capture: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c7",
+      "eyebrow": "26 CFR 31.3511-1",
+      "headline": "The credit was\nalways yours.",
+      "message": "No PEO claims it for you. Federal regulation puts it on your return.",
+      "visual": {
+        "type": "nameplate",
+        "name": "Your business",
+        "sub": "§45B · §51 · §1396 · §45S"
+      },
+      "door": "Tips, any",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "The credit was always yours.\n\nThere's a pitch going around that a PEO claims your tip credit for you through its EIN. Federal regulation says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute it every year.\n\nThe difference, explained: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c8",
+      "eyebrow": "Section 125",
+      "headline": "Pre-tax premiums cut\nyour payroll tax too.",
+      "message": "A Section 125 plan lowers the employer's FICA, not just the employee's.",
+      "visual": {
+        "type": "paystub",
+        "rows": [
+          [
+            "Gross pay",
+            "$4,200.00"
+          ],
+          [
+            "Health premium, pre-tax",
+            "-$310.00"
+          ],
+          [
+            "FICA wages",
+            "$3,890.00"
+          ]
+        ]
+      },
+      "door": "Retirement",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "Pre-tax premiums cut your payroll tax too.\n\nWhen health premiums come out of payroll pre-tax under a Section 125 plan, the employer's own FICA and FUTA fall with them. The employee saves. So do you.\n\nMost small employers deduct premiums after tax because nobody set up the document.\n\nWhat it's worth at 2026 rates: https://www.protecthealth.com/payroll-tax-asset"
+    },
+    {
+      "id": "c9",
+      "eyebrow": "SECURE 2.0 · IRC §45E",
+      "headline": "100% of startup costs,\nup to $5,000 a year.",
+      "message": "The federal credit for small employers starting a plan. Three years.",
+      "visual": {
+        "type": "stats",
+        "items": [
+          [
+            "100%",
+            "of startup costs"
+          ],
+          [
+            "$5,000",
+            "per year cap"
+          ],
+          [
+            "3",
+            "years"
+          ]
+        ]
+      },
+      "door": "Retirement",
+      "lane": "B",
+      "status": "Draft",
+      "caption": "100% of startup costs, up to $5,000 a year.\n\nEmployers with 50 or fewer people can claim the full cost of starting a retirement plan, capped at $5,000 a year, for three years. Add up to $1,000 per employee for contributions and $500 a year for auto-enrollment.\n\nMost owners are working from pre-2023 pricing in their heads.\n\nThe credits, the 2026 figures, and who qualifies: https://www.protecthealth.com/payroll-tax-asset"
     }
   ]
 }
