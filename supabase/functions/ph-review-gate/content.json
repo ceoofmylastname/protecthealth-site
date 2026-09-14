@@ -16,7 +16,7 @@
     ],
     "kicker": "ProtectHealth + Paychex · Go-to-market review",
     "sub": "The campaign, the creative, the landing page, and the six decisions that unlock it.",
-    "hero_art": "https://www.protecthealth.com/assets/blog-art/nevada-retirement-plan-mandate.webp",
+    "hero_art": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png",
     "reading_order": [
       {
         "n": "01",
@@ -45,7 +45,33 @@
       "Official Paychex Partner",
       "Las Vegas · Nevada"
     ],
-    "landing_url": "https://www.protecthealth.com/payroll-tax-asset"
+    "landing_url": "https://www.protecthealth.com/payroll-tax-asset",
+    "images": {
+      "1": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_5a1d53d5-d05a-40e0-8c99-d4dd4d5aec5f.png",
+      "2": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_9033fa9b-3d84-4e31-9cd4-c494c1147c33.png",
+      "3": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_781ce0e7-8d27-4d1e-9b2f-02eb08cf7774.png",
+      "4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045749_81f7b9ed-aa94-40bb-91de-b337a16f1888.png",
+      "5": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_7be3bf3c-d88a-449f-816e-f457b75e4a0b.png",
+      "6": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_aa51a73a-0c60-4f2b-9a36-b0b3be540b7a.png",
+      "7": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_c0997e87-7ecb-4a32-bb87-2fc1cfe2aaa5.png",
+      "8": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_f3a4cbe9-1f8b-4825-832e-a936eb63b359.png",
+      "9": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_6e1b5455-1d11-40e6-98e3-a9c45db35847.png",
+      "10": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_045748_051f897a-0366-4d65-b6b2-6600b8d68bb8.png",
+      "c1": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051138_1df80143-80c4-4371-8126-6ac3685073d6.png",
+      "c2": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_b097f2ac-caa1-4950-ba6b-2df49f3ebd03.png",
+      "c3": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_54e9b6d3-7d5f-47ed-b100-854f287f5109.png",
+      "c4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_050744_f01f66b9-fa16-4033-b326-9156fc3a92f9.png",
+      "c5": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051523_9636e192-1bf5-49cd-8bea-a4f60c778ccc.png",
+      "c6": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2092f938-13be-4189-94c9-f2efb49c4495.png",
+      "c7": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_db72d42a-1dcb-4a09-9d91-550bc28ce25d.png",
+      "c8": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f3fe1ada-175c-4dc0-b62c-d56678dab5bb.png",
+      "c9": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_bc08394b-1252-4299-b4f7-db644c34ccd9.png",
+      "hero": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png",
+      "d1": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_54138b59-f1df-4ace-8d6f-190a3148a197.png",
+      "d2": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_29fdf0a2-422b-42b6-a6f0-1eb19a1691a3.png",
+      "d3": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f8924f19-9fc2-4de4-819a-57ff225ccde5.png",
+      "d4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_da0ccc02-3d21-4567-a0cb-3f52104948a0.png"
+    }
   },
   "sections": [
     {
@@ -519,7 +545,7 @@
     {
       "id": "creative",
       "title": "The creative. Download it, copy the caption, post it.",
-      "lede": "Nine cards, rendered live in the brand. Each one links to the landing page. Every card is Lane B and carries the co-branded footer, so Sean sees exactly what runs.",
+      "lede": "Nine cards in one photographic style: a real Nevada owner, a metaphor that could have been shot in the room, gradient headline, the mandate or credit pill, the offer chip. Meta caption and LinkedIn caption under each. Download, copy, post.",
       "blocks": [
         {
           "type": "creatives"
@@ -1294,8 +1320,11 @@
       },
       "door": "Retirement",
       "lane": "B",
-      "status": "Draft",
-      "caption": "Six employees. One obligation.\n\nNevada requires most employers with six or more people and three years in business to offer a retirement route. Most picked the state program. It's a Roth IRA the employee owns, and the employer is not permitted to put a dollar in.\n\nThat's a payroll deduction, not a benefit. The difference shows up the first time a candidate asks about a match.\n\nWhat the alternative actually costs, and the federal credits that cover most of it: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "Six employees. One obligation.\n\nNevada requires most employers with six or more people and three years in business to offer a retirement route. Most picked the state program. It's a Roth IRA the employee owns, and the employer is not permitted to put a dollar in.\n\nThat's a payroll deduction, not a benefit. The difference shows up the first time a candidate asks about a match.\n\nWhat the alternative actually costs, and the federal credits that cover most of it: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051138_1df80143-80c4-4371-8126-6ac3685073d6.png",
+      "caption_linkedin": "Nevada requires employers with six or more people and three years in business to offer a retirement route.\n\nMost picked the state program. It is a Roth IRA the employee owns, and the employer is not permitted to contribute. That is a payroll deduction, not a benefit, and the difference shows up the first time a candidate asks about a match.\n\nFor 2026 the state program caps at $7,500. A 401(k) caps at $24,500 before any employer contribution, and federal credits under §45E cover up to 100% of startup costs for employers with 50 or fewer people.\n\nThe head-to-head, with sources: https://www.protecthealth.com/payroll-tax-asset\n\n#NevadaEmployers #SmallBusiness #Retirement #LasVegas",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c2",
@@ -1317,8 +1346,11 @@
       },
       "door": "Retirement",
       "lane": "B",
-      "status": "Draft",
-      "caption": "$7,500 vs $24,500.\n\nA NEST account is a Roth IRA, so it caps at the IRA limit. A 401(k) caps at $24,500 in employee deferrals for 2026, and the employer can add to it.\n\nSame employee. Same year. Three times the room.\n\nThe head-to-head, with what a plan really costs after the startup credits: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "$7,500 vs $24,500.\n\nA NEST account is a Roth IRA, so it caps at the IRA limit. A 401(k) caps at $24,500 in employee deferrals for 2026, and the employer can add to it.\n\nSame employee. Same year. Three times the room.\n\nThe head-to-head, with what a plan really costs after the startup credits: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_b097f2ac-caa1-4950-ba6b-2df49f3ebd03.png",
+      "caption_linkedin": "$7,500 vs $24,500. Same employee, same year.\n\nA NEST account is a Roth IRA, so it caps at the IRA limit. A 401(k) caps at $24,500 in employee deferrals for 2026 (IRS Notice 2025-67), and the employer can add to it.\n\nThree times the room, and the plan is usually cheaper than owners think once the startup credits are counted.\n\nThe comparison: https://www.protecthealth.com/payroll-tax-asset\n\n#401k #NevadaBusiness #EmployeeBenefits",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c3",
@@ -1332,8 +1364,11 @@
       },
       "door": "Retirement",
       "lane": "B",
-      "status": "Draft",
-      "caption": "You can't match it.\n\nEmployer matching is not allowed in Nevada's state retirement program. Not discouraged. Not permitted.\n\nSo when you tell a candidate you offer retirement, and the shop down the street says they match four percent, those are not two versions of the same thing.\n\nWhat a match costs after the federal credits: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "You can't match it.\n\nEmployer matching is not allowed in Nevada's state retirement program. Not discouraged. Not permitted.\n\nSo when you tell a candidate you offer retirement, and the shop down the street says they match four percent, those are not two versions of the same thing.\n\nWhat a match costs after the federal credits: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_54e9b6d3-7d5f-47ed-b100-854f287f5109.png",
+      "caption_linkedin": "Employer matching is not allowed in Nevada's state retirement program. Not discouraged. Not permitted.\n\nWhich means when you tell a candidate you offer retirement, and the competitor says they match four percent, those are not two versions of the same thing.\n\nWhat a match costs after the federal credits: https://www.protecthealth.com/payroll-tax-asset\n\n#Hiring #Retention #NevadaEmployers",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c4",
@@ -1351,8 +1386,11 @@
       },
       "door": "Tips, beauty services",
       "lane": "B",
-      "status": "Draft",
-      "caption": "Salons, this credit is yours now.\n\nFor thirty years the FICA tip credit was a restaurant thing. For tax years beginning after December 31, 2024 it reaches barbering and hair care, nail care, esthetics, and body and spa treatment.\n\nSame credit. Same one-page form. Almost nobody in this valley has filed it.\n\nHow it works and what your payroll needs to capture: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "Salons, this credit is yours now.\n\nFor thirty years the FICA tip credit was a restaurant thing. For tax years beginning after December 31, 2024 it reaches barbering and hair care, nail care, esthetics, and body and spa treatment.\n\nSame credit. Same one-page form. Almost nobody in this valley has filed it.\n\nHow it works and what your payroll needs to capture: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_050744_f01f66b9-fa16-4033-b326-9156fc3a92f9.png",
+      "caption_linkedin": "For thirty years the FICA tip credit was a restaurant thing.\n\nFor tax years beginning after December 31, 2024, it reaches barbering and hair care, nail care, esthetics, and body and spa treatment.\n\nSame credit. Same one-page form. Almost nobody in Southern Nevada has filed it.\n\nHow it works and what your payroll needs to capture: https://www.protecthealth.com/payroll-tax-asset\n\n#Salons #Barbershops #TaxCredit #LasVegas",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c5",
@@ -1366,8 +1404,11 @@
       },
       "door": "Tips, food and beverage",
       "lane": "B",
-      "status": "Draft",
-      "caption": "A loss year didn't kill your credit.\n\nYour accountant told you a loss means you can't use the tip credit. Half right. It's nonrefundable, so it can't generate a refund. But it carries back one year and forward twenty.\n\nA loss parks the credit. It doesn't take it.\n\nThe businesses losing this money aren't the ones with losses. They're the ones who heard \"disqualified\" and never filed the form: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "A loss year didn't kill your credit.\n\nYour accountant told you a loss means you can't use the tip credit. Half right. It's nonrefundable, so it can't generate a refund. But it carries back one year and forward twenty.\n\nA loss parks the credit. It doesn't take it.\n\nThe businesses losing this money aren't the ones with losses. They're the ones who heard \"disqualified\" and never filed the form: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051523_9636e192-1bf5-49cd-8bea-a4f60c778ccc.png",
+      "caption_linkedin": "Your accountant told you a loss year means you can't use the tip credit. Half right.\n\nIt is nonrefundable, so it cannot generate a refund. But under §39 it carries back one year and forward twenty. A loss parks the credit. It does not take it.\n\nThe businesses losing this money are not the ones with losses. They are the ones who heard \"disqualified\" and never filed Form 8846.\n\nhttps://www.protecthealth.com/payroll-tax-asset\n\n#Restaurants #TipCredit #SmallBusinessTax",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c6",
@@ -1381,8 +1422,11 @@
       },
       "door": "Tips, food and beverage",
       "lane": "B",
-      "status": "Draft",
-      "caption": "One page. Never filed.\n\nThe FICA tip credit is computed on Form 8846. One page. It flows onto Form 3800 with your other general business credits.\n\nIf your payroll separates reported tips from service charges, it takes an afternoon a year. Most Las Vegas restaurants have never done it once.\n\nWhat your records need to capture: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "One page. Never filed.\n\nThe FICA tip credit is computed on Form 8846. One page. It flows onto Form 3800 with your other general business credits.\n\nIf your payroll separates reported tips from service charges, it takes an afternoon a year. Most Las Vegas restaurants have never done it once.\n\nWhat your records need to capture: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2092f938-13be-4189-94c9-f2efb49c4495.png",
+      "caption_linkedin": "The FICA tip credit is computed on Form 8846. One page.\n\nIf your payroll separates reported tips from service charges, it takes an afternoon a year. Most Las Vegas restaurants have never done it once.\n\nWhat your records need to capture: https://www.protecthealth.com/payroll-tax-asset\n\n#Form8846 #Restaurants #Payroll",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c7",
@@ -1396,8 +1440,11 @@
       },
       "door": "Tips, any",
       "lane": "B",
-      "status": "Draft",
-      "caption": "The credit was always yours.\n\nThere's a pitch going around that a PEO claims your tip credit for you through its EIN. Federal regulation says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute it every year.\n\nThe difference, explained: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "The credit was always yours.\n\nThere's a pitch going around that a PEO claims your tip credit for you through its EIN. Federal regulation says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute it every year.\n\nThe difference, explained: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_db72d42a-1dcb-4a09-9d91-550bc28ce25d.png",
+      "caption_linkedin": "There is a pitch going around that a PEO claims your tip credit for you through its EIN.\n\n26 CFR 31.3511-1 says the opposite. Specified credits, including the FICA tip credit, are taken by the PEO's customer. Not the PEO.\n\nWhat a PEO genuinely does is make your payroll data clean enough to compute the credit every year. That is real value. It is just a different sentence.\n\nhttps://www.protecthealth.com/payroll-tax-asset\n\n#PEO #Payroll #TaxCredits",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c8",
@@ -1423,8 +1470,11 @@
       },
       "door": "Retirement",
       "lane": "B",
-      "status": "Draft",
-      "caption": "Pre-tax premiums cut your payroll tax too.\n\nWhen health premiums come out of payroll pre-tax under a Section 125 plan, the employer's own FICA and FUTA fall with them. The employee saves. So do you.\n\nMost small employers deduct premiums after tax because nobody set up the document.\n\nWhat it's worth at 2026 rates: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "Pre-tax premiums cut your payroll tax too.\n\nWhen health premiums come out of payroll pre-tax under a Section 125 plan, the employer's own FICA and FUTA fall with them. The employee saves. So do you.\n\nMost small employers deduct premiums after tax because nobody set up the document.\n\nWhat it's worth at 2026 rates: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f3fe1ada-175c-4dc0-b62c-d56678dab5bb.png",
+      "caption_linkedin": "When health premiums come out of payroll pre-tax under a Section 125 plan, the employer's own FICA and FUTA fall with the employee's taxable wages.\n\nThe employee saves. So do you. Most small employers deduct premiums after tax because nobody set up the written document.\n\nWhat it is worth at 2026 rates: https://www.protecthealth.com/payroll-tax-asset\n\n#Section125 #PayrollTax #EmployeeBenefits",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     },
     {
       "id": "c9",
@@ -1450,8 +1500,11 @@
       },
       "door": "Retirement",
       "lane": "B",
-      "status": "Draft",
-      "caption": "100% of startup costs, up to $5,000 a year.\n\nEmployers with 50 or fewer people can claim the full cost of starting a retirement plan, capped at $5,000 a year, for three years. Add up to $1,000 per employee for contributions and $500 a year for auto-enrollment.\n\nMost owners are working from pre-2023 pricing in their heads.\n\nThe credits, the 2026 figures, and who qualifies: https://www.protecthealth.com/payroll-tax-asset"
+      "status": "Needs review",
+      "caption": "100% of startup costs, up to $5,000 a year.\n\nEmployers with 50 or fewer people can claim the full cost of starting a retirement plan, capped at $5,000 a year, for three years. Add up to $1,000 per employee for contributions and $500 a year for auto-enrollment.\n\nMost owners are working from pre-2023 pricing in their heads.\n\nThe credits, the 2026 figures, and who qualifies: https://www.protecthealth.com/payroll-tax-asset",
+      "image": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_bc08394b-1252-4299-b4f7-db644c34ccd9.png",
+      "caption_linkedin": "Employers with 50 or fewer people can claim 100% of the cost of starting a retirement plan, capped at $5,000 a year, for three years. Add up to $1,000 per employee for contributions and $500 a year for automatic enrollment.\n\nMost owners are working from pre-2023 pricing in their heads.\n\nThe credits, the 2026 figures, and who qualifies: https://www.protecthealth.com/payroll-tax-asset\n\n#SECURE2 #401k #SmallBusiness",
+      "formats": "Meta 4:5 as shown · LinkedIn 4:5 or crop to 1:1 from the center"
     }
   ]
 }

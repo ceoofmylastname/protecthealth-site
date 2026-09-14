@@ -87,7 +87,7 @@ const GATE_URL = "https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-revie
       if (k === "class") n.className = v; else if (k === "html") n.innerHTML = v;
       else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
     }
-    for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+    for (const k of kids.flat(Infinity)) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
     return n;
   };
   const KEY = "ph_review_token";
@@ -141,13 +141,17 @@ const GATE_URL = "https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-revie
     paystub: (v) => el("div", { class: "vz vz-stub" }, v.rows.map((r, i) => el("div", { class: "stub-r" + (i === v.rows.length - 1 ? " stub-hi" : "") }, el("span", {}, r[0]), el("strong", {}, r[1])))),
     stats: (v) => el("div", { class: "vz vz-stats" }, v.items.map((s) => el("div", { class: "st" }, el("strong", {}, s[0]), el("span", {}, s[1])))),
   };
-  const creativeCard = (c) => el("div", { class: "cr", id: `cr-${c.id}` },
-    el("div", { class: "cr-bg" }),
-    el("div", { class: "cr-top" }, el("img", { src: "/assets/logo.webp", alt: "", width: "120", height: "30" }), el("span", { class: "cr-eyebrow" }, c.eyebrow)),
-    el("h3", { class: "cr-h" }, c.headline.split("\n").map((l, i) => [i ? el("br") : null, l])),
-    el("div", { class: "cr-visual" }, (visuals[c.visual.type] || visuals.stats)(c.visual)),
-    el("p", { class: "cr-m" }, c.message),
-    el("div", { class: "cr-foot" }, el("img", { src: "/assets/logo.webp", alt: "", width: "110", height: "28" }), el("img", { src: "/assets/partners/paychex-lockup.png", alt: "", width: "100", height: "27" })));
+  const creativeCard = (c) => c.image
+    ? el("div", { class: "cr cr-photo", id: `cr-${c.id}` },
+        el("img", { class: "cr-img", src: c.image, alt: c.headline.replace("\n", " "), crossorigin: "anonymous" }),
+        el("div", { class: "cr-foot cr-foot-abs" }, el("img", { src: "/assets/logo.webp", alt: "", width: "110", height: "28" }), el("img", { src: "/assets/partners/paychex-lockup.png", alt: "", width: "100", height: "27" })))
+    : el("div", { class: "cr", id: `cr-${c.id}` },
+        el("div", { class: "cr-bg" }),
+        el("div", { class: "cr-top" }, el("img", { src: "/assets/logo.webp", alt: "", width: "120", height: "30" }), el("span", { class: "cr-eyebrow" }, c.eyebrow)),
+        el("h3", { class: "cr-h" }, c.headline.split("\n").map((l, i) => [i ? el("br") : null, l])),
+        el("div", { class: "cr-visual" }, (visuals[c.visual.type] || visuals.stats)(c.visual)),
+        el("p", { class: "cr-m" }, c.message),
+        el("div", { class: "cr-foot" }, el("img", { src: "/assets/logo.webp", alt: "", width: "110", height: "28" }), el("img", { src: "/assets/partners/paychex-lockup.png", alt: "", width: "100", height: "27" })));
   async function downloadPng(c, b) {
     if (!window.html2canvas) { b.textContent = "Renderer loading, try again"; return; }
     b.disabled = true; b.textContent = "Rendering";
@@ -159,10 +163,15 @@ const GATE_URL = "https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-revie
     el("div", { class: "cr-frame" }, creativeCard(c)),
     el("div", { class: "cr-side" },
       el("div", { class: "chips" }, chip(c.door, "door"), laneChip(c.lane), statusChip(c.status)),
+      el("p", { class: "cr-lab" }, "Meta caption"),
       el("p", { class: "cr-cap" }, c.caption),
+      el("p", { class: "cr-lab" }, "LinkedIn caption"),
+      el("p", { class: "cr-cap" }, c.caption_linkedin || c.caption),
+      el("p", { class: "fine" }, c.formats || ""),
       el("div", { class: "cr-actions" },
-        el("button", { class: "btn btn-sm", type: "button", onclick: (e) => downloadPng(c, e.currentTarget) }, "Download PNG 1080×1350"),
-        el("button", { class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => { navigator.clipboard.writeText(c.caption); const b = e.currentTarget; b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy caption"), 1400); } }, "Copy caption"))))));
+        el("button", { class: "btn btn-sm", type: "button", onclick: (e) => downloadPng(c, e.currentTarget) }, "Download PNG 1080\u00d71350"),
+        el("button", { class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => { navigator.clipboard.writeText(c.caption); const b = e.currentTarget; b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy Meta caption"), 1400); } }, "Copy Meta caption"),
+        el("button", { class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => { navigator.clipboard.writeText(c.caption_linkedin || c.caption); const b = e.currentTarget; b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy LinkedIn caption"), 1400); } }, "Copy LinkedIn caption"))))));
 
   function diagramLeadPath() {
     const s = `<svg viewBox="0 0 720 300" role="img" aria-labelledby="lp-t" xmlns="http://www.w3.org/2000/svg"><title id="lp-t">Lead path</title>
@@ -282,6 +291,8 @@ const GATE_URL = "https://hrzonmnswzwridwqbspb.supabase.co/functions/v1/ph-revie
   .cr>*{position:relative}.cr-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.cr-top img{height:22px;width:auto}
   .cr-eyebrow{font-size:9px;font-weight:800;letter-spacing:1.6px;text-align:right;background:linear-gradient(90deg,var(--accent),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;max-width:60%;line-height:1.3}
   .cr-h{font-size:30px;line-height:1.04;letter-spacing:-.03em;font-weight:800;margin:18px 0 12px;color:var(--navy)}
+  .cr-photo{padding:0}.cr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}.cr-foot-abs{position:absolute;left:0;right:0;bottom:0;margin:0;height:14%;border-top:0;background:transparent;padding:0 22px}.cr-lab{font-size:.72rem;font-weight:800;letter-spacing:2px;color:var(--accent);margin:.6rem 0 .2rem}
+  .cr-visual-img{padding:0;overflow:hidden;background:#fff}.cr-visual-img img{width:100%;height:100%;object-fit:cover;display:block}
   .cr-visual{margin:0;padding:16px;border-radius:18px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(15,53,103,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex:1;display:grid;place-items:center;min-height:0}
   .cr-m{font-size:13px;line-height:1.4;color:#2c3e52;margin:12px 0 0;max-width:none}
   .cr-foot{margin:12px -22px 0;padding:12px 22px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.cr-foot img{height:20px;width:auto;display:block}

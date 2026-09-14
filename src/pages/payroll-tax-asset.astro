@@ -4,6 +4,7 @@
 // noindex until Sean approves; flip the robots meta when it goes live.
 const PAYCHEX_REFERRAL = "https://paychex.my.salesforce-sites.com/PaychexReferral?CustomerForm=true&PartnerId=461541";
 const PAGE = "/payroll-tax-asset";
+const IMG = {"c1": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051138_1df80143-80c4-4371-8126-6ac3685073d6.png", "c2": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_b097f2ac-caa1-4950-ba6b-2df49f3ebd03.png", "c3": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_54e9b6d3-7d5f-47ed-b100-854f287f5109.png", "c4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_050744_f01f66b9-fa16-4033-b326-9156fc3a92f9.png", "c5": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051523_9636e192-1bf5-49cd-8bea-a4f60c778ccc.png", "c6": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2092f938-13be-4189-94c9-f2efb49c4495.png", "c7": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_db72d42a-1dcb-4a09-9d91-550bc28ce25d.png", "c8": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f3fe1ada-175c-4dc0-b62c-d56678dab5bb.png", "c9": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_bc08394b-1252-4299-b4f7-db644c34ccd9.png", "hero": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_2b7f1eb1-fbbf-48fa-9254-e138a7cc398c.png", "d1": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_54138b59-f1df-4ace-8d6f-190a3148a197.png", "d2": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_29fdf0a2-422b-42b6-a6f0-1eb19a1691a3.png", "d3": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_f8924f19-9fc2-4de4-819a-57ff225ccde5.png", "d4": "https://d8j0ntlcm91z4.cloudfront.net/user_3GY61bj0wPgc3RYJDtgyJ6LmhTH/hf_20260914_051458_da0ccc02-3d21-4567-a0cb-3f52104948a0.png"};
 ---
 <!doctype html>
 <html lang="en">
@@ -34,15 +35,22 @@ const PAGE = "/payroll-tax-asset";
 
   <!-- ================================================================ HERO -->
   <section class="hero">
-    <div class="wrap">
-      <p class="section-label">Nevada employers · six or more people</p>
-      <h1>Your payroll is a tax asset <span class="u">you are not claiming.</span></h1>
-      <p class="hero-sub">The Nevada retirement mandate, the tip credit that just got bigger, the payroll tax you're paying on pre-tax premiums, and the federal credits that cover most of a new plan. Twenty minutes. No pitch.</p>
-      <div class="hero-cta">
-        <a class="btn" href="#ask">Book a strategy call</a>
-        <a class="btn btn-ghost" href="#doors">See the four doors</a>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="section-label">Nevada employers · six or more people</p>
+        <h1>Your payroll is a tax&nbsp;asset you are <span class="u">not claiming.</span></h1>
+        <p class="hero-sub">The Nevada retirement mandate, the tip credit that just got bigger, the payroll tax you're paying on pre-tax premiums, and the federal credits that cover most of a new plan. Twenty minutes. No pitch.</p>
+        <div class="hero-cta">
+          <a class="btn" href="#ask">Book a strategy call</a>
+          <a class="btn btn-ghost" href="#doors">See the four doors</a>
+        </div>
+        <p class="hero-proof">★★★★★ 4.9 · 703+ Google reviews · Insurance nerds, not tax professionals</p>
       </div>
-      <p class="hero-proof">★★★★★ 4.9 · 703+ Google reviews · Insurance nerds, not tax professionals</p>
+      <div class="hero-art glass-frame">
+        <img src={IMG["hero"]} alt="" width="1600" height="900" loading="eager" />
+        <div class="hero-chip glass"><span class="hero-chip-n">$24,500</span><span class="hero-chip-l">401(k) employee limit, 2026</span></div>
+        <div class="hero-chip hero-chip-2 glass"><span class="hero-chip-n">100%</span><span class="hero-chip-l">of startup costs, up to $5,000/yr</span></div>
+      </div>
     </div>
   </section>
 
@@ -52,26 +60,26 @@ const PAGE = "/payroll-tax-asset";
       <p class="section-label">Four doors, one story</p>
       <h2>The reason you're not claiming it is structure, not eligibility.</h2>
       <div class="cards">
-        <article class="card spot">
-          <p class="card-n">01</p>
+        <article class="card card-door spot reveal">
+          <div class="card-img"><img src={IMG["d1"]} alt="" loading="lazy" /></div><p class="card-n">01</p>
           <h3>Nevada requires a retirement route.</h3>
           <p>Most owners picked the state program. It's a Roth IRA the employee owns, and you're not permitted to put a dollar in. For 2026 it caps at $7,500. A 401(k) caps at $24,500 before your match.</p>
           <a href="/blog-post/nevada-retirement-plan-mandate">The mandate, explained</a>
         </article>
-        <article class="card spot">
-          <p class="card-n">02</p>
+        <article class="card card-door spot reveal">
+          <div class="card-img"><img src={IMG["d2"]} alt="" loading="lazy" /></div><p class="card-n">02</p>
           <h3>The tip credit reached salons in 2025.</h3>
           <p>For thirty years it was a restaurant thing. For tax years beginning after December 31, 2024 it reaches barbering, hair, nails, esthetics and spa. Same one-page form. Almost nobody has filed it.</p>
           <a href="/blog-post/tipped-payroll-mistakes-las-vegas">How the credit works</a>
         </article>
-        <article class="card spot">
-          <p class="card-n">03</p>
+        <article class="card card-door spot reveal">
+          <div class="card-img"><img src={IMG["d3"]} alt="" loading="lazy" /></div><p class="card-n">03</p>
           <h3>Pre-tax premiums cut your payroll tax too.</h3>
           <p>Under a Section 125 plan, the employer's own FICA and FUTA fall with the employee's taxable wages. Most small employers deduct after tax because nobody set up the document.</p>
           <a href="/blog-post/section-125-plan-employer-payroll-tax-savings">What it's worth at 2026 rates</a>
         </article>
-        <article class="card spot">
-          <p class="card-n">04</p>
+        <article class="card card-door spot reveal">
+          <div class="card-img"><img src={IMG["d4"]} alt="" loading="lazy" /></div><p class="card-n">04</p>
           <h3>The federal credits cover most of a new plan.</h3>
           <p>100% of qualified startup costs up to $5,000 a year for three years for employers with 50 or fewer people, plus up to $1,000 per employee for contributions and $500 a year for auto-enrollment.</p>
           <a href="/blog-post/small-business-retirement-plan-tax-credits">The credits and who qualifies</a>
@@ -85,10 +93,24 @@ const PAGE = "/payroll-tax-asset";
     <div class="wrap">
       <p class="section-label">What the research says</p>
       <div class="stats">
-        <div class="stat"><span class="num">16%</span><span class="lbl">more likely to report increased profitability with a PEO</span><span class="src">NAPEO</span></div>
-        <div class="stat"><span class="num">27%</span><span class="lbl">savings on HR administration costs</span><span class="src">NAPEO</span></div>
-        <div class="stat"><span class="num">50%</span><span class="lbl">more likely to stay in business</span><span class="src">NAPEO</span></div>
-        <div class="stat"><span class="num">$1,775</span><span class="lbl">average savings per employee per year</span><span class="src">U.S. Dept. of Labor, 2024</span></div>
+        <div class="stat reveal"><span class="num">16%</span><span class="lbl">more likely to report increased profitability with a PEO</span><span class="src">NAPEO</span></div>
+        <div class="stat reveal"><span class="num">27%</span><span class="lbl">savings on HR administration costs</span><span class="src">NAPEO</span></div>
+        <div class="stat reveal"><span class="num">50%</span><span class="lbl">more likely to stay in business</span><span class="src">NAPEO</span></div>
+        <div class="stat reveal"><span class="num">$1,775</span><span class="lbl">average savings per employee per year</span><span class="src">U.S. Dept. of Labor, 2024</span></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================= PROOF 2 -->
+  <section class="band">
+    <div class="wrap">
+      <p class="section-label">Real reviews, word for word</p>
+      <h2>4.9 stars. 703+ Google reviews. People who had the conversation.</h2>
+      <div class="rv">
+        <blockquote class="card spot reveal"><p>"Thank you, Jeff Barton and ProtectHealth! Felt like family with the best service! Helped us navigate through - making it as easy as possible. The VERY best!"</p><cite>Rachel Wren · September 2025</cite></blockquote>
+        <blockquote class="card spot reveal"><p>"Brian was amazing and took the time to walk me through everything step by step and answer any questions I had."</p><cite>Katie Rose Matthews · January 2026</cite></blockquote>
+        <blockquote class="card spot reveal"><p>"Lorraine Castillo was my agent, very professional and detailed. Great Agent, I will be recommending her services."</p><cite>Keith Irby · September 2025</cite></blockquote>
       </div>
     </div>
   </section>
@@ -238,6 +260,15 @@ const PAGE = "/payroll-tax-asset";
   </div>
 </footer>
 
+<div class="sticky-cta" id="sticky"><a class="btn btn-wide" href="#ask">Book a strategy call · $0</a></div>
+<script>
+  const rv = [...document.querySelectorAll(".reveal")];
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) rv.forEach(x => x.classList.add("in"));
+  else { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" }); rv.forEach(x => io.observe(x)); setTimeout(() => rv.forEach(x => x.classList.add("in")), 3000); }
+  const st = document.getElementById("sticky"), ask = document.getElementById("ask");
+  const io2 = new IntersectionObserver(es => es.forEach(e => st.classList.toggle("hide", e.isIntersecting)), { rootMargin: "0px 0px -40% 0px" }); io2.observe(ask);
+</script>
+
 <script>
   // UTM capture, event hooks, and lead submit to the existing /api/lead function.
   const q = new URLSearchParams(location.search);
@@ -372,12 +403,41 @@ const PAGE = "/payroll-tax-asset";
   .lib-i span { display: block; font-size: .72rem; font-weight: 800; letter-spacing: 2px; color: var(--accent); margin-bottom: .3rem; }
   .lib-i:active { transform: scale(.985); }
 
+
+  .rv { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+  .rv blockquote { margin: 0; }
+  .rv p { font-size: 1rem; color: #2c3e52; }
+  .rv cite { font-style: normal; font-size: .85rem; color: var(--muted); font-weight: 600; }
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+  .reveal.in { opacity: 1; transform: none; }
+  .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; padding: .6rem .9rem calc(.6rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); z-index: 20; transition: transform .25s var(--ease); }
+  .sticky-cta.hide { transform: translateY(110%); }
+  @media (min-width: 861px) { .sticky-cta { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .reveal { transition: none; opacity: 1; transform: none; } }
   .foot { background: var(--navy); color: #c9def5; padding: 3rem 0 2.5rem; }
   .lockup { display: inline-flex; align-items: center; gap: 2.25rem; background: #fff; padding: 1.25rem 1.75rem; border-radius: var(--r-md); margin-bottom: 1.5rem; }
   .lockup img { display: block; height: 42px; width: auto; }
   .legal { font-size: .8rem; color: #8ba5c4; max-width: 90ch; }
   .legal a { color: #9fc0e4; }
 
+
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+  .hero h1 { max-width: none; text-wrap: balance; }
+  .hero .u::after { bottom: .02em; }
+  .glass-frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,.25); box-shadow: 0 40px 100px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35); background: rgba(255,255,255,.06); }
+  .glass-frame img { display: block; width: 100%; height: auto; }
+  .hero-chip { position: absolute; left: 1rem; bottom: 1rem; display: grid; gap: .1rem; padding: .7rem 1rem; border-radius: 16px; color: var(--navy); }
+  .hero-chip-2 { left: auto; right: 1rem; bottom: auto; top: 1rem; }
+  .hero-chip-n { font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; line-height: 1; background: linear-gradient(90deg, var(--navy), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-chip-l { font-size: .74rem; color: var(--muted); font-weight: 600; }
+  .card-door { padding: 0 0 1.35rem; }
+  .card-door > p, .card-door > h3, .card-door > a { margin-left: 1.5rem; margin-right: 1.5rem; }
+  .card-img { aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 1.1rem; background: var(--bg-soft); }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s var(--ease); }
+  .card-door:hover .card-img img { transform: scale(1.04); }
+  .card-door .card-n { margin-top: 0; }
+  .band-soft { background: radial-gradient(ellipse at 10% 0%, #e6f2ff 0%, var(--bg-soft) 45%, #f7f3ff 100%); }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 2rem; } .hero-chip { padding: .55rem .8rem; } }
   @media (max-width: 860px) { .wrap-2 { grid-template-columns: 1fr; gap: 2rem; } .lead .row { grid-template-columns: 1fr; } .hero .u { white-space: normal; } .lockup { gap: 1.25rem; padding: 1rem 1.25rem; } .lockup img { height: 32px; } }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn::after { display: none; } .btn:active, .card:active, .lib-i:active { transform: none; } }
   @media (prefers-reduced-transparency: reduce) { .glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: #fff !important; } }
