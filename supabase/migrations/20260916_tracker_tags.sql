@@ -1,0 +1,13 @@
+-- Quick Reference Tracker -> personal tags. Applied to production Sep 16 2026 via MCP
+-- as two migrations (ph_tracker_tags_parser, ph_tracker_tags_udi_moyal).
+-- Opt-in per broker: ph_agents.tracker_tags. Udi Moyal is the only broker on.
+-- The trigger only ever adds/removes tags on contacts whose owner has it on, and only
+-- the tags derived from the tracker text, so every other tag on a contact is untouched.
+
+-- See production for the function bodies:
+--   public.ph_tracker_tags(text) returns text[]          (pure parser)
+--   public.ph_tracker_tag_position(text) returns int     (picker ordering)
+--   public.ph_contacts_tracker_tags()                     (BEFORE INSERT OR UPDATE OF custom)
+-- Pull the exact source with:
+--   select pg_get_functiondef('public.ph_tracker_tags(text)'::regprocedure);
+--   select pg_get_functiondef('public.ph_contacts_tracker_tags()'::regprocedure);

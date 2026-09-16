@@ -629,6 +629,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
   .dep-x{border:1px solid var(--line);background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#b3261e;font-size:.9rem;line-height:1}
   .appt-acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
   .tag-group{margin-bottom:12px}
+  .cell-qref{font-size:.82rem;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tag-group-h{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   .tag-group-b{display:flex;flex-wrap:wrap;gap:8px}
   .cal-ev-off{background:repeating-linear-gradient(45deg,#64748b,#64748b 4px,#57637a 4px,#57637a 8px);color:#fff;cursor:default}
@@ -948,7 +949,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       ].join('');
     }
     const officeTags = () => (state.tags || []).filter((t) => !t.agent_id);
-    const myTags = () => (state.tags || []).filter((t) => t.agent_id);
+    // Own rows only: an admin's RLS reads every broker's personal tags.
+    const myTags = () => (state.tags || []).filter((t) => t.agent_id && t.agent_id === state.agentId);
     const visibleTagNames = () => (state.tags || []).map((t) => t.name);
     const PREMIUM_FREQS = ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Single'];
     const fmtMoney = (n) => n == null || n === '' ? '' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -993,7 +995,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!uid) { const { data: authUser } = await sb.auth.getUser(); uid = authUser?.user?.id ?? null; }
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
-      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at, intake_token';
+      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at, intake_token, tracker_tags';
       let me = null;
       if (uid) {
         const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
@@ -1927,12 +1929,28 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       { key: 'added', label: 'Added' }, { key: 'bday', label: 'Birthday' }, { key: 'company', label: 'Company' },
       { key: 'disposition', label: 'Disposition' }, { key: 'lines', label: 'Lines' },
       { key: 'carriers', label: 'Carriers' }, { key: 'policies', label: 'Policies' },
+      { key: 'qref', label: 'Quick Reference' },
     ];
+    // Brokers whose book carries a Quick Reference Tracker (ph_agents.tracker_tags)
+    // get that column switched on once. After that the Columns menu owns it, so
+    // turning it off sticks.
+    function ensureQrefCol() {
+      if (!state.me?.tracker_tags) return;
+      try {
+        if (localStorage.getItem('ph_cols_qref_v1')) return;
+        localStorage.setItem('ph_cols_qref_v1', '1');
+      } catch {}
+      if (!cCols.includes('qref')) {
+        cCols = [...cCols, 'qref'];
+        try { localStorage.setItem('ph_cols_v1', JSON.stringify(cCols)); } catch {}
+      }
+    }
     let cCols;
     try { cCols = JSON.parse(localStorage.getItem('ph_cols_v1')) || null; } catch { cCols = null; }
     if (!Array.isArray(cCols) || !cCols.length) cCols = ['email', 'phone', 'tags', 'added'];
     let cMode = 'people'; // 'people' | 'companies'
     function renderContacts(v) {
+      ensureQrefCol();
       v.innerHTML = `
       <div class="card">
         <div class="toolbar">
@@ -1940,7 +1958,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             <button class="seg-btn ${cMode==='people'?'on':''}" data-cmode="people">People</button>
             <button class="seg-btn ${cMode==='companies'?'on':''}" data-cmode="companies">Companies</button>
           </div>
-          <input type="text" id="c-search" placeholder="Search name, email, phone…" value="${esc(cQuery)}" style="min-width:220px"/>
+          <input type="text" id="c-search" placeholder="${state.me?.tracker_tags ? 'Search name, email, phone, quick reference…' : 'Search name, email, phone…'}" value="${esc(cQuery)}" style="min-width:220px"/>
           ${cMode==='people' ? `<button class="btn ${cFilters.disposition==='Lead'?'btn-primary':'btn-ghost'} btn-sm" id="c-newleads">🔔 New leads</button>` : ''}
           ${cMode==='people' ? `<button class="btn btn-ghost btn-sm" id="c-filter-btn">⚙ Filters${activeFilterCount() ? ` <span class="fchip-n">${activeFilterCount()}</span>` : ''}</button>` : ''}
           ${cMode==='people' ? '<button class="btn btn-ghost btn-sm" id="c-cols-btn">☰ Columns</button>' : ''}
@@ -2960,13 +2978,22 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // sees tags on their own contacts).
       const sel = $('#c-tag', v); if (!sel) return;
       const seen = new Set();
-      state.tags.forEach((t) => { seen.add(t.name.toLowerCase()); const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
+      const group = (label, list) => {
+        if (!list.length) return;
+        const g = document.createElement('optgroup'); g.label = label;
+        list.forEach((t) => { seen.add(t.name.toLowerCase()); const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; g.appendChild(o); });
+        sel.appendChild(g);
+      };
+      group('Office', officeTags());
+      group('My tags', myTags());
       try {
         const { data } = await sb.rpc('ph_contact_tags');
+        const g = document.createElement('optgroup'); g.label = 'Other tags in your book';
         (data || []).slice(0, 60).forEach((row) => {
           const tag = row.tag || row; if (seen.has(String(tag).toLowerCase())) return;
-          const o = document.createElement('option'); o.value = tag; o.textContent = tag + (row.uses ? ` (${row.uses})` : ''); sel.appendChild(o);
+          const o = document.createElement('option'); o.value = tag; o.textContent = tag + (row.uses ? ` (${row.uses})` : ''); g.appendChild(o);
         });
+        if (g.children.length) sel.appendChild(g);
       } catch {}
       if (cFilters.tag) sel.value = cFilters.tag;
     }
@@ -3014,7 +3041,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       }
 
       let q = mine(sb.from('ph_contacts').select('*', { count: 'exact' })).is('deleted_at', null).order('ghl_date_added', { ascending: false, nullsFirst: false });
-      if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`); }
+      if (cQuery) { const s = cQuery.replace(/[%,]/g, ' '); q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%` + (state.me?.tracker_tags ? `,custom->>quick_reference_tracker.ilike.%${s}%` : '')); }
       if (cFilters.tag) q = q.contains('tags', [cFilters.tag]);
       if (cFilters.disposition) q = q.eq('disposition', cFilters.disposition);
       if (cFilters.company_id) q = q.eq('company_id', cFilters.company_id);
@@ -3056,6 +3083,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             if (!pols.length) return '<td class="cell-sub">—</td>';
             const annual = pols.reduce((s, p) => s + (p.premium != null ? Number(p.premium) * (FREQ_X[p.premium_freq] || 12) : 0), 0);
             return `<td><div style="font-weight:650">${pols.length} ${pols.length === 1 ? 'policy' : 'policies'}</div>${annual ? `<div class="cell-sub">${fmtMoney(annual)}/yr</div>` : ''}</td>`;
+          }
+          case 'qref': {
+            const q = String(c.custom?.quick_reference_tracker ?? '').trim();
+            return q ? `<td class="cell-qref" title="${esc(q)}">${esc(q)}</td>` : '<td class="cell-sub">—</td>';
           }
           default: return '<td></td>';
         }
