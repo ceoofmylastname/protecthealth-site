@@ -995,7 +995,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!uid) { const { data: authUser } = await sb.auth.getUser(); uid = authUser?.user?.id ?? null; }
       // Identity by UID first (roster emails change); email fallback only for a
       // roster row not yet linked to a login.
-      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at, intake_token, tracker_tags';
+      const PROFILE_COLS = 'id, full_name, email, is_active, phone, public_email, bio, headshot_url, social_links, lines_of_insurance, onboarding_completed_at, intake_token, tracker_tags, can_reassign';
       let me = null;
       if (uid) {
         const { data } = await sb.from('ph_agents').select(PROFILE_COLS).eq('auth_user_id', uid).limit(1);
@@ -3775,6 +3775,61 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     $('#overlay').addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
+    // Transferring a contact to another broker is off for everyone by default.
+    // The flag lives on the agent row (ph_agents.can_reassign) and the database
+    // re-checks it inside ph_contact_reassign — this only decides whether the
+    // button is worth drawing.
+    function canReassign() { return !!(state.isAdmin || (state.me && state.me.can_reassign)); }
+
+    async function openTransfer(cid, c) {
+      openDrawer(`
+        <div class="drawer-h"><div><div style="font-size:1.15rem;font-weight:800">Transfer contact</div><div class="cell-sub">${esc(nameOf(c))}</div></div><button class="drawer-x" data-x>✕</button></div>
+        <div class="drawer-b">
+          <div class="cell-sub" style="margin-bottom:10px">The contact, their open deals, their future appointments and the original lead all move together. This leaves your book.</div>
+          <div class="section-t">Transfer to</div>
+          <select id="tr-to" class="rec-select"><option value="">Loading brokers…</option></select>
+          <div class="section-t">Reason <span class="cell-sub" style="font-weight:400">(optional, kept on the record)</span></div>
+          <input id="tr-why" class="rec-select" placeholder="Wrong state, referral, coverage load…" />
+          <div id="tr-err" class="hint" style="color:var(--red);display:none"></div>
+          <button class="btn btn-primary" id="tr-go" style="margin-top:14px" disabled>Transfer</button>
+        </div>`);
+      $('[data-x]').addEventListener('click', closeDrawer);
+
+      const sel = $('#tr-to');
+      const { data: targets, error: tErr } = await sb.rpc('ph_reassign_targets');
+      if (tErr || !targets || !targets.length) {
+        sel.innerHTML = '<option value="">No brokers available</option>';
+        return;
+      }
+      sel.innerHTML = '<option value="">Choose a broker…</option>' +
+        targets.map((a) => `<option value="${esc(a.id)}">${esc(a.full_name)}</option>`).join('');
+      sel.addEventListener('change', () => { $('#tr-go').disabled = !sel.value; });
+
+      $('#tr-go').addEventListener('click', async () => {
+        const btn = $('#tr-go'); const err = $('#tr-err');
+        btn.disabled = true; btn.textContent = 'Transferring…'; err.style.display = 'none';
+        const { data, error } = await sb.rpc('ph_contact_reassign', {
+          p_contact_id: cid,
+          p_to_agent_id: sel.value,
+          p_reason: $('#tr-why').value || null,
+        });
+        if (error) {
+          console.error('transfer failed', error);
+          err.textContent = (error.code ? error.code + ' — ' : '') + (error.message || 'Could not transfer.');
+          err.style.display = '';
+          btn.disabled = false; btn.textContent = 'Transfer';
+          return;
+        }
+        closeDrawer();
+        const moved = [
+          data.opportunities ? data.opportunities + ' deal' + (data.opportunities === 1 ? '' : 's') : '',
+          data.appointments ? data.appointments + ' appointment' + (data.appointments === 1 ? '' : 's') : '',
+        ].filter(Boolean).join(' and ');
+        toast(`Transferred to ${data.to_agent_name}${moved ? ' with ' + moved : ''}`);
+        go('contacts');
+      });
+    }
+
     async function openLead(id) {
       const l = state.leads.find((x) => x.id === id); if (!l) return;
       const { data: emails } = await sb.from('ph_emails').select('*').eq('lead_id', id).order('scheduled_for');
@@ -3868,7 +3923,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         <span class="avatar-sm" style="width:40px;height:40px;font-size:.9rem;background:${avColor(nameOf(c))}">${initials(nameOf(c))}</span>
         <div><div class="rec-hd-name" style="font-size:1.2rem;font-weight:800">${esc(nameOf(c))}</div><div class="cell-sub rec-hd-sub">${esc(c.email || '')} ${c.phone ? '· ' + esc(fmtPhone(c.phone)) : ''}</div></div>
         <span class="pill-status ${dispClass(c.disposition)}" id="rec-disp-pill" style="margin-left:8px">${esc(c.disposition || 'No disposition')}</span>
-        <button class="btn btn-danger btn-sm" id="rec-delete" style="margin-left:auto">Delete contact</button>
+        ${canReassign() ? `<button class="btn btn-ghost btn-sm" id="rec-transfer" style="margin-left:auto">Transfer</button>` : ''}
+        <button class="btn btn-danger btn-sm" id="rec-delete" style="${canReassign() ? '' : 'margin-left:auto'}">Delete contact</button>
       </div>
       <div class="rec-grid">
         <div class="card"><div class="card-h"><span class="grad-label">Client data</span></div><div class="card-b">
@@ -3935,6 +3991,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       </div>`;
 
       $('#rec-back').addEventListener('click', () => go('contacts'));
+      $('#rec-transfer')?.addEventListener('click', () => openTransfer(cid, c));
       $('#rec-book')?.addEventListener('click', () => openBookAppt(cid, c));
       $('#rec-delete')?.addEventListener('click', async () => {
         // confirm() renders plain text, so the name goes in unescaped.
