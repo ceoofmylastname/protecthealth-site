@@ -3490,7 +3490,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       if (!st || st.error) { host.innerHTML = `<div class="cell-sub">${esc(st?.error || 'Could not check Google connection.')}</div>`; return; }
       if (!st.connected) {
         host.innerHTML = `
-          <p class="cell-sub" style="margin:0 0 12px">Connect your Google Calendar and two things happen: your Gmail appointments show on your calendar here, and booked times on your Google calendar are automatically blocked on your booking page so nobody can double-book you.</p>
+          <p class="cell-sub" style="margin:0 0 12px">Connect your Google Calendar and three things happen: appointments booked in the CRM are added to your Google Calendar automatically, your Gmail appointments show on your calendar here, and times you are already busy on Google are blocked on your booking page so nobody can double-book you.</p>
           <button class="btn btn-primary" id="gcal-connect">Connect Google Calendar</button>
           <button type="button" class="btn btn-ghost" id="gcal-how2" style="margin-left:8px">Show me how →</button>
           <div class="cell-sub" id="gcal-msg" style="margin-top:8px"></div>`;
@@ -3511,11 +3511,20 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <b>${esc(st.email || 'Google account')}</b>
           <button class="btn btn-ghost btn-sm" id="gcal-disconnect" style="margin-left:auto">Disconnect</button>
         </div>
-        ${st.error ? `<div class="cell-sub" style="color:#b45309;margin-top:8px">${esc(st.error)}</div>` : ''}
+        ${st.error && st.can_write !== false ? `<div class="cell-sub" style="color:#b45309;margin-top:8px">${esc(st.error)}</div>` : ''}
         <div class="section-t" style="margin-top:14px">Calendars that block your booking slots</div>
         <div id="gcal-cals">${cals.map((c) => `<label class="pickbox"><input type="checkbox" data-gcal="${esc(c.id)}" ${sel.has(c.id) ? 'checked' : ''}/> ${esc(c.name)}${c.primary ? ' <span class="cell-sub">(main)</span>' : ''}</label>`).join('') || '<div class="cell-sub">No calendars found.</div>'}</div>
         <button class="btn btn-sm" id="gcal-save" style="margin-top:10px">Save calendar selection</button>
-        <span class="cell-sub" id="gcal-msg" style="margin-left:8px"></span>`;
+        <span class="cell-sub" id="gcal-msg" style="margin-left:8px"></span>
+        <div class="section-t" style="margin-top:18px">Your ProtectHealth appointments on Google</div>
+        ${st.can_write === false ? `
+          <div class="cell-sub" style="color:#b45309">Google is not letting us add appointments to your calendar, so nothing booked in the CRM is reaching it. Reconnect below and leave both boxes ticked on Google's screen.</div>
+          <button class="btn btn-sm" id="gcal-reconnect" style="margin-top:10px">Reconnect Google Calendar</button>
+        ` : `
+          <div class="cell-sub">Appointments booked here are added to your Google Calendar on their own, and moving or cancelling one updates it there too. Use this button if something is missing &mdash; it adds any upcoming appointment that is not on your calendar yet.</div>
+          <button class="btn btn-sm" id="gcal-push" style="margin-top:10px">Sync my appointments now</button>
+          <span class="cell-sub" id="gcal-push-msg" style="margin-left:8px"></span>
+        `}`;
       $('#gcal-save').addEventListener('click', async () => {
         const ids = $$('#gcal-cals [data-gcal]').filter((c) => c.checked).map((c) => c.getAttribute('data-gcal'));
         const msg = $('#gcal-msg');
@@ -3525,6 +3534,39 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         msg.textContent = r?.ok ? 'Saved.' : (r?.error || 'Could not save.');
         if (r?.ok) { state.gcalEvents = null; toast('Google calendars updated'); }
       });
+      // Appointments made before write-back shipped, or while a token was
+      // revoked, carry no Google event. 'gcal-sync' pushes the ones that are
+      // missing, and it is CAPPED PER CALL and reports what is left rather
+      // than running until an edge function times out -- so this loops on
+      // `remaining` instead of reporting a partial run as a finished one.
+      $('#gcal-push')?.addEventListener('click', async () => {
+        const b = $('#gcal-push'), msg = $('#gcal-push-msg');
+        b.disabled = true; msg.textContent = 'Syncing\u2026';
+        let added = 0, failed = 0;
+        // Bounded so a server that always reports work left cannot spin here.
+        for (let round = 0; round < 10; round++) {
+          const { j } = await phBook({ action: 'gcal-sync' });
+          if (!j || !j.ok) { msg.textContent = (j && j.error) || 'Could not sync.'; b.disabled = false; return; }
+          added += j.synced || 0; failed += j.failed || 0;
+          // Google refused for scope mid-run. Repaint: the panel now offers a
+          // reconnect instead of a button that cannot work.
+          if (j.reasons && j.reasons.needs_reconnect) { toast('Google needs to be reconnected'); loadGcalPanel(); return; }
+          if (!j.remaining) break;
+        }
+        b.disabled = false;
+        msg.textContent = added
+          ? `Added ${added} appointment${added === 1 ? '' : 's'}.${failed ? ` ${failed} could not be added.` : ''}`
+          : (failed ? 'Could not add them. Try again in a minute.' : 'Everything is already on your Google Calendar.');
+        if (added) { state.gcalEvents = null; toast('Google Calendar updated'); }
+      });
+
+      $('#gcal-reconnect')?.addEventListener('click', async () => {
+        const b = $('#gcal-reconnect'); b.disabled = true;
+        const r = await gcalCall({ action: 'start' });
+        if (r?.url) { location.href = r.url; return; }
+        b.disabled = false;
+      });
+
       $('#gcal-disconnect').addEventListener('click', async () => {
         if (!confirm('Disconnect your Google Calendar? Your Gmail events will stop showing here and will no longer block booking slots.')) return;
         await gcalCall({ action: 'disconnect' });
