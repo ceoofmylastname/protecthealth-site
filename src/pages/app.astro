@@ -3930,10 +3930,14 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       const v = $('#view'); v.scrollTop = 0;
 
       // Pull the carriers linked to this client (RLS-scoped) + their policies.
-      const [{ data: links }, { data: policies }] = await Promise.all([
+      const [{ data: links }, { data: policies }, { data: pxRows }] = await Promise.all([
         sb.from('ph_contact_carriers').select('carrier_id').eq('contact_id', cid),
         mine(sb.from('ph_policies').select('*')).eq('contact_id', cid).order('created_at', { ascending: false }),
+        // Not mine()-scoped: ph_paychex_referrals has no agent_id filter to apply
+        // here, its RLS already limits rows to this agent's contacts.
+        sb.from('ph_paychex_referrals').select('*').eq('contact_id', cid).neq('status', 'dismissed').order('created_at', { ascending: false }).limit(1),
       ]);
+      let pxr = (pxRows && pxRows[0]) || null;
       const linkedIds = new Set((links || []).map((r) => r.carrier_id));
       const carrierNames = state.carriers.filter((x) => linkedIds.has(x.id)).map((x) => x.name);
       const deps = Array.isArray(c.dependents) ? c.dependents : [];
@@ -3985,6 +3989,8 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             <div class="k">How we met</div><div class="v"><input class="cf-inline" data-fld="source" id="rec-source" value="${esc(c.source || '')}" placeholder="Referral, website, event…"/></div>
             ${state.customFields.map(customFieldRow).join('')}
           </div>
+          <div class="section-t">Paychex referral</div>
+          <div id="rec-paychex"></div>
           <div class="section-t">Disposition</div>
           <select id="rec-disp" class="rec-select">${dispSel}</select>
           <div class="hint" id="rec-disp-hint">Active Client marks the client in-force (issued) and records you as the writing agent.</div>
@@ -4138,8 +4144,60 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         const key = inp.getAttribute('data-cf');
         const next = Object.assign({}, c.custom || {});
         if (inp.value === '' || inp.value == null) delete next[key]; else next[key] = inp.value;
-        if (await saveField({ custom: next })) { c.custom = next; toast('Saved'); }
+        if (await saveField({ custom: next })) { c.custom = next; toast('Saved'); paintPaychex(); }
       }));
+
+      // ---- Paychex referral ----
+      // Flagging queues the contact for the admin, who sends one email to Fred a
+      // week. The two answers are snapshotted onto the referral row at this
+      // moment, because the contact's custom fields can change afterwards and
+      // what Fred was told must not.
+      const pxDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      function paintPaychex() {
+        const el = $('#rec-paychex'); if (!el) return;
+        if (pxr && pxr.status === 'sent') {
+          el.innerHTML = `<span class="cell-sub">Sent to Fred at Paychex on ${esc(pxDate(pxr.sent_at || pxr.created_at))}.</span>`;
+          return;
+        }
+        if (pxr) {
+          el.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="chip tag">Queued for Fred</span>
+              <span class="cell-sub">Flagged ${esc(pxDate(pxr.created_at))}. Goes out with this week's batch.</span>
+              <button class="btn btn-ghost btn-sm" id="px-undo" style="margin-left:auto">Undo</button>
+            </div>`;
+          $('#px-undo').addEventListener('click', async () => {
+            const { error } = await sb.from('ph_paychex_referrals').delete().eq('id', pxr.id);
+            if (error) { toast('Could not undo that.'); return; }
+            pxr = null; paintPaychex(); toast('Removed from the Paychex queue');
+          });
+          return;
+        }
+        const cf = c.custom || {};
+        const ready = cf.employee_count && cf.employee_count !== 'Not a business owner';
+        el.innerHTML = `
+          <input class="cf-inline" id="px-note" placeholder="Anything Fred should know (optional)" style="margin-bottom:8px"/>
+          <button class="btn btn-sm ${ready ? 'btn-primary' : 'btn-ghost'}" id="px-go">Refer to Fred at Paychex</button>
+          <div class="hint">${ready
+            ? 'Queues them for this week\'s email. You stay on the intro.'
+            : 'Answer the two questions above first so Fred knows what he is getting.'}</div>`;
+        $('#px-go').addEventListener('click', async () => {
+          const note = ($('#px-note').value || '').trim();
+          const { data, error } = await sb.from('ph_paychex_referrals').insert({
+            contact_id: cid,
+            agent_id: state.agentId,
+            employee_count: cf.employee_count || null,
+            tipped_staff: cf.tipped_staff || null,
+            note: note || null,
+          }).select('*').single();
+          if (error) {
+            toast(/duplicate|unique/i.test(error.message) ? 'Already in the Paychex queue.' : 'Could not queue that.');
+            return;
+          }
+          pxr = data; paintPaychex(); toast('Queued for Fred');
+        });
+      }
+      paintPaychex();
 
       // ---- Policies: add / edit drawer ----
       let recPolicies = policies || [];

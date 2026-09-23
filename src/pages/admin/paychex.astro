@@ -1,0 +1,292 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/admin-chrome.css';
+
+// Internal tool. The Paychex referral queue.
+//
+// Why a queue and not an email per referral: 64 agents mailing Fred directly
+// gives Rob no visibility, no quality control, and no weekly count — and the
+// weekly count is the exact thing Shawn said has to exist before Paychex
+// approves co-marketing spend. So agents flag, an admin reviews, one email goes
+// out a week, and the number that email represents is the scoreboard.
+//
+// The two answers are snapshotted onto the referral row at flag time. A contact's
+// custom fields can change afterwards; what Fred was told must not.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="Paychex Referrals, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad px" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Paychex Referrals</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts">All Contacts</a>
+              <a href="/admin/calendar">House Calendar</a>
+              <a href="/admin/tickets">Support Tickets</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/admin/paychex" class="is-on">Paychex</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="queued">—</b><span>Waiting to send</span></div>
+          <div class="ad-stat spot"><b data-stat="week">—</b><span>Sent in the last 7 days</span></div>
+          <div class="ad-stat spot"><b data-stat="total">—</b><span>Sent all time</span></div>
+          <div class="ad-stat spot"><b data-stat="agents">—</b><span>Agents who have referred</span></div>
+        </div>
+
+        <div class="px-wrap">
+          <div class="ad-toolbar px-bar">
+            <label class="px-all"><input type="checkbox" id="px-all" /> Select all</label>
+            <button type="button" class="btn no-arrow" id="px-copy">Copy the email for Fred</button>
+            <button type="button" class="btn ghost no-arrow" id="px-sent">Mark selected as sent</button>
+            <button type="button" class="btn ghost no-arrow ad-refresh" id="px-refresh">Refresh</button>
+            <span class="ad-status" id="px-status" role="status" aria-live="polite"></span>
+          </div>
+
+          <div id="px-queue"><p class="ad-muted">Loading…</p></div>
+
+          <h2 class="px-h2">Already sent</h2>
+          <div id="px-sent-list"><p class="ad-muted">Loading…</p></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .px-wrap { margin-top: 24px; }
+  .px-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .px-all { display: inline-flex; align-items: center; gap: 8px; font-size: .92rem; min-height: 44px; cursor: pointer; }
+  .px-h2 { margin: 38px 0 12px; font-size: 1.05rem; }
+  .px-card {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start;
+    padding: 14px 16px; border: 1px solid rgba(10,40,60,.12); border-radius: 12px;
+    background: #fff; margin-bottom: 10px;
+  }
+  .px-card input[type=checkbox] { width: 18px; height: 18px; margin-top: 3px; }
+  .px-name { font-weight: 750; }
+  .px-meta { font-size: .88rem; color: var(--muted); margin-top: 3px; }
+  .px-note { font-size: .88rem; margin-top: 6px; padding-left: 10px; border-left: 2px solid rgba(10,40,60,.18); }
+  .px-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .px-flag { font-size: .76rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+             padding: 4px 10px; border-radius: 20px; background: #e7f2f8; color: var(--accent-dark, #05628a); }
+  .px-flag.is-hot { background: #fdf0d8; color: #8a5a05; }
+  .px-when { font-size: .82rem; color: var(--muted); white-space: nowrap; }
+  .px-empty { padding: 26px; text-align: center; border: 1px dashed rgba(10,40,60,.18); border-radius: 12px; }
+  @media (max-width: 700px) {
+    .px-card { grid-template-columns: auto 1fr; }
+    .px-when { grid-column: 2; }
+  }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const root = document.querySelector('.px');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const say = (m, bad) => { const s = $('#px-status'); s.textContent = m; s.classList.toggle('is-bad', !!bad); };
+    const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const fmtPhone = (p) => {
+      const n = String(p ?? '').replace(/\D/g, '');
+      return n.length === 10 ? `(${n.slice(0,3)}) ${n.slice(3,6)}-${n.slice(6)}` : (p || '');
+    };
+
+    let queued = [];
+    let sent = [];
+
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({
+        email: e.target.email.value.trim(),
+        options: { emailRedirectTo: `${location.origin}/admin/paychex` },
+      });
+      status.textContent = error ? error.message : 'Check your inbox. The link signs you straight in.';
+    });
+
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => {
+      await sb.auth.signOut(); location.reload();
+    }));
+
+    const card = (r, withBox) => `
+      <div class="px-card" data-id="${r.id}">
+        ${withBox ? `<input type="checkbox" class="px-pick" value="${r.id}" />` : '<span></span>'}
+        <div>
+          <div class="px-name">${esc(r.contact_name || 'Unnamed contact')}${r.company ? ' · ' + esc(r.company) : ''}</div>
+          <div class="px-meta">${esc([r.contact_email, fmtPhone(r.contact_phone), [r.city, r.state].filter(Boolean).join(', ')].filter(Boolean).join(' · ') || 'No contact details on file')}</div>
+          <div class="px-flags">
+            ${r.employee_count ? `<span class="px-flag${/^(6-9|10-24|25-49|50)/.test(r.employee_count) ? ' is-hot' : ''}">${esc(r.employee_count)} employees</span>` : ''}
+            ${r.tipped_staff === 'Yes' ? '<span class="px-flag is-hot">Tipped staff</span>' : r.tipped_staff ? `<span class="px-flag">Tips: ${esc(r.tipped_staff)}</span>` : ''}
+          </div>
+          ${r.note ? `<div class="px-note">${esc(r.note)}</div>` : ''}
+          <div class="px-meta">Referred by ${esc(r.agent_name || r.agent_email || 'unknown agent')}</div>
+        </div>
+        <div class="px-when">${esc(fmtDate(r.created_at))}${r.sent_at ? ` → sent ${esc(fmtDate(r.sent_at))}` : ''}</div>
+      </div>`;
+
+    const paint = () => {
+      $('#px-queue').innerHTML = queued.length
+        ? queued.map((r) => card(r, true)).join('')
+        : `<div class="px-empty"><p class="ad-muted" style="margin:0">Nothing waiting. When an agent flags a contact for Paychex it appears here.</p></div>`;
+      $('#px-sent-list').innerHTML = sent.length
+        ? sent.map((r) => card(r, false)).join('')
+        : `<p class="ad-muted">Nothing sent yet.</p>`;
+      $('#px-all').checked = false;
+
+      const week = sent.filter((r) => r.sent_at && (Date.now() - new Date(r.sent_at).getTime()) < 7 * 864e5).length;
+      const agents = new Set([...queued, ...sent].map((r) => r.agent_name || r.agent_email).filter(Boolean));
+      $('[data-stat="queued"]').textContent = String(queued.length);
+      $('[data-stat="week"]').textContent = String(week);
+      $('[data-stat="total"]').textContent = String(sent.length);
+      $('[data-stat="agents"]').textContent = String(agents.size);
+    };
+
+    const picked = () => $$('.px-pick:checked').map((b) => b.value);
+
+    $('#px-all').addEventListener('change', (e) => {
+      $$('.px-pick').forEach((b) => (b.checked = e.target.checked));
+    });
+
+    // Builds the email body. Rob pastes this into a normal email to Fred, which
+    // keeps a human between 64 agents and the partner, and keeps the send in
+    // Rob's own sent items where he can refer back to it.
+    $('#px-copy').addEventListener('click', async () => {
+      const ids = picked();
+      const rows = ids.length ? queued.filter((r) => ids.includes(r.id)) : queued;
+      if (!rows.length) { say('Nothing to copy.', true); return; }
+
+      const lines = rows.map((r, i) => {
+        const bits = [
+          `${i + 1}. ${r.contact_name || 'Unnamed contact'}${r.company ? ' — ' + r.company : ''}`,
+          `   ${[r.employee_count ? r.employee_count + ' employees' : null,
+                 r.tipped_staff ? 'staff take tips: ' + r.tipped_staff.toLowerCase() : null]
+                 .filter(Boolean).join(' · ') || '   details not captured'}`,
+          `   ${[r.contact_email, fmtPhone(r.contact_phone), [r.city, r.state].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}`,
+          `   Referred by ${r.agent_name || r.agent_email || 'a Protect Health agent'}, ${fmtDate(r.created_at)}`,
+        ];
+        if (r.note) bits.push(`   Note: ${r.note}`);
+        return bits.join('\n');
+      });
+
+      const body =
+`Fred,
+
+${rows.length} referral${rows.length === 1 ? '' : 's'} from the Protect Health team this week.
+
+${lines.join('\n\n')}
+
+Every one of these came out of an appointment where the agent asked about headcount and tipped staff and got a yes. They're expecting your call, and the agent who referred them is happy to sit in on it.
+
+Thanks,
+Protect Health`;
+
+      try {
+        await navigator.clipboard.writeText(body);
+        say(`Copied ${rows.length} referral${rows.length === 1 ? '' : 's'}. Paste it into an email to Fred, then mark them sent.`);
+      } catch (_) {
+        // Clipboard can be blocked; give them something they can still select.
+        const w = window.open('', '_blank');
+        if (w) { w.document.write('<pre style="white-space:pre-wrap;font:14px/1.5 system-ui;padding:24px">' + esc(body) + '</pre>'); w.document.close(); say('Clipboard was blocked, so it opened in a new tab instead.'); }
+        else say('Could not copy. Allow clipboard access or pop-ups for this site.', true);
+      }
+    });
+
+    $('#px-sent').addEventListener('click', async () => {
+      const ids = picked();
+      if (!ids.length) { say('Tick the ones you actually sent first.', true); return; }
+      say('Saving…');
+      const { data: { session } } = await sb.auth.getSession();
+      const { error } = await sb.from('ph_paychex_referrals')
+        .update({ status: 'sent', sent_at: new Date().toISOString(), sent_by: session?.user?.id ?? null })
+        .in('id', ids);
+      if (error) { say(error.message, true); return; }
+      say(`Marked ${ids.length} as sent.`);
+      load();
+    });
+
+    $('#px-refresh').addEventListener('click', () => load());
+
+    async function load() {
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+
+      const [q, s] = await Promise.all([
+        sb.from('ph_paychex_referral_queue').select('*').eq('status', 'queued').order('created_at', { ascending: false }),
+        sb.from('ph_paychex_referral_queue').select('*').eq('status', 'sent').order('sent_at', { ascending: false }).limit(100),
+      ]);
+      if (q.error || s.error) { say((q.error || s.error).message, true); return; }
+      queued = q.data ?? [];
+      sent = s.data ?? [];
+      paint();
+    }
+
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) { $$('[data-who]').forEach((n) => (n.textContent = data.session.user.email)); load(); }
+      else view('signin');
+    });
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        $$('[data-who]').forEach((n) => (n.textContent = session.user.email));
+        load();
+      }
+    });
+  }
+</script>
