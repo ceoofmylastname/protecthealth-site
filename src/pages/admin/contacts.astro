@@ -79,6 +79,12 @@ const SUPABASE_ANON =
           <div class="ad-stat spot"><b data-stat="new30">—</b><span>Added in 30 days</span></div>
         </div>
 
+        <div class="ac-seg" role="tablist" aria-label="Contacts or companies">
+          <button type="button" role="tab" class="ac-seg-b is-on" data-mode="people" aria-selected="true">People</button>
+          <button type="button" role="tab" class="ac-seg-b" data-mode="companies" aria-selected="false">Companies <span class="ac-seg-n" data-co-total></span></button>
+        </div>
+
+        <div class="ac-pane" data-pane="people">
         <p class="ac-note ad-muted">
           Click any row to open the contact and correct a name, phone number, email or address —
           the change lands on the same record the owning broker sees. A contact with no owner is
@@ -94,6 +100,9 @@ const SUPABASE_ANON =
           </select>
           <select class="ac-disp-filter" aria-label="Filter by disposition">
             <option value="">Any disposition</option>
+          </select>
+          <select class="ac-co-filter" aria-label="Filter by company">
+            <option value="">Any company</option>
           </select>
           <button type="button" class="cm-btn ac-clear">Clear filters</button>
           <button type="button" class="cm-btn primary ac-import">⤒ Import CSV</button>
@@ -113,6 +122,30 @@ const SUPABASE_ANON =
         <p class="ac-count ad-muted"></p>
         <div class="ac-list"></div>
         <div class="ac-pager"></div>
+        </div>
+
+        <!-- Companies. The group / employer records brokers create under
+             Contacts → Companies in /app. ph_companies_rw is already
+             `ph_is_admin() OR agent_id = ph_agent_id()`, so this pane needed
+             no permission work — /app just only ever asks for the signed-in
+             broker's own rows. -->
+        <div class="ac-pane" data-pane="companies" hidden>
+          <p class="ac-note ad-muted">
+            Every company any broker has added, house-wide. Click one to see its details and the
+            people linked to it, correct a field, or hand it to another broker. Changing a
+            company's owner does not move its people — each contact keeps its own owner.
+          </p>
+          <div class="ad-toolbar ac-toolbar">
+            <input type="search" class="ac-co-search" placeholder="Search company, industry or city…" aria-label="Search companies" />
+            <select class="ac-co-owner-filter" aria-label="Filter companies by owner">
+              <option value="">Every owner</option>
+            </select>
+            <button type="button" class="cm-btn ac-co-clear">Clear filters</button>
+          </div>
+          <p class="ac-co-count ad-muted ac-count"></p>
+          <div class="ac-co-list ac-list"></div>
+          <div class="ac-co-pager ac-pager"></div>
+        </div>
       </div>
 
     </div>
@@ -180,6 +213,22 @@ const SUPABASE_ANON =
   .ac-bulk-status.is-good { color: #0a7d3c; }
 
   .ac-count { font-size: 0.84rem; margin: 0 0 10px; }
+
+  /* People | Companies switch */
+  .ac-seg { display: inline-flex; gap: 4px; padding: 4px; background: #eef3f8; border-radius: 12px; margin: 0 0 16px; }
+  .ac-seg-b {
+    padding: 8px 18px; border: 0; border-radius: 9px; background: transparent; cursor: pointer;
+    font-family: var(--font); font-weight: 700; font-size: 0.9rem; color: var(--muted);
+  }
+  .ac-seg-b.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(11,42,74,.12); }
+  .ac-seg-n { font-weight: 800; font-size: 0.78rem; color: var(--blue); margin-left: 3px; }
+  .ac-pane[hidden] { display: none; }
+  .ac-co-link { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); font-weight: 700; cursor: pointer; text-align: left; }
+  .ac-co-link:hover { text-decoration: underline; }
+  .ac-cd-people { border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .ac-cd-people .ac-table td, .ac-cd-people .ac-table th { padding: 9px 12px; }
+  .ac-cd-back-to { margin: 0 0 10px; }
+  .ac-cd-in.ac-cd-ta { min-height: 76px; resize: vertical; }
 
   .ac-list { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; }
   .ac-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
@@ -367,7 +416,7 @@ const SUPABASE_ANON =
     // freezes it against the sync; clearing it hands the field back.
     const CLAIMABLE = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'state', 'postal_code', 'source']);
     // Columns the list shows, so a card edit knows whether to repaint the table.
-    const LISTED = new Set(['first_name', 'last_name', 'email', 'phone', 'source']);
+    const LISTED = new Set(['first_name', 'last_name', 'email', 'phone', 'source', 'company', 'company_id']);
 
     let agents = [];          // active roster, for the owner dropdowns
     let agentName = new Map();
@@ -382,6 +431,20 @@ const SUPABASE_ANON =
     let customFields = [];    // ph_custom_fields, offered as import targets and on the card
     let officeTags = [];      // ph_tags, the office list the card ticks from
     let carriers = [];        // ph_carriers, for the import's Carriers column
+    let companies = [];       // every ph_companies row (id, name, agent_id) — filter + card link
+    let companyName = new Map();
+    let coFilter = '';        // people list: '' = any, else company id
+
+    // Companies pane
+    let mode = 'people';
+    let coRows = [];
+    let coPeople = new Map(); // company id -> linked people count, for the page on screen
+    let coTotal = 0;
+    let coPage = 0;
+    let coQuery = '';
+    let coOwner = '';         // '' = any, '__none' = unowned, else agent id
+    let coSearchTimer = null;
+    let coLoaded = false;
 
     const fmtPhone = (p) => {
       const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, '');
@@ -422,9 +485,10 @@ const SUPABASE_ANON =
     });
     $('.ac-owner-filter').addEventListener('change', (e) => { ownerFilter = e.target.value; page = 0; clearPicks(); loadRows(); });
     $('.ac-disp-filter').addEventListener('change', (e) => { dispFilter = e.target.value; page = 0; clearPicks(); loadRows(); });
+    $('.ac-co-filter').addEventListener('change', (e) => { coFilter = e.target.value; page = 0; clearPicks(); loadRows(); });
     $('.ac-clear').addEventListener('click', () => {
-      query = ''; ownerFilter = ''; dispFilter = ''; page = 0;
-      $('.ac-search').value = ''; $('.ac-owner-filter').value = ''; $('.ac-disp-filter').value = '';
+      query = ''; ownerFilter = ''; dispFilter = ''; coFilter = ''; page = 0;
+      $('.ac-search').value = ''; $('.ac-owner-filter').value = ''; $('.ac-disp-filter').value = ''; $('.ac-co-filter').value = '';
       clearPicks(); loadRows();
     });
 
@@ -444,6 +508,8 @@ const SUPABASE_ANON =
     // that has its own behaviour — the tickbox, the owner dropdown, a mailto
     // link — keeps its click.
     $('.ac-list').addEventListener('click', (e) => {
+      const coBtn = e.target.closest('.ac-co-link[data-coid]');
+      if (coBtn) { openCompany(coBtn.getAttribute('data-coid')); return; }
       if (e.target.closest('input, select, textarea, button, a, label')) return;
       const tr = e.target.closest('tr[data-cid]');
       if (tr) openCard(tr.getAttribute('data-cid'));
@@ -520,6 +586,22 @@ const SUPABASE_ANON =
         '<option value="">Assign selected to…</option>' + opts + '<option value="__none">Remove the owner</option>';
       $('.ac-disp-filter').innerHTML =
         '<option value="">Any disposition</option>' + DISPOSITIONS.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+      $('.ac-co-owner-filter').innerHTML =
+        '<option value="">Every owner</option><option value="__none">No owner</option>' + opts;
+    }
+
+    // Every company in the house, names only. Feeds the people list's Company
+    // column and filter, and the contact card's company link. Small today (a
+    // handful of rows); the range keeps it honest past PostgREST's 1,000 cap.
+    async function loadCompanyIndex() {
+      const { data } = await sb.from('ph_companies').select('id, name, agent_id').order('name').range(0, 4999);
+      companies = data ?? [];
+      companyName = new Map(companies.map((c) => [c.id, c.name]));
+      const cur = coFilter;
+      $('.ac-co-filter').innerHTML = '<option value="">Any company</option>' +
+        companies.map((c) => `<option value="${esc(c.id)}"${c.id === cur ? ' selected' : ''}>${esc(c.name)}${c.agent_id ? '' : ' (no owner)'}</option>`).join('');
+      const n = $('[data-co-total]');
+      if (n) n.textContent = companies.length ? companies.length.toLocaleString() : '';
     }
 
     async function loadCustomFields() {
@@ -565,16 +647,17 @@ const SUPABASE_ANON =
 
     function buildQuery(forCount) {
       let q = sb.from('ph_contacts')
-        .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, origin, agent_id, ghl_date_added',
+        .select('ghl_contact_id, first_name, last_name, email, phone, disposition, source, origin, agent_id, ghl_date_added, company, company_id',
           forCount ? { count: 'exact' } : undefined)
         .is('deleted_at', null);
       if (query) {
         const s = query.replace(/[%,()]/g, ' ');
-        q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`);
+        q = q.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%,company.ilike.%${s}%`);
       }
       if (ownerFilter === '__none') q = q.is('agent_id', null);
       else if (ownerFilter) q = q.eq('agent_id', ownerFilter);
       if (dispFilter) q = q.eq('disposition', dispFilter);
+      if (coFilter) q = q.eq('company_id', coFilter);
       return q;
     }
 
@@ -614,7 +697,7 @@ const SUPABASE_ANON =
       host.innerHTML = `<table class="ac-table">
         <thead><tr>
           <th><input type="checkbox" class="ac-pick ac-pick-all" aria-label="Select all on this page" /></th>
-          <th>Name</th><th>Contact</th><th>Disposition</th><th>Source</th><th>Owner</th><th>Added</th>
+          <th>Name</th><th>Company</th><th>Contact</th><th>Disposition</th><th>Source</th><th>Owner</th><th>Added</th>
         </tr></thead>
         <tbody>${rows.map((c) => {
           const cid = c.ghl_contact_id;
@@ -622,6 +705,7 @@ const SUPABASE_ANON =
           return `<tr data-cid="${esc(cid)}"${picked.has(cid) ? ' class="is-picked"' : ''}>
             <td><input type="checkbox" class="ac-pick ac-pick-one" data-cid="${esc(cid)}"${picked.has(cid) ? ' checked' : ''} aria-label="Select ${esc(nameOf(c))}" /></td>
             <td><div class="ac-nm">${esc(nameOf(c))}</div></td>
+            <td>${companyCell(c)}</td>
             <td>
               <div class="ac-sub">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '—'}</div>
               <div class="ac-sub">${esc(fmtPhone(c.phone)) || '—'}</div>
@@ -636,7 +720,7 @@ const SUPABASE_ANON =
           </tr>`;
         }).join('')}</tbody></table>`;
 
-      $$('.ac-own').forEach((sel) => sel.addEventListener('change', onReassign));
+      host.querySelectorAll('.ac-own').forEach((sel) => sel.addEventListener('change', onReassign));
       $$('.ac-pick-one').forEach((box) => box.addEventListener('change', () => {
         const cid = box.getAttribute('data-cid');
         if (box.checked) picked.add(cid); else picked.delete(cid);
@@ -650,6 +734,15 @@ const SUPABASE_ANON =
         paintBulk();
       });
       paintBulk();
+    }
+
+    // A linked company record opens its card; a company typed on the contact
+    // with no record behind it is shown as plain text.
+    function companyCell(c) {
+      if (c.company_id && companyName.has(c.company_id)) {
+        return `<button type="button" class="ac-co-link" data-coid="${esc(c.company_id)}">${esc(companyName.get(c.company_id))}</button>`;
+      }
+      return c.company ? `<div class="ac-sub">${esc(c.company)}</div>` : '<span class="ac-sub">—</span>';
     }
 
     async function onReassign(e) {
@@ -692,7 +785,7 @@ const SUPABASE_ANON =
         <span>Page ${(page + 1).toLocaleString()} of ${pages.toLocaleString()}</span>
         <button type="button" data-pg="next"${page + 1 >= pages ? ' disabled' : ''}>Next ›</button>
         <button type="button" data-pg="last"${page + 1 >= pages ? ' disabled' : ''}>Last »</button>`;
-      $$('.ac-pager button').forEach((b) => b.addEventListener('click', () => {
+      $('.ac-pager').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
         const to = b.getAttribute('data-pg');
         if (to === 'first') page = 0;
         else if (to === 'prev') page = Math.max(0, page - 1);
@@ -1148,9 +1241,12 @@ const SUPABASE_ANON =
       if (e.key === 'Escape' && !cdModal.hidden) closeCard();
     });
 
-    function closeCard() { cdModal.hidden = true; cd = null; }
+    function closeCard() { cdModal.hidden = true; cd = null; coCard = null; }
 
-    async function openCard(cid) {
+    // fromCo: the company card this contact was opened from, so the contact
+    // card can offer a way back to it.
+    async function openCard(cid, fromCo = null) {
+      coCard = null;
       cdModal.hidden = false;
       cdBody.innerHTML = '<p class="ac-cd-sub">Loading…</p>';
       // The list only selects the eight columns it shows, so the card reads the
@@ -1162,7 +1258,7 @@ const SUPABASE_ANON =
           <p class="ac-cd-sub">${esc(error ? error.message : 'It may have been deleted while this page was open.')}</p>`;
         return;
       }
-      cd = { c: data };
+      cd = { c: data, fromCo };
       paintCard();
     }
 
@@ -1240,7 +1336,12 @@ const SUPABASE_ANON =
         agents.map((a) => `<option value="${esc(a.id)}"${a.id === c.agent_id ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('') +
         (c.agent_id && !agentName.has(c.agent_id) ? `<option value="${esc(c.agent_id)}" selected>Inactive broker</option>` : '');
 
+      const coOpts = '<option value="">— Not linked —</option>' +
+        companies.map((co) => `<option value="${esc(co.id)}"${co.id === c.company_id ? ' selected' : ''}>${esc(co.name)}</option>`).join('') +
+        (c.company_id && !companyName.has(c.company_id) ? `<option value="${esc(c.company_id)}" selected>Unknown company</option>` : '');
+
       cdBody.innerHTML = `
+        ${cd.fromCo ? `<p class="ac-cd-back-to"><button type="button" class="ac-co-link ac-cd-back-co">‹ Back to ${esc(companyName.get(cd.fromCo) || 'company')}</button></p>` : ''}
         <div class="ac-cd-hd">
           <h2 class="ac-cd-name">${esc(nameOf(c))}</h2>
           <span class="ac-pill ${PILL[c.disposition] || ''} ac-cd-pill">${esc(c.disposition || 'No disposition')}</span>
@@ -1251,6 +1352,13 @@ const SUPABASE_ANON =
         <div class="ac-cd-kv">
           ${CARD_FIELDS.map(fieldRow).join('')}
           ${customFields.map(customRow).join('')}
+        </div>
+        <div class="ac-cd-kv" style="margin-top:8px">
+          <div class="k">Company record</div>
+          <div class="v" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select class="ac-cd-sel ac-cd-coid">${coOpts}</select>
+            ${c.company_id ? `<button type="button" class="ac-co-link ac-cd-open-co">Open company</button>` : ''}
+          </div>
         </div>
         <p class="ac-cd-note">Each box saves as you leave it. Fields marked <b>Kept</b> are also written by the GoHighLevel sync every five minutes and are now held at the value in this CRM. Clearing one hands it back to the sync.</p>
 
@@ -1367,6 +1475,21 @@ const SUPABASE_ANON =
 
       $('.ac-cd-done').addEventListener('click', closeCard);
 
+      // Linking to a company record also writes its name into the free-text
+      // Company field, same as adding a person from a company in /app.
+      // Unlinking leaves the text alone.
+      $('.ac-cd-coid').addEventListener('change', async (e) => {
+        const prev = cd.c.company_id;
+        const id = e.target.value || null;
+        const patch = id ? { company_id: id, company: companyName.get(id) || cd.c.company } : { company_id: null };
+        const row = await cardSave(patch);
+        if (!row) { e.target.value = prev || ''; return; }
+        paintCard();
+        cardStatus('Saved', 'good');
+      });
+      $('.ac-cd-open-co')?.addEventListener('click', () => openCompany(cd.c.company_id));
+      $('.ac-cd-back-co')?.addEventListener('click', () => openCompany(cd.fromCo));
+
       // Same tombstone as the bulk bar: nearly every contact originates in
       // GoHighLevel and the delta sync re-upserts every five minutes, so a hard
       // delete would come straight back.
@@ -1398,6 +1521,308 @@ const SUPABASE_ANON =
       if (line) line.textContent = [c.email, fmtPhone(c.phone)].filter(Boolean).join(' · ') || 'No email or phone on file';
     }
 
+    // ---------- companies ----------
+    // The group / employer records brokers keep under Contacts → Companies in
+    // /app. Same pattern as the people list: server-side paging and search, an
+    // owner dropdown on every row, and a card on click. The card shares the
+    // .ac-cd modal with the contact card, so a person in a company's list opens
+    // straight into the contact card and can come back.
+    let coCard = null;        // { co, people } — the open company, or null
+
+    function setMode(m) {
+      mode = m === 'companies' ? 'companies' : 'people';
+      $$('.ac-seg-b').forEach((b) => {
+        const on = b.getAttribute('data-mode') === mode;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      $$('.ac-pane').forEach((p) => (p.hidden = p.getAttribute('data-pane') !== mode));
+      const want = mode === 'companies' ? '#companies' : '';
+      if (location.hash !== want) history.replaceState(null, '', location.pathname + location.search + want);
+      if (mode === 'companies' && !coLoaded) { coLoaded = true; loadCompanies(); }
+    }
+    $$('.ac-seg-b').forEach((b) => b.addEventListener('click', () => setMode(b.getAttribute('data-mode'))));
+
+    $('.ac-co-search').addEventListener('input', (e) => {
+      clearTimeout(coSearchTimer);
+      const v = e.target.value.trim();
+      coSearchTimer = setTimeout(() => { coQuery = v; coPage = 0; loadCompanies(); }, 300);
+    });
+    $('.ac-co-owner-filter').addEventListener('change', (e) => { coOwner = e.target.value; coPage = 0; loadCompanies(); });
+    $('.ac-co-clear').addEventListener('click', () => {
+      coQuery = ''; coOwner = ''; coPage = 0;
+      $('.ac-co-search').value = ''; $('.ac-co-owner-filter').value = '';
+      loadCompanies();
+    });
+
+    $('.ac-co-list').addEventListener('click', (e) => {
+      if (e.target.closest('input, select, textarea, button, a, label')) return;
+      const tr = e.target.closest('tr[data-coid]');
+      if (tr) openCompany(tr.getAttribute('data-coid'));
+    });
+
+    async function loadCompanies() {
+      const host = $('.ac-co-list');
+      host.innerHTML = '<div class="ac-empty">Loading…</div>';
+      let q = sb.from('ph_companies').select('*', { count: 'exact' });
+      if (coQuery) {
+        const s = coQuery.replace(/[%,()]/g, ' ');
+        q = q.or(`name.ilike.%${s}%,industry.ilike.%${s}%,city.ilike.%${s}%,email.ilike.%${s}%`);
+      }
+      if (coOwner === '__none') q = q.is('agent_id', null);
+      else if (coOwner) q = q.eq('agent_id', coOwner);
+      const { data, count, error } = await q.order('name').range(coPage * PER, coPage * PER + PER - 1);
+      if (error) {
+        host.innerHTML = `<div class="ac-empty">Could not load companies: ${esc(error.message)}</div>`;
+        return;
+      }
+      coRows = data ?? [];
+      coTotal = count ?? 0;
+
+      // Linked-people counts for just the page on screen.
+      coPeople = new Map();
+      if (coRows.length) {
+        const { data: ppl } = await sb.from('ph_contacts').select('company_id')
+          .in('company_id', coRows.map((c) => c.id)).is('deleted_at', null).range(0, 9999);
+        (ppl ?? []).forEach((p) => coPeople.set(p.company_id, (coPeople.get(p.company_id) || 0) + 1));
+      }
+      renderCompanies();
+      renderCoPager();
+    }
+
+    const ownerSelectOpts = (cur) =>
+      `<option value="__none"${!cur ? ' selected' : ''}>— No owner —</option>` +
+      agents.map((a) => `<option value="${esc(a.id)}"${a.id === cur ? ' selected' : ''}>${esc(a.full_name || a.email)}</option>`).join('') +
+      (cur && !agentName.has(cur) ? `<option value="${esc(cur)}" selected>Inactive broker</option>` : '');
+
+    function renderCompanies() {
+      const host = $('.ac-co-list');
+      if (!coRows.length) {
+        host.innerHTML = `<div class="ac-empty">${coQuery || coOwner ? 'No companies match these filters.' : 'No broker has added a company yet.'}</div>`;
+        $('.ac-co-count').textContent = '0 companies';
+        return;
+      }
+      const from = coPage * PER + 1;
+      const to = Math.min(coTotal, coPage * PER + coRows.length);
+      $('.ac-co-count').textContent = `Showing ${from.toLocaleString()}–${to.toLocaleString()} of ${coTotal.toLocaleString()} ${coTotal === 1 ? 'company' : 'companies'}`;
+
+      host.innerHTML = `<table class="ac-table">
+        <thead><tr>
+          <th>Company</th><th>Contact</th><th>Location</th><th>Employees</th><th>People linked</th><th>Owner</th><th>Added</th>
+        </tr></thead>
+        <tbody>${coRows.map((co) => `
+          <tr data-coid="${esc(co.id)}">
+            <td><div class="ac-nm">${esc(co.name)}</div><div class="ac-sub">${esc(co.industry || '')}</div></td>
+            <td>
+              <div class="ac-sub">${co.email ? `<a href="mailto:${esc(co.email)}">${esc(co.email)}</a>` : '—'}</div>
+              <div class="ac-sub">${esc(fmtPhone(co.phone)) || '—'}</div>
+            </td>
+            <td><div class="ac-sub">${esc([co.city, co.state].filter(Boolean).join(', ')) || '—'}</div></td>
+            <td><div class="ac-sub">${co.employee_count != null ? esc(Number(co.employee_count).toLocaleString()) : '—'}</div></td>
+            <td><div class="ac-sub">${(coPeople.get(co.id) || 0).toLocaleString()}</div></td>
+            <td>
+              <select class="ac-own ac-co-own${co.agent_id ? '' : ' is-none'}" data-coid="${esc(co.id)}">${ownerSelectOpts(co.agent_id)}</select>
+              <span class="ac-saved" data-cosaved="${esc(co.id)}"></span>
+            </td>
+            <td><div class="ac-sub">${esc(fmtDate(co.created_at))}</div></td>
+          </tr>`).join('')}</tbody></table>`;
+
+      host.querySelectorAll('.ac-co-own').forEach((sel) => sel.addEventListener('change', onCoReassign));
+    }
+
+    async function onCoReassign(e) {
+      const sel = e.target;
+      const id = sel.getAttribute('data-coid');
+      const val = sel.value === '__none' ? null : sel.value;
+      const flag = $$('[data-cosaved]').find((el) => el.getAttribute('data-cosaved') === id);
+      sel.disabled = true;
+      if (flag) { flag.classList.remove('is-bad'); flag.textContent = 'Saving…'; }
+      const { error } = await sb.from('ph_companies')
+        .update({ agent_id: val, updated_at: new Date().toISOString() }).eq('id', id);
+      sel.disabled = false;
+      if (error) {
+        console.error('[company owner change failed]', error);
+        if (flag) { flag.textContent = 'Failed'; flag.classList.add('is-bad'); }
+        return;
+      }
+      sel.classList.toggle('is-none', !val);
+      const row = coRows.find((r) => r.id === id);
+      if (row) row.agent_id = val;
+      if (flag) { flag.textContent = 'Saved'; setTimeout(() => { flag.textContent = ''; }, 2000); }
+      loadCompanyIndex();
+      if (coOwner) loadCompanies();
+    }
+
+    function renderCoPager() {
+      const pages = Math.max(1, Math.ceil(coTotal / PER));
+      const host = $('.ac-co-pager');
+      if (pages <= 1) { host.innerHTML = ''; return; }
+      host.innerHTML = `
+        <button type="button" data-pg="prev"${coPage === 0 ? ' disabled' : ''}>‹ Back</button>
+        <span>Page ${(coPage + 1).toLocaleString()} of ${pages.toLocaleString()}</span>
+        <button type="button" data-pg="next"${coPage + 1 >= pages ? ' disabled' : ''}>Next ›</button>`;
+      host.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+        coPage = b.getAttribute('data-pg') === 'prev' ? Math.max(0, coPage - 1) : coPage + 1;
+        loadCompanies();
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }));
+    }
+
+    const CO_FIELDS = [
+      ['name', 'Company name', 'text'],
+      ['industry', 'Industry', 'text'],
+      ['employee_count', 'Employees', 'number'],
+      ['email', 'Email', 'email'],
+      ['phone', 'Phone', 'tel'],
+      ['street_address', 'Street', 'text'],
+      ['city', 'City', 'text'],
+      ['state', 'State', 'text'],
+      ['postal_code', 'ZIP', 'text'],
+    ];
+
+    async function openCompany(id) {
+      if (!id) return;
+      cd = null;
+      cdModal.hidden = false;
+      cdBody.innerHTML = '<p class="ac-cd-sub">Loading…</p>';
+      const [coRes, pplRes] = await Promise.all([
+        sb.from('ph_companies').select('*').eq('id', id).maybeSingle(),
+        sb.from('ph_contacts')
+          .select('ghl_contact_id, first_name, last_name, job_title, email, phone, disposition, agent_id, custom')
+          .eq('company_id', id).is('deleted_at', null).order('first_name'),
+      ]);
+      if (coRes.error || !coRes.data) {
+        cdBody.innerHTML = `<div class="ac-cd-hd"><h2>Could not open this company</h2></div>
+          <p class="ac-cd-sub">${esc(coRes.error ? coRes.error.message : 'It may have been deleted while this page was open.')}</p>`;
+        return;
+      }
+      coCard = { co: coRes.data, people: pplRes.data ?? [] };
+      paintCompany();
+    }
+
+    async function coSave(patch) {
+      if (!coCard) return null;
+      cardStatus('Saving…');
+      const { data, error } = await sb.from('ph_companies')
+        .update(Object.assign({}, patch, { updated_at: new Date().toISOString() }))
+        .eq('id', coCard.co.id).select('*');
+      if (error) {
+        console.error('[company save failed]', { patch, code: error.code, message: error.message, details: error.details });
+        cardStatus(`Could not save${error.code ? ' — ' + error.code : ''}: ${error.message}`, 'bad');
+        return null;
+      }
+      const row = data && data[0];
+      if (row) coCard.co = row;
+      cardStatus('Saved', 'good');
+      // Keep the list and the name index in step with the card.
+      const i = coRows.findIndex((r) => r.id === coCard.co.id);
+      if (i >= 0) { coRows[i] = coCard.co; renderCompanies(); }
+      if ('name' in patch || 'agent_id' in patch) {
+        await loadCompanyIndex();
+        if (rows.some((r) => r.company_id === coCard.co.id)) renderRows();
+      }
+      if ('agent_id' in patch && coOwner && mode === 'companies') loadCompanies();
+      return row || coCard.co;
+    }
+
+    function paintCompany() {
+      const { co, people } = coCard;
+      const who = co.agent_id ? (agentName.get(co.agent_id) || 'an inactive broker') : 'no one';
+
+      cdBody.innerHTML = `
+        <div class="ac-cd-hd">
+          <h2 class="ac-cd-name">${esc(co.name)}</h2>
+          ${co.industry ? `<span class="ac-pill blue">${esc(co.industry)}</span>` : ''}
+        </div>
+        <p class="ac-cd-sub">Added by ${esc(who)} · ${esc(fmtDate(co.created_at))}</p>
+
+        <div class="ac-cd-sec">Company data</div>
+        <div class="ac-cd-kv">
+          ${CO_FIELDS.map(([key, label, type]) => `
+            <div class="k">${esc(label)}</div>
+            <div class="v"><input class="ac-cd-in" type="${type}" data-cofld="${esc(key)}" value="${esc(co[key] ?? '')}" placeholder="—" /></div>`).join('')}
+          <div class="k">Notes</div>
+          <div class="v"><textarea class="ac-cd-in ac-cd-ta" data-cofld="notes" placeholder="—">${esc(co.notes ?? '')}</textarea></div>
+          <div class="k">Owner</div>
+          <div class="v"><select class="ac-cd-sel ac-co-card-owner">${ownerSelectOpts(co.agent_id)}</select></div>
+        </div>
+        <p class="ac-cd-note">Each box saves as you leave it, onto the same record the owning broker sees in /app. Changing the owner here does not move the people below.</p>
+
+        <div class="ac-cd-sec">People linked · ${people.length}</div>
+        ${people.length ? `<div class="ac-cd-people"><table class="ac-table">
+          <thead><tr><th>Name</th><th>Role</th><th>Disposition</th><th>Owner</th></tr></thead>
+          <tbody>${people.map((p) => `
+            <tr data-pcid="${esc(p.ghl_contact_id)}">
+              <td><div class="ac-nm">${esc(nameOf(p))}</div><div class="ac-sub">${esc([p.email, fmtPhone(p.phone)].filter(Boolean).join(' · '))}</div></td>
+              <td><div class="ac-sub">${esc(p.job_title || '—')}${p.custom && p.custom.hire_date ? `<br>Hired ${esc(fmtDate(p.custom.hire_date))}` : ''}</div></td>
+              <td>${p.disposition ? `<span class="ac-pill ${PILL[p.disposition] || ''}">${esc(p.disposition)}</span>` : '<span class="ac-sub">—</span>'}</td>
+              <td><div class="ac-sub">${esc(p.agent_id ? (agentName.get(p.agent_id) || 'Inactive broker') : 'No owner')}</div></td>
+            </tr>`).join('')}</tbody></table></div>`
+          : '<p class="ac-cd-note">Nobody is linked to this company yet. Open any contact and pick this company under Company record.</p>'}
+
+        <p class="ac-cd-status" role="status" aria-live="polite"></p>
+        <div class="ac-cd-actions">
+          <button type="button" class="cm-btn primary ac-cd-done">Close</button>
+          ${people.length ? `<button type="button" class="cm-btn ac-co-filter-people">Show these people in the list</button>` : ''}
+          <button type="button" class="cm-btn ac-cd-del ac-co-del">Delete company</button>
+        </div>`;
+
+      $$('[data-cofld]').forEach((inp) => inp.addEventListener('change', async () => {
+        const key = inp.getAttribute('data-cofld');
+        const raw = inp.value.trim();
+        let val = raw === '' ? null : raw;
+        if (key === 'name' && !val) { inp.value = coCard.co.name; cardStatus('A company needs a name.', 'bad'); return; }
+        if (key === 'employee_count' && val != null) val = parseInt(val, 10);
+        if (key === 'state' && val) val = val.toUpperCase();
+        if ((coCard.co[key] ?? null) === val) return;
+        inp.classList.remove('is-bad'); inp.classList.add('is-saving');
+        const row = await coSave({ [key]: val });
+        inp.classList.remove('is-saving');
+        if (!row) { inp.classList.add('is-bad'); return; }
+        inp.value = row[key] ?? '';
+        if (key === 'name') { const h = $('.ac-cd-name'); if (h) h.textContent = row.name; }
+      }));
+
+      $('.ac-co-card-owner').addEventListener('change', async (e) => {
+        const prev = coCard.co.agent_id;
+        const val = e.target.value === '__none' ? null : e.target.value;
+        if (!await coSave({ agent_id: val })) e.target.value = prev || '__none';
+      });
+
+      $$('.ac-cd-people tr[data-pcid]').forEach((tr) => tr.addEventListener('click', () =>
+        openCard(tr.getAttribute('data-pcid'), coCard.co.id)));
+
+      $('.ac-cd-done').addEventListener('click', closeCard);
+
+      $('.ac-co-filter-people')?.addEventListener('click', () => {
+        const id = coCard.co.id;
+        closeCard();
+        setMode('people');
+        coFilter = id; query = ''; ownerFilter = ''; dispFilter = ''; page = 0;
+        $('.ac-search').value = ''; $('.ac-owner-filter').value = ''; $('.ac-disp-filter').value = '';
+        $('.ac-co-filter').value = id;
+        clearPicks(); loadRows();
+      });
+
+      // A real delete. ph_contacts.company_id is ON DELETE SET NULL, so linked
+      // people stay on the book, keep their typed Company text, and just lose
+      // the link.
+      $('.ac-co-del').addEventListener('click', async () => {
+        const { co, people } = coCard;
+        const tail = people.length
+          ? ` The ${people.length} ${people.length === 1 ? 'person' : 'people'} linked to it stay on the book and just lose the link.`
+          : '';
+        if (!confirm(`Delete ${co.name}? It comes off the owning broker's desk too.${tail} This cannot be undone.`)) return;
+        const { error } = await sb.from('ph_companies').delete().eq('id', co.id);
+        if (error) { console.error('[company delete failed]', error); cardStatus(`Could not delete — ${error.code || ''} ${error.message}`, 'bad'); return; }
+        closeCard();
+        if (coFilter === co.id) { coFilter = ''; }
+        await loadCompanyIndex();
+        if (coLoaded) loadCompanies();
+        loadRows();
+      });
+    }
+
     // ---------- boot ----------
     async function boot() {
       const { data: { session } } = await sb.auth.getSession();
@@ -1411,7 +1836,11 @@ const SUPABASE_ANON =
       view('app');
 
       await loadAgents();
+      // The company index lands before the first people render so the Company
+      // column shows linked names rather than falling back to typed text.
+      await loadCompanyIndex();
       await Promise.all([loadRows(), loadStats(), loadCustomFields(), loadTags(), loadCarriers()]);
+      if (location.hash === '#companies') setMode('companies');
     }
 
     sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
