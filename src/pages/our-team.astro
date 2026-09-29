@@ -13,7 +13,7 @@ import Base from '../layouts/Base.astro';
 import { SITE, TEAM, breadcrumbSchema } from '../lib/site';
 import { brokerSlug } from '../lib/broker-lines';
 
-const LEADER_SLUGS = ['brian-douglas', 'robert-morgen', 'brenda-morgen', 'jason-vasquez', 'janet-nevarez'];
+const LEADER_SLUGS = ['brian-douglas', 'robert-morgen', 'brenda-morgen', 'jason-vasquez', 'janet-cheathem'];
 const leaders = LEADER_SLUGS.map((s) => TEAM.find((m) => m.slug === s)).filter(Boolean);
 const chris = TEAM.find((m) => m.slug === 'chris-bridgeforth');
 
