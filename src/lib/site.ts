@@ -425,7 +425,10 @@ export const TEAM = [
     slug: 'janet-nevarez',
     name: 'Janet Nevarez',
     role: 'Director of Administration & Operations',
-    photo: '/assets/ext/hf_20260722_060923_afb0c89b-093a-4319-aa7e-95278d852b08_min.webp',
+    // Real photo supplied Sep 29 2026, replacing the AI re-render. Background
+    // cut and recomposited onto the same light-blue studio gradient Robert and
+    // Jason carry so the leadership row stays consistent. Self-hosted.
+    photo: '/assets/team/janet-nevarez.webp',
     bio: [
       `As ProtectHealth's Director of Administration & Operations, Janet Nevarez plays a central role in shaping the agency's operational excellence and client-focused service model. With ProtectHealth recognized as one of Nevada's largest and most respected individual health insurance agencies, Janet ensures that the organization's internal systems, administrative processes, and compliance standards consistently meet the highest level of quality.`,
       `Janet oversees the day-to-day operations that keep the agency running smoothly, from licensing and appointments to workflow optimization and cross-department coordination. Her strategic approach strengthens efficiency, enhances accuracy, and supports the seamless experience ProtectHealth is known for.`,
