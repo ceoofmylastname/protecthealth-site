@@ -2182,12 +2182,38 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
               <span class="pill-status ${dispClass(p.disposition)}" style="margin-left:auto">${esc(p.disposition || '—')}</span>
             </div>`).join('') : '<div class="cell-sub">No people yet — add the owner and key contacts.</div>'}</div>
           <div class="section-t"></div>
-          <button class="btn btn-ghost btn-sm" id="co-edit">Edit company</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" id="co-edit">Edit company</button>
+            <button class="btn btn-danger btn-sm" id="co-delete" style="margin-left:auto">Delete company</button>
+          </div>
         </div>`);
       $('[data-x]').addEventListener('click', closeDrawer);
       $('#co-edit').addEventListener('click', () => openCompanyForm(co, null));
+      $('#co-delete').addEventListener('click', () => deleteCompany(co, (people || []).length));
       $$('#co-people [data-open-contact]').forEach((el) => el.addEventListener('click', () => { closeDrawer(); openContact(el.dataset.openContact); }));
       $('#co-addperson').addEventListener('click', () => openCompanyPersonForm(co));
+    }
+
+    // A real delete, not a tombstone: companies are CRM-only (nothing syncs them
+    // back from GoHighLevel), and ph_contacts.company_id is ON DELETE SET NULL,
+    // so the people stay in the book, keep their typed Company text, and just
+    // lose the link. ph_companies_rw already lets a broker delete their own rows.
+    async function deleteCompany(co, peopleCount) {
+      const tail = peopleCount
+        ? ` The ${peopleCount} ${peopleCount === 1 ? 'person' : 'people'} linked to it stay in your book and just lose the link.`
+        : '';
+      // confirm() renders plain text, so the name goes in unescaped.
+      if (!confirm(`Delete ${co.name}?${tail} This cannot be undone.`)) return;
+      const { error } = await sb.from('ph_companies').delete().eq('id', co.id);
+      if (error) { console.error('[company delete failed]', error); toast('Could not delete: ' + error.message); return; }
+      state.companies = state.companies.filter((x) => x.id !== co.id);
+      if (cFilters.company_id === co.id) cFilters.company_id = '';
+      closeDrawer();
+      toast('Company deleted');
+      if (currentRoute === 'contacts') {
+        const v = $('#view');
+        if (cMode === 'companies') renderCompanies(v); else loadContacts(v);
+      }
     }
 
     // Adding a person under a company creates a full contact, linked both ways.
@@ -3977,7 +4003,15 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
           <div class="kv">
             <div class="k">First name</div><div class="v"><input class="cf-inline" data-fld="first_name" value="${esc(c.first_name || '')}" placeholder="—"/></div>
             <div class="k">Last name</div><div class="v"><input class="cf-inline" data-fld="last_name" value="${esc(c.last_name || '')}" placeholder="—"/></div>
-            <div class="k">Company</div><div class="v">${linkedCo ? `<a href="#" id="rec-company" style="color:var(--blue);font-weight:650;text-decoration:none">${esc(linkedCo.name)}</a>` : `<input class="cf-inline" data-fld="company" value="${esc(c.company || '')}" placeholder="—"/>`}</div>
+            <div class="k">Company</div><div class="v"><input class="cf-inline" data-fld="company" value="${esc(c.company || '')}" placeholder="—"/></div>
+            <div class="k">Company record</div><div class="v" style="display:flex;gap:10px;align-items:center">
+              <select class="cf-inline" id="rec-coid" style="flex:1;min-width:0">
+                <option value="">— Not linked —</option>
+                ${state.companies.map((co) => `<option value="${co.id}" ${co.id === c.company_id ? 'selected' : ''}>${esc(co.name)}</option>`).join('')}
+                ${c.company_id && !linkedCo ? `<option value="${esc(c.company_id)}" selected>Another broker's company</option>` : ''}
+              </select>
+              ${linkedCo ? `<a href="#" id="rec-company" style="color:var(--blue);font-weight:650;text-decoration:none;white-space:nowrap">Open</a>` : ''}
+            </div>
             <div class="k">Role / title</div><div class="v"><input class="cf-inline" data-fld="job_title" value="${esc(c.job_title || '')}" placeholder="—"/></div>
             <div class="k">Date of birth</div><div class="v"><input class="cf-inline" type="date" data-fld="date_of_birth" value="${esc(c.date_of_birth || '')}"/></div>
             <div class="k">Email</div><div class="v"><input class="cf-inline" type="email" data-fld="email" value="${esc(c.email || '')}" placeholder="—"/></div>
@@ -4139,6 +4173,18 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
             if (sub) sub.textContent = `${c.email || ''}${c.phone ? ' · ' + fmtPhone(c.phone) : ''}`;
           }, 200);
         });
+      });
+      // Link, relink or unlink the company record. Linking also writes the
+      // company's name into the free-text Company field, same as adding a
+      // person from a company; unlinking leaves the text alone.
+      $('#rec-coid', v)?.addEventListener('change', async (e) => {
+        const id = e.target.value || null;
+        const co = id ? state.companies.find((x) => x.id === id) : null;
+        const patch = co ? { company_id: co.id, company: co.name } : { company_id: null };
+        if (!(await saveField(patch))) { e.target.value = c.company_id || ''; return; }
+        Object.assign(c, patch);
+        toast(co ? `Linked to ${co.name}` : 'Unlinked from company');
+        openContact(cid, [c]);
       });
       $$('.cf-inline[data-cf]', v).forEach((inp) => inp.addEventListener('change', async () => {
         const key = inp.getAttribute('data-cf');
