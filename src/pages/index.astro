@@ -691,7 +691,7 @@ const HERO_REVIEWERS = ['Yvette Auger', 'Stephen Kuo', 'Rachel Wren', 'Yudith Fe
   .fan-card { position: absolute; left: 50%; top: 50%; width: clamp(120px, 13vw, 172px); height: clamp(120px, 13vw, 172px); border-radius: 18px; overflow: visible; opacity: 0;
     transform: translate(-50%, -50%) scale(0.4); transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; transition-delay: var(--fd); text-decoration: none; }
   .team-fan.in .fan-card { opacity: 1; transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) rotate(var(--fr)); }
-  .fan-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; border: 3px solid #fff; box-shadow: 0 18px 44px rgba(15, 53, 103, 0.28); display: block; transition: box-shadow 0.25s ease; }
+  .fan-card img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; border-radius: 18px; border: 3px solid #fff; box-shadow: 0 18px 44px rgba(15, 53, 103, 0.28); display: block; transition: box-shadow 0.25s ease; }
   .fan-card:hover { z-index: 99 !important; }
   .team-fan.in .fan-card:hover { transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy) - 10px)) rotate(0deg) scale(1.12); transition-delay: 0s; transition-duration: 0.35s; }
   .fan-card:hover img { box-shadow: 0 28px 60px rgba(15, 53, 103, 0.4), 0 0 0 3px rgba(25, 123, 255, 0.35); }
