@@ -357,13 +357,11 @@ export const TEAM = [
     slug: 'brian-douglas',
     name: 'Brian Douglas',
     role: 'Owner / CEO',
-    // Real studio headshot supplied by Brian, Aug 12 2026, replacing the AI
-    // re-render. A genuine photograph of the person is a stronger E-E-A-T
-    // signal than a generated likeness, and the render did not closely
-    // resemble him. Note the background is charcoal rather than the light
-    // blue studio gradient the other five still carry — accepted trade,
-    // and it resolves as the others send real photos.
-    photo: '/assets/team/brian-douglas.webp',
+    // Real studio headshot supplied Sep 30 2026 (ProtectHealth shirt), background
+    // cut and recomposited onto the same light-blue studio gradient as Robert,
+    // Jason and Janet. New filename (-v2) so browser/CDN caches don't serve the
+    // Aug 12 photo.
+    photo: '/assets/team/brian-douglas-v2.webp',
     // Brian's own edits, Aug 12 2026, applied as marked. His wording governs.
     bio: [
       `Brian D. Douglas is the Owner and Chief Executive Officer of ProtectHealth, Nevada's largest and most respected individual health insurance agency. A licensed insurance broker and benefits advisor, Brian has spent over 20 years helping individuals, families, and businesses navigate the often-confusing world of health insurance with clarity, transparency, and confidence.`,
