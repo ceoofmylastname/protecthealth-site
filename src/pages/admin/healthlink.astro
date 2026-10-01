@@ -1,0 +1,210 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/admin-chrome.css';
+
+// healthlinknevada.com bookings. Everyone who booked on that site, newest
+// first. The bookings themselves live in ph_appointments (source
+// 'healthlinknevada') on the HLN broker's calendar; this page reads them through
+// ph_hln_bookings(), which returns nothing to a non-admin.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="HealthLink Nevada Bookings, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad hln" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+      <div class="ad-view" data-view="loading"><div class="ad-center"><p class="ad-muted">Checking your session…</p></div></div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center"><div class="ad-card ad-login">
+          <span class="section-label">ProtectHealth</span><h1>Admin</h1>
+          <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+          <form class="ad-login-form">
+            <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+            <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+          </form>
+          <p class="ad-status" role="status" aria-live="polite"></p>
+        </div></div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center"><div class="ad-card ad-login">
+          <span class="section-label">Not authorised</span><h1>No access</h1>
+          <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+          <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+        </div></div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>HealthLink Nevada</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts">All Contacts</a>
+              <a href="/admin/calendar">House Calendar</a>
+              <a href="/admin/rooms">Room Bookings</a>
+              <a href="/admin/healthlink" class="is-on">HealthLink NV</a>
+              <a href="/admin/tickets">Support Tickets</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/admin/paychex">Paychex</a>
+              <a href="/app">My CRM</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <p class="ad-muted hln-intro">Everyone who booked on <a href="https://healthlinknevada.com" target="_blank" rel="noopener">healthlinknevada.com</a>. Every booking goes to <b data-broker>Jason Vasquez</b>'s calendar, is tagged <code>healthlinknevada.com</code> on the contact, and emails the broker the moment it lands. <a href="/healthlinknevada" target="_blank" rel="noopener">View the page</a></p>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="upcoming">—</b><span>Upcoming</span></div>
+          <div class="ad-stat spot"><b data-stat="week">—</b><span>Booked last 7 days</span></div>
+          <div class="ad-stat spot"><b data-stat="month">—</b><span>Booked last 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="total">—</b><span>All time</span></div>
+          <div class="ad-stat spot"><b data-stat="cancelled">—</b><span>Cancelled</span></div>
+        </div>
+
+        <div class="hln-bar">
+          <select data-f="when" aria-label="Show">
+            <option value="upcoming">Upcoming appointments</option>
+            <option value="past">Past appointments</option>
+            <option value="all">Everything</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <input type="search" data-f="q" placeholder="Search name, email or phone…" aria-label="Search" />
+          <button type="button" class="hln-csv">Download CSV</button>
+          <span class="ad-muted hln-count"></span>
+        </div>
+        <div class="hln-wrap"></div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .hln .ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+  .hln .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .hln .ad-nav a.is-on, .hln .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .hln-intro { margin: -6px 0 18px; max-width: 900px; }
+  .hln-intro a { color: var(--blue); font-weight: 700; }
+  .hln-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .hln-bar select, .hln-bar input { padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; font-family: var(--font); font-size: .88rem; background: #fff; color: var(--ink); }
+  .hln-bar input { flex: 1 1 220px; max-width: 340px; }
+  .hln-csv { border: 1.5px solid var(--line); background: #fff; border-radius: 99px; padding: 8px 14px; font-family: var(--font); font-weight: 700; font-size: .84rem; cursor: pointer; color: var(--ink); }
+  .hln-csv:hover { border-color: var(--blue); color: var(--blue); }
+  .hln-count { margin-left: auto; font-size: .84rem; }
+  .hln-wrap { overflow-x: auto; }
+  .hln-table { width: 100%; border-collapse: collapse; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; font-size: .88rem; }
+  .hln-table th { text-align: left; background: #f0f4fa; color: var(--muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; padding: 10px 12px; white-space: nowrap; }
+  .hln-table td { padding: 11px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  .hln-table td a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .hln-table tr.cx td { opacity: .55; }
+  .hln-pill { display: inline-block; font-size: .7rem; font-weight: 750; padding: 3px 9px; border-radius: 99px; background: #e6f7ed; color: #16803c; white-space: nowrap; }
+  .hln-pill.cx { background: #fde8e8; color: #b91c1c; }
+  .hln-pill.past { background: #eef3f8; color: #5a6f85; }
+  .hln-empty { background: #fff; border: 1.5px dashed var(--line); border-radius: 14px; padding: 30px; text-align: center; color: var(--muted); }
+  .hln-note { color: var(--muted); font-size: .8rem; white-space: pre-line; }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+  const root = document.querySelector('.hln');
+  if (root) {
+    const sb = createClient(root.getAttribute('data-supabase-url'), root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => Array.from(root.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const TZ = 'America/Los_Angeles';
+    const fmt = (s, o) => new Date(s).toLocaleString('en-US', { timeZone: TZ, ...o });
+    const fmtPhone = (p) => { const d = String(p ?? '').replace(/\D/g, '').replace(/^1/, ''); return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : (p || ''); };
+    let rows = [], when = 'upcoming', q = '', booted = false;
+
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.auth.signInWithOtp({ email: e.target.email.value.trim(), options: { emailRedirectTo: `${location.origin}/admin/healthlink` } });
+      $('.ad-status').textContent = error ? error.message : 'Check your inbox. The link signs you straight in.';
+    });
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
+    $('[data-f="when"]').addEventListener('change', (e) => { when = e.target.value; render(); });
+    let t = null;
+    $('[data-f="q"]').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { q = e.target.value.trim().toLowerCase(); render(); }, 180); });
+    $('.hln-csv').addEventListener('click', () => {
+      const list = visible();
+      const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const lines = [['Appointment (Vegas)', 'Name', 'Email', 'Phone', 'Broker', 'Status', 'Booked on', 'Notes'].map(cell).join(',')]
+        .concat(list.map((r) => [fmt(r.start_at, { dateStyle: 'medium', timeStyle: 'short' }), r.invitee_name, r.invitee_email, r.invitee_phone, r.agent_name, r.status, fmt(r.created_at, { dateStyle: 'medium', timeStyle: 'short' }), r.notes].map(cell).join(',')));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+      a.download = `healthlinknevada-bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+    });
+
+    function visible() {
+      const now = Date.now();
+      return rows.filter((r) => {
+        const live = r.status === 'booked';
+        if (when === 'upcoming' && !(live && +new Date(r.end_at) >= now)) return false;
+        if (when === 'past' && !(live && +new Date(r.end_at) < now)) return false;
+        if (when === 'cancelled' && live) return false;
+        if (q && ![r.invitee_name, r.invitee_email, r.invitee_phone].join(' ').toLowerCase().includes(q)) return false;
+        return true;
+      }).sort((a, b) => (when === 'upcoming' ? +new Date(a.start_at) - +new Date(b.start_at) : +new Date(b.start_at) - +new Date(a.start_at)));
+    }
+
+    function render() {
+      const list = visible();
+      $('.hln-count').textContent = `${list.length} booking${list.length === 1 ? '' : 's'}`;
+      const now = Date.now();
+      $('.hln-wrap').innerHTML = list.length ? `<table class="hln-table"><thead><tr><th>Appointment</th><th>Client</th><th>Contact</th><th>Broker</th><th>Status</th><th>Booked</th></tr></thead><tbody>
+        ${list.map((r) => {
+          const past = +new Date(r.end_at) < now;
+          const pill = r.status !== 'booked' ? '<span class="hln-pill cx">Cancelled</span>' : past ? '<span class="hln-pill past">Completed</span>' : '<span class="hln-pill">Upcoming</span>';
+          const note = String(r.notes || '').replace(/\n?Booked on healthlinknevada\.com/, '').trim();
+          return `<tr class="${r.status !== 'booked' ? 'cx' : ''}">
+            <td><b>${esc(fmt(r.start_at, { weekday: 'short', month: 'short', day: 'numeric' }))}</b><br>${esc(fmt(r.start_at, { hour: 'numeric', minute: '2-digit' }))} – ${esc(fmt(r.end_at, { hour: 'numeric', minute: '2-digit' }))}</td>
+            <td><b>${esc(r.invitee_name || '')}</b>${r.contact_disposition ? `<br><span class="hln-note">${esc(r.contact_disposition)}</span>` : ''}${note ? `<br><span class="hln-note">${esc(note)}</span>` : ''}</td>
+            <td>${r.invitee_email ? `<a href="mailto:${esc(r.invitee_email)}">${esc(r.invitee_email)}</a>` : ''}${r.invitee_phone ? `<br><a href="tel:${esc(String(r.invitee_phone).replace(/\D/g, ''))}">${esc(fmtPhone(r.invitee_phone))}</a>` : ''}</td>
+            <td>${esc(r.agent_name || '')}</td>
+            <td>${pill}</td>
+            <td>${esc(fmt(r.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</td></tr>`;
+        }).join('')}</tbody></table>`
+        : `<div class="hln-empty">${rows.length ? 'Nothing matches.' : 'No bookings from healthlinknevada.com yet. They will show up here the moment someone books.'}</div>`;
+    }
+
+    function stats() {
+      const now = Date.now();
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = String(v); };
+      set('upcoming', rows.filter((r) => r.status === 'booked' && +new Date(r.end_at) >= now).length);
+      set('week', rows.filter((r) => +new Date(r.created_at) >= now - 7 * 864e5).length);
+      set('month', rows.filter((r) => +new Date(r.created_at) >= now - 30 * 864e5).length);
+      set('total', rows.length);
+      set('cancelled', rows.filter((r) => r.status !== 'booked').length);
+    }
+
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { view('signin'); return; }
+      if (booted) return;
+      $$('[data-who]').forEach((el) => (el.textContent = session.user.email || ''));
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app'); booted = true;
+      const { data, error } = await sb.rpc('ph_hln_bookings');
+      if (error) { $('.hln-wrap').innerHTML = `<div class="hln-empty">Could not load bookings: ${esc(error.message)}</div>`; return; }
+      rows = data ?? [];
+      const names = [...new Set(rows.map((r) => r.agent_name).filter(Boolean))];
+      if (names.length) root.querySelector('[data-broker]').textContent = names[0];
+      stats(); render();
+    }
+    sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
+    boot();
+  }
+</script>

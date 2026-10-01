@@ -15,7 +15,8 @@ export default defineConfig({
         !page.includes('/campaign-gallery') &&
         !page.includes('/admin') &&
         !page.includes('/app') &&
-        !page.includes('/support'),
+        !page.includes('/support') &&
+        !page.includes('/healthlinknevada'),
       // Clean URLs in the XML sitemap, Cloudflare Pages serves /page from /page.html.
       serialize(item) {
         item.url = item.url.replace(/index\.html$/, '').replace(/\.html$/, '');

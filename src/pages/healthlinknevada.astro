@@ -1,0 +1,320 @@
+---
+// healthlinknevada.com, rebuilt (Oct 1 2026).
+//
+// Replaces the WordPress/Divi page at HostGator that embedded a rotating set of
+// Google appointment calendars. Same look, same words, same phone and hours;
+// the calendar in the middle is now our own and EVERY booking goes to one
+// broker (ph_private_config.hln_agent_id, Jason Vasquez), decided server-side
+// by the ph-hln edge function so nothing on this page can re-route it.
+//
+// A booking here is a normal ph-book booking: it lands on the broker's CRM
+// calendar and Google Calendar, creates a contact tagged "healthlinknevada.com",
+// emails the client a confirmation and the broker an alert. Admins see every
+// one of them at /admin/healthlink.
+//
+// The domain reaches this page by a GoDaddy 301 forward to
+// https://www.protecthealth.com/healthlinknevada. Standalone HTML on purpose:
+// it must look like healthlinknevada.com, not like protecthealth.com, so it
+// does not use the site layout, header or footer. Noindexed, as the old page was,
+// and left out of the sitemap.
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Schedule Time With a Preferred and Licensed Nevada Health Link Broker</title>
+  <meta name="description" content="Schedule an in-person or phone appointment with a licensed Nevada Health Link broker. Toll free 1-888-547-5220." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://healthlinknevada.com/" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="hl" data-url={SUPABASE_URL} data-anon={SUPABASE_ANON}>
+    <div class="topbar">
+      <div class="wrap topbar-in">
+        <a class="toll" href="tel:18885475220">Toll Free 1-888-547-5220</a>
+        <ul class="hours">
+          <li>Mon – Fri 8am to 8pm</li>
+          <li>Sat 9am to 7pm</li>
+          <li>Sun 10am to 6pm</li>
+        </ul>
+      </div>
+    </div>
+
+    <main class="wrap">
+      <h1 class="title">Schedule Time With a Licensed Nevada Broker</h1>
+
+      <section class="box">
+        <h2 class="lead">In-Person or Via Phone<br />Whatever is best for you…</h2>
+
+        <div class="cal" aria-live="polite">
+          <aside class="who">
+            <div class="who-photo"><img alt="" hidden /></div>
+            <div class="who-kicker">Nevada Health Link Broker</div>
+            <h3 class="who-name">&nbsp;</h3>
+            <div class="who-len"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>60 min appointments</span></div>
+            <p class="who-text">Thank you for selecting me as your Preferred Nevada Health Link Broker. Below you will have a chance to select a phone or in-person appointment. I will contact you after you schedule and confirm the appointment, and make sure you have everything you need.</p>
+          </aside>
+
+          <div class="pick">
+            <div class="step step-time">
+              <div class="pick-h">
+                <h3>Select an appointment time</h3>
+                <span class="tz">Las Vegas Time (Pacific)</span>
+              </div>
+              <div class="week-nav">
+                <button type="button" class="wk-btn" data-wk="-1" aria-label="Previous days">‹</button>
+                <span class="wk-label"></span>
+                <button type="button" class="wk-btn" data-wk="1" aria-label="Next days">›</button>
+              </div>
+              <div class="days"><div class="loading">Loading available times…</div></div>
+            </div>
+
+            <form class="step step-form" hidden novalidate>
+              <button type="button" class="back">‹ Back</button>
+              <div class="chosen"></div>
+              <div class="row2">
+                <label>First name<input name="first" autocomplete="given-name" required /></label>
+                <label>Last name<input name="last" autocomplete="family-name" required /></label>
+              </div>
+              <label>Email address<input name="email" type="email" autocomplete="email" inputmode="email" required /></label>
+              <label>Phone number<input name="phone" type="tel" autocomplete="tel" inputmode="tel" required /></label>
+              <label><span>Anything we should know? <span class="opt">(optional)</span></span><textarea name="notes" rows="3" maxlength="500"></textarea></label>
+              <p class="err" role="alert"></p>
+              <button type="submit" class="book">Book appointment</button>
+              <p class="fine">By booking you agree to be contacted by a licensed ProtectHealth broker about your appointment.</p>
+            </form>
+
+            <div class="step step-done" hidden>
+              <div class="done-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <h3>You're booked!</h3>
+              <p class="done-when"></p>
+              <p class="done-sub">A confirmation is on its way to your email. Your broker will contact you at your appointment time. Need to change it? Call <a href="tel:18885475220">1-888-547-5220</a>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <img class="foot-logo" src="/assets/logo.webp" alt="ProtectHealth" width="300" height="81" loading="lazy" />
+        <a class="foot-phone" href="tel:18885475220">1-888-547-5220</a>
+        <div class="foot-right">
+          <img class="foot-logo sm" src="/assets/logo.webp" alt="" width="220" height="59" loading="lazy" />
+          <h4>Mon – Fri 8am to 8pm<br />Sat 9am to 7pm<br />Sun 10am to 6pm</h4>
+        </div>
+      </div>
+      <div class="copy">© 2021 – {year} B&amp;C Agency. LLC/ <a href="https://www.protecthealth.com/" target="_blank" rel="noopener">ProtectHealth</a></div>
+    </footer>
+  </div>
+
+  <style is:global>
+    :root { --purple: #962283; --blue: #3a9fe9; --ink: #333; --muted: #666; --line: #bbb; --soft: #e8e8e8; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #fff; }
+    body { font-family: 'Open Sans', Arial, sans-serif; color: var(--ink); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    .hl .wrap { width: min(1280px, 100% - 32px); margin: 0 auto; }
+
+    .topbar { background: var(--soft); }
+    .topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding: 10px 0; }
+    .toll { color: var(--purple); font-weight: 700; font-size: 1.35rem; text-decoration: none; margin-left: 2.5%; }
+    .hours { display: flex; gap: 32px; list-style: none; margin: 0 auto 0 0; padding: 0 0 0 10%; flex-wrap: wrap; }
+    .hours li { color: var(--purple); font-weight: 700; font-size: 1.05rem; }
+
+    .title { color: var(--blue); text-align: right; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.15rem); line-height: 1.25; margin: 26px 0 16px; letter-spacing: -.2px; }
+
+    .box { border: 1px solid var(--line); padding: 22px 8px 8px; margin-bottom: 36px; }
+    .lead { text-align: center; color: var(--purple); font-weight: 700; font-size: clamp(1.25rem, 2vw, 1.6rem); line-height: 1.3; margin: 0 0 22px; }
+
+    /* calendar, in the spirit of Google appointment schedules */
+    .cal { display: grid; grid-template-columns: 300px 1fr; border-top: 1px solid #e3e3e3; min-height: 520px; }
+    .who { padding: 26px 24px; border-right: 1px solid #e3e3e3; }
+    .who-photo { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; background: #e9eef5; margin-bottom: 14px; }
+    .who-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .who-kicker { font-size: .82rem; color: var(--muted); }
+    .who-name { margin: 2px 0 10px; font-size: 1.45rem; font-weight: 700; color: #202124; line-height: 1.25; }
+    .who-len { display: flex; align-items: center; gap: 8px; color: #3c4043; font-weight: 600; font-size: .92rem; margin-bottom: 14px; }
+    .who-len svg { width: 18px; height: 18px; color: #5f6368; }
+    .who-text { color: #3c4043; font-size: .9rem; margin: 0; }
+
+    .pick { padding: 22px 26px 26px; min-width: 0; }
+    .pick-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+    .pick-h h3 { margin: 0; font-size: 1.25rem; font-weight: 600; color: #202124; }
+    .tz { font-size: .82rem; color: var(--muted); }
+    .week-nav { display: flex; align-items: center; gap: 10px; margin: 14px 0 10px; }
+    .wk-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #dadce0; background: #fff; color: #3c4043; font-size: 1.2rem; cursor: pointer; line-height: 1; }
+    .wk-btn:hover:not(:disabled) { background: #f1f3f4; }
+    .wk-btn:disabled { opacity: .35; cursor: default; }
+    .wk-label { font-weight: 600; color: #3c4043; }
+    .days { display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr)); gap: 10px; }
+    .day h4 { margin: 0 0 8px; text-align: center; font-weight: 600; color: #3c4043; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+    .day h4 b { display: block; font-size: 1.5rem; color: #202124; letter-spacing: 0; text-transform: none; line-height: 1.2; }
+    .slot { display: block; width: 100%; margin: 0 0 8px; padding: 9px 4px; border: 1px solid #dadce0; border-radius: 6px; background: #fff; color: #1a73e8; font: 600 .9rem 'Open Sans', Arial, sans-serif; cursor: pointer; transition: background .12s, border-color .12s; }
+    .slot:hover { background: #e8f0fe; border-color: #1a73e8; }
+    .none { text-align: center; color: #9aa0a6; font-size: .8rem; padding-top: 4px; }
+    .loading, .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 10px; }
+    .empty a { color: #1a73e8; font-weight: 600; }
+
+    .step[hidden] { display: none !important; }
+    .step-form { display: grid; gap: 12px; max-width: 520px; }
+    .back { justify-self: start; border: 0; background: none; color: #1a73e8; font: 600 .92rem 'Open Sans', Arial, sans-serif; cursor: pointer; padding: 0; }
+    .chosen { background: #e8f0fe; color: #174ea6; border-radius: 8px; padding: 12px 14px; font-weight: 700; }
+    .chosen span { display: block; font-weight: 600; font-size: .85rem; color: #3c4043; }
+    .step-form label { display: grid; gap: 4px; font-size: .85rem; font-weight: 600; color: #3c4043; }
+    .opt { font-weight: 400; color: var(--muted); }
+    .step-form input, .step-form textarea { font: 400 1rem 'Open Sans', Arial, sans-serif; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 6px; color: #202124; width: 100%; }
+    .step-form input:focus, .step-form textarea:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.2); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .err { color: #c5221f; font-weight: 600; font-size: .9rem; margin: 0; min-height: 0; }
+    .book { justify-self: start; border: 0; border-radius: 6px; background: #1a73e8; color: #fff; font: 700 1rem 'Open Sans', Arial, sans-serif; padding: 12px 26px; cursor: pointer; }
+    .book:hover { background: #1765cc; }
+    .book:disabled { opacity: .6; cursor: default; }
+    .fine { font-size: .78rem; color: var(--muted); margin: 0; }
+
+    .step-done { text-align: center; padding: 50px 10px; }
+    .done-check { width: 64px; height: 64px; border-radius: 50%; background: #e6f4ea; color: #188038; display: grid; place-items: center; margin: 0 auto 14px; }
+    .done-check svg { width: 34px; height: 34px; }
+    .step-done h3 { margin: 0 0 6px; font-size: 1.5rem; color: #202124; }
+    .done-when { font-weight: 700; font-size: 1.1rem; color: var(--purple); margin: 0 0 10px; }
+    .done-sub { color: #3c4043; max-width: 460px; margin: 0 auto; }
+    .done-sub a { color: #1a73e8; font-weight: 600; }
+
+    .foot { padding: 34px 0 18px; }
+    .foot-in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: center; }
+    .foot-logo { width: 100%; max-width: 300px; height: auto; display: block; }
+    .foot-logo.sm { max-width: 220px; margin-bottom: 8px; }
+    .foot-phone { color: var(--purple); font-weight: 700; font-size: clamp(1.6rem, 3vw, 2.4rem); text-decoration: none; text-align: center; }
+    .foot-right h4 { margin: 0; color: var(--purple); font-weight: 700; font-size: 1rem; line-height: 1.6; }
+    .copy { text-align: center; font-size: .82rem; color: var(--muted); margin-top: 22px; }
+    .copy a { color: var(--purple); }
+
+    @media (max-width: 900px) {
+      .cal { grid-template-columns: 1fr; }
+      .who { border-right: 0; border-bottom: 1px solid #e3e3e3; display: grid; grid-template-columns: 72px 1fr; column-gap: 14px; }
+      .who-photo { grid-row: span 3; margin: 0; }
+      .who-text { grid-column: 1 / -1; margin-top: 8px; }
+      .hours { padding: 0; gap: 18px; margin: 0; }
+      .toll { margin: 0; }
+      .title { text-align: center; }
+      .foot-in { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+      .foot-logo.sm { display: none; }
+    }
+    @media (max-width: 560px) {
+      .pick { padding: 18px 14px 20px; }
+      .row2 { grid-template-columns: 1fr; }
+      .days { gap: 6px; }
+      .slot { font-size: .8rem; padding: 8px 2px; }
+      .topbar-in { justify-content: center; text-align: center; }
+      .hours { justify-content: center; gap: 4px 14px; font-size: .9rem; }
+    }
+  </style>
+
+  <script>
+    const root = document.querySelector('.hl');
+    if (root) {
+      const FN = root.getAttribute('data-url') + '/functions/v1/ph-hln';
+      const ANON = root.getAttribute('data-anon');
+      const TZ = 'America/Los_Angeles';
+      const $ = (s) => root.querySelector(s);
+      const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const call = async (body) => {
+        const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(body) });
+        const j = await r.json().catch(() => ({}));
+        return { ok: r.ok && j.ok !== false, status: r.status, j };
+      };
+
+      let days = [], page = 0, chosen = null;
+      const perPage = () => (window.innerWidth < 560 ? 3 : window.innerWidth < 900 ? 4 : 5);
+      const show = (name) => ['time', 'form', 'done'].forEach((n) => ($('.step-' + n).hidden = n !== name));
+      const dayLabel = (d) => new Date(d + 'T12:00:00Z');
+
+      async function loadProfile() {
+        const { ok, j } = await call({ action: 'profile' });
+        if (!ok) return;
+        $('.who-name').textContent = j.name || '';
+        if (j.photo) { const img = $('.who-photo img'); img.src = j.photo; img.alt = j.name || ''; img.hidden = false; }
+        if (j.slot_minutes) $('.who-len span').textContent = `${j.slot_minutes} min appointments`;
+      }
+
+      async function loadSlots() {
+        $('.days').innerHTML = '<div class="loading">Loading available times…</div>';
+        const { ok, j } = await call({ action: 'slots' });
+        days = ok && Array.isArray(j.days) ? j.days.filter((d) => d.slots?.length) : [];
+        page = 0; paint();
+      }
+
+      function paint() {
+        const n = perPage();
+        const box = $('.days');
+        box.style.setProperty('--cols', String(n));
+        if (!days.length) {
+          box.innerHTML = '<div class="empty">No open times are showing right now. Please call <a href="tel:18885475220">1-888-547-5220</a> and we will get you scheduled.</div>';
+          $('.wk-label').textContent = ''; root.querySelectorAll('.wk-btn').forEach((b) => (b.disabled = true));
+          return;
+        }
+        const pages = Math.ceil(days.length / n);
+        page = Math.min(page, pages - 1);
+        const slice = days.slice(page * n, page * n + n);
+        const f = (d) => dayLabel(d).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric' });
+        $('.wk-label').textContent = slice.length > 1 ? `${f(slice[0].date)} – ${f(slice[slice.length - 1].date)}` : f(slice[0].date);
+        root.querySelector('[data-wk="-1"]').disabled = page === 0;
+        root.querySelector('[data-wk="1"]').disabled = page >= pages - 1;
+        box.innerHTML = slice.map((d) => {
+          const dt = dayLabel(d.date);
+          return `<div class="day"><h4>${esc(dt.toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short' }))}<b>${dt.getUTCDate()}</b></h4>
+            ${d.slots.map((s) => `<button type="button" class="slot" data-at="${esc(s.start_at)}">${esc(s.label.replace(':00 ', ' ').toLowerCase().replace(' ', ''))}</button>`).join('') || '<div class="none">—</div>'}</div>`;
+        }).join('');
+        box.querySelectorAll('.slot').forEach((b) => b.addEventListener('click', () => pickSlot(b.getAttribute('data-at'))));
+      }
+
+      const fmtWhen = (iso) => new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+      function pickSlot(iso) {
+        chosen = iso;
+        $('.chosen').innerHTML = `${esc(fmtWhen(iso))}<span>${esc($('.who-name').textContent)} · ${esc($('.who-len span').textContent.replace(' appointments', ''))} · Las Vegas time</span>`;
+        $('.err').textContent = '';
+        show('form');
+        $('.step-form [name=first]').focus();
+      }
+
+      root.querySelectorAll('.wk-btn').forEach((b) => b.addEventListener('click', () => { page += +b.getAttribute('data-wk'); paint(); }));
+      $('.back').addEventListener('click', () => show('time'));
+      let lastN = perPage();
+      window.addEventListener('resize', () => { const n = perPage(); if (n !== lastN) { lastN = n; page = 0; paint(); } });
+
+      $('.step-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.currentTarget;
+        const err = $('.err');
+        const first = f.first.value.trim(), last = f.last.value.trim(), email = f.email.value.trim(), phone = f.phone.value.trim();
+        if (!first || !last) { err.textContent = 'Please enter your first and last name.'; return; }
+        if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { err.textContent = 'Please enter a valid email address.'; return; }
+        if (phone.replace(/\D/g, '').length < 10) { err.textContent = 'Please enter a 10-digit phone number.'; return; }
+        const btn = f.querySelector('.book'); btn.disabled = true; btn.textContent = 'Booking…'; err.textContent = '';
+        const { ok, status, j } = await call({ action: 'book', start_at: chosen, name: `${first} ${last}`, email, phone, notes: f.notes.value.trim() });
+        btn.disabled = false; btn.textContent = 'Book appointment';
+        if (!ok) {
+          err.textContent = j.error || 'Something went wrong. Please call 1-888-547-5220.';
+          if (status === 409) { await loadSlots(); }
+          return;
+        }
+        $('.done-when').textContent = `${j.when || fmtWhen(chosen)} with ${j.agent || $('.who-name').textContent}`;
+        show('done');
+        root.querySelector('.box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      loadProfile();
+      loadSlots();
+    }
+  </script>
+</body>
+</html>
