@@ -286,15 +286,17 @@ create trigger ph_admin_notifications_email after insert on public.ph_admin_noti
   for each row when (new.kind like 'room_%') execute function public.ph_admin_notifications_email();
 
 -- ---------- reads ----------
--- What every broker sees: who holds each room and when. Names are shown on
--- purpose (an office board, not a client calendar). Notes stay private to the
--- booker and admins.
+-- What every broker sees: WHEN each room is taken, never by whom. The booker's
+-- id, name and notes only come back for the broker's own bookings and for
+-- admins, so another broker's name cannot leak through the UI or the API.
 create or replace function public.ph_room_busy(p_from timestamptz, p_to timestamptz)
 returns table (id uuid, room_id uuid, start_at timestamptz, end_at timestamptz, buffer_minutes int,
                agent_id uuid, agent_name text, is_mine boolean, notes text)
 language sql stable security definer set search_path = public as $$
-  select b.id, b.room_id, b.start_at, b.end_at, b.buffer_minutes, b.agent_id, a.full_name,
-         b.agent_id = public.ph_agent_id(),
+  select b.id, b.room_id, b.start_at, b.end_at, b.buffer_minutes,
+         case when b.agent_id = public.ph_agent_id() or public.ph_is_admin() then b.agent_id end,
+         case when b.agent_id = public.ph_agent_id() or public.ph_is_admin() then a.full_name end,
+         coalesce(b.agent_id = public.ph_agent_id(), false),
          case when b.agent_id = public.ph_agent_id() or public.ph_is_admin() then b.notes end
   from public.ph_room_bookings b
   join public.ph_agents a on a.id = b.agent_id

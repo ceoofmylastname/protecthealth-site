@@ -94,7 +94,7 @@ export function conflictFor({ room, cfg, day, date, s, e, ignoreId = null, admin
   for (const b of day.busy) {
     if (b.room_id !== room.id || b.id === ignoreId) continue;
     const bs = +new Date(b.start_at), be = +new Date(b.end_at) + (b.buffer_minutes || 0) * 60000;
-    if (s < be && e + buf * 60000 > bs) return `Overlaps ${b.agent_name || 'another booking'} (${fmtTime(b.start_at)} – ${fmtTime(b.end_at)})`;
+    if (s < be && e + buf * 60000 > bs) return `That time is taken (${fmtTime(b.start_at)} – ${fmtTime(b.end_at)})`;
   }
   if (admin) return null;
   const h = cfg.hoursBy[room.id]?.[dowOf(date)];
@@ -139,93 +139,197 @@ function endOptions({ room, cfg, day, date, startHM, ignoreId, admin }) {
 }
 
 // ---------------------------------------------------------------- styles (injected once)
+// Every rule is scoped under .rbk (two classes deep) so the host page's own
+// resets, like the CRM's `.ph button{background:none;border:none}`, cannot win.
 const CSS = `
-.rbk,.rbk-modal{--rb-blue:var(--blue,#197bff);--rb-ink:var(--ink,#0f172a);--rb-muted:var(--muted,#8494ab);--rb-line:var(--line,#e3e9f2);--rb-navy:#0f3567;color:var(--rb-ink)}
-.rbk{font-family:var(--font,inherit)}
+.rbk,.rbk-modal{--rb-blue:#197bff;--rb-blue2:#0f5fd6;--rb-ink:#0f172a;--rb-ink2:#42536b;--rb-muted:#8494ab;--rb-line:#e3e9f2;--rb-line2:#eef2f8;--rb-bg:#f4f7fc;--rb-navy:#0f3567;--rb-green:#10b981;--rb-grad:linear-gradient(92deg,#197bff,#19c8ff 70%,#007db3);color:var(--rb-ink)}
+.rbk{font-family:var(--font,inherit);display:grid;gap:18px}
 .rbk *,.rbk-modal *{box-sizing:border-box}
+.rbk>*{min-width:0}
 .rbk button{font-family:inherit;cursor:pointer}
-.rbk-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.rbk-nav{border:1.5px solid var(--rb-line);background:#fff;border-radius:10px;padding:8px 13px;font-weight:700;font-size:.86rem;color:var(--rb-ink)}
-.rbk-nav:hover{border-color:var(--rb-blue);color:var(--rb-blue)}
-.rbk-date{border:1.5px solid var(--rb-line);border-radius:10px;padding:7px 10px;font:inherit;font-size:.88rem;background:#fff}
-.rbk-title{font-size:1.15rem;font-weight:800;letter-spacing:-.3px;color:var(--rb-navy);margin-right:auto;min-width:200px}
-.rbk-rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px;margin-bottom:18px}
-.rbk-room{display:grid;grid-template-columns:116px 1fr;gap:14px;background:#fff;border:1px solid var(--rb-line);border-radius:14px;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -14px rgba(15,23,42,.14)}
-.rbk-room img,.rbk-room .rbk-ph{width:116px;height:116px;border-radius:10px;object-fit:cover;background:#eef3fa;display:block}
-.rbk-room h4{margin:0 0 4px;font-size:1rem;font-weight:750}
-.rbk-room p{margin:0;font-size:.8rem;line-height:1.45;color:#5b6b7c;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.rbk-room p.open{-webkit-line-clamp:unset}
-.rbk-more{border:0;background:none;align-self:flex-start;text-align:left;color:var(--rb-blue);font-weight:650;font-size:.76rem;padding:2px 0}
-.rbk-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
-.rbk-chip{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:99px;background:#eef3fa;color:#42536b}
-.rbk-chip.off{background:#fde8e8;color:#b91c1c}
-.rbk-book{margin-left:auto;border:0;background:linear-gradient(92deg,#197bff,#19c8ff 70%,#007db3);color:#fff;font-weight:700;font-size:.8rem;padding:7px 14px;border-radius:99px}
-.rbk-board{background:#fff;border:1px solid var(--rb-line);border-radius:14px;overflow:auto;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.rbk-grid{display:grid;min-width:560px;position:relative}
-.rbk-hd{position:sticky;top:0;z-index:3;background:#f4f7fc;border-bottom:1px solid var(--rb-line);padding:10px;font-size:.8rem;font-weight:750;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rbk-hd small{display:block;font-weight:600;color:var(--rb-muted);font-size:.68rem}
-.rbk-tcol{border-right:1px solid var(--rb-line)}
-.rbk-tl{height:var(--rh);font-size:.66rem;color:var(--rb-muted);text-align:right;padding:2px 8px 0;white-space:nowrap;font-variant-numeric:tabular-nums;border-top:1px solid transparent}
-.rbk-col{position:relative;border-right:1px solid var(--rb-line)}
-.rbk-col:last-child{border-right:0}
-.rbk-cell{height:var(--rh);border-bottom:1px solid #f0f3f8;width:100%;display:block;border-left:0;border-right:0;border-top:0;background:transparent;padding:0}
-.rbk-cell.hr{border-bottom-color:#e3e9f2}
-.rbk-cell.free:hover{background:rgba(25,123,255,.08)}
-.rbk-cell.free:hover::after{content:'+ Book';font-size:.68rem;font-weight:700;color:var(--rb-blue);padding-left:8px}
-.rbk-cell.na{background:repeating-linear-gradient(-45deg,#f6f8fb,#f6f8fb 6px,#eef2f7 6px,#eef2f7 12px);cursor:not-allowed}
-.rbk-ev{position:absolute;left:4px;right:4px;border-radius:9px;padding:5px 8px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;font-size:.72rem;line-height:1.25;color:#fff;overflow:hidden;text-align:left;border:0;z-index:2;background:#5b6f8c;box-shadow:0 2px 8px -3px rgba(15,23,42,.35)}
-.rbk-ev b{display:block;max-width:100%;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rbk-ev span{opacity:.9;white-space:nowrap}
-.rbk-ev.mine{background:linear-gradient(135deg,#197bff,#0f5fd6)}
-.rbk-ev.click:hover{filter:brightness(1.08)}
-.rbk-ev.noclick{cursor:default}
-.rbk-buf{position:absolute;left:4px;right:4px;border-radius:0 0 8px 8px;background:repeating-linear-gradient(-45deg,rgba(91,111,140,.12),rgba(91,111,140,.12) 4px,transparent 4px,transparent 8px);z-index:1;pointer-events:none}
-.rbk-bo{position:absolute;left:4px;right:4px;border-radius:9px;background:repeating-linear-gradient(-45deg,#fde8e8,#fde8e8 6px,#fbd5d5 6px,#fbd5d5 12px);color:#9b1c1c;font-size:.7rem;font-weight:700;padding:5px 8px;z-index:1;overflow:hidden}
-.rbk-now{position:absolute;left:0;right:0;height:2px;background:#e11d48;z-index:4;pointer-events:none}
-.rbk-closed{position:absolute;inset:0;display:grid;place-items:center;color:var(--rb-muted);font-size:.8rem;font-weight:700;background:repeating-linear-gradient(-45deg,#f6f8fb,#f6f8fb 6px,#eef2f7 6px,#eef2f7 12px)}
-.rbk-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.74rem;color:var(--rb-muted);margin-top:10px}
-.rbk-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
-.rbk-sec{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--rb-muted);margin:24px 0 10px}
-.rbk-list{display:grid;gap:8px}
-.rbk-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--rb-line);border-radius:12px;padding:10px 14px;flex-wrap:wrap}
-.rbk-item .when{font-weight:750;font-size:.9rem;min-width:190px}
-.rbk-item .what{font-size:.85rem;color:#42536b;flex:1;min-width:140px}
-.rbk-item .acts{display:flex;gap:6px;margin-left:auto}
-.rbk-btn{border:1px solid var(--rb-line);background:#fff;border-radius:99px;padding:6px 13px;font-weight:650;font-size:.8rem;color:#42536b}
-.rbk-btn:hover{border-color:var(--rb-blue);color:var(--rb-blue)}
-.rbk-btn.pri{background:linear-gradient(92deg,#197bff,#19c8ff 70%,#007db3);border:0;color:#fff}
-.rbk-btn.pri:hover{color:#fff;filter:brightness(1.05)}
-.rbk-btn.dan{border-color:#f0c4c0;color:#b3261e}
-.rbk-btn.dan:hover{background:#b3261e;border-color:#b3261e;color:#fff}
-.rbk-btn:disabled{opacity:.5;cursor:not-allowed}
-.rbk-empty{padding:16px;text-align:center;color:var(--rb-muted);font-size:.86rem;background:#fff;border:1px dashed var(--rb-line);border-radius:12px}
+
+/* ---- toolbar + date strip ---- */
+.rbk .rbk-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rbk .rbk-heading{margin-right:auto;min-width:0}
+.rbk .rbk-heading b{display:block;font-size:1.28rem;font-weight:800;letter-spacing:-.4px;color:var(--rb-navy);line-height:1.15}
+.rbk .rbk-heading span{font-size:.8rem;color:var(--rb-muted);font-weight:600}
+.rbk .rbk-seg{display:inline-flex;background:#fff;border:1px solid var(--rb-line);border-radius:12px;padding:3px;gap:2px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.rbk .rbk-seg button{border:0;background:transparent;color:var(--rb-ink2);font-weight:700;font-size:.82rem;padding:7px 12px;border-radius:9px;line-height:1}
+.rbk .rbk-seg button:hover{background:var(--rb-line2);color:var(--rb-ink)}
+.rbk .rbk-seg input{border:0;font:inherit;font-size:.82rem;font-weight:650;color:var(--rb-ink2);padding:5px 8px;background:transparent;border-radius:9px}
+.rbk .rbk-seg input:focus{outline:none;background:var(--rb-line2)}
+.rbk .rbk-strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(64px,1fr);gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.rbk .rbk-day{border:1px solid var(--rb-line);background:#fff;border-radius:14px;padding:9px 6px 10px;text-align:center;color:var(--rb-ink);transition:transform .12s,box-shadow .15s,border-color .15s}
+.rbk .rbk-day:hover{border-color:#bcd6ff;transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(25,123,255,.6)}
+.rbk .rbk-day small{display:block;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--rb-muted)}
+.rbk .rbk-day b{display:block;font-size:1.25rem;font-weight:800;letter-spacing:-.5px;margin-top:2px;line-height:1.1}
+.rbk .rbk-day i{display:block;font-style:normal;font-size:.62rem;font-weight:700;color:var(--rb-muted);margin-top:3px;min-height:.8em}
+.rbk .rbk-day.closed{background:#f7f9fc;color:#b3bfcf}
+.rbk .rbk-day.closed b{color:#b3bfcf}
+.rbk .rbk-day.today i{color:var(--rb-blue)}
+.rbk .rbk-day.on{background:var(--rb-grad);border-color:transparent;color:#fff;box-shadow:0 10px 22px -12px rgba(25,123,255,.85)}
+.rbk .rbk-day.on small,.rbk .rbk-day.on i{color:rgba(255,255,255,.85)}
+.rbk .rbk-day.on b{color:#fff}
+
+/* ---- room cards ---- */
+.rbk .rbk-rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.rbk .rbk-rc{position:relative;display:flex;flex-direction:column;text-align:left;background:#fff;border:1.5px solid var(--rb-line);border-radius:18px;overflow:hidden;padding:0;color:var(--rb-ink);transition:border-color .15s,box-shadow .2s,transform .15s;box-shadow:0 1px 2px rgba(15,23,42,.04),0 12px 28px -22px rgba(15,23,42,.3)}
+.rbk .rbk-rc:hover{transform:translateY(-2px);box-shadow:0 1px 2px rgba(15,23,42,.04),0 18px 34px -20px rgba(15,23,42,.35)}
+.rbk .rbk-rc.on{border-color:var(--rb-blue);box-shadow:0 0 0 4px rgba(25,123,255,.14),0 18px 34px -20px rgba(25,123,255,.5)}
+.rbk .rbk-rc .ph{position:relative;aspect-ratio:2/1;background:#e9eff7 center/cover no-repeat}
+.rbk .rbk-rc .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,29,61,0) 45%,rgba(8,29,61,.55))}
+.rbk .rbk-rc .tag{position:absolute;left:12px;bottom:10px;z-index:1;color:#fff;font-weight:800;font-size:1.02rem;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.rbk .rbk-rc .chk{position:absolute;top:10px;right:10px;z-index:1;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--rb-blue);font-weight:900;font-size:.8rem;opacity:0;transform:scale(.7);transition:all .15s}
+.rbk .rbk-rc.on .chk{opacity:1;transform:none}
+.rbk .rbk-rc .bd{padding:12px 14px 14px;display:grid;gap:9px}
+.rbk .rbk-rc .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rbk .rbk-pill{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:750;padding:4px 9px;border-radius:99px;background:var(--rb-line2);color:var(--rb-ink2);white-space:nowrap}
+.rbk .rbk-pill.off{background:#fdecec;color:#b91c1c}
+.rbk .rbk-avail{display:grid;gap:5px}
+.rbk .rbk-avail span{font-size:.78rem;font-weight:700;color:var(--rb-ink2)}
+.rbk .rbk-avail span em{font-style:normal;color:var(--rb-green)}
+.rbk .rbk-meter{height:6px;border-radius:99px;background:var(--rb-line2);overflow:hidden}
+.rbk .rbk-meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#10b981,#34d399)}
+.rbk .rbk-about{justify-self:start;border:0;background:none;padding:0;color:var(--rb-blue);font-weight:700;font-size:.76rem}
+.rbk .rbk-about:hover{text-decoration:underline}
+
+/* ---- availability timeline (rooms x hours) ---- */
+.rbk .rbk-card{background:#fff;border:1px solid var(--rb-line);border-radius:18px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 12px 28px -24px rgba(15,23,42,.3)}
+.rbk .rbk-card-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 18px 4px}
+.rbk .rbk-card-h h4{margin:0;font-size:.98rem;font-weight:800;letter-spacing:-.2px;color:var(--rb-navy)}
+.rbk .rbk-card-h p{margin:0;font-size:.78rem;color:var(--rb-muted);font-weight:600}
+.rbk .rbk-legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;font-size:.72rem;font-weight:650;color:var(--rb-muted)}
+.rbk .rbk-legend i{display:inline-block;width:11px;height:11px;border-radius:4px;vertical-align:-1px;margin-right:5px}
+.rbk .rbk-tl-wrap{overflow-x:auto;padding:8px 18px 16px}
+.rbk .rbk-tl{min-width:760px;display:grid;grid-template-columns:190px 1fr;row-gap:10px;align-items:center}
+.rbk .rbk-ticks{position:relative;height:18px;grid-column:2}
+.rbk .rbk-ticks span{position:absolute;top:0;transform:translateX(-50%);font-size:.66rem;font-weight:700;color:var(--rb-muted);white-space:nowrap}
+.rbk .rbk-rl{display:flex;align-items:center;gap:9px;min-width:0;padding-right:12px;border:0;background:none;text-align:left;color:var(--rb-ink)}
+.rbk .rbk-rl img,.rbk .rbk-rl .ph{width:30px;height:30px;border-radius:9px;object-fit:cover;background:#e9eff7;flex:none}
+.rbk .rbk-rl b{font-size:.84rem;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbk .rbk-rl.on b{color:var(--rb-blue)}
+.rbk .rbk-track{position:relative;height:46px;border-radius:12px;background:#f0fdf6;border:1px solid #d6f5e6;overflow:hidden;cursor:pointer}
+.rbk .rbk-track.ro{cursor:default}
+.rbk .rbk-grid-l{position:absolute;top:0;bottom:0;width:1px;background:rgba(15,53,103,.07);pointer-events:none}
+.rbk .rbk-closed{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,#f3f6fa,#f3f6fa 5px,#e9eef5 5px,#e9eef5 10px);pointer-events:none}
+.rbk .rbk-past{position:absolute;top:0;bottom:0;left:0;background:rgba(244,247,252,.78);pointer-events:none}
+.rbk .rbk-blk{position:absolute;top:5px;bottom:5px;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:.72rem;font-weight:750;overflow:hidden;white-space:nowrap;border:0;z-index:2}
+.rbk .rbk-blk.busy{background:#e6ebf2;color:#5b6b80;cursor:default}
+.rbk .rbk-blk.busy svg{width:12px;height:12px;flex:none;opacity:.7}
+.rbk .rbk-blk.mine{background:var(--rb-grad);color:#fff;box-shadow:0 6px 14px -8px rgba(25,123,255,.9);cursor:pointer}
+.rbk .rbk-blk.adm{background:linear-gradient(135deg,#334e7a,#203a63);color:#fff;cursor:pointer}
+.rbk .rbk-blk.bo{background:repeating-linear-gradient(-45deg,#fdecec,#fdecec 5px,#fbdcdc 5px,#fbdcdc 10px);color:#a31d1d;cursor:default}
+.rbk .rbk-buf{position:absolute;top:5px;bottom:5px;border-radius:0 9px 9px 0;background:repeating-linear-gradient(-45deg,rgba(91,111,140,.10),rgba(91,111,140,.10) 3px,transparent 3px,transparent 6px);pointer-events:none;z-index:1}
+.rbk .rbk-ghost{position:absolute;top:5px;bottom:5px;border-radius:9px;border:2px dashed var(--rb-blue);background:rgba(25,123,255,.08);color:var(--rb-blue);font-size:.7rem;font-weight:800;display:none;align-items:center;padding:0 8px;pointer-events:none;z-index:3;white-space:nowrap}
+.rbk .rbk-sel{position:absolute;top:4px;bottom:4px;border-radius:10px;border:2px solid var(--rb-blue);background:rgba(25,123,255,.12);z-index:3;pointer-events:none;box-shadow:0 0 0 4px rgba(25,123,255,.12)}
+.rbk .rbk-now{position:absolute;top:0;bottom:0;width:2px;background:#e11d48;z-index:4;pointer-events:none}
+.rbk .rbk-now::before{content:"";position:absolute;top:-1px;left:-3px;width:8px;height:8px;border-radius:50%;background:#e11d48}
+.rbk .rbk-tl-empty{grid-column:1/-1;padding:18px;text-align:center;color:var(--rb-muted);font-weight:650;font-size:.86rem}
+
+/* ---- booking panel ---- */
+.rbk .rbk-panel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:0}
+.rbk .rbk-pick{padding:16px 18px 18px;border-right:1px solid var(--rb-line2)}
+.rbk .rbk-sum{padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,#fbfdff,#f6f9fe);border-radius:0 18px 18px 0}
+.rbk .rbk-lbl{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--rb-muted);margin:4px 0 8px}
+.rbk .rbk-chips{display:flex;flex-wrap:wrap;gap:7px}
+.rbk .rbk-chip{border:1.5px solid var(--rb-line);background:#fff;color:var(--rb-ink);font-weight:700;font-size:.8rem;padding:7px 11px;border-radius:10px;font-variant-numeric:tabular-nums;transition:all .12s}
+.rbk .rbk-chip:hover{border-color:var(--rb-blue);color:var(--rb-blue)}
+.rbk .rbk-chip.on{background:var(--rb-grad);border-color:transparent;color:#fff;box-shadow:0 6px 14px -8px rgba(25,123,255,.9)}
+.rbk .rbk-none{font-size:.84rem;color:var(--rb-muted);font-weight:600;padding:6px 0}
+.rbk .rbk-sum .room{display:flex;gap:12px;align-items:center}
+.rbk .rbk-sum .room img,.rbk .rbk-sum .room .ph{width:56px;height:56px;border-radius:14px;object-fit:cover;background:#e9eff7;flex:none}
+.rbk .rbk-sum .room b{display:block;font-size:1rem;font-weight:800;color:var(--rb-navy)}
+.rbk .rbk-sum .room span{font-size:.78rem;color:var(--rb-muted);font-weight:650}
+.rbk .rbk-when{border-radius:14px;background:#fff;border:1px solid var(--rb-line);padding:12px 14px}
+.rbk .rbk-when b{display:block;font-size:1.15rem;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.rbk .rbk-when span{font-size:.78rem;color:var(--rb-muted);font-weight:650}
+.rbk .rbk-when.empty b{color:#b3bfcf;font-size:.95rem}
+.rbk .rbk-sum textarea{width:100%;font:inherit;font-size:.86rem;border:1.5px solid var(--rb-line);border-radius:12px;padding:9px 11px;resize:vertical;min-height:44px;background:#fff;color:var(--rb-ink)}
+.rbk .rbk-sum textarea:focus{outline:none;border-color:var(--rb-blue);box-shadow:0 0 0 3px rgba(25,123,255,.13)}
+.rbk .rbk-cta{border:0;background:var(--rb-grad);color:#fff;font-weight:800;font-size:.95rem;padding:13px 16px;border-radius:14px;box-shadow:0 12px 24px -14px rgba(25,123,255,.95);transition:transform .12s,filter .12s}
+.rbk .rbk-cta:hover{filter:brightness(1.05)}
+.rbk .rbk-cta:active{transform:scale(.98)}
+.rbk .rbk-cta:disabled{background:#dfe6ef;color:#8a99ae;box-shadow:none;cursor:not-allowed}
+.rbk .rbk-fine{font-size:.72rem;color:var(--rb-muted);font-weight:600;line-height:1.45}
+.rbk .rbk-err{font-size:.82rem;color:#b91c1c;font-weight:700;min-height:0}
+
+/* ---- my bookings ---- */
+.rbk .rbk-mine{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:12px;padding:6px 18px 18px}
+.rbk .rbk-bk{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--rb-line);border-radius:14px;padding:12px}
+.rbk .rbk-date{width:52px;flex:none;border-radius:12px;background:var(--rb-grad);color:#fff;text-align:center;padding:6px 0}
+.rbk .rbk-date small{display:block;font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.rbk .rbk-date b{display:block;font-size:1.2rem;font-weight:800;line-height:1.1}
+.rbk .rbk-bk .tx{min-width:0;flex:1}
+.rbk .rbk-bk .tx b{display:block;font-size:.9rem;font-weight:800}
+.rbk .rbk-bk .tx span{display:block;font-size:.78rem;color:var(--rb-muted);font-weight:650;overflow-wrap:anywhere}
+.rbk .rbk-bk .ac{display:flex;gap:6px;flex:none}
+.rbk .rbk-mini{border:1px solid var(--rb-line);background:#fff;color:var(--rb-ink2);font-weight:700;font-size:.74rem;padding:6px 10px;border-radius:9px}
+.rbk .rbk-mini:hover{border-color:var(--rb-blue);color:var(--rb-blue)}
+.rbk .rbk-mini.dan{color:#b3261e;border-color:#f3d0cd}
+.rbk .rbk-mini.dan:hover{background:#b3261e;border-color:#b3261e;color:#fff}
+.rbk .rbk-empty{grid-column:1/-1;padding:18px;text-align:center;color:var(--rb-muted);font-size:.86rem;font-weight:600;border:1.5px dashed var(--rb-line);border-radius:14px}
+
+/* ---- modal ---- */
 .rbk-modal{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:16px;font-family:var(--font,'Bricolage Grotesque',system-ui,sans-serif)}
-.rbk-modal-bg{position:absolute;inset:0;background:rgba(11,42,74,.45);backdrop-filter:blur(3px)}
-.rbk-card{position:relative;background:#fff;border-radius:18px;width:100%;max-width:480px;max-height:90vh;overflow:auto;box-shadow:0 40px 80px rgba(11,42,74,.28);padding:22px 24px 24px;color:#0f172a}
-.rbk-card h3{margin:0 0 4px;font-size:1.25rem;color:#0f3567}
-.rbk-card .sub{margin:0 0 16px;color:#5b6b7c;font-size:.88rem}
-.rbk-x{position:absolute;top:14px;right:14px;border:0;background:#eef3f8;width:30px;height:30px;border-radius:50%;cursor:pointer}
+.rbk-modal-bg{position:absolute;inset:0;background:rgba(8,29,61,.42);backdrop-filter:blur(4px);animation:rbkFade .15s ease}
+.rbk-card-m{position:relative;background:#fff;border-radius:22px;width:100%;max-width:480px;max-height:90vh;overflow:auto;box-shadow:0 40px 80px rgba(11,42,74,.3);padding:24px 24px 22px;color:#0f172a;animation:rbkPop .18s cubic-bezier(.2,.8,.2,1)}
+.rbk-card-m.wide{max-width:640px;padding:0}
+@keyframes rbkFade{from{opacity:0}}
+@keyframes rbkPop{from{opacity:0;transform:translateY(8px) scale(.98)}}
+.rbk-card-m h3{margin:0 0 4px;font-size:1.25rem;letter-spacing:-.3px;color:#0f3567}
+.rbk-card-m .sub{margin:0 0 16px;color:#5b6b7c;font-size:.86rem}
+.rbk-x{position:absolute;top:14px;right:14px;z-index:2;border:0;background:rgba(238,243,248,.95);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85rem}
 .rbk-form{display:grid;gap:12px}
-.rbk-form label{display:grid;gap:5px;font-size:.78rem;font-weight:700;color:#42536b}
-.rbk-form select,.rbk-form input,.rbk-form textarea{font:inherit;font-size:.92rem;border:1.5px solid #e3e9f2;border-radius:10px;padding:9px 11px;background:#fff;color:#0f172a;width:100%}
+.rbk-form label{display:grid;gap:5px;font-size:.76rem;font-weight:750;color:#42536b}
+.rbk-form select,.rbk-form input,.rbk-form textarea{font:inherit;font-size:.92rem;border:1.5px solid #e3e9f2;border-radius:12px;padding:10px 12px;background:#fff;color:#0f172a;width:100%}
 .rbk-form select:focus,.rbk-form input:focus,.rbk-form textarea:focus{outline:none;border-color:#197bff;box-shadow:0 0 0 3px rgba(25,123,255,.13)}
 .rbk-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.rbk-hint{font-size:.78rem;color:#5b6b7c;min-height:1em}
-.rbk-err{font-size:.84rem;color:#b91c1c;font-weight:600;min-height:1em}
+.rbk-hint{font-size:.76rem;color:#5b6b7c;min-height:1em}
+.rbk-modal .rbk-err{font-size:.84rem;color:#b91c1c;font-weight:650;min-height:1em}
 .rbk-acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
 .rbk-acts .rbk-btn.dan{margin-right:auto}
-@media (max-width:640px){.rbk-room{grid-template-columns:88px 1fr}.rbk-room img,.rbk-room .rbk-ph{width:88px;height:88px}.rbk-row2{grid-template-columns:1fr}.rbk-item .when{min-width:0}}
+.rbk-btn{border:1.5px solid #e3e9f2;background:#fff;border-radius:12px;padding:9px 15px;font-weight:750;font-size:.84rem;color:#42536b;cursor:pointer;font-family:inherit}
+.rbk-btn:hover{border-color:#197bff;color:#197bff}
+.rbk-btn.pri{background:linear-gradient(92deg,#197bff,#19c8ff 70%,#007db3);border-color:transparent;color:#fff;box-shadow:0 8px 18px -10px rgba(25,123,255,.9)}
+.rbk-btn.pri:hover{color:#fff;filter:brightness(1.05)}
+.rbk-btn.dan{border-color:#f3d0cd;color:#b3261e}
+.rbk-btn.dan:hover{background:#b3261e;border-color:#b3261e;color:#fff}
+.rbk-btn:disabled{opacity:.5;cursor:not-allowed}
+.rbk-about-m img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:22px 22px 0 0;background:#e9eff7}
+.rbk-about-m .in{padding:18px 22px 22px}
+.rbk-about-m p{margin:0 0 14px;color:#334155;line-height:1.6;font-size:.92rem}
+.rbk-about-m .pills{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.rbk-about-m .pills span{font-size:.72rem;font-weight:750;padding:4px 10px;border-radius:99px;background:#eef2f8;color:#42536b}
+
+@media (max-width:860px){
+  .rbk .rbk-panel{grid-template-columns:1fr}
+  .rbk .rbk-pick{border-right:0;border-bottom:1px solid var(--rb-line2)}
+  .rbk .rbk-sum{border-radius:0 0 18px 18px}
+}
+@media (max-width:640px){
+  .rbk .rbk-rooms{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:80%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .rbk .rbk-rc{scroll-snap-align:start}
+  .rbk .rbk-rc:hover{transform:none}
+  .rbk .rbk-tl{grid-template-columns:96px 1fr}
+  .rbk .rbk-rl b{font-size:.76rem}
+  .rbk .rbk-rl img,.rbk .rbk-rl .ph{display:none}
+  .rbk-row2{grid-template-columns:1fr}
+  .rbk .rbk-bk{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){.rbk *,.rbk-modal *{transition:none!important;animation:none!important}}
 `;
 function ensureCss() {
-  if (document.getElementById('rbk-css')) return;
-  const s = document.createElement('style'); s.id = 'rbk-css'; s.textContent = CSS; document.head.appendChild(s);
+  const old = document.getElementById('rbk-css');
+  if (old && old.dataset.v === '2') return;
+  old?.remove();
+  const s = document.createElement('style'); s.id = 'rbk-css'; s.dataset.v = '2'; s.textContent = CSS; document.head.appendChild(s);
 }
 
-export function modal(inner) {
+export function modal(inner, { wide = false } = {}) {
   ensureCss();
   const wrap = document.createElement('div');
   wrap.className = 'rbk-modal';
-  wrap.innerHTML = `<div class="rbk-modal-bg" data-close></div><div class="rbk-card" role="dialog" aria-modal="true"><button class="rbk-x" data-close aria-label="Close">✕</button>${inner}</div>`;
+  wrap.innerHTML = `<div class="rbk-modal-bg" data-close></div><div class="rbk-card-m${wide ? ' wide' : ''}" role="dialog" aria-modal="true"><button class="rbk-x" data-close aria-label="Close">✕</button>${inner}</div>`;
   document.body.appendChild(wrap);
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); };
@@ -233,6 +337,8 @@ export function modal(inner) {
   document.addEventListener('keydown', onKey);
   return { wrap, close, $: (s) => wrap.querySelector(s) };
 }
+
+const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
 // ---------------------------------------------------------------- the board
 /**
@@ -243,45 +349,64 @@ export function modal(inner) {
  *   opts.agents    [{id, full_name}] (admin mode, for the "booked for" picker)
  *   opts.toast     fn(msg)
  *   opts.onChange  fn() after any write
- * Returns { refresh, setDate }.
+ * Returns { refresh, reloadConfig, setDate, openBook }.
+ *
+ * Privacy: brokers see that a time is taken, never who took it. The name only
+ * comes back from ph_room_busy() for the broker's own bookings or for admins,
+ * so this is enforced by the database, not by what this file chooses to draw.
  */
+const DUR_CHOICES = [30, 60, 90, 120, 180, 240, 360, 480];
+
 export function mountBoard(el, opts) {
   ensureCss();
   const admin = opts.mode === 'admin';
   const toast = opts.toast || (() => {});
   let cfg = null, day = { busy: [], blackouts: [] }, date = todayVegas(), mine = [], timer = null;
+  let stripStart = todayVegas();
+  let roomSel = null, startSel = null, endSel = null;
 
   el.classList.add('rbk');
   el.innerHTML = `
-    <div class="rbk-bar">
-      <div class="rbk-title"></div>
-      <button type="button" class="rbk-nav" data-d="-1" aria-label="Previous day">←</button>
-      <button type="button" class="rbk-nav" data-d="0">Today</button>
-      <button type="button" class="rbk-nav" data-d="1" aria-label="Next day">→</button>
-      <input type="date" class="rbk-date" aria-label="Pick a date" />
+    <div class="rbk-top">
+      <div class="rbk-heading"><b></b><span></span></div>
+      <div class="rbk-seg">
+        <button type="button" data-w="-7" aria-label="Earlier">‹</button>
+        <button type="button" data-today>Today</button>
+        <button type="button" data-w="7" aria-label="Later">›</button>
+        <input type="date" class="rbk-pickdate" aria-label="Jump to a date">
+      </div>
     </div>
+    <div class="rbk-strip" role="tablist" aria-label="Choose a day"></div>
     <div class="rbk-rooms"></div>
-    <div class="rbk-board"><div class="rbk-grid"></div></div>
-    <div class="rbk-legend">
-      <span><i style="background:linear-gradient(135deg,#197bff,#0f5fd6)"></i>${admin ? 'Booking' : 'Your booking'}</span>
-      ${admin ? '' : '<span><i style="background:#5b6f8c"></i>Booked by someone else</span>'}
-      <span><i style="background:repeating-linear-gradient(-45deg,#fde8e8,#fde8e8 3px,#fbd5d5 3px,#fbd5d5 6px)"></i>Blacked out</span>
-      <span><i style="background:repeating-linear-gradient(-45deg,#f6f8fb,#f6f8fb 3px,#e3e9f2 3px,#e3e9f2 6px)"></i>Closed</span>
+    <div class="rbk-card">
+      <div class="rbk-card-h"><div><h4>Availability</h4><p>${admin ? 'Click any open time to add a booking, or a booking to edit it.' : 'Green is open. Click an open time to start a booking.'}</p></div>
+        <div class="rbk-legend">
+          <span><i style="background:#d6f5e6;border:1px solid #b9ecd3"></i>Open</span>
+          <span><i style="background:#e6ebf2"></i>${admin ? 'Booked' : 'Unavailable'}</span>
+          ${admin ? '' : '<span><i style="background:linear-gradient(92deg,#197bff,#19c8ff)"></i>Yours</span>'}
+          <span><i style="background:repeating-linear-gradient(-45deg,#fdecec,#fdecec 3px,#fbdcdc 3px,#fbdcdc 6px)"></i>Blocked</span>
+        </div>
+      </div>
+      <div class="rbk-tl-wrap"><div class="rbk-tl"></div></div>
     </div>
-    ${admin ? '' : '<div class="rbk-sec">Your upcoming bookings</div><div class="rbk-list rbk-mine"></div>'}`;
+    ${admin ? '' : `<div class="rbk-card rbk-panel"><div class="rbk-pick"></div><div class="rbk-sum"></div></div>
+    <div class="rbk-card"><div class="rbk-card-h"><div><h4>Your upcoming bookings</h4><p>Change or cancel anytime. Cancelling frees the time for everyone.</p></div></div><div class="rbk-mine"></div></div>`}`;
   const $ = (s) => el.querySelector(s);
 
-  el.querySelectorAll('[data-d]').forEach((b) => b.addEventListener('click', () => {
-    const d = +b.getAttribute('data-d');
-    setDate(d === 0 ? todayVegas() : addDays(date, d));
+  el.querySelectorAll('[data-w]').forEach((b) => b.addEventListener('click', () => {
+    stripStart = addDays(stripStart, +b.getAttribute('data-w'));
+    if (!admin && stripStart < todayVegas()) stripStart = todayVegas();
+    paintStrip();
   }));
-  $('.rbk-date').addEventListener('change', (e) => { if (e.target.value) setDate(e.target.value); });
+  $('[data-today]').addEventListener('click', () => { stripStart = todayVegas(); setDate(todayVegas()); });
+  $('.rbk-pickdate').addEventListener('change', (e) => { if (e.target.value) { stripStart = e.target.value; setDate(e.target.value); } });
 
-  async function setDate(d) { date = d; await refresh(); }
+  async function setDate(d) { date = d; startSel = endSel = null; await refresh(); }
 
   async function refresh() {
     try {
       if (!cfg) cfg = await loadConfig(opts.sb);
+      if (!roomSel || !cfg.rooms.some((r) => r.id === roomSel)) roomSel = cfg.rooms[0]?.id ?? null;
       day = await loadDay(opts.sb, date);
       if (!admin && opts.agentId) {
         const { data } = await opts.sb.from('ph_room_bookings').select('*').eq('agent_id', opts.agentId)
@@ -290,122 +415,279 @@ export function mountBoard(el, opts) {
       }
       paint();
     } catch (e) {
-      $('.rbk-grid').innerHTML = `<div class="rbk-empty" style="margin:14px">Could not load rooms: ${esc(friendlyError(e))}</div>`;
+      $('.rbk-tl').innerHTML = `<div class="rbk-tl-empty">Could not load rooms: ${esc(friendlyError(e))}</div>`;
     }
   }
   async function reloadConfig() { cfg = null; await refresh(); }
 
-  function paint() {
-    $('.rbk-title').textContent = fmtDayLong(date) + (date === todayVegas() ? ' · Today' : '');
-    $('.rbk-date').value = date;
-    const rooms = cfg.rooms;
+  const roomById = (id) => cfg.allRooms.find((r) => r.id === id);
+  const hoursOf = (r, d = date) => cfg.hoursBy[r.id]?.[dowOf(d)];
+  function freeMinutes(r) {
+    const step = cfg.settings.step_minutes || 30;
+    const h = hoursOf(r); if (!h) return { free: 0, total: 0 };
+    let free = 0;
+    for (let m = toMin(h.opens); m + step <= toMin(h.closes); m += step) {
+      const s = vegasMs(date, toHM(m));
+      if (!conflictFor({ room: r, cfg, day, date, s, e: s + step * 60000 })) free += step;
+    }
+    return { free, total: toMin(h.closes) - toMin(h.opens) };
+  }
 
-    // Room cards
-    $('.rbk-rooms').innerHTML = rooms.length ? rooms.map((r) => {
-      const h = cfg.hoursBy[r.id]?.[dowOf(date)];
-      return `<div class="rbk-room">
-        ${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="${esc(r.name)}" loading="lazy">` : '<div class="rbk-ph"></div>'}
-        <div style="min-width:0;display:flex;flex-direction:column">
-          <h4>${esc(r.name)}</h4>
-          <p>${esc(r.description || '')}</p>
-          ${r.description && r.description.length > 150 ? '<button type="button" class="rbk-more">Read more</button>' : ''}
-          <div class="rbk-meta" style="margin-top:auto;padding-top:8px">
-            ${r.capacity ? `<span class="rbk-chip">Seats ${r.capacity}</span>` : ''}
-            ${h ? `<span class="rbk-chip">${fmtClock(h.opens)} – ${fmtClock(h.closes)}</span>` : '<span class="rbk-chip off">Closed today</span>'}
-            <button type="button" class="rbk-book" data-room="${esc(r.id)}">Book</button>
+  function paint() {
+    const isToday = date === todayVegas();
+    $('.rbk-heading b').textContent = fmtDayLong(date);
+    $('.rbk-heading span').textContent = isToday ? 'Today · Las Vegas time' : 'Las Vegas time';
+    $('.rbk-pickdate').value = date;
+    paintStrip(); paintRooms();
+    if (!admin) { paintPanel(); paintMine(); }
+    paintTimeline();
+  }
+
+  function paintStrip() {
+    if (date < stripStart || date >= addDays(stripStart, 14)) {
+      let s0 = addDays(date, -3);
+      if (!admin && s0 < todayVegas()) s0 = todayVegas();
+      stripStart = s0;
+    }
+    const days = Array.from({ length: 14 }, (_, i) => addDays(stripStart, i));
+    $('.rbk-strip').innerHTML = days.map((d) => {
+      const open = cfg?.rooms.some((r) => cfg.hoursBy[r.id]?.[dowOf(d)]);
+      const dt = new Date(d + 'T12:00:00Z');
+      const wk = dt.toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short' });
+      const mo = dt.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
+      const sub = d === todayVegas() ? 'Today' : !open ? 'Closed' : dt.getUTCDate() === 1 || d === days[0] ? mo : '';
+      return `<button type="button" role="tab" class="rbk-day${d === date ? ' on' : ''}${open ? '' : ' closed'}${d === todayVegas() ? ' today' : ''}" data-day="${d}" aria-selected="${d === date}">
+        <small>${wk}</small><b>${dt.getUTCDate()}</b><i>${sub}</i></button>`;
+    }).join('');
+    el.querySelectorAll('.rbk-day').forEach((b) => b.addEventListener('click', () => setDate(b.getAttribute('data-day'))));
+  }
+
+  function paintRooms() {
+    $('.rbk-rooms').innerHTML = cfg.rooms.length ? cfg.rooms.map((r) => {
+      const h = hoursOf(r);
+      const { free, total } = freeMinutes(r);
+      const pct = total ? Math.round(free / total * 100) : 0;
+      return `<div class="rbk-rc${!admin && r.id === roomSel ? ' on' : ''}" data-room="${esc(r.id)}" role="button" tabindex="0" aria-pressed="${r.id === roomSel}">
+        <div class="ph" style="background-image:url('${esc(r.photo_url || '')}')"><span class="tag">${esc(r.name)}</span><span class="chk">✓</span></div>
+        <div class="bd">
+          <div class="meta">
+            ${r.capacity ? `<span class="rbk-pill">${r.capacity} seat${r.capacity === 1 ? '' : 's'}</span>` : ''}
+            <span class="rbk-pill">${r.kind === 'workspace' ? 'Workspace' : 'Meeting room'}</span>
+            ${h ? `<span class="rbk-pill">${fmtClock(h.opens)} – ${fmtClock(h.closes)}</span>` : '<span class="rbk-pill off">Closed this day</span>'}
           </div>
+          ${h ? `<div class="rbk-avail"><span>${free ? `<em>${durLabel(free)}</em> open` : 'Fully booked'}${free && free < total ? ` of ${durLabel(total)}` : ''}</span><div class="rbk-meter"><i style="width:${pct}%"></i></div></div>` : ''}
+          <button type="button" class="rbk-about" data-about="${esc(r.id)}">About this room</button>
         </div></div>`;
     }).join('') : '<div class="rbk-empty">No rooms are set up yet.</div>';
-    el.querySelectorAll('.rbk-more').forEach((b) => b.addEventListener('click', () => {
-      const p = b.previousElementSibling; p.classList.toggle('open'); b.textContent = p.classList.contains('open') ? 'Show less' : 'Read more';
-    }));
-    el.querySelectorAll('.rbk-book').forEach((b) => b.addEventListener('click', () => openBook({ roomId: b.getAttribute('data-room') })));
+    el.querySelectorAll('.rbk-rc').forEach((c) => {
+      const pick = () => {
+        if (admin) { openBook({ roomId: c.getAttribute('data-room') }); return; }
+        roomSel = c.getAttribute('data-room'); startSel = endSel = null; paintRooms(); paintPanel(); paintTimeline();
+        $('.rbk-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+      c.addEventListener('click', (e) => { if (!e.target.closest('[data-about]')) pick(); });
+      c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+    el.querySelectorAll('[data-about]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); aboutRoom(roomById(b.getAttribute('data-about'))); }));
+  }
 
-    // Timeline bounds: earliest open .. latest close across rooms today (fallback 8-5)
+  function aboutRoom(r) {
+    if (!r) return;
+    const days = [1, 2, 3, 4, 5, 6, 0].map((d) => ({ d, h: cfg.hoursBy[r.id]?.[d] })).filter((x) => x.h);
+    const DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const m = modal(`<div class="rbk-about-m">${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="${esc(r.name)}">` : ''}
+      <div class="in"><h3>${esc(r.name)}</h3>
+        <div class="pills">${r.capacity ? `<span>${r.capacity} seats</span>` : ''}<span>${r.kind === 'workspace' ? 'Workspace' : 'Meeting room'}</span>
+        ${days.map((x) => `<span>${DN[x.d]} ${fmtClock(x.h.opens)}–${fmtClock(x.h.closes)}</span>`).join('')}</div>
+        <p>${esc(r.description || '')}</p>
+        <div class="rbk-acts"><button type="button" class="rbk-btn" data-close>Close</button>${admin ? '' : '<button type="button" class="rbk-btn pri" data-pick>Book this room</button>'}</div></div></div>`, { wide: true });
+    m.$('[data-pick]')?.addEventListener('click', () => {
+      m.close(); roomSel = r.id; startSel = endSel = null; paintRooms(); paintPanel(); paintTimeline();
+      $('.rbk-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
+  // Horizontal timeline: one row per room, one shared hour axis.
+  function paintTimeline() {
     const step = cfg.settings.step_minutes || 30;
+    const rooms = cfg.rooms;
     let lo = 24 * 60, hi = 0;
-    rooms.forEach((r) => { const h = cfg.hoursBy[r.id]?.[dowOf(date)]; if (h) { lo = Math.min(lo, toMin(h.opens)); hi = Math.max(hi, toMin(h.closes)); } });
+    rooms.forEach((r) => { const h = hoursOf(r); if (h) { lo = Math.min(lo, toMin(h.opens)); hi = Math.max(hi, toMin(h.closes)); } });
     day.busy.forEach((b) => { lo = Math.min(lo, toMin(vegasHM(+new Date(b.start_at)))); hi = Math.max(hi, toMin(vegasHM(+new Date(b.end_at))) || 24 * 60); });
     if (hi <= lo) { lo = 8 * 60; hi = 17 * 60; }
     lo = Math.floor(lo / 60) * 60; hi = Math.ceil(hi / 60) * 60;
-    const RH = step === 15 ? 22 : step === 60 ? 44 : 30; // px per step
-    const pxPerMin = RH / step;
-    const dayStart = vegasMs(date, toHM(lo));
+    const span = hi - lo;
+    const t0 = vegasMs(date, toHM(lo)), t1 = vegasMs(date, toHM(hi));
+    const pct = (ms) => Math.max(0, Math.min(100, (ms - t0) / (t1 - t0) * 100));
+    const anyOpen = rooms.some((r) => hoursOf(r));
 
-    const g = $('.rbk-grid');
-    g.style.gridTemplateColumns = `64px repeat(${Math.max(rooms.length, 1)}, minmax(150px, 1fr))`;
-    g.style.setProperty('--rh', RH + 'px');
-    let html = '<div class="rbk-hd" style="background:#f4f7fc"></div>';
-    html += rooms.map((r) => `<div class="rbk-hd">${esc(r.name)}<small>${r.capacity ? `Seats ${r.capacity}` : r.kind === 'workspace' ? 'Workspace' : 'Room'}</small></div>`).join('');
-    // time column
-    html += '<div class="rbk-tcol">';
-    for (let m = lo; m < hi; m += step) html += `<div class="rbk-tl">${m % 60 === 0 ? fmtClock(toHM(m)) : ''}</div>`;
+    let html = '<div></div><div class="rbk-ticks">';
+    for (let m = lo; m <= hi; m += 60) html += `<span style="left:${(m - lo) / span * 100}%">${fmtClock(toHM(m)).replace(':00', '')}</span>`;
     html += '</div>';
+    if (!rooms.length) html += '<div class="rbk-tl-empty">No rooms are set up yet.</div>';
+    else if (!anyOpen && !admin) html += '<div class="rbk-tl-empty">The office is closed this day. Pick another day above.</div>';
     const nowMs = Date.now();
     rooms.forEach((r) => {
-      const h = cfg.hoursBy[r.id]?.[dowOf(date)];
-      html += `<div class="rbk-col" data-col="${esc(r.id)}">`;
-      for (let m = lo; m < hi; m += step) {
-        const s = vegasMs(date, toHM(m));
-        const why = conflictFor({ room: r, cfg, day, date, s, e: s + step * 60000, admin });
-        // Cells under a booking stay plain: the event block on top carries the meaning.
-        const underEvent = day.busy.some((b) => b.room_id === r.id && s < +new Date(b.end_at) && s + step * 60000 > +new Date(b.start_at));
-        const cls = !why ? ' free' : underEvent ? '' : ' na';
-        html += `<button type="button" class="rbk-cell${(m + step) % 60 === 0 ? ' hr' : ''}${cls}" data-room="${esc(r.id)}" data-hm="${toHM(m)}" ${why ? 'tabindex="-1" aria-disabled="true"' : ''} title="${esc(!why ? `Book ${r.name} at ${fmtClock(toHM(m))}` : underEvent ? '' : why)}"></button>`;
+      const h = hoursOf(r);
+      html += `<button type="button" class="rbk-rl${!admin && r.id === roomSel ? ' on' : ''}" data-rl="${esc(r.id)}">${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="">` : '<span class="ph"></span>'}<b>${esc(r.name)}</b></button>`;
+      html += `<div class="rbk-track" data-track="${esc(r.id)}">`;
+      for (let m = lo + 60; m < hi; m += 60) html += `<i class="rbk-grid-l" style="left:${(m - lo) / span * 100}%"></i>`;
+      // closed areas
+      if (!h) html += `<i class="rbk-closed" style="left:0;width:100%"></i>`;
+      else {
+        if (toMin(h.opens) > lo) html += `<i class="rbk-closed" style="left:0;width:${(toMin(h.opens) - lo) / span * 100}%"></i>`;
+        if (toMin(h.closes) < hi) html += `<i class="rbk-closed" style="left:${(toMin(h.closes) - lo) / span * 100}%;right:0"></i>`;
       }
-      if (!h && !admin) html += `<div class="rbk-closed">Closed</div>`;
-      // blackouts
+      if (date === todayVegas() && nowMs > t0) html += `<i class="rbk-past" style="width:${pct(nowMs)}%"></i>`;
       day.blackouts.filter((x) => !x.room_id || x.room_id === r.id).forEach((x) => {
-        const s = Math.max(+new Date(x.start_at), dayStart), e = Math.min(+new Date(x.end_at), vegasMs(date, toHM(hi)));
-        if (e <= s) return;
-        html += `<div class="rbk-bo" style="top:${(s - dayStart) / 60000 * pxPerMin}px;height:${(e - s) / 60000 * pxPerMin}px">${esc(x.reason || 'Unavailable')}</div>`;
+        const a = pct(+new Date(x.start_at)), b = pct(+new Date(x.end_at));
+        if (b > a) html += `<span class="rbk-blk bo" style="left:${a}%;width:${b - a}%" title="${esc(x.reason || 'Blocked')}">${esc(x.reason || 'Blocked')}</span>`;
       });
-      // bookings
       day.busy.filter((b) => b.room_id === r.id).forEach((b) => {
         const s = +new Date(b.start_at), e = +new Date(b.end_at);
-        const top = (s - dayStart) / 60000 * pxPerMin, ht = Math.max((e - s) / 60000 * pxPerMin, 18);
-        const canOpen = admin || b.is_mine;
-        html += `<button type="button" class="rbk-ev${b.is_mine && !admin ? ' mine' : admin ? ' mine' : ''} ${canOpen ? 'click' : 'noclick'}" data-bk="${esc(b.id)}" style="top:${top}px;height:${ht}px" title="${esc(`${b.agent_name} · ${fmtTime(b.start_at)} – ${fmtTime(b.end_at)}`)}">
-          <b>${esc(b.is_mine && !admin ? 'You' : b.agent_name || 'Booked')}</b><span>${esc(fmtTime(b.start_at))} – ${esc(fmtTime(b.end_at))}</span></button>`;
-        if (b.buffer_minutes) html += `<div class="rbk-buf" style="top:${top + ht}px;height:${b.buffer_minutes * pxPerMin}px"></div>`;
+        const a = pct(s), w = pct(e) - a;
+        const t = `${fmtTime(b.start_at)} – ${fmtTime(b.end_at)}`;
+        if (b.buffer_minutes) html += `<i class="rbk-buf" style="left:${a + w}%;width:${pct(e + b.buffer_minutes * 60000) - pct(e)}%"></i>`;
+        if (admin) html += `<button type="button" class="rbk-blk adm" data-bk="${esc(b.id)}" style="left:${a}%;width:${w}%" title="${esc(`${b.agent_name || ''} · ${t}`)}">${esc(b.agent_name || 'Booked')} · ${esc(t)}</button>`;
+        else if (b.is_mine) html += `<button type="button" class="rbk-blk mine" data-bk="${esc(b.id)}" style="left:${a}%;width:${w}%" title="Your booking · ${esc(t)}">You · ${esc(t)}</button>`;
+        else html += `<span class="rbk-blk busy" style="left:${a}%;width:${w}%" title="Unavailable · ${esc(t)}">${LOCK}Unavailable</span>`;
       });
-      if (date === todayVegas() && nowMs > dayStart && nowMs < vegasMs(date, toHM(hi))) {
-        html += `<div class="rbk-now" style="top:${(nowMs - dayStart) / 60000 * pxPerMin}px"></div>`;
-      }
-      html += '</div>';
+      if (!admin && r.id === roomSel && startSel && endSel) html += `<i class="rbk-sel" style="left:${pct(vegasMs(date, startSel))}%;width:${pct(vegasMs(date, endSel)) - pct(vegasMs(date, startSel))}%"></i>`;
+      if (date === todayVegas() && nowMs > t0 && nowMs < t1) html += `<i class="rbk-now" style="left:${pct(nowMs)}%"></i>`;
+      html += `<span class="rbk-ghost"></span></div>`;
     });
-    g.innerHTML = rooms.length ? html : '';
+    const tl = $('.rbk-tl');
+    tl.innerHTML = html;
 
-    g.querySelectorAll('.rbk-cell.free').forEach((c) => c.addEventListener('click', () => openBook({ roomId: c.getAttribute('data-room'), startHM: c.getAttribute('data-hm') })));
-    g.querySelectorAll('.rbk-ev.click').forEach((c) => c.addEventListener('click', () => {
-      const b = day.busy.find((x) => x.id === c.getAttribute('data-bk'));
-      if (b) openBook({ booking: b });
+    tl.querySelectorAll('[data-rl]').forEach((b) => b.addEventListener('click', () => {
+      if (admin) { openBook({ roomId: b.getAttribute('data-rl') }); return; }
+      roomSel = b.getAttribute('data-rl'); startSel = endSel = null; paintRooms(); paintPanel(); paintTimeline();
+    }));
+    tl.querySelectorAll('.rbk-blk[data-bk]').forEach((b) => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const bk = day.busy.find((x) => x.id === b.getAttribute('data-bk'));
+      if (bk) openBook({ booking: bk });
     }));
 
-    // Mine
+    // Hover ghost + click-to-book on open time.
+    const snapAt = (track, clientX) => {
+      const rect = track.getBoundingClientRect();
+      const m = lo + Math.floor(((clientX - rect.left) / rect.width * span) / step) * step;
+      return Math.max(lo, Math.min(hi - step, m));
+    };
+    tl.querySelectorAll('.rbk-track').forEach((track) => {
+      const r = roomById(track.getAttribute('data-track'));
+      const ghost = track.querySelector('.rbk-ghost');
+      const len = Math.max(step, 60);
+      const fits = (m) => {
+        const s = vegasMs(date, toHM(m));
+        return !conflictFor({ room: r, cfg, day, date, s, e: s + step * 60000, admin });
+      };
+      track.addEventListener('mousemove', (e) => {
+        if (e.target.closest('.rbk-blk')) { ghost.style.display = 'none'; return; }
+        const m = snapAt(track, e.clientX);
+        if (!fits(m)) { ghost.style.display = 'none'; track.style.cursor = 'not-allowed'; return; }
+        track.style.cursor = 'pointer';
+        ghost.style.display = 'flex';
+        ghost.style.left = `${(m - lo) / span * 100}%`;
+        ghost.style.width = `${Math.min(len, hi - m) / span * 100}%`;
+        ghost.textContent = fmtClock(toHM(m));
+      });
+      track.addEventListener('mouseleave', () => { ghost.style.display = 'none'; });
+      track.addEventListener('click', (e) => {
+        if (e.target.closest('.rbk-blk')) return;
+        const m = snapAt(track, e.clientX);
+        if (!fits(m)) return;
+        if (admin) { openBook({ roomId: r.id, startHM: toHM(m) }); return; }
+        roomSel = r.id; startSel = toHM(m); endSel = null;
+        paintRooms(); paintPanel(); paintTimeline();
+        $('.rbk-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  }
+
+  // Agent booking panel: pick a start chip, then a length chip, then book.
+  function paintPanel() {
+    const pick = $('.rbk-pick'), sum = $('.rbk-sum');
+    if (!pick) return;
+    const r = roomById(roomSel);
+    if (!r) { pick.innerHTML = '<div class="rbk-none">Choose a room above.</div>'; sum.innerHTML = ''; return; }
+    const h = hoursOf(r);
+    const starts = h ? startOptions({ room: r, cfg, day, date }).filter((o) => o.ok) : [];
+    if (startSel && !starts.some((o) => o.hm === startSel)) { startSel = null; endSel = null; }
+    const ends = startSel ? endOptions({ room: r, cfg, day, date, startHM: startSel }) : [];
+    const durs = startSel ? [...new Set([...DUR_CHOICES.filter((d) => ends.includes(toHM(toMin(startSel) + d))), ...(ends.length ? [toMin(ends[ends.length - 1]) - toMin(startSel)] : [])])].sort((a, b) => a - b) : [];
+    if (startSel && !endSel && durs.length) endSel = toHM(toMin(startSel) + (durs.includes(60) ? 60 : durs[0]));
+    if (endSel && !ends.includes(endSel)) endSel = null;
+    const morning = starts.filter((o) => toMin(o.hm) < 12 * 60), afternoon = starts.filter((o) => toMin(o.hm) >= 12 * 60);
+    const chipRow = (list) => list.map((o) => `<button type="button" class="rbk-chip${o.hm === startSel ? ' on' : ''}" data-st="${o.hm}">${fmtClock(o.hm)}</button>`).join('');
+    const closeMin = h ? toMin(h.closes) : 0;
+
+    pick.innerHTML = !h ? `<div class="rbk-none">${esc(r.name)} is closed this day. Pick another day above.</div>`
+      : !starts.length ? `<div class="rbk-none">${esc(r.name)} has no open times left this day. Try another room or day.</div>`
+      : `${morning.length ? `<div class="rbk-lbl">Morning</div><div class="rbk-chips">${chipRow(morning)}</div>` : ''}
+         ${afternoon.length ? `<div class="rbk-lbl" style="margin-top:14px">Afternoon</div><div class="rbk-chips">${chipRow(afternoon)}</div>` : ''}
+         ${startSel ? `<div class="rbk-lbl" style="margin-top:18px">How long?</div><div class="rbk-chips">${durs.map((d) => {
+            const end = toHM(toMin(startSel) + d);
+            const label = toMin(end) === closeMin && !DUR_CHOICES.includes(d) ? `Until close · ${durLabel(d)}` : durLabel(d);
+            return `<button type="button" class="rbk-chip${end === endSel ? ' on' : ''}" data-en="${end}">${label}</button>`;
+          }).join('')}</div>` : ''}`;
+
+    sum.innerHTML = `
+      <div class="room">${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="">` : '<span class="ph"></span>'}<div><b>${esc(r.name)}</b><span>${fmtDayLong(date)}</span></div></div>
+      <div class="rbk-when${startSel && endSel ? '' : ' empty'}">${startSel && endSel
+        ? `<b>${fmtClock(startSel)} – ${fmtClock(endSel)}</b><span>${durLabel(toMin(endSel) - toMin(startSel))}${r.buffer_minutes ? ` · ${r.buffer_minutes} min reset after` : ''}</span>`
+        : `<b>${startSel ? 'Pick how long' : 'Pick a start time'}</b><span>Or click an open spot on the timeline</span>`}</div>
+      <textarea rows="2" maxlength="500" placeholder="Notes (optional). Only you and the office see this." data-notes></textarea>
+      <div class="rbk-err" role="alert"></div>
+      <button type="button" class="rbk-cta" data-book ${startSel && endSel ? '' : 'disabled'}>${startSel && endSel ? `Book ${esc(r.name)}` : 'Book'}</button>
+      <div class="rbk-fine">Once booked, the time disappears for every other broker. You can change or cancel it below.</div>`;
+
+    pick.querySelectorAll('[data-st]').forEach((b) => b.addEventListener('click', () => { startSel = b.getAttribute('data-st'); endSel = null; paintPanel(); paintTimeline(); }));
+    pick.querySelectorAll('[data-en]').forEach((b) => b.addEventListener('click', () => { endSel = b.getAttribute('data-en'); paintPanel(); paintTimeline(); }));
+    sum.querySelector('[data-book]').addEventListener('click', async (e) => {
+      const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Booking…';
+      const err = sum.querySelector('.rbk-err'); err.textContent = '';
+      const row = {
+        room_id: r.id, agent_id: opts.agentId,
+        start_at: new Date(vegasMs(date, startSel)).toISOString(),
+        end_at: new Date(vegasMs(date, endSel)).toISOString(),
+        notes: sum.querySelector('[data-notes]').value.trim() || null,
+      };
+      const { error } = await opts.sb.from('ph_room_bookings').insert(row);
+      if (error) {
+        err.textContent = friendlyError(error);
+        btn.disabled = false; btn.textContent = `Book ${r.name}`;
+        if (error.code === '23P01') { startSel = endSel = null; await refresh(); }
+        return;
+      }
+      toast(`Booked ${r.name} · ${fmtClock(startSel)} – ${fmtClock(endSel)}`);
+      startSel = endSel = null;
+      await refresh(); opts.onChange?.();
+    });
+  }
+
+  function paintMine() {
     const list = $('.rbk-mine');
-    if (list) {
-      list.innerHTML = mine.length ? mine.map((b) => {
-        const r = cfg.allRooms.find((x) => x.id === b.room_id);
-        return `<div class="rbk-item"><span class="when">${esc(fmtDayShort(b.start_at))} · ${esc(fmtTime(b.start_at))} – ${esc(fmtTime(b.end_at))}</span>
-          <span class="what">${esc(r?.name || 'Room')}${b.notes ? ` · ${esc(b.notes)}` : ''}</span>
-          <span class="acts"><button type="button" class="rbk-btn" data-go="${esc(b.id)}">View</button><button type="button" class="rbk-btn" data-edit="${esc(b.id)}">Change</button><button type="button" class="rbk-btn dan" data-cancel="${esc(b.id)}">Cancel</button></span></div>`;
-      }).join('') : '<div class="rbk-empty">You have no upcoming room bookings. Pick a free slot above to book one.</div>';
-      list.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => {
-        const bk = mine.find((x) => x.id === b.getAttribute('data-go')); if (bk) setDate(vegasDate(+new Date(bk.start_at)));
-      }));
-      list.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', async () => {
-        const bk = mine.find((x) => x.id === b.getAttribute('data-edit'));
-        if (!bk) return;
-        const d = vegasDate(+new Date(bk.start_at));
-        if (d !== date) { date = d; await refresh(); }
-        const full = day.busy.find((x) => x.id === bk.id) || { ...bk, is_mine: true };
-        openBook({ booking: full });
-      }));
-      list.querySelectorAll('[data-cancel]').forEach((b) => b.addEventListener('click', () => {
-        const bk = mine.find((x) => x.id === b.getAttribute('data-cancel')); if (bk) confirmCancel(bk);
-      }));
-    }
+    list.innerHTML = mine.length ? mine.map((b) => {
+      const r = roomById(b.room_id);
+      const d = new Date(b.start_at);
+      return `<div class="rbk-bk">
+        <div class="rbk-date"><small>${esc(d.toLocaleDateString('en-US', { timeZone: TZ, month: 'short' }))}</small><b>${esc(d.toLocaleDateString('en-US', { timeZone: TZ, day: 'numeric' }))}</b></div>
+        <div class="tx"><b>${esc(r?.name || 'Room')}</b><span>${esc(d.toLocaleDateString('en-US', { timeZone: TZ, weekday: 'long' }))} · ${esc(fmtTime(b.start_at))} – ${esc(fmtTime(b.end_at))}</span>${b.notes ? `<span>${esc(b.notes)}</span>` : ''}</div>
+        <div class="ac"><button type="button" class="rbk-mini" data-edit="${esc(b.id)}">Change</button><button type="button" class="rbk-mini dan" data-cancel="${esc(b.id)}">Cancel</button></div>
+      </div>`;
+    }).join('') : '<div class="rbk-empty">No upcoming bookings. Pick a room and a time above.</div>';
+    list.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', async () => {
+      const bk = mine.find((x) => x.id === b.getAttribute('data-edit'));
+      if (!bk) return;
+      const d = vegasDate(+new Date(bk.start_at));
+      if (d !== date) { date = d; await refresh(); }
+      openBook({ booking: day.busy.find((x) => x.id === bk.id) || { ...bk, is_mine: true } });
+    }));
+    list.querySelectorAll('[data-cancel]').forEach((b) => b.addEventListener('click', () => {
+      const bk = mine.find((x) => x.id === b.getAttribute('data-cancel')); if (bk) confirmCancel(bk);
+    }));
   }
 
   // ------------------------------------------------ book / edit modal
@@ -415,7 +697,10 @@ export function mountBoard(el, opts) {
     let bDate = editing ? vegasDate(+new Date(booking.start_at)) : date;
     let bDay = day;
     const room0 = editing ? booking.room_id : (roomId || rooms[0]?.id);
-    const agentPick = admin ? `<label>Booked for<select name="agent">${(opts.agents || []).map((a) => `<option value="${esc(a.id)}"${(editing ? booking.agent_id : '') === a.id ? ' selected' : ''}>${esc(a.full_name)}</option>`).join('')}</select></label>` : '';
+    const agentList = [...(opts.agents || [])];
+    // Never let a save silently reassign a booking whose broker is not in the active list.
+    if (editing && booking.agent_id && !agentList.some((a) => a.id === booking.agent_id)) agentList.unshift({ id: booking.agent_id, full_name: booking.agent_name || 'Current broker' });
+    const agentPick = admin ? `<label>Booked for<select name="agent">${agentList.map((a) => `<option value="${esc(a.id)}"${(editing ? booking.agent_id : '') === a.id ? ' selected' : ''}>${esc(a.full_name)}</option>`).join('')}</select></label>` : '';
     const m = modal(`
       <h3>${editing ? (admin ? 'Edit booking' : 'Your booking') : 'Book a space'}</h3>
       <p class="sub">${editing ? `${esc(booking.agent_name || '')}` : 'Times are Las Vegas time. Once you book it, the time is gone for everyone else.'}</p>
