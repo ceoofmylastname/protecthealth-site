@@ -1,0 +1,540 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/admin-chrome.css';
+
+// Room Bookings admin. The office's meeting rooms and workspaces, replacing the
+// GHL "InsureSpace Hub" service menu.
+//
+// Brokers book from "Book a Space" in /app on the same board this page shows,
+// so admin and broker always look at the same calendar. Everything that makes a
+// booking legal (hours, blackouts, max length, and the no-double-booking
+// exclusion constraint) lives in the database, not here; an admin write skips
+// the hours/blackout/length rules on purpose but can never double-book a room.
+//
+// Tabs: Calendar (day board, click to add/edit/cancel), Upcoming (every booking
+// with who booked it), Rooms (add/edit rooms, photos, weekly hours), Blackouts,
+// Settings, Activity (the admin notification feed; Janet is emailed the same).
+const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
+const SUPABASE_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
+---
+
+<Base title="Room Bookings, ProtectHealth Admin" description="Internal dashboard." noindex={true}>
+  <section class="ad rb" data-supabase-url={SUPABASE_URL} data-supabase-anon={SUPABASE_ANON}>
+    <div class="container">
+
+      <div class="ad-view" data-view="loading">
+        <div class="ad-center"><p class="ad-muted">Checking your session…</p></div>
+      </div>
+
+      <div class="ad-view" data-view="signin" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">ProtectHealth</span>
+            <h1>Admin</h1>
+            <p class="ad-muted">Enter your work email and we'll send a one-time sign-in link.</p>
+            <form class="ad-login-form">
+              <input type="email" name="email" placeholder="you@protecthealth.com" autocomplete="email" required />
+              <button type="submit" class="btn no-arrow">Send Sign-In Link</button>
+            </form>
+            <p class="ad-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="denied" hidden>
+        <div class="ad-center">
+          <div class="ad-card ad-login">
+            <span class="section-label">Not authorised</span>
+            <h1>No access</h1>
+            <p class="ad-muted">You're signed in as <b data-who></b>, but that address isn't on the admin list.</p>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-view" data-view="app" hidden>
+        <header class="ad-head">
+          <div>
+            <span class="section-label">ProtectHealth Admin</span>
+            <h1>Room Bookings</h1>
+            <nav class="ad-nav">
+              <a href="/admin">Leads</a>
+              <a href="/admin/contacts">All Contacts</a>
+              <a href="/admin/calendar">House Calendar</a>
+              <a href="/admin/rooms" class="is-on">Room Bookings</a>
+              <a href="/admin/tickets">Support Tickets</a>
+              <a href="/admin/campaigns">Campaigns</a>
+              <a href="/admin/staff">Staff</a>
+              <a href="/admin/paychex">Paychex</a>
+              <a href="/app">My CRM</a>
+            </nav>
+          </div>
+          <div class="ad-head-right">
+            <span class="ad-muted ad-who" data-who></span>
+            <button type="button" class="btn ghost no-arrow ad-signout">Sign out</button>
+          </div>
+        </header>
+
+        <div class="ad-stats">
+          <div class="ad-stat spot"><b data-stat="today">—</b><span>Booked today</span></div>
+          <div class="ad-stat spot"><b data-stat="week">—</b><span>Next 7 days</span></div>
+          <div class="ad-stat spot"><b data-stat="hours">—</b><span>Room hours, next 7 days</span></div>
+          <div class="ad-stat spot"><b data-stat="agents">—</b><span>Brokers booking, 30 days</span></div>
+          <div class="ad-stat spot"><b data-stat="unread">—</b><span>Unread alerts</span></div>
+        </div>
+
+        <div class="rb-tabs" role="tablist">
+          <button type="button" data-tab="calendar" class="on">Calendar</button>
+          <button type="button" data-tab="upcoming">All bookings</button>
+          <button type="button" data-tab="rooms">Rooms &amp; hours</button>
+          <button type="button" data-tab="blackouts">Blackout dates</button>
+          <button type="button" data-tab="settings">Settings</button>
+          <button type="button" data-tab="activity">Activity <span class="rb-badge" hidden></span></button>
+        </div>
+
+        <div class="rb-pane" data-pane="calendar"><div class="rb-board"></div></div>
+        <div class="rb-pane" data-pane="upcoming" hidden></div>
+        <div class="rb-pane" data-pane="rooms" hidden></div>
+        <div class="rb-pane" data-pane="blackouts" hidden></div>
+        <div class="rb-pane" data-pane="settings" hidden></div>
+        <div class="rb-pane" data-pane="activity" hidden></div>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .rb .ad-nav { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+  .rb .ad-nav a { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+  .rb .ad-nav a.is-on, .rb .ad-nav a:hover { color: var(--blue); border-color: var(--blue); }
+  .rb-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 16px; border-bottom: 1.5px solid var(--line); }
+  .rb-tabs button { border: 0; background: none; font-family: var(--font); font-weight: 700; font-size: .9rem; color: var(--muted); padding: 10px 14px; border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .rb-tabs button.on, .rb-tabs button:hover { color: var(--blue); border-color: var(--blue); }
+  .rb-badge { background: #e11d48; color: #fff; font-size: .68rem; font-weight: 800; border-radius: 99px; padding: 1px 7px; }
+  .rb-card { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+  .rb-card h3 { margin: 0 0 10px; font-size: 1.05rem; color: var(--navy, #0b2a4a); }
+  .rb-muted { color: var(--muted); font-size: .86rem; }
+  .rb-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .rb-filters select, .rb-filters input, .rb-f input, .rb-f select, .rb-f textarea {
+    padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; font-family: var(--font); font-size: .88rem; background: #fff; color: var(--ink);
+  }
+  .rb-filters select:focus, .rb-filters input:focus, .rb-f input:focus, .rb-f select:focus, .rb-f textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(25,123,255,.13); }
+  .rb-table { width: 100%; border-collapse: collapse; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; font-size: .86rem; }
+  .rb-table th { text-align: left; background: #f0f4fa; color: var(--muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; padding: 10px 12px; }
+  .rb-table td { padding: 10px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  .rb-table tr.cx td { opacity: .55; }
+  .rb-table tr.cx td.st { opacity: 1; }
+  .rb-wrap { overflow-x: auto; }
+  .rb-pill { display: inline-block; font-size: .7rem; font-weight: 750; padding: 3px 9px; border-radius: 99px; background: #e6f7ed; color: #16803c; }
+  .rb-pill.cx { background: #fde8e8; color: #b91c1c; }
+  .rb-pill.src { background: #eef3f8; color: #5a6f85; }
+  .rb-btn { border: 1.5px solid var(--line); background: #fff; color: var(--ink); border-radius: 99px; padding: 7px 14px; font-family: var(--font); font-weight: 700; font-size: .82rem; cursor: pointer; }
+  .rb-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .rb-btn.pri { background: linear-gradient(92deg,#197bff,#19c8ff 70%,#007db3); color: #fff; border: 0; }
+  .rb-btn.dan { color: #b3261e; border-color: #f0c4c0; }
+  .rb-btn.dan:hover { background: #b3261e; color: #fff; border-color: #b3261e; }
+  .rb-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .rb-f { display: grid; gap: 12px; }
+  .rb-f label { display: grid; gap: 5px; font-size: .78rem; font-weight: 700; color: var(--muted); }
+  .rb-f .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 12px; }
+  .rb-room-edit { display: grid; grid-template-columns: 180px 1fr; gap: 20px; }
+  .rb-room-edit img, .rb-room-edit .ph { width: 180px; height: 180px; object-fit: cover; border-radius: 12px; background: #eef3fa; display: block; }
+  .rb-hours { display: grid; gap: 6px; }
+  .rb-hrow { display: grid; grid-template-columns: 110px 70px 1fr 1fr; gap: 8px; align-items: center; font-size: .85rem; }
+  .rb-hrow input[type=time] { padding: 6px 8px; }
+  .rb-acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 6px; }
+  .rb-status { font-size: .84rem; font-weight: 600; min-height: 1em; }
+  .rb-status.bad { color: #b91c1c; } .rb-status.good { color: #16803c; }
+  .rb-feed { display: grid; gap: 8px; }
+  .rb-note { display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .rb-note.unread { border-color: #bcd6ff; background: #f5f9ff; }
+  .rb-note .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex: none; }
+  .rb-note b { display: block; font-size: .92rem; }
+  .rb-note span { font-size: .82rem; color: var(--muted); }
+  .rb-note time { margin-left: auto; font-size: .76rem; color: var(--muted); white-space: nowrap; }
+  @media (max-width: 720px) { .rb-room-edit { grid-template-columns: 1fr; } .rb-hrow { grid-template-columns: 90px 60px 1fr 1fr; } }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+  import {
+    mountBoard, modal, esc, friendlyError, fmtTime, fmtDayShort, todayVegas, addDays, TZ,
+  } from '../../lib/rooms-ui';
+
+  const root = document.querySelector('.rb');
+  if (root) {
+    const sb = createClient(
+      root.getAttribute('data-supabase-url'),
+      root.getAttribute('data-supabase-anon'),
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+    );
+    const $ = (s, r = root) => r.querySelector(s);
+    const $$ = (s, r = root) => Array.from(r.querySelectorAll(s));
+    const view = (n) => $$('.ad-view').forEach((v) => (v.hidden = v.getAttribute('data-view') !== n));
+    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    let uid = null, agents = [], board = null, rooms = [];
+
+    const toast = (msg) => {
+      let t = document.getElementById('rb-toast');
+      if (!t) { t = document.createElement('div'); t.id = 'rb-toast'; t.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0b2a4a;color:#fff;padding:11px 18px;border-radius:12px;font-weight:650;font-size:.9rem;z-index:400;box-shadow:0 12px 30px rgba(11,42,74,.35);transition:opacity .2s'; document.body.appendChild(t); }
+      t.textContent = msg; t.style.opacity = '1'; clearTimeout(t._t); t._t = setTimeout(() => (t.style.opacity = '0'), 2600);
+    };
+
+    // ---------- auth ----------
+    $('.ad-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('.ad-status');
+      status.textContent = 'Sending…';
+      const { error } = await sb.auth.signInWithOtp({ email: e.target.email.value.trim(), options: { emailRedirectTo: `${location.origin}/admin/rooms` } });
+      status.textContent = error ? error.message : 'Check your inbox. The link signs you straight in.';
+    });
+    $$('.ad-signout').forEach((b) => b.addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); }));
+
+    // ---------- tabs ----------
+    const painters = { upcoming: paintUpcoming, rooms: paintRooms, blackouts: paintBlackouts, settings: paintSettings, activity: paintActivity };
+    function showTab(name) {
+      $$('.rb-tabs button').forEach((b) => b.classList.toggle('on', b.getAttribute('data-tab') === name));
+      $$('.rb-pane').forEach((p) => (p.hidden = p.getAttribute('data-pane') !== name));
+      history.replaceState({}, '', '#' + name);
+      if (name === 'calendar') board?.refresh(); else painters[name]?.();
+    }
+    $$('.rb-tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.getAttribute('data-tab'))));
+
+    const afterWrite = () => { paintStats(); };
+
+    // ---------- stats ----------
+    async function paintStats() {
+      const now = new Date();
+      const in7 = new Date(+now + 7 * 864e5).toISOString();
+      const ago30 = new Date(+now - 30 * 864e5).toISOString();
+      const t0 = todayVegas();
+      const [{ data: next }, { data: recent }, { count: unread }] = await Promise.all([
+        sb.from('ph_room_bookings').select('start_at,end_at').eq('status', 'booked').gte('end_at', now.toISOString()).lte('start_at', in7),
+        sb.from('ph_room_bookings').select('agent_id').eq('status', 'booked').gte('start_at', ago30),
+        sb.from('ph_admin_notifications').select('id', { count: 'exact', head: true }).not('read_by', 'cs', `{${uid}}`),
+      ]);
+      const set = (k, v) => { const el = $(`[data-stat="${k}"]`); if (el) el.textContent = String(v); };
+      const rows = next ?? [];
+      set('today', rows.filter((r) => new Date(r.start_at).toLocaleDateString('en-CA', { timeZone: TZ }) === t0).length);
+      set('week', rows.length);
+      set('hours', Math.round(rows.reduce((a, r) => a + (new Date(r.end_at) - new Date(r.start_at)) / 36e5, 0) * 10) / 10);
+      set('agents', new Set((recent ?? []).map((r) => r.agent_id)).size);
+      set('unread', unread ?? 0);
+      const badge = $('.rb-badge'); badge.hidden = !unread; badge.textContent = String(unread ?? '');
+    }
+
+    // ---------- all bookings ----------
+    let upFilter = { room: '', agent: '', when: 'upcoming', q: '' };
+    async function paintUpcoming() {
+      const pane = $('[data-pane="upcoming"]');
+      pane.innerHTML = `<div class="rb-filters">
+          <select data-f="when"><option value="upcoming">Upcoming</option><option value="past">Past 60 days</option><option value="cancelled">Cancelled</option><option value="all">Everything</option></select>
+          <select data-f="room"><option value="">Every room</option>${rooms.map((r) => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('')}</select>
+          <select data-f="agent"><option value="">Every broker</option>${agents.map((a) => `<option value="${esc(a.id)}">${esc(a.full_name)}</option>`).join('')}</select>
+          <button type="button" class="rb-btn pri" data-add>+ Add booking</button>
+        </div><div class="rb-wrap"><div class="rb-muted">Loading…</div></div>`;
+      $$('[data-f]', pane).forEach((s) => { s.value = upFilter[s.getAttribute('data-f')]; s.addEventListener('change', () => { upFilter[s.getAttribute('data-f')] = s.value; paintUpcoming(); }); });
+      $('[data-add]', pane).addEventListener('click', () => { showTab('calendar'); setTimeout(() => board.openBook({}), 150); });
+
+      let q = sb.from('ph_room_bookings').select('*').order('start_at', { ascending: upFilter.when !== 'past' }).limit(500);
+      const nowIso = new Date().toISOString();
+      if (upFilter.when === 'upcoming') q = q.eq('status', 'booked').gte('end_at', nowIso);
+      if (upFilter.when === 'past') q = q.eq('status', 'booked').lt('end_at', nowIso).gte('start_at', new Date(Date.now() - 60 * 864e5).toISOString());
+      if (upFilter.when === 'cancelled') q = q.eq('status', 'cancelled');
+      if (upFilter.room) q = q.eq('room_id', upFilter.room);
+      if (upFilter.agent) q = q.eq('agent_id', upFilter.agent);
+      const { data, error } = await q;
+      const wrap = $('.rb-wrap', pane);
+      if (error) { wrap.innerHTML = `<div class="rb-muted">Could not load: ${esc(error.message)}</div>`; return; }
+      if (!data?.length) { wrap.innerHTML = '<div class="rb-card rb-muted">No bookings match.</div>'; return; }
+      const aName = (id) => agents.find((a) => a.id === id)?.full_name || 'Unknown';
+      const rName = (id) => rooms.find((r) => r.id === id)?.name || 'Room';
+      wrap.innerHTML = `<table class="rb-table"><thead><tr><th>When</th><th>Room</th><th>Booked by</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>
+        ${data.map((b) => `<tr class="${b.status === 'cancelled' ? 'cx' : ''}">
+          <td><b>${esc(fmtDayShort(b.start_at))}</b><br>${esc(fmtTime(b.start_at))} – ${esc(fmtTime(b.end_at))}</td>
+          <td>${esc(rName(b.room_id))}</td>
+          <td>${esc(aName(b.agent_id))}</td>
+          <td>${esc(b.notes || '')}${b.cancel_reason ? `<br><span class="rb-muted">Reason: ${esc(b.cancel_reason)}</span>` : ''}</td>
+          <td class="st"><span class="rb-pill${b.status === 'cancelled' ? ' cx' : ''}">${b.status}</span>${b.source !== 'crm' ? ` <span class="rb-pill src">${b.source === 'ghl_import' ? 'from GHL' : 'by admin'}</span>` : ''}</td>
+          <td style="white-space:nowrap">${b.status === 'booked' ? `<button type="button" class="rb-btn" data-open="${esc(b.id)}">Edit</button>` : ''}</td></tr>`).join('')}
+      </tbody></table>`;
+      $$('[data-open]', wrap).forEach((btn) => btn.addEventListener('click', async () => {
+        const b = data.find((x) => x.id === btn.getAttribute('data-open'));
+        showTab('calendar');
+        await board.setDate(new Date(b.start_at).toLocaleDateString('en-CA', { timeZone: TZ }));
+        board.openBook({ booking: { ...b, agent_name: aName(b.agent_id) } });
+      }));
+    }
+
+    // ---------- rooms & hours ----------
+    async function paintRooms() {
+      const pane = $('[data-pane="rooms"]');
+      const [{ data: rs }, { data: hs }] = await Promise.all([
+        sb.from('ph_rooms').select('*').order('sort_order').order('name'),
+        sb.from('ph_room_hours').select('*'),
+      ]);
+      rooms = rs ?? [];
+      pane.innerHTML = `<div class="rb-acts" style="justify-content:flex-start;margin:0 0 12px"><button type="button" class="rb-btn pri" data-new>+ Add a room or space</button></div>`
+        + rooms.map((r) => roomCard(r, (hs ?? []).filter((h) => h.room_id === r.id))).join('');
+      $('[data-new]', pane).addEventListener('click', () => {
+        const fresh = { id: '', name: '', kind: 'room', description: '', capacity: null, buffer_minutes: 0, sort_order: rooms.length + 1, is_active: true, photo_url: '' };
+        pane.insertAdjacentHTML('beforeend', roomCard(fresh, [1, 2, 3, 4, 5].map((d) => ({ weekday: d, opens: '08:00', closes: '17:00' }))));
+        wireRoom(pane.lastElementChild);
+        pane.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      $$('.rb-card[data-room]', pane).forEach(wireRoom);
+    }
+    function roomCard(r, hours) {
+      const hBy = {}; hours.forEach((h) => (hBy[h.weekday] = h));
+      const order = [1, 2, 3, 4, 5, 6, 0];
+      return `<div class="rb-card" data-room="${esc(r.id)}">
+        <div class="rb-room-edit">
+          <div>
+            ${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="">` : '<div class="ph"></div>'}
+            <label class="rb-btn" style="display:inline-block;margin-top:8px;text-align:center;width:180px">Upload photo<input type="file" accept="image/*" data-photo hidden></label>
+          </div>
+          <form class="rb-f">
+            <div class="two">
+              <label>Name<input name="name" required value="${esc(r.name)}" placeholder="Meeting Room 3"></label>
+              <label>Type<select name="kind"><option value="room"${r.kind === 'room' ? ' selected' : ''}>Meeting room</option><option value="workspace"${r.kind === 'workspace' ? ' selected' : ''}>Workspace</option></select></label>
+              <label>Seats<input name="capacity" type="number" min="1" value="${r.capacity ?? ''}"></label>
+              <label>Reset time after each booking (min)<input name="buffer_minutes" type="number" min="0" max="120" step="5" value="${r.buffer_minutes ?? 0}"></label>
+              <label>Display order<input name="sort_order" type="number" value="${r.sort_order ?? 0}"></label>
+              <label>Status<select name="is_active"><option value="true"${r.is_active ? ' selected' : ''}>Bookable</option><option value="false"${!r.is_active ? ' selected' : ''}>Hidden, not bookable</option></select></label>
+            </div>
+            <label>Description<textarea name="description" rows="4">${esc(r.description || '')}</textarea></label>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:6px">Weekly hours (Las Vegas time)</div>
+              <div class="rb-hours">${order.map((d) => {
+                const h = hBy[d];
+                return `<div class="rb-hrow" data-day="${d}"><span>${DAYS[d]}</span>
+                  <label style="display:flex;gap:6px;align-items:center;font-weight:600"><input type="checkbox" data-open${h ? ' checked' : ''}> Open</label>
+                  <input type="time" data-o value="${h ? String(h.opens).slice(0, 5) : '08:00'}"${h ? '' : ' disabled'}>
+                  <input type="time" data-c value="${h ? String(h.closes).slice(0, 5) : '17:00'}"${h ? '' : ' disabled'}></div>`;
+              }).join('')}</div>
+            </div>
+            <div class="rb-status" role="status"></div>
+            <div class="rb-acts">
+              <button type="submit" class="rb-btn pri">${r.id ? 'Save room' : 'Create room'}</button>
+            </div>
+          </form>
+        </div></div>`;
+    }
+    function wireRoom(card) {
+      const f = $('form', card);
+      const status = $('.rb-status', card);
+      const say = (t, bad) => { status.textContent = t; status.className = 'rb-status ' + (bad ? 'bad' : 'good'); };
+      $$('[data-open]', card).forEach((cb) => cb.addEventListener('change', () => {
+        const row = cb.closest('.rb-hrow'); $$('input[type=time]', row).forEach((i) => (i.disabled = !cb.checked));
+      }));
+      $('[data-photo]', card).addEventListener('change', async (e) => {
+        const file = e.target.files?.[0]; if (!file) return;
+        const id = card.getAttribute('data-room');
+        if (!id) { say('Create the room first, then add its photo.', true); return; }
+        if (file.size > 8 * 1024 * 1024) { say('That photo is over 8 MB. Use a smaller one.', true); return; }
+        say('Uploading…');
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const path = `${id}-${Date.now()}.${ext}`;
+        const up = await sb.storage.from('room-photos').upload(path, file, { contentType: file.type, upsert: true, cacheControl: '31536000' });
+        if (up.error) { say(up.error.message, true); return; }
+        const url = sb.storage.from('room-photos').getPublicUrl(path).data.publicUrl;
+        const { error } = await sb.from('ph_rooms').update({ photo_url: url, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { say(error.message, true); return; }
+        say('Photo updated.'); await board.reloadConfig(); paintRooms();
+      });
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = card.getAttribute('data-room');
+        const row = {
+          name: f.name.value.trim(), kind: f.kind.value, description: f.description.value.trim() || null,
+          capacity: f.capacity.value ? +f.capacity.value : null, buffer_minutes: +f.buffer_minutes.value || 0,
+          sort_order: +f.sort_order.value || 0, is_active: f.is_active.value === 'true', updated_at: new Date().toISOString(),
+        };
+        if (!row.name) { say('Give the room a name.', true); return; }
+        const hours = [];
+        for (const r of $$('.rb-hrow', card)) {
+          if (!$('[data-open]', r).checked) continue;
+          const o = $('[data-o]', r).value, c = $('[data-c]', r).value;
+          if (!o || !c || c <= o) { say(`${DAYS[+r.getAttribute('data-day')]}: closing time has to be after opening time.`, true); return; }
+          hours.push({ weekday: +r.getAttribute('data-day'), opens: o, closes: c });
+        }
+        say('Saving…');
+        let roomId = id;
+        if (id) {
+          const { error } = await sb.from('ph_rooms').update(row).eq('id', id);
+          if (error) { say(error.message, true); return; }
+        } else {
+          const { data, error } = await sb.from('ph_rooms').insert(row).select('id').single();
+          if (error) { say(error.message, true); return; }
+          roomId = data.id; card.setAttribute('data-room', roomId);
+        }
+        const del = await sb.from('ph_room_hours').delete().eq('room_id', roomId);
+        if (del.error) { say(del.error.message, true); return; }
+        if (hours.length) {
+          const ins = await sb.from('ph_room_hours').insert(hours.map((h) => ({ ...h, room_id: roomId })));
+          if (ins.error) { say(ins.error.message, true); return; }
+        }
+        say('Saved. Existing bookings are kept even if they now fall outside the new hours.');
+        toast(`${row.name} saved`);
+        await board.reloadConfig();
+        if (!id) paintRooms();
+      });
+    }
+
+    // ---------- blackouts ----------
+    async function paintBlackouts() {
+      const pane = $('[data-pane="blackouts"]');
+      const { data } = await sb.from('ph_room_blackouts').select('*').gte('ends_on', addDays(todayVegas(), -30)).order('starts_on');
+      const rName = (id) => (id ? rooms.find((r) => r.id === id)?.name || 'Room' : 'Every room');
+      pane.innerHTML = `
+        <div class="rb-card">
+          <h3>Block off dates or times</h3>
+          <p class="rb-muted" style="margin:0 0 12px">Holidays, office closures, cleaning, a room reserved for training. Brokers will not be offered these times.</p>
+          <form class="rb-f">
+            <div class="two">
+              <label>Room<select name="room"><option value="">Every room (office closed)</option>${rooms.map((r) => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('')}</select></label>
+              <label>From<input type="date" name="starts_on" required value="${todayVegas()}"></label>
+              <label>Through<input type="date" name="ends_on" required value="${todayVegas()}"></label>
+              <label>Reason<input name="reason" maxlength="120" placeholder="Thanksgiving"></label>
+            </div>
+            <label style="display:flex;gap:8px;align-items:center;font-weight:600;color:var(--ink)"><input type="checkbox" name="allday" checked> All day</label>
+            <div class="two" data-times hidden>
+              <label>Start time<input type="time" name="start_time" value="12:00"></label>
+              <label>End time<input type="time" name="end_time" value="13:00"></label>
+            </div>
+            <div class="rb-status" role="status"></div>
+            <div class="rb-acts"><button type="submit" class="rb-btn pri">Add blackout</button></div>
+          </form>
+        </div>
+        <h3 style="font-size:1rem;margin:18px 0 10px;color:var(--navy,#0b2a4a)">Scheduled blackouts</h3>
+        ${data?.length ? `<div class="rb-wrap"><table class="rb-table"><thead><tr><th>When</th><th>Room</th><th>Reason</th><th></th></tr></thead><tbody>
+          ${data.map((b) => `<tr><td><b>${b.starts_on === b.ends_on ? esc(b.starts_on) : `${esc(b.starts_on)} → ${esc(b.ends_on)}`}</b><br>${b.start_time ? `${esc(b.start_time.slice(0, 5))} – ${esc(b.end_time.slice(0, 5))}` : 'All day'}</td>
+            <td>${esc(rName(b.room_id))}</td><td>${esc(b.reason || '')}</td>
+            <td><button type="button" class="rb-btn dan" data-del="${esc(b.id)}">Remove</button></td></tr>`).join('')}
+        </tbody></table></div>` : '<div class="rb-card rb-muted">No blackouts scheduled.</div>'}`;
+      const f = $('form', pane);
+      const status = $('.rb-status', pane);
+      f.allday.addEventListener('change', () => { $('[data-times]', pane).hidden = f.allday.checked; if (!f.allday.checked) f.ends_on.value = f.starts_on.value; });
+      f.starts_on.addEventListener('change', () => { if (f.ends_on.value < f.starts_on.value || !f.allday.checked) f.ends_on.value = f.starts_on.value; });
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const row = { room_id: f.room.value || null, starts_on: f.starts_on.value, ends_on: f.ends_on.value, reason: f.reason.value.trim() || null };
+        if (!f.allday.checked) {
+          if (f.ends_on.value !== f.starts_on.value) { status.textContent = 'A blackout with times has to be a single day. Add one per day, or make it all-day.'; status.className = 'rb-status bad'; return; }
+          row.start_time = f.start_time.value; row.end_time = f.end_time.value;
+        }
+        const { data: made, error } = await sb.from('ph_room_blackouts').insert(row).select('id').single();
+        if (error) { status.textContent = error.message; status.className = 'rb-status bad'; return; }
+        // Warn about bookings already sitting inside the new blackout. The blackout
+        // only stops NEW bookings; the admin decides what to do with these.
+        const winFrom = new Date(Date.parse(row.starts_on + 'T00:00:00Z') - 864e5).toISOString();
+        const winTo = new Date(Date.parse(row.ends_on + 'T00:00:00Z') + 2 * 864e5).toISOString();
+        const [{ data: hit }, { data: bo }] = await Promise.all([
+          sb.rpc('ph_room_busy', { p_from: winFrom, p_to: winTo }),
+          sb.rpc('ph_room_blackouts_in', { p_from: winFrom, p_to: winTo }),
+        ]);
+        const x = (bo ?? []).find((b) => b.id === made.id);
+        const inside = x ? (hit ?? []).filter((b) => (!x.room_id || x.room_id === b.room_id)
+          && new Date(b.start_at) < new Date(x.end_at) && new Date(b.end_at) > new Date(x.start_at)) : [];
+        toast('Blackout added');
+        await board.refresh();
+        await paintBlackouts();
+        if (inside.length) {
+          modal(`<h3>${inside.length} booking${inside.length === 1 ? '' : 's'} already in that window</h3>
+            <p class="sub">The blackout stops new bookings. These existing ones were left alone. Cancel them from the calendar if the room really is unavailable, and let the broker know.</p>
+            <div style="display:grid;gap:6px;font-size:.88rem">${inside.map((b) => `<div><b>${esc(fmtDayShort(b.start_at))} ${esc(fmtTime(b.start_at))} – ${esc(fmtTime(b.end_at))}</b> · ${esc(rooms.find((r) => r.id === b.room_id)?.name || '')} · ${esc(b.agent_name)}</div>`).join('')}</div>
+            <div class="rbk-acts"><button type="button" class="rbk-btn pri" data-close>Got it</button></div>`);
+        }
+      });
+      $$('[data-del]', pane).forEach((b) => b.addEventListener('click', async () => {
+        const { error } = await sb.from('ph_room_blackouts').delete().eq('id', b.getAttribute('data-del'));
+        if (error) { toast(error.message); return; }
+        toast('Blackout removed'); await board.refresh(); paintBlackouts();
+      }));
+    }
+
+    // ---------- settings ----------
+    async function paintSettings() {
+      const pane = $('[data-pane="settings"]');
+      const [{ data: s }, { data: ph }] = await Promise.all([
+        sb.from('ph_room_settings').select('*').eq('id', 1).maybeSingle(),
+        sb.from('ph_settings').select('house_email').limit(1).maybeSingle(),
+      ]);
+      pane.innerHTML = `<div class="rb-card"><h3>Booking rules</h3>
+        <form class="rb-f">
+          <div class="two">
+            <label>Time steps<select name="step_minutes">${[15, 30, 60].map((m) => `<option value="${m}"${s?.step_minutes === m ? ' selected' : ''}>Every ${m} minutes</option>`).join('')}</select></label>
+            <label>Longest single booking (hours)<input name="max_hours" type="number" min="0.5" max="24" step="0.5" value="${s?.max_hours ?? 9}"></label>
+            <label>How far ahead brokers can book (days)<input name="max_days_ahead" type="number" min="1" max="365" value="${s?.max_days_ahead ?? 90}"></label>
+            <label>Email alerts go to<input name="notify_email" type="email" value="${esc(s?.notify_email || '')}" placeholder="${esc(ph?.house_email || '')}"></label>
+          </div>
+          <p class="rb-muted" style="margin:0">Leave the email blank to use the house inbox (${esc(ph?.house_email || 'not set')}). Admins can always book outside these rules.</p>
+          <div class="rb-status" role="status"></div>
+          <div class="rb-acts"><button type="submit" class="rb-btn pri">Save settings</button></div>
+        </form></div>`;
+      const f = $('form', pane);
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error } = await sb.from('ph_room_settings').update({
+          step_minutes: +f.step_minutes.value, max_hours: +f.max_hours.value, max_days_ahead: +f.max_days_ahead.value,
+          notify_email: f.notify_email.value.trim() || null, updated_at: new Date().toISOString(),
+        }).eq('id', 1);
+        const st = $('.rb-status', pane);
+        if (error) { st.textContent = error.message; st.className = 'rb-status bad'; return; }
+        st.textContent = 'Saved.'; st.className = 'rb-status good';
+        await board.reloadConfig();
+      });
+    }
+
+    // ---------- activity ----------
+    async function paintActivity() {
+      const pane = $('[data-pane="activity"]');
+      const { data } = await sb.from('ph_admin_notifications').select('*').like('kind', 'room_%').order('created_at', { ascending: false }).limit(200);
+      const COLORS = { room_booked: '#16803c', room_changed: '#d97706', room_cancelled: '#b91c1c' };
+      const unreadIds = (data ?? []).filter((n) => !(n.read_by || []).includes(uid)).map((n) => n.id);
+      pane.innerHTML = `<div class="rb-acts" style="justify-content:space-between;margin:0 0 12px"><span class="rb-muted">Every booking, change and cancellation. ${esc('Each one is also emailed to the alert address in Settings.')}</span>
+          <button type="button" class="rb-btn" data-readall ${unreadIds.length ? '' : 'disabled'}>Mark all read</button></div>
+        <div class="rb-feed">${(data ?? []).length ? data.map((n) => `<div class="rb-note${(n.read_by || []).includes(uid) ? '' : ' unread'}">
+          <i class="dot" style="background:${COLORS[n.kind] || '#5a6f85'}"></i>
+          <div><b>${esc(n.title)}</b><span>${esc(n.body || '')}${n.email_error ? ` · email not sent: ${esc(n.email_error)}` : ''}</span></div>
+          <time>${esc(new Date(n.created_at).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</time></div>`).join('') : '<div class="rb-card rb-muted">No room activity yet.</div>'}</div>`;
+      $('[data-readall]', pane).addEventListener('click', async () => {
+        await Promise.all(unreadIds.map((id) => {
+          const n = data.find((x) => x.id === id);
+          return sb.from('ph_admin_notifications').update({ read_by: [...(n.read_by || []), uid] }).eq('id', id);
+        }));
+        paintActivity(); paintStats();
+      });
+    }
+
+    // ---------- boot ----------
+    let booted = false;
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && booted) return;
+      if (!session) { view('signin'); return; }
+      uid = session.user.id;
+      $$('[data-who]').forEach((el) => (el.textContent = session.user.email || ''));
+      const { data: admin } = await sb.from('ph_admins').select('email').limit(1);
+      if (!admin || !admin.length) { view('denied'); return; }
+      view('app');
+      booted = true;
+      const [{ data: ag }, { data: rs }] = await Promise.all([
+        sb.from('ph_agents').select('id, full_name, is_active').eq('is_active', true).order('full_name'),
+        sb.from('ph_rooms').select('*').order('sort_order'),
+      ]);
+      agents = ag ?? []; rooms = rs ?? [];
+      board = mountBoard($('.rb-board'), { sb, mode: 'admin', agents, toast, onChange: afterWrite });
+      paintStats();
+      const want = location.hash.slice(1);
+      if (want && want !== 'calendar' && painters[want]) showTab(want);
+      // Refresh the unread count as new bookings land.
+      setInterval(() => { if (document.visibilityState === 'visible') paintStats(); }, 60000);
+    }
+
+    sb.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') boot(); });
+    boot();
+  }
+</script>

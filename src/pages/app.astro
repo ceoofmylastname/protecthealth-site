@@ -753,6 +753,9 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     DOC_FOLDERS, DOC_MAX_BYTES, docIcon, fmtBytes, docPath, splitQueue, groupFolders,
   } from '../lib/contact-files';
 
+  // Room & workspace booking board (Book a Space). Shared with /admin/rooms.
+  import { mountBoard } from '../lib/rooms-ui';
+
   const root = document.querySelector('.ph');
   if (root) {
     const sb = createClient(
@@ -1421,6 +1424,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       reviews: '<path d="m12 3 2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.8 6.7 19.6l1.1-6L3.4 9.4l6-.8z"/>',
       admin: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
       support: '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4"/><path d="M12 17.5h.01"/>',
+      rooms: '<path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M14 12h.01"/>',
     };
     function navItem(id, label, count, extraAttr = '') {
       const c = (count != null) ? `<span class="count">${count}</span>` : '';
@@ -1439,6 +1443,10 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       html += navItem('calendar', 'Calendar');
       html += navItem('availability', 'Availability');
       html += navItem('reviews', 'Reviews');
+      // Office rooms. One global calendar for every broker, replacing the GHL
+      // "InsureSpace Hub" service menu. Only brokers can hold a room, so an
+      // admin with no broker profile books on someone's behalf from /admin/rooms.
+      if (state.agentId) html += navItem('rooms', 'Book a Space');
       html += '<div class="nav-sec">Resources</div>';
       // The Resource Center is gated — it renders no carrier link and no
       // commission table until it knows who is asking. Rather than make a
@@ -1461,6 +1469,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
         // signed-in person's own desk, admin or not.
         html += `<a class="nav-item" href="/admin/contacts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>All Contacts</a>`;
         html += `<a class="nav-item" href="/admin/calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.calendar}</svg>House Calendar</a>`;
+        html += `<a class="nav-item" href="/admin/rooms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.rooms}</svg>Room Bookings${state.roomUnread ? `<span class="count">${state.roomUnread}</span>` : ''}</a>`;
         html += `<a class="nav-item" href="/admin/campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.calendar}</svg>Campaigns</a>`;
         html += `<a class="nav-item" href="/admin/staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${IC.contacts}</svg>Staff</a>`;
       }
@@ -1618,6 +1627,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       calendar: ['Calendar', 'Your upcoming appointments'],
       availability: ['Availability', 'Set the hours people can book you — this updates your booking page right away'],
       reviews: ['Reviews', 'Who was asked, who opened it, what they rated and what they said'],
+      rooms: ['Book a Space', 'Reserve a meeting room or workspace at the office. One calendar for everyone, so a booked time is gone for all.'],
     };
     let currentRoute = null;
     function go(route) {
@@ -1629,7 +1639,7 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       $$('.nav-item[data-route]').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
       root.classList.remove('nav-open');
       const v = $('#view'); v.scrollTop = 0;
-      const renderers = { dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability, reviews: renderReviews };
+      const renderers = { dashboard: renderDashboard, contacts: renderContacts, leads: renderLeads, pipeline: renderPipeline, calendar: renderCalendar, availability: renderAvailability, reviews: renderReviews, rooms: renderRooms };
       renderers[route](v);
       // Landing-page bookings arrive while the app is open: a visitor books,
       // the deal + appointment land in the DB, but this tab was rendered from
@@ -1651,6 +1661,14 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
       // state, and state had already been set, so the guard always said "no
       // change" and skipped.
       buildNav();
+
+      // Unread room-booking alerts for admins, on the sidebar link.
+      if (state.isAdmin && state.uid) {
+        sb.from('ph_admin_notifications').select('id', { count: 'exact', head: true })
+          .not('read_by', 'cs', `{${state.uid}}`).then(({ count }) => {
+            if (count != null && count !== state.roomUnread) { state.roomUnread = count; buildNav(); }
+          });
+      }
 
       // Keep the Contacts badge honest: contacts created by landing-page
       // bookings and round robin arrive server-side while the app is open.
@@ -3401,6 +3419,12 @@ import { GCAL_HELP_HTML } from '../lib/gcal-help';
     // Writes ph_agent_scheduling, which ph-book reads live — so saving here
     // changes the slots on this broker's /book and /broker pages immediately,
     // no site rebuild needed. Weekday keys match ph-book: Sun=0 … Sat=6.
+    function renderRooms(v) {
+      if (!state.agentId) { v.innerHTML = '<div class="card"><div class="card-b">Room booking is for brokers. Admins can book for anyone from <a href="/admin/rooms" style="color:var(--blue)">Room Bookings</a>.</div></div>'; return; }
+      v.innerHTML = '<div class="rooms-host"></div>';
+      mountBoard(v.firstChild, { sb, mode: 'agent', agentId: state.agentId, toast });
+    }
+
     function renderAvailability(v) {
       const s = state.mySched || {};
       const slot = s.slot_minutes || 30, advance = s.advance_days || 21, notice = s.min_notice_hours ?? 12;
