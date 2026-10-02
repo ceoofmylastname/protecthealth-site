@@ -106,11 +106,13 @@ const year = new Date().getFullYear();
 
     <footer class="foot">
       <div class="wrap foot-in">
+        <img class="foot-logo" src="/assets/logo.webp" alt="ProtectHealth" width="300" height="81" loading="lazy" />
         <a class="foot-phone" href="tel:18885475220">1-888-547-5220</a>
         <div class="foot-right">
           <h4>Mon – Fri 8am to 8pm<br />Sat 9am to 7pm<br />Sun 10am to 6pm</h4>
         </div>
       </div>
+      <div class="copy">© 2021 – {year} B&amp;C Agency. LLC/ <a href="https://www.protecthealth.com/" target="_blank" rel="noopener">ProtectHealth</a></div>
     </footer>
   </div>
 
@@ -186,7 +188,8 @@ const year = new Date().getFullYear();
     .done-sub a { color: #1a73e8; font-weight: 600; }
 
     .foot { padding: 34px 0 18px; }
-    .foot-in { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; max-width: 820px; }
+    .foot-in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: center; }
+    .foot-logo { width: 100%; max-width: 300px; height: auto; display: block; }
     .foot-phone { color: var(--purple); font-weight: 700; font-size: clamp(1.6rem, 3vw, 2.4rem); text-decoration: none; text-align: center; }
     .foot-right h4 { margin: 0; text-align: right; color: var(--purple); font-weight: 700; font-size: 1rem; line-height: 1.6; }
     .copy { text-align: center; font-size: .82rem; color: var(--muted); margin-top: 22px; }
