@@ -110,7 +110,7 @@ const STATS = [
 <section class="band" id="ask"><div class="wrap wrap-2">
   <div class="ask-copy">
     <p class="section-label">Twenty minutes, no pitch</p>
-    <h2>Tell us four things. We'll tell you which doors are open.</h2>
+    <h2>Tell us five things. We'll tell you which doors are open.</h2>
     <p class="lede">A broker calls you back within the hour during business hours. You leave knowing what applies, what doesn't, and what to ask your CPA. If nothing applies, we'll say that too.</p>
     <ul class="ticks">
       <li>Retirement mandate status confirmed</li>
@@ -120,7 +120,7 @@ const STATS = [
     </ul>
   </div>
   <form class="lead" id="lead" novalidate>
-    <input type="hidden" name="formId" value="employers" /><input type="hidden" name="form" value="employers" />
+    <input type="hidden" name="formId" value="employers" /><input type="hidden" name="form" value="employers" /><input type="hidden" name="source" value="employers" />
     <input type="hidden" name="page" value={PAGE} /><input type="hidden" name="campaign" value="paychex" /><input type="hidden" name="utm" id="utm" value="" />
     <p class="lead-step">Step 1 of 2 · About the business</p>
     <fieldset class="pills"><legend>Industry</legend>
@@ -128,6 +128,9 @@ const STATS = [
     </fieldset>
     <fieldset class="pills"><legend>Employees</legend>
       {["1 to 5","6 to 10","11 to 25","26 to 50","51 to 100","100+"].map((o, i) => (<label><input type="radio" name="employees" value={o} required={i===0} /><span>{o}</span></label>))}
+    </fieldset>
+    <fieldset class="pills"><legend>Do any of your staff take tips?</legend>
+      {["Yes","No","Not sure"].map((o, i) => (<label><input type="radio" name="tipped" value={o} required={i===0} /><span>{o}</span></label>))}
     </fieldset>
     <fieldset class="pills"><legend>Biggest friction right now</legend>
       {["Benefits I can't afford","The retirement mandate","Payroll and HR time","Credits I might be missing","Hiring and keeping people"].map((o, i) => (<label><input type="radio" name="friction" value={o} required={i===0} /><span>{o}</span></label>))}

@@ -1,7 +1,7 @@
 ---
 // Lead magnet opt-in → /api/lead-magnet (GHL contact + Resend email delivery).
 interface Props {
-  magnet: 'self-employed-playbook' | 'employer-scorecard';
+  magnet: 'self-employed-playbook' | 'employer-scorecard' | 'erisa-guide';
   buttonLabel?: string;
 }
 const { magnet, buttonLabel = 'Email Me The Free PDF' } = Astro.props;

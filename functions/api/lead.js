@@ -24,6 +24,13 @@ const CAMPAIGNS = {
     tags: ['campaign:paychex', 'more-than-your-group-plan', 'source:website'],
     oppPrefix: 'Employer Strategy Call',
   },
+  // ERISA campaign (/self-employed/erisa). Three-state pilot: NV, AZ, UT.
+  // A state:<xx> tag is appended at runtime from the form's state answer so
+  // GHL workflows can route the lead to a broker licensed in that state.
+  erisa: {
+    tags: ['campaign:erisa', 'erisa-self-employed', 'source:website'],
+    oppPrefix: 'ERISA Strategy Call',
+  },
   // Contact page, every "Talk To A Broker" button on the site lands here
   general: {
     tags: ['talk-to-a-broker', 'source:website'],
@@ -51,16 +58,29 @@ const CF = {
   employees:   'lecOVPOTtfw5PLObZjYQ', // Website Intake: Employee Count
   friction:    '5P4t9QZM7l2nVSf2N1m6', // Website Intake: Biggest Friction
   payroll:     'ioUxcZEZUtWdOrNcGN7z', // Website Intake: Payroll Provider
+  tipped:      'EvN2CQueiURDK8a8CEzg', // Website Intake: Tipped Staff
   sourceForm:  '2u611YcsKF5hCczUvpMw', // Website Intake: Source Form
   page:        'gz9zZmpnqjpJYm6ig9nU', // Website Intake: Landing Page
   appointment: 'TkMZgKyFxOvXOpJZ0Jji', // Website Intake: Appointment Time
   magnet:      'ES17xjYL7S5hOepLnXGj', // Website Intake: Lead Magnet
+  // Added 2026-10-07 for the ERISA landing page (/self-employed/erisa).
+  state:       'ixp4P5ENAndNyuCR03Gh', // Website Intake: State
+  premium:     'W1axTd4IzunQdmsKzRJl', // Website Intake: Current Premium
+  subsidy:     'jIstlWX8N0wAg1WgaqSh', // Website Intake: Premium Tax Credit
+  income:      'rbfyjyJ2NpwT6rXPh2iv', // Website Intake: Household Income Range
 };
 
 // Every form asks "which best describes you" under a different key: the ICHRA
 // page calls it profile, the quote and contact pages call it interest, the
 // booking page calls it role. One column, three spellings.
 const ROLE_KEYS = ['role', 'profile', 'interest'];
+
+// 'Nevada' -> ['state:nv']. Unknown or blank -> [] so the tag list stays clean.
+const STATE_TAGS = { nevada: 'state:nv', arizona: 'state:az', utah: 'state:ut' };
+function stateTag(v) {
+  const t = STATE_TAGS[String(v || '').trim().toLowerCase()];
+  return t ? [t] : [];
+}
 
 // Builds the customFields array for an upsert. Blank answers are dropped rather
 // than sent as '', because /contacts/upsert merges what it receives, a lead who
@@ -80,10 +100,15 @@ function intakeFields(data, extra = {}) {
     [CF.employees, merged.employees],
     [CF.friction, merged.friction],
     [CF.payroll, merged.payroll],
+    [CF.tipped, merged.tipped],
     [CF.sourceForm, merged.sourceForm],
     [CF.page, merged.page],
     [CF.appointment, merged.appointmentTime],
     [CF.magnet, merged.magnet],
+    [CF.state, merged.state],
+    [CF.premium, merged.premium],
+    [CF.subsidy, merged.subsidy],
+    [CF.income, merged.income],
   ]
     .filter(([, value]) => clean(value) !== '')
     .map(([id, value]) => ({ id, field_value: clean(value) }));
@@ -169,7 +194,7 @@ export async function onRequestPost(context) {
       email: email || undefined,
       phone: phone || undefined,
       companyName: data.business ? String(data.business) : undefined,
-      tags: campaign.tags,
+      tags: [...campaign.tags, ...stateTag(data.state)],
       source: `website:${formId}`,
       // Every answer the form collected, into its own segmentable field.
       customFields: intakeFields(data, { sourceForm: formId }),

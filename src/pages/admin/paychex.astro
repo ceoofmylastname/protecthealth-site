@@ -12,6 +12,12 @@ import '../../styles/admin-chrome.css';
 //
 // The two answers are snapshotted onto the referral row at flag time. A contact's
 // custom fields can change afterwards; what Fred was told must not.
+//
+// Two sources answer the same two questions. An agent asks on a call and fills
+// the contact card. A visitor ticks the pills on /payroll-tax-asset, which go to
+// GoHighLevel and come back through the contact sync. ph_paychex_web_leads
+// coalesces both, so the bottom list here is every qualifying contact nobody has
+// flagged yet and the count Rob reports covers both sources.
 const SUPABASE_URL = 'https://hrzonmnswzwridwqbspb.supabase.co';
 const SUPABASE_ANON =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhyem9ubW5zd3p3cmlkd3Fic3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTQ0NDcsImV4cCI6MjA2MzI5MDQ0N30.tGq9b0awwwTUBlwjCbOnlRDqUOV2NtQEUkBrU3gcbSo';
@@ -79,6 +85,7 @@ const SUPABASE_ANON =
           <div class="ad-stat spot"><b data-stat="week">—</b><span>Sent in the last 7 days</span></div>
           <div class="ad-stat spot"><b data-stat="total">—</b><span>Sent all time</span></div>
           <div class="ad-stat spot"><b data-stat="agents">—</b><span>Agents who have referred</span></div>
+          <div class="ad-stat spot"><b data-stat="web">—</b><span>Web leads not yet flagged</span></div>
         </div>
 
         <div class="px-wrap">
@@ -94,6 +101,10 @@ const SUPABASE_ANON =
 
           <h2 class="px-h2">Already sent</h2>
           <div id="px-sent-list"><p class="ad-muted">Loading…</p></div>
+
+          <h2 class="px-h2">Web leads worth referring</h2>
+          <p class="ad-muted px-sub">Contacts who answered the headcount or tips question on the website and that nobody has flagged yet. Queue one and it joins the list at the top.</p>
+          <div id="px-web"><p class="ad-muted">Loading…</p></div>
         </div>
 
       </div>
@@ -121,6 +132,9 @@ const SUPABASE_ANON =
   .px-flag.is-hot { background: #fdf0d8; color: #8a5a05; }
   .px-when { font-size: .82rem; color: var(--muted); white-space: nowrap; }
   .px-empty { padding: 26px; text-align: center; border: 1px dashed rgba(10,40,60,.18); border-radius: 12px; }
+  .px-sub { margin: -6px 0 14px; font-size: .9rem; }
+  .px-queue-btn { white-space: nowrap; }
+  .px-card.is-web { border-style: dashed; }
   @media (max-width: 700px) {
     .px-card { grid-template-columns: auto 1fr; }
     .px-when { grid-column: 2; }
@@ -151,6 +165,11 @@ const SUPABASE_ANON =
 
     let queued = [];
     let sent = [];
+    let web = [];
+
+    // "6 to 10" and up is where a Paychex conversation is worth Fred's time.
+    // Matches the buckets the contact card and /payroll-tax-asset both use.
+    const HOT = new Set(['6 to 10', '11 to 25', '26 to 50', '51 to 100', '100+']);
 
     $('.ad-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -174,13 +193,32 @@ const SUPABASE_ANON =
           <div class="px-name">${esc(r.contact_name || 'Unnamed contact')}${r.company ? ' · ' + esc(r.company) : ''}</div>
           <div class="px-meta">${esc([r.contact_email, fmtPhone(r.contact_phone), [r.city, r.state].filter(Boolean).join(', ')].filter(Boolean).join(' · ') || 'No contact details on file')}</div>
           <div class="px-flags">
-            ${r.employee_count ? `<span class="px-flag${/^(6-9|10-24|25-49|50)/.test(r.employee_count) ? ' is-hot' : ''}">${esc(r.employee_count)} employees</span>` : ''}
+            ${r.employee_count ? `<span class="px-flag${HOT.has(r.employee_count) ? ' is-hot' : ''}">${esc(r.employee_count)} employees</span>` : ''}
             ${r.tipped_staff === 'Yes' ? '<span class="px-flag is-hot">Tipped staff</span>' : r.tipped_staff ? `<span class="px-flag">Tips: ${esc(r.tipped_staff)}</span>` : ''}
           </div>
           ${r.note ? `<div class="px-note">${esc(r.note)}</div>` : ''}
           <div class="px-meta">Referred by ${esc(r.agent_name || r.agent_email || 'unknown agent')}</div>
         </div>
         <div class="px-when">${esc(fmtDate(r.created_at))}${r.sent_at ? ` → sent ${esc(fmtDate(r.sent_at))}` : ''}</div>
+      </div>`;
+
+    // Same card, minus the checkbox and the "referred by" line, plus a button
+    // that writes the row into the queue the top of this page already drains.
+    const webCard = (r) => `
+      <div class="px-card is-web" data-contact="${esc(r.contact_id)}">
+        <span></span>
+        <div>
+          <div class="px-name">${esc(r.contact_name || 'Unnamed contact')}${r.company ? ' · ' + esc(r.company) : ''}</div>
+          <div class="px-meta">${esc([r.contact_email, fmtPhone(r.contact_phone), [r.city, r.state].filter(Boolean).join(', ')].filter(Boolean).join(' · ') || 'No contact details on file')}</div>
+          <div class="px-flags">
+            ${r.employee_count ? `<span class="px-flag${HOT.has(r.employee_count) ? ' is-hot' : ''}">${esc(r.employee_count)} employees</span>` : ''}
+            ${r.tipped_staff === 'Yes' ? '<span class="px-flag is-hot">Tipped staff</span>' : r.tipped_staff ? `<span class="px-flag">Tips: ${esc(r.tipped_staff)}</span>` : ''}
+            ${r.industry ? `<span class="px-flag">${esc(r.industry)}</span>` : ''}
+            ${r.payroll ? `<span class="px-flag">Payroll: ${esc(r.payroll)}</span>` : ''}
+          </div>
+          <div class="px-meta">${esc(r.landing_page || r.source || 'Website')}${r.agent_name ? ' · assigned to ' + esc(r.agent_name) : ' · unassigned'}</div>
+        </div>
+        <button type="button" class="btn ghost no-arrow px-queue-btn" data-queue="${esc(r.contact_id)}">Queue for Fred</button>
       </div>`;
 
     const paint = () => {
@@ -190,6 +228,9 @@ const SUPABASE_ANON =
       $('#px-sent-list').innerHTML = sent.length
         ? sent.map((r) => card(r, false)).join('')
         : `<p class="ad-muted">Nothing sent yet.</p>`;
+      $('#px-web').innerHTML = web.length
+        ? web.map(webCard).join('')
+        : `<div class="px-empty"><p class="ad-muted" style="margin:0">No unflagged web leads. Every contact who answered the headcount or tips question on the site is already in the queue above.</p></div>`;
       $('#px-all').checked = false;
 
       const week = sent.filter((r) => r.sent_at && (Date.now() - new Date(r.sent_at).getTime()) < 7 * 864e5).length;
@@ -198,6 +239,7 @@ const SUPABASE_ANON =
       $('[data-stat="week"]').textContent = String(week);
       $('[data-stat="total"]').textContent = String(sent.length);
       $('[data-stat="agents"]').textContent = String(agents.size);
+      $('[data-stat="web"]').textContent = String(web.length);
     };
 
     const picked = () => $$('.px-pick:checked').map((b) => b.value);
@@ -250,6 +292,32 @@ Protect Health`;
       }
     });
 
+    // Delegated, because the cards are re-rendered on every load.
+    $('#px-web').addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-queue]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-queue');
+      const row = web.find((r) => r.contact_id === id);
+      if (!row) return;
+      btn.disabled = true; btn.textContent = 'Queueing…';
+      const { error } = await sb.from('ph_paychex_referrals').insert({
+        contact_id: row.contact_id,
+        // The assigned broker gets the credit even though the website did the
+        // asking. An unassigned lead queues with no agent rather than not at all.
+        agent_id: row.agent_id ?? null,
+        employee_count: row.employee_count ?? null,
+        tipped_staff: row.tipped_staff ?? null,
+        note: `Web lead, ${row.landing_page || row.source || 'website'}. Answers self-reported on the form.`,
+      });
+      if (error) {
+        btn.disabled = false; btn.textContent = 'Queue for Fred';
+        say(error.message, true);
+        return;
+      }
+      say(`Queued ${row.contact_name || 'the contact'}.`);
+      load();
+    });
+
     $('#px-sent').addEventListener('click', async () => {
       const ids = picked();
       if (!ids.length) { say('Tick the ones you actually sent first.', true); return; }
@@ -270,13 +338,15 @@ Protect Health`;
       if (!admin || !admin.length) { view('denied'); return; }
       view('app');
 
-      const [q, s] = await Promise.all([
+      const [q, s, w] = await Promise.all([
         sb.from('ph_paychex_referral_queue').select('*').eq('status', 'queued').order('created_at', { ascending: false }),
         sb.from('ph_paychex_referral_queue').select('*').eq('status', 'sent').order('sent_at', { ascending: false }).limit(100),
+        sb.from('ph_paychex_web_leads').select('*').is('referral_status', null).order('ghl_date_added', { ascending: false, nullsFirst: false }).limit(200),
       ]);
-      if (q.error || s.error) { say((q.error || s.error).message, true); return; }
+      if (q.error || s.error || w.error) { say((q.error || s.error || w.error).message, true); return; }
       queued = q.data ?? [];
       sent = s.data ?? [];
+      web = w.data ?? [];
       paint();
     }
 

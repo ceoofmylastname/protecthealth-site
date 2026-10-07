@@ -72,6 +72,7 @@ Generated: ${today}. Library: ${blogs.length} in-depth guides and ${qas.length} 
 - [ACA Changes For 2027, Nevada Edition](${SITE}/aca-changes): Which new federal marketplace rules apply in Nevada and which stop at the state line. Countdown to the November 1 open.
 - [The Insurance Buyer's Guide](${SITE}/buyers-guide): How to buy coverage without being sold, product by product, with primary sources to verify everything independently.
 - [Self-Employed & 1099 Coverage Strategy](${SITE}/self-employed): The five real coverage paths for Realtors, contractors and freelancers, including what disqualifies each.
+- [ERISA Health Plans For The Self-Employed](${SITE}/self-employed/erisa): What an ERISA-regulated group health plan is, who it fits and who should stay on the marketplace, for Nevada, Arizona and Utah, with the eight questions to ask before signing.
 - [Employer Benefits & Paychex Partnership](${SITE}/employers): Benefits, payroll and HR for Nevada businesses, with the headcount thresholds that change obligations.
 - [About ProtectHealth](${SITE}/about-us): Who runs the agency, and how to verify any producer through the Nevada Division of Insurance.
 - [Talk To A Broker](${SITE}/talk-to-a-broker): Free 20-minute strategy conversation, booked on live calendar availability.

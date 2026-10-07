@@ -1,0 +1,660 @@
+---
+// ERISA campaign landing page. Oct 7 2026.
+// Child of /self-employed. Same journey skeleton as the ICHRA page (hero →
+// truth → mechanism → fit → local → proof → process → questions → FAQ →
+// conversation), with three changes:
+//   1. The mechanism being explained is the ERISA-regulated group plan a
+//      self-employed person can join through a structure, not the ICHRA.
+//   2. The local section is a three-state switcher (NV / AZ / UT) because
+//      the pilot runs wherever a ProtectHealth broker is licensed, and the
+//      copy for each state is fully rendered in HTML so crawlers and answer
+//      engines read all three regardless of which tab is open.
+//   3. The form carries state, premium, subsidy and income so a lead can be
+//      routed to a broker licensed in that state and screened for fit before
+//      anyone calls them.
+// Campaign guardrails still apply: no carrier names anywhere on the page, no
+// qualification promises, insurance-nerds line wherever tax structure shows
+// up, CTAs invite a conversation and never a quote.
+import Base from '../../layouts/Base.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import FAQSection from '../../components/FAQSection.astro';
+import ReviewWall from '../../components/ReviewWall.astro';
+import ContentRail from '../../components/ContentRail.astro';
+import FloatingMagnet from '../../components/FloatingMagnet.astro';
+import { SITE, ORG_ID, TEAM, BLOG_ART, breadcrumbSchema, speakableSchema } from '../../lib/site';
+import { getCollection } from 'astro:content';
+
+const pageUrl = `${SITE.domain}/self-employed/erisa`;
+const title = 'ERISA Health Plans For The Self-Employed In NV, AZ & UT | ProtectHealth';
+const description =
+  'What an ERISA-regulated health plan is, why a Realtor or 1099 contractor would want one, and who it is not for. Plain English for Nevada, Arizona and Utah, from a brokerage that will tell you if your current plan is already right.';
+
+// Art. Installed by scripts/fetch-erisa-art.mjs. png is absolute because it
+// feeds JSON-LD ImageObject; webp is the on-page asset.
+const ART = {
+  hero: { webp: '/assets/erisa/hero.webp', w800: '/assets/erisa/hero-800.webp', png: `${SITE.domain}/assets/erisa/hero.png`, alt: 'A tall translucent glass archway standing open on a dark reflective plain, warm gold light pouring through from the far side while a stream of small glowing cyan orbs passes through it and one orb waits in front, a self-employed professional at the entrance to a federally governed health plan' },
+  mechanism: { webp: '/assets/erisa/mechanism.webp', w800: '/assets/erisa/mechanism-800.webp', png: `${SITE.domain}/assets/erisa/mechanism.png`, alt: 'Three concentric translucent glass rings floating in dark space, the outer ring carrying a faint shield silhouette, a glowing gold core at the center and thin cyan streams connecting the rings like a diagram, the layered structure that makes an ERISA plan work' },
+  fit: { webp: '/assets/erisa/fit.webp', w800: '/assets/erisa/fit-800.webp', png: `${SITE.domain}/assets/erisa/fit.png`, alt: 'Two glass doorways side by side on a dark reflective floor, the left door open and glowing warm gold, the right door closed and dim with an amber edge, and a glowing cyan orb paused between them, the honest choice between a plan that fits and one that does not' },
+  states: { webp: '/assets/erisa/states.webp', w800: '/assets/erisa/states-800.webp', png: `${SITE.domain}/assets/erisa/states.png`, alt: 'Three translucent glass map silhouettes of Nevada, Arizona and Utah floating as separate plates in a row, each lit from within by cyan light with gold light tracing the borders and tiny glowing points marking cities, the three states where ProtectHealth brokers are licensed' },
+};
+
+// Reading library: the ICHRA cluster is the right education path for a
+// self-employed reader whether or not an ERISA plan ends up fitting.
+const clusterPosts = (await getCollection('blog'))
+  .filter((p) => p.data.cluster === 'ichra')
+  .sort((a, b) => (a.data.funnelStage === b.data.funnelStage ? 0 : a.data.funnelStage === 'TOFU' ? -1 : 1));
+const clusterQa = (await getCollection('qa'))
+  .filter((q) => q.data.cluster === 'ichra')
+  .sort((a, b) => a.data.question.localeCompare(b.data.question));
+
+// Three states. Every block renders in full; the switcher only changes which
+// one is visible. Facts here are the ones a reader can verify on the linked
+// state site, nothing else.
+const STATES = [
+  {
+    code: 'nv', name: 'Nevada', short: 'NV',
+    cities: ['Las Vegas', 'Henderson', 'North Las Vegas', 'Summerlin', 'Reno', 'Sparks'],
+    marketplace: { name: 'Nevada Health Link', url: 'https://www.nevadahealthlink.com/' },
+    window: 'November 1 through January 15. Select a plan by December 31 to start coverage January 1.',
+    doi: { name: 'Nevada Division of Insurance', url: 'https://doi.nv.gov/' },
+    h3: 'Las Vegas, Henderson, Reno: the renewal letters started this conversation',
+    body: [
+      'Most of the Nevadans asking us about ERISA plans this fall are not shopping for fun. They opened a renewal notice with a double-digit increase on an individual plan, ran the math on a year of closings or contracts, and decided the marketplace was no longer the obvious answer. If that is you, the question is not whether the increase is real. It is whether your income, your doctors and your health put you in the group of people an ERISA plan is built for.',
+      'Two Nevada-specific things matter here. First, Nevada runs its own exchange, Nevada Health Link, with its own window: November 1 through January 15, and a plan picked by December 31 starts January 1. Second, premium tax credits on that exchange are calculated on net self-employment income, which for a Realtor in Summerlin or a contractor in Henderson can swing by tens of thousands of dollars from one year to the next. If a credit is doing real work for you, leaving the marketplace means leaving the credit, and that number goes on the table before anything else.',
+      'Our office is on West Charleston. Every broker on the team is licensed in Nevada and can be looked up on the Division of Insurance site. Please do that, for us and for anyone else who calls you about one of these plans.',
+    ],
+  },
+  {
+    code: 'az', name: 'Arizona', short: 'AZ',
+    cities: ['Phoenix', 'Scottsdale', 'Mesa', 'Chandler', 'Gilbert', 'Tucson'],
+    marketplace: { name: 'HealthCare.gov', url: 'https://www.healthcare.gov/' },
+    window: 'November 1 through December 15 on the federal platform for 2027 coverage. Confirm the current dates on HealthCare.gov before you plan around them.',
+    doi: { name: 'Arizona Department of Insurance and Financial Institutions', url: 'https://difi.az.gov/' },
+    h3: 'Phoenix, Scottsdale, Tucson: the state that builds things on a 1099',
+    body: [
+      'Arizona runs a huge share of its economy on independent work. Realtors across Maricopa County, trade contractors building out the East Valley, consultants in Scottsdale, medical and tech contractors in Tucson. Most of them buy coverage on HealthCare.gov, because Arizona uses the federal marketplace rather than its own exchange, and most of them have never been shown anything else.',
+      'The federal platform has a shorter window than Nevada does. For 2027 coverage it runs November 1 through December 15, so an Arizona reader has less time to compare paths than a Nevada reader does. That is a reason to start the conversation in October, not a reason to rush into the first alternative someone puts in front of you. ERISA plans built for the self-employed often enroll outside that window, which is useful if you missed it, and is also exactly the kind of claim you should ask a broker to put in writing for the specific plan.',
+      'Arizona licensing is public. Any broker who talks to you about one of these plans, us included, should show up on the Department of Insurance and Financial Institutions site before you share a single document.',
+    ],
+  },
+  {
+    code: 'ut', name: 'Utah', short: 'UT',
+    cities: ['Salt Lake City', 'Lehi', 'Provo', 'Orem', 'Ogden', 'St. George'],
+    marketplace: { name: 'HealthCare.gov', url: 'https://www.healthcare.gov/' },
+    window: 'November 1 through December 15 on the federal platform for 2027 coverage. Confirm the current dates on HealthCare.gov before you plan around them.',
+    doi: { name: 'Utah Insurance Department', url: 'https://insurance.utah.gov/' },
+    h3: 'Salt Lake, Lehi, St. George: family math changes the answer',
+    body: [
+      'Utah has one of the youngest, most entrepreneurial workforces in the country, and a lot of it is paid on a 1099. Silicon Slopes contractors in Lehi, agents working the Wasatch Front, builders in St. George. Utah also uses HealthCare.gov rather than a state exchange, so the federal window applies: November 1 through December 15 for 2027 coverage.',
+      'What changes the ERISA question in Utah more than anywhere else is household size. A plan that looks cheap for one person can look very different once it is covering a spouse and several kids, and the premium tax credit on the marketplace scales with household size in a way some private structures do not. Before anyone shows you a monthly number, make them show you the number for your whole household, next to what the marketplace would charge the same household after any credit.',
+      'Utah Insurance Department licensing lookups are public and take about a minute. Use them.',
+    ],
+  },
+];
+
+const faq = [
+  { q: 'What is an ERISA-regulated health plan?', a: 'ERISA is the Employee Retirement Income Security Act, the 1974 federal law that governs employer-sponsored benefit plans, including group health plans. An ERISA-regulated health plan is a group plan that falls under that law and is overseen by the U.S. Department of Labor rather than sold through a state marketplace. Some plans are structured so that a self-employed person can join one by becoming part of an employer or association structure.' },
+  { q: 'Can a self-employed person with no employees get an ERISA health plan?', a: 'Sometimes, through a structure built for that purpose. Whether a specific arrangement is a legitimate ERISA plan depends on how it is set up, and the Department of Labor and some state regulators have challenged certain arrangements. ProtectHealth reviews the structure behind any plan it discusses and will say when one does not hold up.' },
+  { q: 'Is an ERISA plan cheaper than a marketplace plan?', a: 'For some people. These plans are usually priced for a healthy population and often come with a PPO network, which can mean a lower premium than an unsubsidized marketplace plan. For anyone receiving a meaningful premium tax credit on the marketplace, the credit usually outweighs the difference. The honest answer requires running both numbers for your household.' },
+  { q: 'Do ERISA plans cover pre-existing conditions?', a: 'It depends on the plan. Marketplace plans must cover pre-existing conditions. Some private group plans built for the self-employed ask health questions before enrollment and may decline or limit coverage. Ask for that answer in writing for the specific plan before you leave the marketplace.' },
+  { q: 'Can I enroll in an ERISA plan outside open enrollment?', a: 'Many plans built for the self-employed enroll year-round because they are not sold through the marketplace, but that varies by plan. Confirm it for the specific plan rather than assuming.' },
+  { q: 'Is a ProtectHealth strategy conversation a sales appointment?', a: 'No. The 20-minute conversation covers how your business is structured, your household, your doctors and prescriptions, and which paths are realistically open: marketplace coverage with or without a credit, an ERISA-regulated group plan, a spouse\'s plan, or something else. If what you have is already right, ProtectHealth says so.' },
+  { q: 'Which states does ProtectHealth serve for this?', a: 'ProtectHealth is a Las Vegas brokerage with brokers licensed in Nevada, Arizona and Utah. A lead from each state is handled by a broker licensed in that state. Licensing is verifiable on each state insurance department website.' },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${pageUrl}#service`,
+    name: 'ERISA Health Plan Strategy For The Self-Employed, ProtectHealth',
+    serviceType: 'Health insurance strategy consultation',
+    description,
+    provider: { '@id': ORG_ID },
+    areaServed: [
+      { '@type': 'State', name: 'Nevada' },
+      { '@type': 'State', name: 'Arizona' },
+      { '@type': 'State', name: 'Utah' },
+    ],
+    audience: { '@type': 'Audience', audienceType: 'Realtors, 1099 contractors, freelancers and self-employed professionals' },
+    url: pageUrl,
+    image: { '@type': 'ImageObject', url: ART.hero.png, description: ART.hero.alt },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    '@id': `${pageUrl}#erisa`,
+    name: 'ERISA-regulated health plan',
+    description: 'A group health plan governed by the Employee Retirement Income Security Act of 1974, the federal law overseen by the U.S. Department of Labor, as opposed to an individual plan sold through a state or federal marketplace.',
+    url: pageUrl,
+  },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'Self-Employed Strategy', url: `${SITE.domain}/self-employed` },
+    { name: 'ERISA Health Plans', url: pageUrl },
+  ]),
+];
+---
+<Base
+  title={title}
+  description={description}
+  ogImage={`${SITE.domain}/assets/og-erisa.webp`}
+  ogImageAlt="A translucent glass shield over a dark desert horizon at dusk, ERISA health plans for the self-employed, ProtectHealth"
+  schemas={schemas}
+>
+  <!-- HERO -->
+  <section class="er-hero">
+    <picture class="er-photo" aria-hidden="true">
+      <source media="(max-width: 700px)" srcset={ART.hero.w800} />
+      <img src={ART.hero.webp} alt="" width="1600" height="900" fetchpriority="high" decoding="async" />
+    </picture>
+    <div class="er-duo"></div>
+    <div class="er-orbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="er-aurora" aria-hidden="true"></div>
+    <div class="container er-hero-in">
+      <nav class="er-crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span><a href="/self-employed">Self-Employed</a><span>/</span><span aria-current="page">ERISA Health Plans</span>
+      </nav>
+      <div class="lp-kick"><i></i> Nevada · Arizona · Utah · Realtors &amp; 1099s</div>
+      <h1 class="er-h1">The health plan your <span class="er-grad">business</span> can join.<br/><span class="er-sub">Explained before anyone sells you one.</span></h1>
+      <p class="er-lead">An ERISA-regulated health plan is a group plan governed by federal law, not a marketplace plan. For some self-employed people it means a real PPO at a lower premium. For others it is a worse deal than what they have. <b>This page is the difference, in plain English, with the questions that keep you from being sold.</b></p>
+      <div class="er-ctas">
+        <a href="#talk" class="btn big">See If It Fits My Situation</a>
+        <a href="/free-guide/erisa" class="btn big glass no-arrow">Get The Free Guide</a>
+      </div>
+      <div class="lp-proof">
+        <span class="pp"><span class="stars">★★★★★</span> 4.9 · {SITE.reviews.count}+ Google reviews</span>
+        <span class="pp">20 minutes · $0 · No pitch</span>
+        <span class="pp">Licensed NV · AZ · UT</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUTH + SPEAKABLE -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">The Part Nobody Explains</div>
+      <p class="lp-statement reveal">A 30 percent renewal increase is a reason to look. <span class="lp-mark">It is not a reason to leap.</span></p>
+      <p class="reveal" style="max-width:760px;color:var(--muted);">Every fall a wave of self-employed people get a renewal letter, get angry, and buy the first thing that costs less. Some of them end up with a plan that is better in every way. Some of them end up with a plan that stops paying the week they need it. The letter is the same in both cases. The difference is whether anyone checked the structure, the network and the household math before the signature.</p>
+
+      {/* Speakable. Quoted by answer engines, so every sentence has to be
+          sourceable: ERISA's year and regulator are public record, the
+          marketplace facts are on the linked state sites, and nothing here
+          promises an outcome. */}
+      <div id="ai-summary" class="reveal" style="margin-top:26px;">
+        An ERISA-regulated health plan is a group health plan governed by the Employee Retirement Income Security Act of 1974, the federal law overseen by the U.S. Department of Labor, rather than an individual plan sold through a state or federal marketplace. Some plans are structured so that a self-employed person, such as a Realtor or 1099 contractor, can join one through an employer or association structure, often with a PPO network and enrollment outside the marketplace window. These plans are not eligible for marketplace premium tax credits, may ask health questions before enrollment, and depend on a legal structure that regulators have challenged in some cases. ProtectHealth, a Las Vegas brokerage with brokers licensed in Nevada, Arizona and Utah, reviews whether an ERISA plan fits a specific household compared with marketplace coverage, a spouse's employer plan, or keeping existing coverage.
+      </div>
+    </div>
+  </section>
+
+  <!-- MECHANISM -->
+  <section class="section soft er-mech">
+    <div class="container">
+      <div class="er-split">
+        <figure class="er-art reveal spot">
+          <img src={ART.mechanism.webp} srcset={`${ART.mechanism.w800} 800w, ${ART.mechanism.webp} 1600w`} sizes="(min-width: 900px) 520px, 100vw" alt={ART.mechanism.alt} width="1600" height="900" loading="lazy" decoding="async" />
+          <figcaption>Three layers. If any one of them is missing, it is not the plan you were told it was.</figcaption>
+        </figure>
+        <div>
+          <div class="section-label">What It Actually Is</div>
+          <h2 style="margin-top:0;">An ERISA-regulated health plan, in three layers</h2>
+          <p style="color:var(--muted);">The phrase gets thrown around like a brand name. It is not. It is a description of which law governs the plan, and that has consequences you should understand before you care about the premium.</p>
+          <ol class="er-layers">
+            <li class="reveal"><span class="n">01</span><div><h3>The law</h3><p>ERISA is the 1974 federal statute that governs employer-sponsored benefit plans, including group health plans. Plans under it answer to the U.S. Department of Labor. A marketplace plan answers to your state insurance department and the Affordable Care Act's individual market rules instead. Different referee, different rulebook.</p></div></li>
+            <li class="reveal"><span class="n">02</span><div><h3>The structure</h3><p>A group plan needs a group. Plans built for the self-employed solve that by having you join an employer or association structure, so that for benefit purposes you are a participant in a group plan rather than an individual buyer. The structure is what makes the whole thing work, and the structure is where the hardest questions belong, because regulators have challenged some of these arrangements and upheld others.</p></div></li>
+            <li class="reveal"><span class="n">03</span><div><h3>The plan itself</h3><p>Most of these are self-funded or level-funded group plans with a PPO network and a stop-loss or reinsurance layer behind them. Priced for a healthy population, which is why the premium can be lower than an unsubsidized marketplace plan, and why some of them ask health questions first.</p></div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY / WHY NOT -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Why You Would Want One</div>
+        <h2 style="margin-top:0;">Four reasons people switch. <span class="lp-mark" style="background:linear-gradient(120deg,var(--blue),#19c8ff);-webkit-background-clip:text;background-clip:text;color:transparent;">Four reasons they shouldn't.</span></h2>
+        <p style="color:var(--muted);">Both lists are true. Which one describes you is the entire conversation.</p>
+      </div>
+      <div class="er-two">
+        <div class="er-col reveal">
+          <h3 class="er-colh yes">Switch when</h3>
+          <ul class="er-list">
+            <li><b>You pay full price.</b> No premium tax credit, or one so small it does not change the decision. An unsubsidized marketplace premium is the number an ERISA plan has to beat, and it often does.</li>
+            <li><b>Your doctors are the point.</b> A real PPO with a national network is the thing most marketplace plans in Nevada, Arizona and Utah stopped offering. If you travel for work or want your specialist, this matters more than the premium.</li>
+            <li><b>You missed the window.</b> Many of these plans enroll year-round because they are not sold on the marketplace. Confirm it for the specific plan, in writing.</li>
+            <li><b>You are healthy and expect to stay that way.</b> Plans priced for a healthy group reward the people who are in it. That is the deal.</li>
+          </ul>
+        </div>
+        <div class="er-col reveal">
+          <h3 class="er-colh no">Stay put when</h3>
+          <ul class="er-list">
+            <li><b>A credit is doing real work.</b> If the marketplace is paying a few hundred dollars a month toward your premium, you leave that behind the day you switch. Run both numbers for the whole household first.</li>
+            <li><b>Someone in the house has a condition.</b> Marketplace plans cover pre-existing conditions by law. Some private group plans ask health questions and can decline or limit. Get the plan's answer in writing before you give up guaranteed coverage.</li>
+            <li><b>The structure will not explain itself.</b> If nobody can tell you who the plan sponsor is, who holds the stop-loss, and whether that carrier is licensed in your state, that is your answer.</li>
+            <li><b>You need the ACA's protections.</b> Essential benefits, out-of-pocket caps, no annual limits. Some ERISA plans match them, some do not. Assume nothing.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE HONEST VERSION -->
+  <section class="section soft">
+    <div class="container">
+      <div class="er-split rev">
+        <figure class="er-art reveal spot">
+          <img src={ART.fit.webp} srcset={`${ART.fit.w800} 800w, ${ART.fit.webp} 1600w`} sizes="(min-width: 900px) 520px, 100vw" alt={ART.fit.alt} width="1600" height="900" loading="lazy" decoding="async" />
+          <figcaption>Most pages list options. Very few tell you which door is closed to you, and why.</figcaption>
+        </figure>
+        <div>
+          <div class="section-label">The Honest Version</div>
+          <h2 style="margin-top:0;">Which path is actually open to you?</h2>
+          <p style="color:var(--muted);">The disqualifier is usually the faster way to find the answer.</p>
+        </div>
+      </div>
+      <div class="lp-matrix reveal">
+        <table>
+          <thead>
+            <tr><th>Path</th><th>Works when</th><th>Ruled out when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>ERISA-regulated group plan</b><br /><span>Through a structure</span></td>
+              <td>You pay full price on the marketplace, want a PPO, are in reasonable health, and the structure behind the plan survives the questions below.</td>
+              <td>A meaningful premium tax credit, a household member with a condition the plan would decline, or a structure nobody can document.</td>
+            </tr>
+            <tr>
+              <td><b>Marketplace plan with a credit</b><br /><span>State or federal exchange</span></td>
+              <td>Household income puts a real credit on the table. Credits run on net self-employment income after expenses, not gross revenue.</td>
+              <td>Income high enough that the credit is small or zero. At that point you are a full-price buyer and the comparison changes.</td>
+            </tr>
+            <tr>
+              <td><b>Marketplace plan, full price</b><br /><span>The default most people are on</span></td>
+              <td>You value guaranteed issue and ACA protections over premium, or your health makes a private plan unavailable.</td>
+              <td>Never fully ruled out. It is the baseline every other path has to beat.</td>
+            </tr>
+            <tr>
+              <td><b>Spouse's employer plan</b><br /><span>One phone call</span></td>
+              <td>A spouse has an employer offer and the family tier prices better than anything above.</td>
+              <td>No spouse with an offer, or an offer so expensive it fails the affordability test.</td>
+            </tr>
+            <tr>
+              <td><b>Keep what you have</b><br /><span>Also an answer</span></td>
+              <td>Your current plan already fits your doctors, your household and your budget.</td>
+              <td>The renewal letter says otherwise, or your doctors are no longer in the network.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:0.92rem;margin-top:20px;max-width:700px;margin-inline:auto;">We are insurance nerds, not tax professionals. When business structure or the credit math gets involved, we will suggest a brief conversation with your tax pro, and we mean it.</p>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <section class="section er-states" id="states">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Where We Are Licensed</div>
+        <h2 style="margin-top:0;">Three states. Three different rulebooks.</h2>
+        <p style="color:var(--muted);">The federal law is the same everywhere. The marketplace you are leaving, the window you are leaving it in, and the regulator who can verify your broker are not. Pick your state.</p>
+      </div>
+      <div class="er-tabs" role="tablist" aria-label="Choose your state">
+        {STATES.map((s, i) => (
+          <button type="button" role="tab" id={`tab-${s.code}`} aria-controls={`panel-${s.code}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} class={`er-tab ${i === 0 ? 'act' : ''}`} data-state={s.code}>
+            <span class="er-tab-code">{s.short}</span>{s.name}
+          </button>
+        ))}
+      </div>
+      <figure class="er-states-art reveal">
+        <img src={ART.states.webp} srcset={`${ART.states.w800} 800w, ${ART.states.webp} 1600w`} sizes="(min-width: 1160px) 1120px, 100vw" alt={ART.states.alt} width="1600" height="900" loading="lazy" decoding="async" />
+      </figure>
+      {STATES.map((s, i) => (
+        <article class={`er-panel ${i === 0 ? 'act' : ''}`} id={`panel-${s.code}`} role="tabpanel" aria-labelledby={`tab-${s.code}`} data-state={s.code} hidden={i !== 0}>
+          <div class="er-panel-grid">
+            <div class="article" style="margin:0;">
+              <h3>{s.h3}</h3>
+              {s.body.map((p) => <p>{p}</p>)}
+            </div>
+            <aside class="er-facts spot">
+              <h4>{s.name} at a glance</h4>
+              <dl>
+                <dt>Cities we hear from most</dt><dd>{s.cities.join(' · ')}</dd>
+                <dt>The marketplace you would be leaving</dt><dd><a href={s.marketplace.url} target="_blank" rel="noopener noreferrer">{s.marketplace.name}</a></dd>
+                <dt>Open enrollment</dt><dd>{s.window}</dd>
+                <dt>Verify any broker here</dt><dd><a href={s.doi.url} target="_blank" rel="noopener noreferrer">{s.doi.name}</a></dd>
+              </dl>
+              <a href="#talk" class="btn no-arrow" data-prefill-state={s.name}>Talk to a {s.name}-licensed broker</a>
+            </aside>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ANCHOR -->
+  <section class="section" style="padding-top:20px;">
+    <div class="container">
+      <div class="lp-quote reveal">
+        <p>"The product should serve the strategy, <em>not become the strategy.</em>"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF -->
+  <section class="section" style="padding-top:26px;">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">Real Reviews, Real Names</div>
+        <h2 style="margin-top:0;">Self-employed people have had this conversation with us</h2>
+      </div>
+      <ReviewWall />
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">How It Works</div>
+        <h2 style="margin-top:0;">20 minutes, start to clarity</h2>
+      </div>
+      <div class="lp-steps">
+        <div class="lp-step spot reveal"><h3>Tell us your situation</h3><p>Two minutes on the form below. Your state, how the business is set up, what you pay now, whether a credit is involved.</p></div>
+        <div class="lp-step spot reveal"><h3>The strategy conversation</h3><p>A broker licensed in your state runs the household math both ways, checks your doctors against the network, and asks the structure questions for you.</p></div>
+        <div class="lp-step spot reveal"><h3>Walk away with the map</h3><p>Zero dollars, zero obligation. If the marketplace is still your best deal, we tell you that. If an ERISA plan fits, we tell you which questions it passed.</p></div>
+      </div>
+      <div class="lp-team">
+        <div class="faces">
+          {TEAM.map((m) => <img src={m.photo} alt={m.name} loading="lazy" />)}
+        </div>
+        <div class="t"><b>Licensed brokers in Nevada, Arizona and Utah</b>The team behind {SITE.reviews.count}+ five-star conversations · <a href="/our-team">meet them</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE QUESTIONS -->
+  <section class="section">
+    <div class="container article">
+      <div class="section-label">Armor</div>
+      <h2 style="margin-top:0;">Eight questions to ask before you sign anything</h2>
+      <p>Bring these to any broker, including us. A plan that is what it claims to be answers all eight without flinching. A plan that is not will change the subject by question three.</p>
+      <ol class="er-q">
+        <li><b>Who is the plan sponsor, legally?</b> Not the marketing company. The entity whose name is on the plan document.</li>
+        <li><b>Is it fully insured or self-funded?</b> If self-funded, who holds the stop-loss, and is that carrier licensed in my state?</li>
+        <li><b>Can I have the Summary Plan Description before I enroll?</b> ERISA requires one. If it does not exist, neither does the plan.</li>
+        <li><b>Are there health questions, and what happens if I answer them honestly?</b> Decline, rate-up, exclusion, or none of the above.</li>
+        <li><b>Does it cover pre-existing conditions and the ACA's essential benefits, and is there an out-of-pocket maximum?</b></li>
+        <li><b>Which network, exactly, and are my doctors in it today?</b> A name is not an answer. A lookup is.</li>
+        <li><b>What does my state insurance department say about this plan?</b> If the answer is a shrug, call them yourself.</li>
+        <li><b>What happens at claim time?</b> Who pays the hospital, how fast, and who do I call when they do not.</li>
+      </ol>
+      <p>All eight, plus the household math worksheet, are in the free guide. <a href="/free-guide/erisa">Take it with you</a> even if you never talk to us.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="padding-top:0;">
+    <div class="container article">
+      <FAQSection faq={faq} pageUrl={pageUrl} />
+    </div>
+  </section>
+
+  <!-- CONVERSATION -->
+  <section class="section soft" id="talk">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">No Quote-Blasting · No Pressure</div>
+        <h2 style="margin-top:0;">See if an ERISA plan fits your situation</h2>
+        <p style="color:var(--muted);max-width:600px;margin:8px auto 0;">A few more questions than most forms. That is on purpose. The answers decide which broker calls you and whether the call is worth your time.</p>
+      </div>
+      <div class="lp-formwrap">
+        <LeadForm
+          formId="erisa"
+          heading="Tell us about your situation"
+          submitLabel="Book A Strategy Conversation"
+          confirmation="You're in. A broker licensed in your state will reach out. Quick heads-up on how we work: this is a strategy conversation, not a sales appointment. Have your current premium and a rough idea of household income handy if you can."
+          fields={[
+            { name: 'first_name', label: 'First name', type: 'text' },
+            { name: 'last_name', label: 'Last name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone number', type: 'tel' },
+            { name: 'state', label: 'Which state are you in?', type: 'select', options: ['Nevada', 'Arizona', 'Utah', 'Somewhere else'] },
+            { name: 'profile', label: 'Which best describes you?', type: 'select', options: ['Realtor', '1099 contractor', 'Self-employed / business of one', 'Small business owner with a team', 'Other'] },
+            { name: 'structure', label: 'How is your business currently structured?', type: 'select', options: ['Sole proprietor', 'LLC', 'S-corp', 'Not sure', 'Prefer to discuss'] },
+            { name: 'coverage', label: "What's your current coverage situation?", type: 'select', options: ['Marketplace plan', 'Private or off-exchange plan', "Spouse's plan", 'Group plan', 'No coverage right now', 'Not sure what I have'] },
+            { name: 'premium', label: 'What do you pay per month right now, roughly?', type: 'select', options: ['Under $300', '$300 to $600', '$600 to $1,000', 'Over $1,000', "I'm not paying for coverage right now"] },
+            { name: 'subsidy', label: 'Do you currently get a premium tax credit on the marketplace?', type: 'select', options: ['Yes', 'No', 'Not sure'] },
+            { name: 'income', label: 'Rough household income this year?', type: 'select', options: ['Under $60,000', '$60,000 to $120,000', '$120,000 to $250,000', 'Over $250,000', 'Prefer to discuss'] },
+            { name: 'priority', label: 'What matters most to you in this conversation?', type: 'select', options: ['Keeping my doctors', 'Lowering total cost', 'Understanding my options', 'Covering my family', 'Enrolling outside the window'] },
+            { name: 'notes', label: 'Anything you want us to know before we talk? (optional)', type: 'textarea', required: false },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- LEAD MAGNET PROMO -->
+  <section class="section" style="padding:34px 0 10px;">
+    <div class="container">
+      <a href="/free-guide/erisa" class="mg-promo spot reveal">
+        <img src="/assets/guides/cover-erisa.webp" alt="Cover of the free guide What Is An ERISA-Regulated Health Plan And Why Would I Want One" loading="lazy" width="150" height="194" />
+        <div>
+          <span class="section-label" style="margin-bottom:4px;">Free Guide</span>
+          <h3>Not ready to talk? Take the guide.</h3>
+          <p>What an ERISA-regulated health plan is, who it is built for, the household math worksheet, and the eight questions above. Emailed instantly, free.</p>
+          <span class="mg-promo-cta">Get the free PDF →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- READING LIBRARY -->
+  <section class="section lp-read">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">Not Ready To Talk Yet?</div>
+        <h2>Read your way in</h2>
+        <p style="color:var(--muted);max-width:600px;margin:8px auto 0;">Every guide and answer below was written for Realtors, 1099s, and the self-employed. Start anywhere.</p>
+      </div>
+      <ContentRail
+        cue="Read The Guide →"
+        items={clusterPosts.map((p) => ({
+          href: `/blog-post/${p.id}`,
+          img: BLOG_ART[p.id]?.webp,
+          alt: BLOG_ART[p.id]?.alt,
+          badge: p.data.funnelStage === 'TOFU' ? 'Start Here' : 'Go Deeper',
+          title: p.data.title,
+        }))}
+      />
+      <div class="section-head center" style="margin-top:54px;margin-bottom:0;">
+        <div class="section-label">Quick Answers</div>
+        <h2 style="margin-top:0;">The questions self-employed people actually ask</h2>
+      </div>
+      <ContentRail pills={clusterQa.map((q) => ({ href: `/qa/${q.id}`, label: q.data.question }))} />
+      <p style="text-align:center;margin-top:30px;"><a href="/qa" class="btn ghost no-arrow">Browse The Full Q&amp;A Library</a></p>
+    </div>
+  </section>
+
+  <FloatingMagnet
+    href="/free-guide/erisa"
+    cover="/assets/guides/cover-erisa.webp"
+    label="Free Guide"
+    title="What Is An ERISA Health Plan?"
+  />
+</Base>
+
+<style>
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .er-hero { position: relative; overflow: hidden; color: #fff; padding: 88px 0 104px; background: #061a3a; isolation: isolate; }
+  .er-photo { position: absolute; inset: 0; z-index: 0; }
+  .er-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.55; transform: scale(1.06); animation: erKen 26s ease-in-out infinite alternate; }
+  .er-duo { position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(6,22,46,0.97) 0%, rgba(8,30,64,0.88) 40%, rgba(15,53,103,0.35) 100%); }
+  .er-aurora { position: absolute; inset: -30%; z-index: 1; background: conic-gradient(from 120deg at 70% 25%, transparent, rgba(25,200,255,0.16), transparent 30%, rgba(245,185,66,0.10) 45%, transparent 60%, rgba(25,123,255,0.14), transparent); filter: blur(70px); animation: erAur 22s linear infinite; pointer-events: none; }
+  .er-orbs { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .er-orbs i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #19c8ff; box-shadow: 0 0 18px 4px rgba(25,200,255,0.55); opacity: 0.8; animation: erFloat 14s ease-in-out infinite; }
+  .er-orbs i:nth-child(1) { left: 12%; top: 30%; animation-duration: 15s; }
+  .er-orbs i:nth-child(2) { left: 28%; top: 72%; width: 6px; height: 6px; animation-duration: 19s; animation-delay: -4s; }
+  .er-orbs i:nth-child(3) { left: 58%; top: 22%; width: 14px; height: 14px; background: #f5b942; box-shadow: 0 0 22px 6px rgba(245,185,66,0.45); animation-duration: 17s; animation-delay: -8s; }
+  .er-orbs i:nth-child(4) { left: 74%; top: 64%; animation-duration: 21s; animation-delay: -2s; }
+  .er-orbs i:nth-child(5) { left: 88%; top: 36%; width: 7px; height: 7px; animation-duration: 13s; animation-delay: -6s; }
+  .er-orbs i:nth-child(6) { left: 44%; top: 84%; width: 5px; height: 5px; animation-duration: 23s; animation-delay: -11s; }
+  .er-hero-in { position: relative; z-index: 2; }
+  .er-crumbs { font-size: 0.82rem; color: #9fbbdc; margin-bottom: 22px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .er-crumbs a { color: #bfd6f3; text-decoration: none; }
+  .er-crumbs a:hover { color: #fff; }
+  .er-crumbs span[aria-current] { color: #fff; font-weight: 700; }
+  .er-h1 { color: #fff; font-family: var(--font-display); font-size: clamp(2.4rem, 5.4vw, 4.2rem); line-height: 1.04; letter-spacing: var(--track-display, -0.02em); max-width: 880px; }
+  .er-sub { display: inline-block; margin-top: 10px; font-size: 0.62em; font-weight: 700; color: #cfe2f7; letter-spacing: -0.01em; }
+  .er-grad { background: linear-gradient(92deg, #8ec9ff, #19c8ff 35%, #f5d58a 60%, #19c8ff 85%, #8ec9ff); background-size: 240% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: erShimmer 6s linear infinite; }
+  .er-lead { color: #d9e6f7; font-size: 1.14rem; max-width: 680px; margin: 24px 0 30px; }
+  .er-lead b { color: #fff; }
+  .er-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* ── Mechanism ────────────────────────────────────────────────────────── */
+  .er-split { display: grid; grid-template-columns: 1fr 1fr; gap: 46px; align-items: center; }
+  .er-split.rev > figure { order: 2; }
+  .er-art { margin: 0; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(6,20,44,0.28); background: #061a3a; position: relative; }
+  .er-art img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .er-art:hover img { transform: scale(1.03); }
+  .er-art figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px; font-size: 0.86rem; color: #e3eefb; background: linear-gradient(180deg, transparent, rgba(6,22,46,0.85)); }
+  .er-layers { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 14px; }
+  .er-layers li { display: grid; grid-template-columns: 56px 1fr; gap: 14px; padding: 18px 20px; border-radius: 18px; background: #fff; border: 1.5px solid var(--line); box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+  .er-layers li::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--blue), #19c8ff); }
+  .er-layers .n { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; background: linear-gradient(120deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; padding-top: 4px; }
+  .er-layers h3 { font-size: 1.08rem; margin-bottom: 6px; }
+  .er-layers p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+
+  /* ── Why / why not ────────────────────────────────────────────────────── */
+  .er-two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; }
+  .er-col { background: #fff; border: 1.5px solid var(--line); border-radius: 22px; padding: 26px 26px 18px; box-shadow: var(--shadow-sm); }
+  .er-colh { display: inline-flex; align-items: center; gap: 10px; font-size: 1.1rem; margin-bottom: 14px; padding: 8px 16px; border-radius: 999px; }
+  .er-colh::before { content: ""; width: 9px; height: 9px; border-radius: 50%; }
+  .er-colh.yes { background: rgba(25,123,255,0.08); color: var(--navy); }
+  .er-colh.yes::before { background: #19c8ff; box-shadow: 0 0 10px #19c8ff; }
+  .er-colh.no { background: rgba(245,185,66,0.14); color: #7a4d00; }
+  .er-colh.no::before { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .er-list { list-style: none; margin: 0; padding: 0; }
+  .er-list li { padding: 12px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.97rem; }
+  .er-list li:first-child { border-top: none; }
+  .er-list b { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  /* ── States ───────────────────────────────────────────────────────────── */
+  .er-states { background: linear-gradient(180deg, #fff 0%, var(--bg-soft) 100%); }
+  .er-tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .er-tab { display: inline-flex; align-items: center; gap: 10px; padding: 11px 20px 11px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; font-family: var(--font); font-weight: 800; font-size: 0.95rem; color: var(--navy); cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; touch-action: manipulation; }
+  .er-tab:hover { border-color: rgba(25,123,255,0.5); transform: translateY(-1px); }
+  .er-tab:active { transform: scale(0.97); }
+  .er-tab:focus-visible { outline: 3px solid rgba(25,123,255,0.5); outline-offset: 2px; }
+  .er-tab.act { border-color: transparent; background: linear-gradient(#fff, #fff) padding-box, linear-gradient(120deg, var(--blue), #19c8ff, var(--gold)) border-box; box-shadow: 0 10px 26px rgba(25,123,255,0.18); }
+  .er-tab-code { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 0.78rem; letter-spacing: 0.05em; background: linear-gradient(120deg, var(--navy), var(--navy-2)); color: #fff; }
+  .er-tab.act .er-tab-code { background: linear-gradient(120deg, var(--blue), #19c8ff); }
+  .er-states-art { margin: 0 0 30px; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(6,20,44,0.22); background: #061a3a; }
+  .er-states-art img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 6; object-fit: cover; }
+  .er-panel { animation: erIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .er-panel[hidden] { display: none; }
+  .er-panel-grid { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 36px; align-items: start; }
+  .er-panel h3 { font-size: clamp(1.3rem, 2.2vw, 1.7rem); margin-bottom: 14px; }
+  .er-facts { position: sticky; top: 96px; background: linear-gradient(160deg, var(--navy) 0%, #0b2a57 60%, #0a2450 100%); color: #d7e5f7; border-radius: 22px; padding: 26px; box-shadow: 0 20px 50px rgba(6,20,44,0.3); }
+  .er-facts h4 { color: #fff; font-size: 1.05rem; margin-bottom: 14px; }
+  .er-facts dl { margin: 0; }
+  .er-facts dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: #8ec9ff; font-weight: 800; margin-top: 14px; }
+  .er-facts dd { margin: 4px 0 0; font-size: 0.93rem; line-height: 1.55; }
+  .er-facts dd a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); }
+  .er-facts .btn { margin-top: 20px; width: 100%; justify-content: center; }
+
+  /* ── Questions ────────────────────────────────────────────────────────── */
+  .er-q { counter-reset: q; list-style: none; margin: 18px 0; padding: 0; display: grid; gap: 10px; }
+  .er-q li { counter-increment: q; position: relative; padding: 14px 16px 14px 58px; border-radius: 16px; background: #fff; border: 1.5px solid var(--line); color: var(--muted); font-size: 0.97rem; }
+  .er-q li::before { content: counter(q, decimal-leading-zero); position: absolute; left: 16px; top: 12px; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; background: linear-gradient(120deg, var(--blue), #19c8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .er-q b { color: var(--ink); }
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  @keyframes erKen { from { transform: scale(1.06) translate(0, 0); } to { transform: scale(1.12) translate(-1.5%, 1%); } }
+  @keyframes erAur { to { transform: rotate(360deg); } }
+  @keyframes erShimmer { to { background-position: 240% 0; } }
+  @keyframes erFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(14px, -26px); } }
+  @keyframes erIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .er-photo img, .er-aurora, .er-orbs i, .er-grad, .er-panel { animation: none; }
+    .er-art img { transition: none; }
+  }
+  @media (forced-colors: active), print {
+    .er-grad, .er-layers .n, .er-q li::before { -webkit-text-fill-color: currentColor; color: inherit; background: none; }
+  }
+
+  /* ── Responsive ───────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .er-split, .er-split.rev { grid-template-columns: 1fr; }
+    .er-split.rev > figure { order: 0; }
+    .er-two { grid-template-columns: 1fr; }
+    .er-panel-grid { grid-template-columns: 1fr; }
+    .er-facts { position: static; }
+  }
+  @media (max-width: 560px) {
+    .er-hero { padding: 64px 0 76px; }
+    .er-layers li { grid-template-columns: 1fr; gap: 6px; }
+    .er-states-art img { aspect-ratio: 16 / 9; }
+    .er-tab { padding: 9px 14px 9px 9px; font-size: 0.88rem; }
+  }
+</style>
+
+<script>
+  // State switcher. All three panels are in the HTML; this only toggles
+  // visibility, so a crawler or a reader without JS sees every state.
+  // Also pre-selects the state on the form when the panel CTA is used.
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.er-tab'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.er-panel'));
+  function show(code: string, focus = false) {
+    tabs.forEach((t) => {
+      const on = t.dataset.state === code;
+      t.classList.toggle('act', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    panels.forEach((p) => {
+      const on = p.dataset.state === code;
+      p.hidden = !on;
+      p.classList.toggle('act', on);
+    });
+    try { history.replaceState(null, '', `#${code}`); } catch {}
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => show(t.dataset.state!));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const next = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      show(tabs[next].dataset.state!, true);
+    });
+  });
+  const fromHash = location.hash.replace('#', '');
+  if (['nv', 'az', 'ut'].includes(fromHash)) show(fromHash);
+
+  // Guess the state from the visitor's timezone on first paint. Mountain time
+  // without DST is Arizona; Mountain with DST is Utah; Pacific stays Nevada.
+  // Only a guess, the tabs remain one tap away.
+  if (!['nv', 'az', 'ut'].includes(fromHash)) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (tz === 'America/Phoenix') show('az');
+      else if (tz === 'America/Denver' || tz === 'America/Boise') show('ut');
+    } catch {}
+  }
+
+  // Panel CTA: pre-select the state answer on the form. Only the `sel` class
+  // is set (never a synthetic click), because LeadForm's option click
+  // advances whichever step is CURRENT, which would validate step one
+  // instead. The visitor reaches the state step with it already marked and
+  // presses OK, and validate() reads the marked option at that moment.
+  document.querySelectorAll<HTMLAnchorElement>('[data-prefill-state]').forEach((a) => {
+    a.addEventListener('click', () => {
+      const want = a.dataset.prefillState;
+      const opts = Array.from(document.querySelectorAll<HTMLButtonElement>('#form-erisa .tf-step[data-name="state"] .tf-option'));
+      opts.forEach((b) => b.classList.toggle('sel', b.dataset.value === want));
+    });
+  });
+</script>

@@ -1,0 +1,70 @@
+---
+// Lead magnet squeeze page, ERISA campaign (Realtors / 1099s / self-employed,
+// NV / AZ / UT). Mirrors free-guide/self-employed.astro. The PDF itself is
+// delivered by /api/lead-magnet (magnet id 'erisa-guide').
+import Base from '../../layouts/Base.astro';
+import MagnetForm from '../../components/MagnetForm.astro';
+import { SITE, breadcrumbSchema, speakableSchema } from '../../lib/site';
+
+const pageUrl = `${SITE.domain}/free-guide/erisa`;
+const description =
+  "Free PDF: What's An ERISA-Regulated Health Plan, And Why Would I Want One? Plain English for Realtors, 1099s and the self-employed in Nevada, Arizona and Utah, with the household math worksheet and the eight questions to ask before you sign.";
+const schemas = [
+  { '@context': 'https://schema.org', '@type': 'WebPage', '@id': pageUrl, name: "What's An ERISA-Regulated Health Plan, And Why Would I Want One? (Free PDF)", description, url: pageUrl },
+  speakableSchema(pageUrl),
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.domain}/` },
+    { name: 'ERISA Health Plans', url: `${SITE.domain}/self-employed/erisa` },
+    { name: 'Free Guide', url: pageUrl },
+  ]),
+];
+---
+<Base title="Free Guide: What Is An ERISA-Regulated Health Plan? | ProtectHealth" description={description} ogImage={`${SITE.domain}/assets/og-erisa.webp`} schemas={schemas}>
+  <section class="hero mg-hero">
+    <div class="container mg-grid">
+      <div>
+        <div class="kicker">Free Guide · Instant Email Delivery · NV · AZ · UT</div>
+        <h1>What's an ERISA-regulated health plan, and why would I want one?</h1>
+        <p class="lead" style="color:#cfe2f7;max-width:540px;">The phrase gets thrown around like a brand name. It is not. This guide explains what it actually means, who these plans are built for, who should stay on the marketplace, and the eight questions that keep a self-employed person from being sold.</p>
+        <div class="mg-formcard">
+          <p class="mg-formhead">Where should we send your copy?</p>
+          <MagnetForm magnet="erisa-guide" buttonLabel="Email Me The Free Guide" />
+        </div>
+      </div>
+      <div class="mg-coverwrap">
+        <img class="mg-cover" src="/assets/guides/cover-erisa.webp" alt="Cover of the free guide What's An ERISA-Regulated Health Plan, And Why Would I Want One" width="380" height="492" />
+        <span class="mg-badge">FREE PDF</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head center">
+        <div class="section-label">What's Inside</div>
+        <h2 style="margin-top:0;">15 minutes of reading. One fewer way to get sold.</h2>
+      </div>
+      <div id="ai-summary" class="grid cols-3 mg-inside">
+        <div class="icon-card spot"><h3>The three layers</h3><p>The federal law, the structure that lets a self-employed person join a group plan, and the plan underneath. Which layer each promise lives in, and which one to question hardest.</p></div>
+        <div class="icon-card spot"><h3>Switch or stay</h3><p>Four reasons people leave the marketplace for one of these plans and four reasons they should not. Both lists are true. The guide helps you find out which one is yours.</p></div>
+        <div class="icon-card spot"><h3>The household worksheet</h3><p>One page. Your current premium, your premium tax credit if you have one, your household size, and the number an ERISA plan has to beat. Done before anyone shows you a quote.</p></div>
+        <div class="icon-card spot"><h3>Pre-existing conditions, plainly</h3><p>What the marketplace guarantees, what some private group plans ask first, and the exact wording to request in writing before you leave guaranteed coverage.</p></div>
+        <div class="icon-card spot"><h3>Three states, three rulebooks</h3><p>Nevada Health Link versus HealthCare.gov, the different enrollment windows, and how to verify any broker on your state insurance department site in under a minute.</p></div>
+        <div class="icon-card spot"><h3>Eight questions as armor</h3><p>Plan sponsor, funding, stop-loss, the Summary Plan Description, health questions, network, regulator, claims. A plan that is what it claims to be answers all eight without flinching.</p></div>
+      </div>
+      <p style="text-align:center;color:var(--muted);max-width:620px;margin:30px auto 0;font-size:0.95rem;">Written by ProtectHealth, the Las Vegas brokerage rated <b style="color:var(--navy);">4.9 from {SITE.reviews.count}+ Google reviews</b>, on one rule: the product should serve the strategy, not become the strategy. No carrier names inside the PDF. No pitch. The education is the point.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .mg-hero { padding: 72px 0 84px; }
+  .mg-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 50px; align-items: center; }
+  .mg-formcard { margin-top: 26px; background: rgba(255, 255, 255, 0.97); border-radius: 20px; padding: 24px 26px; box-shadow: 0 24px 60px rgba(3, 12, 28, 0.4); }
+  .mg-formhead { font-weight: 800; color: var(--navy); margin-bottom: 12px; }
+  .mg-coverwrap { position: relative; justify-self: center; }
+  .mg-cover { width: min(380px, 100%); height: auto; border-radius: 14px; box-shadow: 0 40px 90px rgba(3, 12, 28, 0.6); transform: rotate(-3deg); }
+  .mg-badge { position: absolute; top: -14px; right: -10px; background: var(--gold); color: var(--navy); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; padding: 8px 14px; border-radius: 999px; box-shadow: 0 10px 24px rgba(245, 185, 66, 0.4); }
+  .mg-inside h3 { font-size: 1.05rem; }
+  @media (max-width: 860px) { .mg-grid { grid-template-columns: 1fr; } .mg-coverwrap { order: -1; } .mg-cover { width: min(260px, 70%); } }
+</style>

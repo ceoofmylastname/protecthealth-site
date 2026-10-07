@@ -67,10 +67,16 @@ const CF = {
   employees:   'lecOVPOTtfw5PLObZjYQ', // Website Intake: Employee Count
   friction:    '5P4t9QZM7l2nVSf2N1m6', // Website Intake: Biggest Friction
   payroll:     'ioUxcZEZUtWdOrNcGN7z', // Website Intake: Payroll Provider
+  tipped:      'EvN2CQueiURDK8a8CEzg', // Website Intake: Tipped Staff
   sourceForm:  '2u611YcsKF5hCczUvpMw', // Website Intake: Source Form
   page:        'gz9zZmpnqjpJYm6ig9nU', // Website Intake: Landing Page
   appointment: 'TkMZgKyFxOvXOpJZ0Jji', // Website Intake: Appointment Time
   magnet:      'ES17xjYL7S5hOepLnXGj', // Website Intake: Lead Magnet
+  // Added 2026-10-07 for the ERISA landing page (/self-employed/erisa).
+  state:       'ixp4P5ENAndNyuCR03Gh', // Website Intake: State
+  premium:     'W1axTd4IzunQdmsKzRJl', // Website Intake: Current Premium
+  subsidy:     'jIstlWX8N0wAg1WgaqSh', // Website Intake: Premium Tax Credit
+  income:      'rbfyjyJ2NpwT6rXPh2iv', // Website Intake: Household Income Range
 };
 
 // Every form asks "which best describes you" under a different key: the ICHRA
@@ -96,10 +102,15 @@ function intakeFields(data, extra = {}) {
     [CF.employees, merged.employees],
     [CF.friction, merged.friction],
     [CF.payroll, merged.payroll],
+    [CF.tipped, merged.tipped],
     [CF.sourceForm, merged.sourceForm],
     [CF.page, merged.page],
     [CF.appointment, merged.appointmentTime],
     [CF.magnet, merged.magnet],
+    [CF.state, merged.state],
+    [CF.premium, merged.premium],
+    [CF.subsidy, merged.subsidy],
+    [CF.income, merged.income],
   ]
     .filter(([, value]) => clean(value) !== '')
     .map(([id, value]) => ({ id, field_value: clean(value) }));
